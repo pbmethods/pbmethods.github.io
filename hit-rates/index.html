@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>High-performer hit rates</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>High-performer hit rates</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/hit-rates/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>hit_rates_chart.py</code></h3>
+<pre><code class="language-text">Hit rates: how many tries the median and the best need per hit, and how many hits each racks up in a career.
+
+A hit is a paper in the top 1% most cited for its field and year (OpenAlex citation_normalized_percentile), or a
+patent in the top 1% of its filing year by Kelly, Papanikolaou, Seru &amp; Taddy's (2021) text-based importance score.
+Scientists: openalex_hit_tiers.py, 100 random OpenAlex authors (5+ works) per career-citation tier, 2026-10-30.
+Erdős: OpenAlex authors A5077107126 + A5035271865. Math base rate: all OpenAlex math-field works 1950–96.
+Edison: his 1,084 utility patents (edison_patents.json, from Wikipedia's list) matched to the KPST scores in
+  notebooks/us_public_data/kpst_patents/ (1,081 scored); patent base rate: all patents issued 1869–1933.
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/high_performers/hit_rates_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Talent or Outliers/ and the original to
+Unwatermarked graphs/Talent or Outliers/:
+  high_performers_hit_rates.png
+</code></pre>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>hit_rates_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Hit rates: how many tries the median and the best need per hit, and how many hits each racks up in a career.
+
+A hit is a paper in the top 1% most cited for its field and year (OpenAlex citation_normalized_percentile), or a
+patent in the top 1% of its filing year by Kelly, Papanikolaou, Seru &amp; Taddy's (2021) text-based importance score.
+Scientists: openalex_hit_tiers.py, 100 random OpenAlex authors (5+ works) per career-citation tier, 2026-10-30.
+Erdős: OpenAlex authors A5077107126 + A5035271865. Math base rate: all OpenAlex math-field works 1950–96.
+Edison: his 1,084 utility patents (edison_patents.json, from Wikipedia's list) matched to the KPST scores in
+  notebooks/us_public_data/kpst_patents/ (1,081 scored); patent base rate: all patents issued 1869–1933.
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/high_performers/hit_rates_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Talent or Outliers/ and the original to
+Unwatermarked graphs/Talent or Outliers/:
+  high_performers_hit_rates.png
+&quot;&quot;&quot;
+import math
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = &quot;Talent or Outliers&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED, GRID, SURFACE = pb.INK, pb.INK2, pb.MUTED, pb.GRID, pb.SURFACE
+
+# (section, label, note, tries in a career, hits among sampled tries, sampled tries, color)
+ROWS = [
+    (&quot;Scientists, by career citations&quot;, &quot;Median&quot;, &quot;8 papers&quot;, 8, 3, 1164, pb.NAVY),
+    (None, &quot;Top 10%&quot;, &quot;36 papers&quot;, 36, 146, 4491, pb.GRAYS[0]),
+    (None, &quot;Top 1%&quot;, &quot;195 papers&quot;, 195, 1103, 20759, pb.GRAYS[1]),
+    (None, &quot;Top 0.1%&quot;, &quot;464 papers&quot;, 464, 4417, 49693, pb.GRAYS[2]),
+    (&quot;Mathematicians&quot;, &quot;Median&quot;, &quot;2 papers&quot;, 2, 19714, 1477604, pb.NAVY),
+    (None, &quot;Paul Erdős&quot;, &quot;1,226 papers&quot;, 1226, 10, 1226, pb.GRAYS[2]),
+    (&quot;Inventors&quot;, &quot;Median&quot;, &quot;1 patent&quot;, 1, 978, 100000, pb.NAVY),
+    (None, &quot;Thomas Edison&quot;, &quot;1,081 patents&quot;, 1081, 160, 1081, pb.GRAYS[2]),
+]
+
+
+def fmt(v):
+    if v &gt;= 100:
+        return f&quot;{v:,.0f}&quot;
+    if v &gt;= 10:
+        return f&quot;{v:.0f}&quot;
+    if v &gt;= 1:
+        return f&quot;{v:.1f}&quot;
+    return f&quot;{v:.2f}&quot;
+
+
+def chart():
+    fig = plt.figure(figsize=(13, 7.6), dpi=200)
+    left = fig.add_axes([0.25, 0.17, 0.33, 0.63])
+    right = fig.add_axes([0.63, 0.17, 0.33, 0.63], sharey=left)
+
+    ys, y = [], 0
+    for sec, *_ in ROWS:
+        if sec and ys:
+            y -= 0.7
+        ys.append(y)
+        y -= 1
+
+    for ax, lo, hi in ((left, 1, 3000), (right, 0.003, 1000)):
+        ax.set_xscale(&quot;log&quot;)
+        ax.set_xlim(lo, hi)
+        ax.grid(False)
+        for exp in range(math.floor(math.log10(lo)), math.ceil(math.log10(hi)) + 1):
+            ax.axvline(10 ** exp, color=GRID, lw=0.8, zorder=0)
+        ax.set_yticks([])
+        ax.xaxis.set_minor_locator(plt.NullLocator())
+        ax.tick_params(axis=&quot;x&quot;, labelsize=9.4, pad=6)
+        ax.set_ylim(ys[-1] - 0.6, 0.6)
+
+    for yy, (sec, label, note, tries, hits, n, color) in zip(ys, ROWS):
+        rate = hits / n
+        per_hit, career = 1 / rate, tries * rate
+        if sec:
+            left.text(-0.03, yy + 0.62, sec, transform=left.get_yaxis_transform(), ha=&quot;right&quot;, va=&quot;center&quot;,
+                      fontsize=10, color=INK2, fontweight=&quot;bold&quot;)
+        left.text(-0.03, yy + 0.08, label, transform=left.get_yaxis_transform(), ha=&quot;right&quot;, va=&quot;center&quot;,
+                  fontsize=11, color=INK)
+        left.text(-0.03, yy - 0.26, note, transform=left.get_yaxis_transform(), ha=&quot;right&quot;, va=&quot;center&quot;,
+                  fontsize=8.6, color=MUTED)
+        left.barh(yy, per_hit - 1, left=1, height=0.62, color=color, zorder=3)
+        left.text(per_hit * 1.12, yy, f&quot;{fmt(per_hit)}  ({rate:.1%} hit)&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=9.6,
+                  color=INK, fontweight=&quot;bold&quot;)
+        right.barh(yy, career - 0.003, left=0.003, height=0.62, color=color, zorder=3)
+        right.text(career * 1.15, yy, fmt(career), va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=9.6, color=INK,
+                   fontweight=&quot;bold&quot;)
+
+    left.set_xticks([1, 10, 100, 1000])
+    left.set_xticklabels([&quot;1&quot;, &quot;10&quot;, &quot;100&quot;, &quot;1,000&quot;])
+    right.set_xticks([0.01, 0.1, 1, 10, 100, 1000])
+    right.set_xticklabels([&quot;0.01&quot;, &quot;0.1&quot;, &quot;1&quot;, &quot;10&quot;, &quot;100&quot;, &quot;1,000&quot;])
+    left.set_title(&quot;A  Tries per hit&quot;, loc=&quot;left&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, pad=10)
+    right.set_title(&quot;B  Hits in a career&quot;, loc=&quot;left&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, pad=10)
+    left.set_xlabel(&quot;papers or patents per hit, log scale&quot;, fontsize=9.4, color=MUTED, labelpad=6)
+    right.set_xlabel(&quot;tries × hit rate, log scale&quot;, fontsize=9.4, color=MUTED, labelpad=6)
+
+    fig.text(0.04, 0.95, &quot;The best take far more shots, and most of them also hit more often&quot;,
+             ha=&quot;left&quot;, fontsize=17, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.04, 0.913,
+             &quot;A hit is a paper in the top 1% most cited for its field and year, or a patent in the top 1% of its &quot;
+             &quot;year by textual importance. Erdős is the\nexception: 600× the median mathematician's output at &quot;
+             &quot;a slightly lower hit rate, so all ten of his hits came from volume. Edison hit 15× as often.&quot;,
+             ha=&quot;left&quot;, va=&quot;top&quot;, fontsize=11, color=INK2, linespacing=1.4)
+
+    fig.text(0.04, 0.025,
+             &quot;Scientists: 100 random OpenAlex authors with 5+ works per career-citation tier (median 40–52 &quot;
+             &quot;citations, top 10% 1,050–1,250, top 1% 9,300–11,000, top 0.1% 35–45k), Oct 2026; paper counts are &quot;
+             &quot;the tier medians.\nTiers are picked on citations, so their hit rates rise partly by construction; &quot;
+             &quot;the median tier's rate rests on 3 hits in 1,164 papers. Mathematicians: median of 2 papers (Erdős &quot;
+             &quot;Number Project) at the hit rate of\nall OpenAlex math papers 1950–96 (1.3%); Erdős's 1,226 papers &quot;
+             &quot;with a percentile, 10 hits. Inventors: median of 1 patent at the rate of all US patents issued &quot;
+             &quot;1869–1933 (1.0%); Edison's 1,081 scored\nutility patents, 160 hits, from Kelly, Papanikolaou, Seru &quot;
+             &quot;&amp; Taddy (2021). Their score rewards similarity to later patents, which Edison's own follow-ups &quot;
+             &quot;may inflate.&quot;,
+             ha=&quot;left&quot;, va=&quot;bottom&quot;, fontsize=7.9, color=MUTED, linespacing=1.5)
+    return save(fig, &quot;high_performers_hit_rates.png&quot;)
+
+
+def save(fig, name):
+    raw = NOTES / &quot;Unwatermarked graphs&quot; / SUB / name
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(raw)
+    plt.close(fig)
+    wm = NOTES / SUB / (raw.stem + &quot;_wm.png&quot;)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)],
+                   check=True)
+    print(&quot;wrote&quot;, raw, &quot;and&quot;, wm)
+    return wm
+
+
+if __name__ == &quot;__main__&quot;:
+    chart()
+</code></pre>
+</main></body></html>
