@@ -14,6 +14,8 @@
 
 ![chart 6](chart6.png)
 
+![chart 7](chart7.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/who-reads/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
