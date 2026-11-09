@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ideal vs. actual birth control: perfect-use vs. typical-use failure rates</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Ideal vs. actual birth control: perfect-use vs. typical-use failure rates</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/birth-control/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>birth_control_typical_vs_perfect.py</code></h3>
+<pre><code class="language-text">Typical vs perfect use first-year pregnancy rates, by method: how much worse the median user is than a perfect one.
+
+Run:  uv run --with matplotlib,pillow,fonttools python &quot;~/Desktop/Recent Projects/Substack Notes/Sex/birth_control_typical_vs_perfect.py&quot;
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Health and weight/ and the original to
+Substack Notes/Unwatermarked graphs/Health and weight/.
+
+Data (hard-coded below), % of women with an unintended pregnancy in the first year of use:
+  Perfect use, the LARC rows (copper IUD, hormonal IUD, implant) and no method (85%): Trussell J. (2011),
+    &quot;Contraceptive failure in the United States&quot;, Contraception 83(5):397-404, Table 1.
+  Typical use for withdrawal (20%), condom (13%) and pill (7%): Sundaram A. et al. (2017), &quot;Contraceptive failure
+    in the United States: estimates from the 2006-2010 National Survey of Family Growth&quot;, Perspectives on Sexual
+    and Reproductive Health 49(1):7-16.
+  Mixing the two sources is deliberate: Sundaram is the newer, NSFG-based typical-use estimate; Trussell remains
+    the standard source for perfect use, which surveys can't measure.
+
+The &quot;Nx worse&quot; label compares per-act exposure, not the raw percentages: if a first-year failure rate is p, the
+effective number of unprotected-equivalent acts scales with -ln(1 - p), so the label is
+ln(1 - typical) / ln(1 - perfect). For small rates this is close to typical / perfect. Rows with a ratio
+under 1.15 are labelled &quot;typical = perfect&quot; (the LARCs, where there is no user to get it wrong).
+</code></pre>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>birth_control_typical_vs_perfect.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Typical vs perfect use first-year pregnancy rates, by method: how much worse the median user is than a perfect one.
+
+Run:  uv run --with matplotlib,pillow,fonttools python &quot;~/Desktop/Recent Projects/Substack Notes/Sex/birth_control_typical_vs_perfect.py&quot;
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Health and weight/ and the original to
+Substack Notes/Unwatermarked graphs/Health and weight/.
+
+Data (hard-coded below), % of women with an unintended pregnancy in the first year of use:
+  Perfect use, the LARC rows (copper IUD, hormonal IUD, implant) and no method (85%): Trussell J. (2011),
+    &quot;Contraceptive failure in the United States&quot;, Contraception 83(5):397-404, Table 1.
+  Typical use for withdrawal (20%), condom (13%) and pill (7%): Sundaram A. et al. (2017), &quot;Contraceptive failure
+    in the United States: estimates from the 2006-2010 National Survey of Family Growth&quot;, Perspectives on Sexual
+    and Reproductive Health 49(1):7-16.
+  Mixing the two sources is deliberate: Sundaram is the newer, NSFG-based typical-use estimate; Trussell remains
+    the standard source for perfect use, which surveys can't measure.
+
+The &quot;Nx worse&quot; label compares per-act exposure, not the raw percentages: if a first-year failure rate is p, the
+effective number of unprotected-equivalent acts scales with -ln(1 - p), so the label is
+ln(1 - typical) / ln(1 - perfect). For small rates this is close to typical / perfect. Rows with a ratio
+under 1.15 are labelled &quot;typical = perfect&quot; (the LARCs, where there is no user to get it wrong).
+&quot;&quot;&quot;
+import math
+import subprocess
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FixedLocator, NullLocator
+
+import sys  # noqa: E402
+
+NOTES = Path.home() / &quot;Desktop/Recent Projects/Substack Notes&quot;
+OUT = NOTES / &quot;Unwatermarked graphs&quot; / &quot;Health and weight&quot; / &quot;birth_control_typical_vs_perfect.png&quot;
+
+# (method, typical %, perfect %). Perfect use and LARC rows: Trussell 2011.
+# Typical use for withdrawal/condom/pill: NSFG-based Sundaram et al. 2017.
+DATA = [(&quot;Withdrawal&quot;, 20, 4), (&quot;Condom&quot;, 13, 2), (&quot;Pill&quot;, 7, 0.3),
+        (&quot;Copper IUD&quot;, 0.8, 0.6), (&quot;Hormonal IUD&quot;, 0.2, 0.2), (&quot;Implant&quot;, 0.05, 0.05)]
+
+SURFACE, INK, INK2, MUTED, GRID = &quot;#fcfcfb&quot;, &quot;#0b0b0b&quot;, &quot;#52514e&quot;, &quot;#8a8984&quot;, &quot;#e6e5e1&quot;
+PERFECT, TYPICAL = &quot;#2a78d6&quot;, &quot;#eb6834&quot;
+
+plt.rcParams.update({&quot;font.family&quot;: &quot;Avenir Next&quot;, &quot;font.size&quot;: 12})
+fig, ax = plt.subplots(figsize=(10, 6.2), dpi=200)
+fig.patch.set_facecolor(SURFACE)
+ax.set_facecolor(SURFACE)
+
+ys = list(range(len(DATA)))[::-1]
+for y, (name, typ, perf) in zip(ys, DATA):
+    ax.plot([perf, typ], [y, y], color=GRID, lw=6, solid_capstyle=&quot;round&quot;, zorder=1)
+    ax.scatter([typ], [y], s=110, color=TYPICAL, edgecolor=SURFACE, lw=2, zorder=3)
+    # Perfect drawn on top, smaller, so it stays visible when the two coincide
+    ax.scatter([perf], [y], s=110 if typ != perf else 45, color=PERFECT, edgecolor=SURFACE,
+               lw=2 if typ != perf else 0, zorder=4)
+    # Ratio of per-act effective exposure, -ln(1-typ) / -ln(1-perf): how many more
+    # acts' worth of unprotected sex the median user racks up than a perfect one
+    ratio = math.log(1 - typ / 100) / math.log(1 - perf / 100)
+    tag = f&quot;{ratio:.0f}x worse&quot; if ratio &gt;= 1.5 else (&quot;typical = perfect&quot; if ratio &lt; 1.15 else f&quot;{ratio:.1f}x&quot;)
+    bold = ratio &gt;= 1.5
+    ax.text(max(typ, perf) * 1.45, y, tag, va=&quot;center&quot;, ha=&quot;left&quot;, color=INK if bold else MUTED,
+            fontsize=13 if bold else 11, fontweight=&quot;demibold&quot; if bold else &quot;regular&quot;)
+
+# Direct labels on the top row so identity isn't legend-only
+ax.text(4, ys[0] + 0.38, &quot;perfect use&quot;, color=INK2, ha=&quot;center&quot;, fontsize=10.5)
+ax.text(20, ys[0] + 0.38, &quot;typical use&quot;, color=INK2, ha=&quot;center&quot;, fontsize=10.5)
+
+ax.axvline(85, color=MUTED, lw=1, ls=(0, (3, 3)), zorder=0)
+ax.text(78, -0.75, &quot;no method: 85%&quot;, color=MUTED, ha=&quot;right&quot;, fontsize=10)
+
+ax.set_xscale(&quot;log&quot;)
+ax.set_xlim(0.03, 200)
+ticks = [0.05, 0.1, 0.3, 1, 3, 10, 30, 100]
+ax.xaxis.set_major_locator(FixedLocator(ticks))
+ax.xaxis.set_minor_locator(NullLocator())
+ax.set_xticklabels([f&quot;{t:g}%&quot; for t in ticks], color=INK2, fontsize=10.5)
+ax.set_yticks(ys)
+ax.set_yticklabels([d[0] for d in DATA], color=INK, fontsize=12.5)
+ax.set_ylim(-1.0, len(DATA) - 0.35)
+ax.tick_params(length=0)
+ax.grid(axis=&quot;x&quot;, color=GRID, lw=0.8, zorder=0)
+for s in ax.spines.values():
+    s.set_visible(False)
+
+fig.text(0.03, 0.955, &quot;The median person is 7–24x worse at birth control than a perfect user&quot;,
+         fontsize=16.5, fontweight=&quot;demibold&quot;, color=INK, ha=&quot;left&quot;)
+fig.text(0.03, 0.915, &quot;Chance of pregnancy in the first year, typical vs. perfect use (log scale). &quot;
+         &quot;Remove the human and the gap vanishes.&quot;, fontsize=11.5, color=INK2, ha=&quot;left&quot;)
+fig.text(0.03, 0.025, &quot;Source: Trussell, Contraception 2011 (perfect use, LARC, no-method); &quot;
+         &quot;Sundaram et al. 2017, NSFG 2006–10 (typical use, user-dependent methods).&quot;,
+         fontsize=9, color=MUTED, ha=&quot;left&quot;)
+
+fig.subplots_adjust(left=0.15, right=0.97, top=0.87, bottom=0.11)
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, facecolor=SURFACE)
+
+wm = NOTES / &quot;Health and weight&quot; / (OUT.stem + &quot;_wm.png&quot;)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark/watermark.py&quot;), &quot;7&quot;, str(OUT), str(wm)], check=True)
+print(OUT, wm)
+</code></pre>
+</main></body></html>
