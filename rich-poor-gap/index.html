@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How different are rich and regular people&#x27;s political opinions?</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>How different are rich and regular people's political opinions?</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/rich-poor-gap/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>ces_to_parquet.py</code></h3>
+<pre><code class="language-text">Cooperative Election Study (CES/CCES) common content, 2006-2025, to parquet: a base for opinion-by-income work.
+
+Run:  uv run --with polars,pyarrow,pandas,pyreadstat,requests python notebooks/ces_to_parquet.py [years...]
+
+Outputs (under notebooks/us_public_data/ces/):
+  yearly/year=&lt;y&gt;/part-0.parquet   every column of that year's common content file, as published
+  cumulative.parquet               Kuriwaki's cumulative common content (harmonized demographics, 2006-2025)
+  policy_prefs.parquet             Dagonel's cumulative policy preferences (54 harmonized issue items, 2006-2021)
+  guides/                          each year's codebook PDF
+Each wave has its own columns (and a column's type can differ by year), so read one year at a time:
+  pl.read_parquet(&quot;.../yearly/year=2024/part-0.parquet&quot;)
+Join cumulative/policy_prefs to each other on (year, case_id); case_id is the yearly file's caseid/V101.
+
+Yearly column names change every wave (CC24_323a, CC22_330a...), so issue items are harmonized in the
+analysis scripts, not here. Values are the numeric response codes; labels live in the guides. A column
+becomes Int64 or Float64 only if every non-null value parses; zip/FIPS/district codes stay strings.
+The cumulative file tops income at 150k+; the yearly files' faminc_new (2011+) runs to 500k+.
+Raw downloads are deleted once a year is converted.
+Dataverse answers python-requests with 403 (curl is fine), so fetch a year's data file by hand into
+raw/&lt;year&gt;.&lt;csv|tab|dta|sav&gt;, e.g.  curl -L -o raw/2024.csv https://dataverse.harvard.edu/api/access/datafile/&lt;id&gt;
+and rerun; a raw file already there is converted without touching the API.
+</code></pre>
+<h3><code>ces_income_gaps.py</code></h3>
+<pre><code class="language-text">Rich vs poor on policy: how far apart are income groups, next to the gaps by party, degree, church and age?
+
+Data: CES common content 2022 and 2024 (us_public_data/ces/yearly, built by ces_to_parquet.py), weighted by
+commonweight. Household income bands from faminc_new: under $30k (about the bottom fifth), $60-100k (the
+middle), $150-250k, $250-500k, $500k+ (roughly the top 1-2%). &quot;Prefer not to say&quot; is dropped.
+Every item is a support/oppose proposal (1 = support, 2 = oppose); shares are % support among those answering.
+Run:  uv run --with polars,pyarrow,matplotlib,pillow,fonttools python notebooks/rich_poor_opinion/ces_income_gaps.py
+</code></pre>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>ces_to_parquet.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Cooperative Election Study (CES/CCES) common content, 2006-2025, to parquet: a base for opinion-by-income work.
+
+Run:  uv run --with polars,pyarrow,pandas,pyreadstat,requests python notebooks/ces_to_parquet.py [years...]
+
+Outputs (under notebooks/us_public_data/ces/):
+  yearly/year=&lt;y&gt;/part-0.parquet   every column of that year's common content file, as published
+  cumulative.parquet               Kuriwaki's cumulative common content (harmonized demographics, 2006-2025)
+  policy_prefs.parquet             Dagonel's cumulative policy preferences (54 harmonized issue items, 2006-2021)
+  guides/                          each year's codebook PDF
+Each wave has its own columns (and a column's type can differ by year), so read one year at a time:
+  pl.read_parquet(&quot;.../yearly/year=2024/part-0.parquet&quot;)
+Join cumulative/policy_prefs to each other on (year, case_id); case_id is the yearly file's caseid/V101.
+
+Yearly column names change every wave (CC24_323a, CC22_330a...), so issue items are harmonized in the
+analysis scripts, not here. Values are the numeric response codes; labels live in the guides. A column
+becomes Int64 or Float64 only if every non-null value parses; zip/FIPS/district codes stay strings.
+The cumulative file tops income at 150k+; the yearly files' faminc_new (2011+) runs to 500k+.
+Raw downloads are deleted once a year is converted.
+Dataverse answers python-requests with 403 (curl is fine), so fetch a year's data file by hand into
+raw/&lt;year&gt;.&lt;csv|tab|dta|sav&gt;, e.g.  curl -L -o raw/2024.csv https://dataverse.harvard.edu/api/access/datafile/&lt;id&gt;
+and rerun; a raw file already there is converted without touching the API.
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+import pandas as pd
+import polars as pl
+import pyreadstat
+import requests
+
+from sexratio_fetch import download
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE / &quot;us_public_data&quot; / &quot;ces&quot;
+RAW = ROOT / &quot;raw&quot;
+API = &quot;https://dataverse.harvard.edu/api&quot;
+DOIS = {2006: &quot;Q8HC9N&quot;, 2007: &quot;OOXTJ5&quot;, 2008: &quot;YUYIVB&quot;, 2009: &quot;KKM9UK&quot;, 2010: &quot;VKKRWA&quot;, 2011: &quot;GLRXZ0&quot;,
+        2012: &quot;HQEVPK&quot;, 2013: &quot;KPP85M&quot;, 2014: &quot;XFXJVY&quot;, 2015: &quot;SWMWX8&quot;, 2016: &quot;GDF6Z0&quot;, 2017: &quot;3STEZY&quot;,
+        2018: &quot;ZSBZ7K&quot;, 2019: &quot;WOT7O8&quot;, 2020: &quot;E9N6PH&quot;, 2021: &quot;OPQOCU&quot;, 2022: &quot;PR4L8P&quot;, 2023: &quot;JQJTCC&quot;,
+        2024: &quot;X11EP6&quot;, 2025: &quot;DFUGJR&quot;}
+CUMULATIVE = {&quot;cumulative.parquet&quot;: (&quot;II2DB6&quot;, &quot;cumulative_2006-2025.feather&quot;),
+              &quot;policy_prefs.parquet&quot;: (&quot;OSXDQO&quot;, &quot;cumulative_ces_policy_preferences.tab&quot;)}
+NULLS = [&quot;&quot;, &quot;NA&quot;, &quot;__NA__&quot;, &quot;.&quot;]
+KEEP_STRING =(&quot;zip&quot;, &quot;fips&quot;, &quot;cdid&quot;, &quot;cd_&quot;, &quot;dist&quot;, &quot;county&quot;, &quot;_t&quot;)  # codes with leading zeros, free text
+
+
+def files(doi: str) -&gt; list[dict]:
+    r = requests.get(f&quot;{API}/datasets/:persistentId/&quot;, params={&quot;persistentId&quot;: f&quot;doi:10.7910/DVN/{doi}&quot;}, timeout=60)
+    r.raise_for_status()
+    return [f[&quot;dataFile&quot;] for f in r.json()[&quot;data&quot;][&quot;latestVersion&quot;][&quot;files&quot;]]
+
+
+def pick(fs: list[dict]) -&gt; dict:
+    &quot;&quot;&quot;The data file: the largest csv/tab (vote-validated, to-post versions are the largest), else .dta, else .sav.&quot;&quot;&quot;
+    for exts in ((&quot;.csv&quot;, &quot;.tab&quot;), (&quot;.dta&quot;,), (&quot;.sav&quot;,)):
+        cand = [f for f in fs if f[&quot;filename&quot;].lower().endswith(exts)]
+        if cand:
+            return max(cand, key=lambda f: f.get(&quot;filesize&quot;, 0))
+    raise RuntimeError(f&quot;no data file among {[f['filename'] for f in fs]}&quot;)
+
+
+def typed(df: pl.DataFrame) -&gt; pl.DataFrame:
+    &quot;&quot;&quot;All-string frame -&gt; Int64/Float64 wherever every non-null value parses; code columns stay strings.&quot;&quot;&quot;
+    out = []
+    for c in df.columns:
+        s = df[c]
+        if s.dtype != pl.String or any(k in c.lower() for k in KEEP_STRING):
+            out.append(s)
+            continue
+        s = s.str.strip_chars()
+        n = s.null_count()
+        for t in (pl.Int64, pl.Float64):
+            cast = s.cast(t, strict=False)
+            if cast.null_count() == n:
+                s = cast
+                break
+        out.append(s)
+    return pl.DataFrame(out)
+
+
+def read(path: Path) -&gt; pl.DataFrame:
+    if path.suffix in (&quot;.dta&quot;, &quot;.sav&quot;):
+        pdf = (pd.read_stata(path, convert_categoricals=False, convert_missing=False) if path.suffix == &quot;.dta&quot;
+               else pyreadstat.read_sav(path, encoding=&quot;latin1&quot;)[0])  # 2007 .sav is latin-1
+        return typed(pl.from_pandas(pdf.astype(&quot;string&quot;)))
+    if path.suffix == &quot;.tab&quot;:  # Dataverse tab export: strings quoted but inner quotes unescaped, no inner tabs
+        df = pl.read_csv(path, separator=&quot;\t&quot;, quote_char=None, infer_schema=False,
+                         encoding=&quot;utf8-lossy&quot;, truncate_ragged_lines=True)
+        df = df.rename(lambda c: c.strip('&quot;')).with_columns(pl.all().str.strip_chars('&quot;'))
+        return typed(df.with_columns(pl.when(pl.all().is_in(NULLS)).then(None).otherwise(pl.all()).name.keep()))
+    return typed(pl.read_csv(path, infer_schema=False, null_values=NULLS,
+                             encoding=&quot;utf8-lossy&quot;, truncate_ragged_lines=True))
+
+
+def fetch_year(year: int) -&gt; None:
+    out = ROOT / &quot;yearly&quot; / f&quot;year={year}&quot; / &quot;part-0.parquet&quot;
+    if out.exists():
+        print(f&quot;{year}: already built&quot;)
+        return
+    local = [p for p in RAW.glob(f&quot;{year}.*&quot;) if p.suffix in (&quot;.csv&quot;, &quot;.tab&quot;, &quot;.dta&quot;, &quot;.sav&quot;)]
+    if local:  # dropped in by hand (e.g. a browser or curl download of the year's data file)
+        raw = local[0]
+    else:
+        fs = files(DOIS[year])
+        for g in (f for f in fs if &quot;guide&quot; in f[&quot;filename&quot;].lower()):
+            download(f&quot;{API}/access/datafile/{g['id']}&quot;, ROOT / &quot;guides&quot; / f&quot;{year}_{g['filename']}&quot;)
+        f = pick(fs)
+        raw = download(f&quot;{API}/access/datafile/{f['id']}&quot;, RAW / f&quot;{year}{Path(f['filename']).suffix.lower()}&quot;)
+    df = read(raw)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    df.write_parquet(out, compression=&quot;zstd&quot;)
+    raw.unlink()
+    print(f&quot;{year}: {df.height:,} respondents x {df.width:,} columns  &lt;- {raw.name}&quot;, flush=True)
+
+
+def fetch_cumulative() -&gt; None:
+    for name, (doi, fname) in CUMULATIVE.items():
+        if (ROOT / name).exists():
+            continue
+        local = ROOT / fname
+        if not local.exists():
+            f = next(f for f in files(doi) if f[&quot;filename&quot;] == fname)
+            download(f&quot;{API}/access/datafile/{f['id']}&quot;, local)
+        df = pl.from_pandas(pd.read_feather(local)) if local.suffix == &quot;.feather&quot; else read(local)
+        df.write_parquet(ROOT / name, compression=&quot;zstd&quot;)
+        print(f&quot;{name}: {df.height:,} x {df.width}&quot;, flush=True)
+
+
+if __name__ == &quot;__main__&quot;:
+    fetch_cumulative()
+    for y in [int(a) for a in sys.argv[1:]] or sorted(DOIS):
+        fetch_year(y)
+    for f in sorted((ROOT / &quot;yearly&quot;).glob(&quot;year=*/part-0.parquet&quot;)):
+        lf = pl.scan_parquet(f)
+        print(f.parent.name, f&quot;{lf.select(pl.len()).collect().item():,} x {len(lf.collect_schema())}&quot;)
+    print(f&quot;ces: {sum(f.stat().st_size for f in ROOT.rglob('*.parquet')) / 1e9:.2f} GB of parquet&quot;)
+</code></pre>
+<h3><code>ces_income_gaps.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Rich vs poor on policy: how far apart are income groups, next to the gaps by party, degree, church and age?
+
+Data: CES common content 2022 and 2024 (us_public_data/ces/yearly, built by ces_to_parquet.py), weighted by
+commonweight. Household income bands from faminc_new: under $30k (about the bottom fifth), $60-100k (the
+middle), $150-250k, $250-500k, $500k+ (roughly the top 1-2%). &quot;Prefer not to say&quot; is dropped.
+Every item is a support/oppose proposal (1 = support, 2 = oppose); shares are % support among those answering.
+Run:  uv run --with polars,pyarrow,matplotlib,pillow,fonttools python notebooks/rich_poor_opinion/ces_income_gaps.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import polars as pl
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+YEARLY = HERE.parent / &quot;us_public_data&quot; / &quot;ces&quot; / &quot;yearly&quot;
+OUT = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+pb.apply()
+plt.rcParams[&quot;text.parse_math&quot;] = False  # labels are full of $
+
+BG, INK, INK2, MUTED, GRID, RANGE = pb.SURFACE, pb.INK, pb.INK2, pb.MUTED, pb.GRID, &quot;#dcdbd5&quot;
+
+
+def _ramp(n: int) -&gt; list[str]:
+    &quot;&quot;&quot;n ordinal steps, light -&gt; dark, interpolated along pb.NAVY_RAMP.&quot;&quot;&quot;
+    rgb = [np.array([int(c[i:i + 2], 16) for i in (1, 3, 5)]) for c in pb.NAVY_RAMP]
+    out = []
+    for t in np.linspace(0, len(rgb) - 1, n):
+        i = min(int(t), len(rgb) - 2)
+        c = rgb[i] + (rgb[i + 1] - rgb[i]) * (t - i)
+        out.append(&quot;#&quot; + &quot;&quot;.join(f&quot;{int(round(v)):02x}&quot; for v in c))
+    return out
+
+
+BLUES = _ramp(5)  # ordinal levels (income bands), light -&gt; dark
+ACCENT, DOT = pb.RED, pb.MUTE  # the class/income divide vs the benchmark divides
+BENCH = pb.NAVY  # party/church benchmarks in the median-gap bars
+UNWM = OUT / &quot;Unwatermarked graphs&quot;
+
+INCOME = [(&quot;Under $30k&quot;, (1, 2, 3)), (&quot;$60–100k&quot;, (7, 8, 9)), (&quot;$150–250k&quot;, (12, 13)),
+          (&quot;$250–500k&quot;, (14, 15)), (&quot;$500k+&quot;, (16,))]
+
+# (year, column, short label, issue area, social?)
+ITEMS = [
+    (2024, &quot;CC24_324a&quot;, &quot;Always allow abortion as a matter of choice&quot;, &quot;Abortion&quot;, True),
+    (2024, &quot;CC24_324b&quot;, &quot;Abortion only for rape, incest, life of mother&quot;, &quot;Abortion&quot;, True),
+    (2024, &quot;CC24_324c&quot;, &quot;Make abortion illegal in all circumstances&quot;, &quot;Abortion&quot;, True),
+    (2024, &quot;CC24_324d&quot;, &quot;Expand abortion access and affordability&quot;, &quot;Abortion&quot;, True),
+    (2022, &quot;CC22_332c&quot;, &quot;Ban abortion after 20 weeks&quot;, &quot;Abortion&quot;, True),
+    (2024, &quot;CC24_340a&quot;, &quot;Bar restrictions on contraception (bill)&quot;, &quot;Abortion&quot;, True),
+    (2024, &quot;CC24_340c&quot;, &quot;Federal recognition of same-sex marriage (bill)&quot;, &quot;Marriage&quot;, True),
+    (2024, &quot;CC24_321a&quot;, &quot;Ban assault rifles&quot;, &quot;Guns&quot;, True),
+    (2024, &quot;CC24_321b&quot;, &quot;Make concealed-carry permits easier&quot;, &quot;Guns&quot;, True),
+    (2024, &quot;CC24_321c&quot;, &quot;Background checks on all gun sales&quot;, &quot;Guns&quot;, True),
+    (2022, &quot;CC22_330f&quot;, &quot;Let teachers carry guns in schools&quot;, &quot;Guns&quot;, True),
+    (2024, &quot;CC24_323a&quot;, &quot;Legal status for illegal immigrants with jobs&quot;, &quot;Immigration&quot;, True),
+    (2024, &quot;CC24_323b&quot;, &quot;More border patrols&quot;, &quot;Immigration&quot;, True),
+    (2024, &quot;CC24_323c&quot;, &quot;Build a border wall&quot;, &quot;Immigration&quot;, True),
+    (2024, &quot;CC24_323d&quot;, &quot;Citizenship path for Dreamers&quot;, &quot;Immigration&quot;, True),
+    (2024, &quot;CC24_340f&quot;, &quot;Deny asylum to illegal border crossers&quot;, &quot;Immigration&quot;, True),
+    (2022, &quot;CC22_331c&quot;, &quot;Cut legal immigration by half&quot;, &quot;Immigration&quot;, True),
+    (2024, &quot;CC24_321d&quot;, &quot;10% more police, fewer other services&quot;, &quot;Policing&quot;, True),
+    (2024, &quot;CC24_321e&quot;, &quot;10% fewer police, more other services&quot;, &quot;Policing&quot;, True),
+    (2022, &quot;CC22_334a&quot;, &quot;End mandatory minimums for drug offenders&quot;, &quot;Policing&quot;, True),
+    (2022, &quot;CC22_334e&quot;, &quot;Ban police chokeholds&quot;, &quot;Policing&quot;, True),
+    (2024, &quot;CC24_326a&quot;, &quot;Let EPA regulate CO2&quot;, &quot;Environment&quot;, True),
+    (2024, &quot;CC24_326d&quot;, &quot;Increase fossil fuel production&quot;, &quot;Environment&quot;, True),
+    (2024, &quot;CC24_340d&quot;, &quot;Ban TikTok unless sold&quot;, &quot;Other&quot;, True),
+    (2024, &quot;CC24_340e&quot;, &quot;Renew warrantless surveillance&quot;, &quot;Other&quot;, True),
+    (2024, &quot;CC24_341a&quot;, &quot;Extend the 2017 tax cuts&quot;, &quot;Taxes &amp; spending&quot;, False),
+    (2024, &quot;CC24_341b&quot;, &quot;Corporate tax 21% → 28%&quot;, &quot;Taxes &amp; spending&quot;, False),
+    (2024, &quot;CC24_341c&quot;, &quot;35% rate on $400k+ earners&quot;, &quot;Taxes &amp; spending&quot;, False),
+    (2024, &quot;CC24_341d&quot;, &quot;$150B/yr infrastructure&quot;, &quot;Taxes &amp; spending&quot;, False),
+    (2024, &quot;CC24_328a&quot;, &quot;Relax zoning for apartments&quot;, &quot;Taxes &amp; spending&quot;, False),
+    (2024, &quot;CC24_328c&quot;, &quot;Medicaid work requirements&quot;, &quot;Health &amp; welfare&quot;, False),
+    (2024, &quot;CC24_328d&quot;, &quot;Repeal the ACA&quot;, &quot;Health &amp; welfare&quot;, False),
+    (2024, &quot;CC24_328e&quot;, &quot;Expand Medicaid to low earners&quot;, &quot;Health &amp; welfare&quot;, False),
+    (2024, &quot;CC24_323f&quot;, &quot;Forgive $20k of student debt&quot;, &quot;Health &amp; welfare&quot;, False),
+    (2022, &quot;CC22_327a&quot;, &quot;Medicare for All&quot;, &quot;Health &amp; welfare&quot;, False),
+]
+
+# Benchmark cleavages: (name, left group, right group) as filters on the harmonized frame
+CLEAVAGES = {
+    &quot;Income: $500k+ vs under $30k&quot;: (&quot;inc&quot;, &quot;$500k+&quot;, &quot;Under $30k&quot;),
+    &quot;Degree: BA+ vs HS or less&quot;: (&quot;edu&quot;, &quot;BA+&quot;, &quot;HS or less&quot;),
+    &quot;Church: weekly+ vs never&quot;: (&quot;church&quot;, &quot;Weekly+&quot;, &quot;Never&quot;),
+    &quot;Age: 18–29 vs 65+&quot;: (&quot;age&quot;, &quot;18–29&quot;, &quot;65+&quot;),
+    &quot;Party: Democrat vs Republican&quot;: (&quot;party&quot;, &quot;Democrat&quot;, &quot;Republican&quot;),
+}
+
+
+def load(year: int) -&gt; pl.DataFrame:
+    cols = [c for y, c, *_ in ITEMS if y == year]
+    d = pl.read_parquet(YEARLY / f&quot;year={year}&quot; / &quot;part-0.parquet&quot;,
+                        columns=[&quot;commonweight&quot;, &quot;faminc_new&quot;, &quot;educ&quot;, &quot;pew_churatd&quot;, &quot;birthyr&quot;, &quot;pid3&quot;, *cols])
+    inc = pl.lit(None, pl.String)
+    for name, codes in INCOME:
+        inc = pl.when(pl.col(&quot;faminc_new&quot;).is_in(codes)).then(pl.lit(name)).otherwise(inc)
+    age = year - pl.col(&quot;birthyr&quot;)
+    return d.with_columns(
+        w=pl.col(&quot;commonweight&quot;).cast(pl.Float64),
+        inc=inc,
+        edu=pl.when(pl.col(&quot;educ&quot;) &gt;= 5).then(pl.lit(&quot;BA+&quot;)).when(pl.col(&quot;educ&quot;) &lt;= 2).then(pl.lit(&quot;HS or less&quot;)),
+        church=pl.when(pl.col(&quot;pew_churatd&quot;) &lt;= 2).then(pl.lit(&quot;Weekly+&quot;))
+        .when(pl.col(&quot;pew_churatd&quot;) == 6).then(pl.lit(&quot;Never&quot;)),
+        age=pl.when(age &lt; 30).then(pl.lit(&quot;18–29&quot;)).when(age &gt;= 65).then(pl.lit(&quot;65+&quot;)),
+        party=pl.when(pl.col(&quot;pid3&quot;) == 1).then(pl.lit(&quot;Democrat&quot;)).when(pl.col(&quot;pid3&quot;) == 2).then(pl.lit(&quot;Republican&quot;)),
+    )
+
+
+def support(d: pl.DataFrame, col: str, by: str) -&gt; pl.DataFrame:
+    &quot;&quot;&quot;Weighted % support by group, with Kish effective n and a 95% half-width.&quot;&quot;&quot;
+    x = d.filter(pl.col(col).is_in([1, 2]) &amp; pl.col(by).is_not_null() &amp; pl.col(&quot;w&quot;).is_not_null())
+    return (x.with_columns(y=(pl.col(col) == 1).cast(pl.Float64))
+            .group_by(by).agg(p=(pl.col(&quot;y&quot;) * pl.col(&quot;w&quot;)).sum() / pl.col(&quot;w&quot;).sum(), n=pl.len(),
+                              neff=pl.col(&quot;w&quot;).sum() ** 2 / (pl.col(&quot;w&quot;) ** 2).sum())
+            .with_columns(ci=1.96 * (pl.col(&quot;p&quot;) * (1 - pl.col(&quot;p&quot;)) / pl.col(&quot;neff&quot;)).sqrt())
+            .rename({by: &quot;group&quot;}).with_columns(pl.col(&quot;p&quot;, &quot;ci&quot;) * 100))
+
+
+def build() -&gt; tuple[pl.DataFrame, pl.DataFrame]:
+    data = {y: load(y) for y in sorted({y for y, *_ in ITEMS})}
+    by_income, gaps = [], []
+    for year, col, label, area, social in ITEMS:
+        d = data[year]
+        s = support(d, col, &quot;inc&quot;).with_columns(item=pl.lit(label), area=pl.lit(area), social=pl.lit(social),
+                                                year=pl.lit(year))
+        by_income.append(s)
+        for cname, (by, left, right) in CLEAVAGES.items():
+            g = dict(support(d, col, by).select(&quot;group&quot;, &quot;p&quot;).iter_rows())
+            gaps.append({&quot;item&quot;: label, &quot;area&quot;: area, &quot;social&quot;: social, &quot;cleavage&quot;: cname,
+                         &quot;gap&quot;: g[left] - g[right]})
+    return pl.concat(by_income), pl.DataFrame(gaps)
+
+
+def style(ax) -&gt; None:
+    ax.tick_params(length=0, colors=INK2, labelsize=10)
+    ax.yaxis.grid(False)
+    ax.grid(axis=&quot;x&quot;, color=GRID, lw=0.8, zorder=0)
+
+
+def watermark(path: Path) -&gt; None:
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(path),
+                    str(OUT / (path.stem + &quot;_wm.png&quot;))], check=True)
+
+
+def dot_chart(inc: pl.DataFrame, items: list[tuple[str, str, bool]], groups: list[str], legend_title: str,
+              title: str, subtitle: str, source: str, name: str, height: float = 15.5,
+              colors: list[str] | None = None) -&gt; Path:
+    &quot;&quot;&quot;Every item a row; one dot per group (ordinal navy ramp unless colors given) on one % axis.
+    items: (label, area, social).&quot;&quot;&quot;
+    rows = []
+    for social, header in ((True, &quot;Social issues&quot;), (False, &quot;Economic issues&quot;)):
+        rows.append((&quot;header&quot;, header))
+        sub = [it for it in items if it[2] == social]
+        areas = list(dict.fromkeys(ar for _, ar, _ in sub))
+        for a in areas:
+            if len(areas) &gt; 1:  # one area per panel would just repeat the header
+                rows.append((&quot;area&quot;, a))
+            rows += [(&quot;item&quot;, lab) for lab, ar, _ in sub if ar == a]
+    p = {(r[&quot;item&quot;], r[&quot;group&quot;]): r[&quot;p&quot;] for r in inc.iter_rows(named=True)}
+    colors = colors or _ramp(len(groups))
+
+    fig, ax = plt.subplots(figsize=(11, height), dpi=150)
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
+    style(ax)
+    y = 0.0
+    yt, yl = [], []
+    for kind, text in rows:
+        if kind == &quot;header&quot;:
+            y += 0.6
+            ax.text(-1, y, text.upper(), fontsize=12.5, fontweight=&quot;bold&quot;, color=INK, ha=&quot;right&quot;, va=&quot;center&quot;)
+            y += 1.1
+            continue
+        if kind == &quot;area&quot;:
+            ax.text(-1, y, text, fontsize=10, fontweight=&quot;bold&quot;, color=INK2, ha=&quot;right&quot;, va=&quot;center&quot;)
+            y += 0.9
+            continue
+        vals = [p[(text, g)] for g in groups]
+        ax.plot([min(vals), max(vals)], [y, y], color=RANGE, lw=3, solid_capstyle=&quot;round&quot;, zorder=2)
+        for v, c in zip(vals, colors):
+            ax.scatter(v, y, s=62, color=c, edgecolor=BG, linewidth=1.4, zorder=3)
+        yt.append(y)
+        yl.append(text)
+        y += 1
+    ax.set_yticks(yt)
+    ax.set_yticklabels(yl, fontsize=10, color=INK)
+    ax.set_ylim(y, -0.6)
+    ax.set_xlim(0, 100)
+    ax.xaxis.tick_top()
+    ax.set_xticks(range(0, 101, 20))
+    ax.set_xticklabels([f&quot;{v}%&quot; for v in range(0, 101, 20)])
+    handles = [plt.Line2D([], [], marker=&quot;o&quot;, ls=&quot;&quot;, ms=8, color=c, mec=BG) for c in colors]
+    ax.legend(handles, groups, ncol=len(groups), loc=&quot;lower left&quot;, bbox_to_anchor=(-0.42, 1.02),
+              frameon=False, fontsize=10.5, labelcolor=INK, handletextpad=0.2, columnspacing=1.4,
+              title=legend_title, title_fontsize=10, alignment=&quot;left&quot;)
+    top = 1 - 0.55 / height
+    fig.suptitle(title, x=0.02, y=1 - 0.2 / height, ha=&quot;left&quot;, fontsize=15.5, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.02, 1 - 0.55 / height, subtitle, fontsize=11, color=INK2, ha=&quot;left&quot;)
+    fig.text(0.02, 0.18 / height, source, fontsize=8.5, color=MUTED, ha=&quot;left&quot;)
+    fig.subplots_adjust(left=0.33, right=0.97, top=top - 1.15 / height, bottom=0.6 / height)
+    UNWM.mkdir(parents=True, exist_ok=True)
+    out = UNWM / name
+    fig.savefig(out, facecolor=BG)
+    plt.close(fig)
+    return out
+
+
+def gap_chart(gaps: pl.DataFrame, names: list[str], title: str, source: str, name: str) -&gt; Path:
+    &quot;&quot;&quot;|gap| per item for each cleavage, social and economic panels, median marked; class rows in blue.&quot;&quot;&quot;
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6.2), dpi=150, sharey=True)
+    fig.patch.set_facecolor(BG)
+    rng = np.random.default_rng(3)
+    for ax, social, head in ((axes[0], True, &quot;Social issues&quot;), (axes[1], False, &quot;Economic issues&quot;)):
+        k = gaps.filter(pl.col(&quot;social&quot;) == social)[&quot;item&quot;].n_unique()
+        ax.set_facecolor(BG)
+        style(ax)
+        for i, c in enumerate(names):
+            g = gaps.filter((pl.col(&quot;cleavage&quot;) == c) &amp; (pl.col(&quot;social&quot;) == social))[&quot;gap&quot;].abs().to_numpy()
+            color = ACCENT if c.startswith((&quot;Income&quot;, &quot;PMC&quot;, &quot;Top&quot;)) else DOT
+            ax.scatter(g, i + rng.uniform(-0.17, 0.17, len(g)), s=26, color=color, alpha=0.75,
+                       edgecolor=BG, linewidth=0.6, zorder=3)
+            m = np.median(g)
+            ax.plot([m, m], [i - 0.3, i + 0.3], color=INK, lw=2.2, zorder=4, solid_capstyle=&quot;round&quot;)
+            ax.text(m, i - 0.36, f&quot;{m:.0f}&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=9.5, color=INK, fontweight=&quot;bold&quot;)
+        ax.set_title(f&quot;{head} ({k} items)&quot;, loc=&quot;left&quot;, fontsize=12, color=INK, fontweight=&quot;bold&quot;)
+        ax.set_xlim(0, 80)
+        ax.set_xlabel(&quot;Gap (percentage points)&quot;, fontsize=10, color=INK2)
+    axes[0].set_yticks(range(len(names)))
+    axes[0].set_yticklabels(names, fontsize=10.5, color=INK)
+    axes[0].set_ylim(len(names) - 0.4, -0.7)
+    fig.suptitle(title, x=0.02, y=0.975, ha=&quot;left&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.02, 0.915, &quot;Each dot is one item: the gap in % agreeing between the two groups. &quot;
+             &quot;Black tick = median gap.&quot;, fontsize=10.5, color=INK2, ha=&quot;left&quot;)
+    fig.text(0.02, 0.015, source, fontsize=8.5, color=MUTED)
+    fig.subplots_adjust(left=0.23, right=0.98, top=0.83, bottom=0.14, wspace=0.08)
+    UNWM.mkdir(parents=True, exist_ok=True)
+    out = UNWM / name
+    fig.savefig(out, facecolor=BG)
+    plt.close(fig)
+    return out
+
+
+def divide_bars(gaps: pl.DataFrame) -&gt; Path:
+    &quot;&quot;&quot;Median |gap| per divide as horizontal bars, social and economic panels on a shared axis.&quot;&quot;&quot;
+    order = (&quot;Income&quot;, &quot;Degree&quot;, &quot;Age&quot;, &quot;Church&quot;, &quot;Party&quot;)
+    names = sorted(CLEAVAGES, key=lambda n: order.index(n.split(&quot;:&quot;)[0]))
+    short = [n.split(&quot;:&quot;)[0] for n in names]
+    colors = {&quot;Income&quot;: ACCENT, &quot;Degree&quot;: ACCENT, &quot;Age&quot;: DOT, &quot;Church&quot;: BENCH, &quot;Party&quot;: BENCH}
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5.4), dpi=150, sharey=True)
+    fig.patch.set_facecolor(BG)
+    for ax, social, head in ((axes[0], True, &quot;Social issues&quot;), (axes[1], False, &quot;Economic issues&quot;)):
+        ax.set_facecolor(BG)
+        style(ax)
+        sub = gaps.filter(pl.col(&quot;social&quot;) == social)
+        k = sub[&quot;item&quot;].n_unique()
+        med = [float(np.median(sub.filter(pl.col(&quot;cleavage&quot;) == c)[&quot;gap&quot;].abs())) for c in names]
+        ax.barh(range(len(names)), med, height=0.62, color=[colors[s] for s in short], zorder=2)
+        for i, m in enumerate(med):
+            ax.text(m + 0.8, i, f&quot;{m:.0f}&quot;, va=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK)
+        ax.set_title(f&quot;{head} ({k} items)&quot;, loc=&quot;left&quot;, fontsize=12, color=INK, fontweight=&quot;bold&quot;)
+        ax.set_xlim(0, 50)
+        ax.set_xlabel(&quot;Median gap (percentage points)&quot;, fontsize=10, color=INK2)
+    axes[0].set_yticks(range(len(names)))
+    axes[0].set_yticklabels([n.replace(&quot;: &quot;, &quot;\n&quot;) for n in names], fontsize=10, color=INK)
+    axes[0].set_ylim(len(names) - 0.5, -0.6)
+    fig.suptitle(&quot;Differences across income and degrees are dwarfed by religious and political differences&quot;,
+                 x=0.02, y=0.975, ha=&quot;left&quot;, fontsize=14.5, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.02, 0.905, &quot;Median gap in % support between the two groups, across policy proposals.&quot;,
+             fontsize=10.5, color=INK2, ha=&quot;left&quot;)
+    fig.text(0.02, 0.02, &quot;Source: Cooperative Election Study 2022 and 2024, weighted. Income = household income; &quot;
+             &quot;church = attendance excluding weddings and funerals; party = 3-point ID.&quot;, fontsize=8.5, color=MUTED)
+    fig.subplots_adjust(left=0.19, right=0.98, top=0.8, bottom=0.17, wspace=0.08)
+    UNWM.mkdir(parents=True, exist_ok=True)
+    out = UNWM / &quot;ces_divides_median_gap_bars.png&quot;
+    fig.savefig(out, facecolor=BG)
+    plt.close(fig)
+    return out
+
+
+def income_shares() -&gt; None:
+    for y in (2022, 2024):
+        d = load(y).filter(pl.col(&quot;faminc_new&quot;) != 97)
+        tot = d[&quot;w&quot;].sum()
+        print(y, {n: f&quot;{d.filter(pl.col('inc') == n)['w'].sum() / tot:.1%}&quot; for n, _ in INCOME},
+              &quot;| top-band n:&quot;, d.filter(pl.col(&quot;inc&quot;) == &quot;$500k+&quot;).height)
+
+
+if __name__ == &quot;__main__&quot;:
+    pl.Config.set_tbl_rows(200)
+    pl.Config.set_tbl_width_chars(200)
+    income_shares()
+    inc, gaps = build()
+    wide = inc.pivot(on=&quot;group&quot;, index=[&quot;area&quot;, &quot;item&quot;], values=&quot;p&quot;).select(
+        &quot;area&quot;, &quot;item&quot;, *[n for n, _ in INCOME]).with_columns(pl.selectors.numeric().round(0))
+    print(wide)
+    print(inc.group_by(&quot;group&quot;).agg(pl.col(&quot;ci&quot;).mean().round(1), pl.col(&quot;n&quot;).mean().round(0)))
+    print(gaps.with_columns(pl.col(&quot;gap&quot;).abs()).group_by(&quot;social&quot;, &quot;cleavage&quot;)
+          .agg(median_abs_gap=pl.col(&quot;gap&quot;).median().round(1), mean_abs_gap=pl.col(&quot;gap&quot;).mean().round(1))
+          .sort(&quot;social&quot;, &quot;median_abs_gap&quot;))
+    dots = dot_chart(
+        inc, [(lab, ar, so) for _, _, lab, ar, so in ITEMS], [n for n, _ in INCOME], &quot;Household income&quot;,
+        &quot;Rich and poor Americans want much the same things — until you ask about their taxes&quot;,
+        &quot;% supporting each proposal, by household income. Grey bar spans the five income bands.&quot;,
+        &quot;Source: Cooperative Election Study 2024 (2022 for 20-week ban, teachers carrying, legal immigration, &quot;
+        &quot;policing reform, Medicare for All); weighted.\nAbout 270 respondents per year at $500k+ (±8 pts), &quot;
+        &quot;1,250 at $250–500k (±4), 4,300+ in each other band.&quot;, &quot;ces_rich_poor_policy_dots.png&quot;,
+        colors=[*_ramp(4), pb.RED])  # $500k+ is the band the chart is about
+    gap = gap_chart(
+        gaps, list(CLEAVAGES), &quot;On social issues, income divides Americans less than degree, age, church or party&quot;,
+        &quot;Source: Cooperative Election Study 2022 and 2024, weighted. Income = household income; church = attendance &quot;
+        &quot;excluding weddings and funerals; party = 3-point ID.&quot;, &quot;ces_rich_poor_gap_vs_other_divides.png&quot;)
+    for out in (dots, gap, divide_bars(gaps)):
+        watermark(out)
+        print(&quot;wrote&quot;, out)
+</code></pre>
+</main></body></html>
