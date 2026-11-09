@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>California billionaires&#x27; political giving vs. voters</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>California billionaires' political giving vs. voters</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/ca-billionaires/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>calaccess_to_parquet.py</code></h3>
+<pre><code class="language-text">California Cal-Access campaign-finance bulk export -&gt; parquet (the tables used for ballot-measure money).
+
+Run:  uv run --with polars,pyarrow python notebooks/calaccess_to_parquet.py
+Input:  notebooks/us_public_data/calaccess/dbwebexport.zip, from
+        https://campaignfinance.cdn.sos.ca.gov/dbwebexport.zip (refreshed daily by the Secretary of State)
+Output: notebooks/us_public_data/calaccess/&lt;TABLE&gt;.parquet, every column as a string, as published:
+  RCPT_CD                       itemized receipts (contributions), all filers, 1999-
+  CVR_CAMPAIGN_DISCLOSURE_CD    filing cover pages: filer, period, ballot measure number and support/oppose code
+  CVR2_CAMPAIGN_DISCLOSURE_CD   extra cover-page rows: further measures a committee supports or opposes
+  FILERNAME_CD, FILER_FILINGS_CD, LOOKUP_CODES_CD
+Amendments: rows repeat per AMEND_ID; keep the highest AMEND_ID per FILING_ID before summing.
+The TSVs are tab-separated with no quoting (stray quotes are literal) and some latin-1 bytes.
+</code></pre>
+<h3><code>ca_ballot_billionaires.py</code></h3>
+<pre><code class="language-text">Billionaire money on California ballot measures, social and economic, next to how the state voted.
+
+Data:
+  Cal-Access bulk export (us_public_data/calaccess/*.parquet, built by notebooks/calaccess_to_parquet.py):
+    itemized receipts (RCPT_CD) of every committee registered for or against each measure.
+  Committees: cover-page measure number and support/oppose code (CVR, CVR2) for the election year, plus committee
+    names naming the measure (&quot;Yes on 64&quot;, &quot;No on Prop 8&quot;) in that cycle; COMMITTEE_FIX overrides by hand.
+  Billionaires: everyone on the Forbes 400 in 1980-2014 (Bonica &amp; Rosenthal, via Broockman et al.) and US
+    billionaires on the Forbes 2025 and 2026 lists, matched to individual donors on last name + first name
+    (first token, common nicknames); spouses in SPOUSES and giving vehicles in VEHICLES are credited to the
+    billionaire's household. Matches were reviewed by hand (FALSE_MATCH); households count once (HOUSEHOLD).
+  Results: official statewide yes shares, from the measures' Wikipedia/Ballotpedia result tables.
+&quot;Left side&quot; is the socially liberal or redistributive side of each measure (LEFT = which vote that is).
+Run:  uv run --with polars,pyarrow,matplotlib,pillow,fonttools python notebooks/rich_poor_opinion/ca_ballot_billionaires.py
+Writes ca_ballot_billionaires_vs_voters.png (Unwatermarked graphs/) and its _wm copy (Substack Notes/).
+</code></pre>
+<h3><code>billionaire_liberal_funding_fermi.py</code></h3>
+<pre><code class="language-text">How much liberal vs conservative social-cause money comes from billionaires: a measured anchor plus a Fermi estimate.
+
+A  California social-issue ballot measures 2008-24 (the 18 social MEASURES in ca_ballot_billionaires.py): money from
+   outside donors (committee-to-committee transfers dropped) to each side, and the part from identified billionaires.
+   This is a floor: billionaire money passed through nonprofits (e.g. Drug Policy Action) counts as &quot;everyone else&quot;.
+B  US liberal social-cause funding per year, Fermi estimate. Pot sizes and billionaire shares are rough orders of
+   magnitude, not sourced data: foundation grants for reproductive rights, LGBT, criminal justice, drug policy,
+   guns and immigration (Buffett, Open Society, Arnold, Bloomberg, Arcus, Gill, Moskovitz); donations to membership
+   groups (ACLU, Planned Parenthood, HRC, SPLC...); ballot and issue campaigns (share from panel A plus pass-through).
+Run:  uv run --with polars,pyarrow,matplotlib,pillow,fonttools python notebooks/rich_poor_opinion/billionaire_liberal_funding_fermi.py
+Writes billionaire_liberal_funding_fermi.png (Unwatermarked graphs/) and its _wm copy (Substack Notes/).
+</code></pre>
+<h2>Results</h2>
+<h3><code>ca_ballot_billionaire_matches.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>billionaire</th>
+<th>yr</th>
+<th>prop</th>
+<th>side</th>
+<th>FILER_ID</th>
+<th>usd</th>
+<th>n</th>
+<th>emp</th>
+<th>occ</th>
+<th>city</th>
+<th>NAML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thomas Steyer</td>
+<td>2012</td>
+<td>39</td>
+<td>S</td>
+<td>1344009</td>
+<td>29580000.000</td>
+<td>7</td>
+<td>Farallon Capital Management, LLC</td>
+<td>Hedge Fund Manager</td>
+<td>San Francisco</td>
+<td>CLEAN ENERGY JOBS COALITION COMMITTEE</td>
+</tr>
+<tr>
+<td>Nicholas Pritzker</td>
+<td>2012</td>
+<td>34</td>
+<td>S</td>
+<td>1341187</td>
+<td>1000000.000</td>
+<td>2</td>
+<td>N Pritzker Capital Mgmt. LLC</td>
+<td>Self-Employed</td>
+<td>Chicago</td>
+<td>CAMPAIGN IN SUPPORT OF THE SAFE CALIFORNIA ACT</td>
+</tr>
+<tr>
+<td>A Jerrold Perenchio</td>
+<td>2012</td>
+<td>32</td>
+<td>S</td>
+<td>1343790</td>
+<td>750000.000</td>
+<td>2</td>
+<td>Chartwell Partners LLC</td>
+<td>President</td>
+<td>Los Angeles</td>
+<td>YES ON 32 - STOP SPECIAL INTEREST MONEY NOW. SUPPORTED BY SMALL BUSINESS OWNERS, FARMERS, EDUCATORS, AND TAXPAYERS</td>
+</tr>
+<tr>
+<td>Nicholas Pritzker</td>
+<td>2016</td>
+<td>64</td>
+<td>S</td>
+<td>1371855</td>
+<td>450000.000</td>
+<td>2</td>
+<td>TAO CAPITAL PARTNERS LLC</td>
+<td>Chairman</td>
+<td>San Fransisco</td>
+<td>MARIJUANA POLICY PROJECT OF CALIFORNIA, YES ON 64</td>
+</tr>
+<tr>
+<td>Reed Hastings</td>
+<td>2014</td>
+<td>47</td>
+<td>S</td>
+<td>1362944</td>
+<td>246664.200</td>
+<td>1</td>
+<td>Netflix</td>
+<td>Chief Executive Officer</td>
+<td>Santa Cruz</td>
+<td>CALIFORNIANS FOR SAFE NEIGHBORHOODS AND SCHOOLS, SPONSORED BY VOTE SAFE, A PROJECT OF THE ADVOCACY FUND</td>
+</tr>
+<tr>
+<td>David Geffen</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1301573</td>
+<td>100000.000</td>
+<td>2</td>
+<td>Dream Works Studios</td>
+<td>Chief Executive Officer</td>
+<td>Los Angeles</td>
+<td>EQUALITY CALIFORNIA ISSUES PAC</td>
+</tr>
+<tr>
+<td>Nicole Shanahan</td>
+<td>2016</td>
+<td>57</td>
+<td>S</td>
+<td>1382912</td>
+<td>85000.000</td>
+<td>1</td>
+<td>ClearAccessIP</td>
+<td>Chief Excuitive Officer</td>
+<td>Portola Valley</td>
+<td>YES ON PROP. 57, CALIFORNIANS AND GOVERNOR BROWN FOR PUBLIC SAFETY AND REHABILITATION</td>
+</tr>
+<tr>
+<td>Reid Hoffman</td>
+<td>2016</td>
+<td>62</td>
+<td>S</td>
+<td>1380590</td>
+<td>50000.000</td>
+<td>1</td>
+<td>LinkedIn</td>
+<td>Chairman</td>
+<td>San Francisco</td>
+<td>YES ON 62, NO ON 66. REPLACE THE COSTLY, FAILED DEATH PENALTY SYSTEM. SPONSORED BY TAXPAYERS FOR SENTENCING REFORM</td>
+</tr>
+<tr>
+<td>Marc Nathanson</td>
+<td>2012</td>
+<td>30</td>
+<td>S</td>
+<td>1343257</td>
+<td>25000.000</td>
+<td>1</td>
+<td>Mapleton Investments</td>
+<td>Prinicipal</td>
+<td>Los Angeles</td>
+<td>BROWN, TEACHERS, BUSINESS AND PUBLIC SAFETY, CALIFORNIANS TO PROTECT SCHOOLS, UNIVERSITIES AND PUBLIC SAFETY, A BALLOT MEASURE COMMITTEE SUPPORTED BY GOVERNOR JERRY</td>
+</tr>
+<tr>
+<td>Sheryl Sandberg</td>
+<td>2022</td>
+<td>1</td>
+<td>S</td>
+<td>1357909</td>
+<td>10000.000</td>
+<td>1</td>
+<td>None</td>
+<td>Philanthropist</td>
+<td>San Francisco</td>
+<td>ATKINS BALLOT MEASURE COMMITTEE, CALIFORNIA WORKS: ASSEMBLY MAJORITY LEADER TONI</td>
+</tr>
+<tr>
+<td>Greg Brown</td>
+<td>2008</td>
+<td>8</td>
+<td>S</td>
+<td>1302592</td>
+<td>5100.000</td>
+<td>2</td>
+<td>BreitBurn Management Compant</td>
+<td>Executive</td>
+<td>La Canada</td>
+<td>PROTECTMARRIAGE.COM - YES ON 8</td>
+</tr>
+<tr>
+<td>Michael Moritz</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1301573</td>
+<td>4999.000</td>
+<td>1</td>
+<td>Sequoia Capital</td>
+<td>Investor</td>
+<td>San Francisco</td>
+<td>EQUALITY CALIFORNIA ISSUES PAC</td>
+</tr>
+<tr>
+<td>Farhad Ebrahimi</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1259396</td>
+<td>2500.000</td>
+<td>1</td>
+<td>The Chorus Foundation</td>
+<td>Director</td>
+<td>Boston</td>
+<td>EQUALITY FOR CALIFORNIA FAMILIES</td>
+</tr>
+<tr>
+<td>Mike Brown &amp; family</td>
+<td>2008</td>
+<td>8</td>
+<td>S</td>
+<td>1302592</td>
+<td>1700.000</td>
+<td>2</td>
+<td>Michael R. Brown, A Law Corp.</td>
+<td>Attorney</td>
+<td>Lake Forest</td>
+<td>PROTECTMARRIAGE.COM - YES ON 8</td>
+</tr>
+<tr>
+<td>David Shaw</td>
+<td>2008</td>
+<td>8</td>
+<td>S</td>
+<td>1302592</td>
+<td>1100.000</td>
+<td>2</td>
+<td>Automatic Business Computing</td>
+<td>Payroll Processing/Owner</td>
+<td>Rancho Cordova</td>
+<td>PROTECTMARRIAGE.COM - YES ON 8</td>
+</tr>
+<tr>
+<td>Hugh Bancroft</td>
+<td>2018</td>
+<td>6</td>
+<td>S</td>
+<td>1268914</td>
+<td>1000.000</td>
+<td>2</td>
+<td>N/A</td>
+<td>Retired</td>
+<td>Rancho Santa Fe</td>
+<td>DE MAIO - BALLOT MEASURE COMMITTEE; REFORM CALIFORNIA WITH CARL</td>
+</tr>
+<tr>
+<td>David Green</td>
+<td>2018</td>
+<td>6</td>
+<td>S</td>
+<td>1268914</td>
+<td>750.000</td>
+<td>10</td>
+<td>N/A</td>
+<td>Retired</td>
+<td>Santa Barbara</td>
+<td>DE MAIO - BALLOT MEASURE COMMITTEE; REFORM CALIFORNIA WITH CARL</td>
+</tr>
+<tr>
+<td>William Young</td>
+<td>2016</td>
+<td>62</td>
+<td>O</td>
+<td>1302403</td>
+<td>574.160</td>
+<td>2</td>
+<td>State of California</td>
+<td>Correctional Officer</td>
+<td>West Sacramento</td>
+<td>CALIFORNIA CORRECTIONAL PEACE OFFICERS ASSOCIATION TRUTH IN AMERICAN GOVERNMENT FUND (CCPOA TAG FUND)</td>
+</tr>
+<tr>
+<td>Jim Kennedy</td>
+<td>2018</td>
+<td>10</td>
+<td>O</td>
+<td>1406422</td>
+<td>500.000</td>
+<td>1</td>
+<td>Self - Employed - No business name</td>
+<td>Attorney/Investor</td>
+<td>Del Mar</td>
+<td>CALIFORNIANS TO PROTECT AFFORDABLE HOUSING A COALITION OF HOUSING ADVOCATES, RENTERS, LARGE AND SMALL BUSINESSES, TAXPAYER GROUPS, AND VETERANS</td>
+</tr>
+<tr>
+<td>Elizabeth Wiskemann</td>
+<td>2012</td>
+<td>30</td>
+<td>O</td>
+<td>922117</td>
+<td>500.000</td>
+<td>1</td>
+<td>NONE</td>
+<td>HOMEMAKER</td>
+<td>SAN RAFAEL</td>
+<td></td>
+</tr>
+<tr>
+<td>John Manning</td>
+<td>2020</td>
+<td>21</td>
+<td>O</td>
+<td>1406018</td>
+<td>400.000</td>
+<td>1</td>
+<td></td>
+<td>Retired</td>
+<td>San Francisco</td>
+<td>CALIFORNIANS FOR AFFORDABLE HOUSING, SPONSORED BY THE CALIFORNIA RENTAL HOUSING ASSOCIATION</td>
+</tr>
+<tr>
+<td>Richard Smith</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1259396</td>
+<td>325.000</td>
+<td>4</td>
+<td>Independent Living Partnership</td>
+<td>Manager</td>
+<td>Beaumont</td>
+<td>EQUALITY FOR CALIFORNIA FAMILIES</td>
+</tr>
+<tr>
+<td>Ryan Smith</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1259396</td>
+<td>295.000</td>
+<td>4</td>
+<td>RAWdance</td>
+<td>Dancer</td>
+<td>San Francisco</td>
+<td>EQUALITY FOR CALIFORNIA FAMILIES</td>
+</tr>
+<tr>
+<td>James Knight</td>
+<td>2016</td>
+<td>62</td>
+<td>O</td>
+<td>1302403</td>
+<td>287.080</td>
+<td>1</td>
+<td>State of California</td>
+<td>Correctional Officer</td>
+<td>West Sacramento</td>
+<td>CALIFORNIA CORRECTIONAL PEACE OFFICERS ASSOCIATION TRUTH IN AMERICAN GOVERNMENT FUND (CCPOA TAG FUND)</td>
+</tr>
+<tr>
+<td>David Price</td>
+<td>2016</td>
+<td>62</td>
+<td>O</td>
+<td>1302403</td>
+<td>287.080</td>
+<td>1</td>
+<td>State of California</td>
+<td>Correctional Officer</td>
+<td>West Sacramento</td>
+<td>CALIFORNIA CORRECTIONAL PEACE OFFICERS ASSOCIATION TRUTH IN AMERICAN GOVERNMENT FUND (CCPOA TAG FUND)</td>
+</tr>
+<tr>
+<td>Richard Smith</td>
+<td>2020</td>
+<td>15</td>
+<td>S</td>
+<td>1414110</td>
+<td>250.000</td>
+<td>1</td>
+<td>RCS Property Group Inc.</td>
+<td>Real Estate Broker</td>
+<td>San Jose</td>
+<td>KHAMIS INDEPENDENT FOR STATE SENATE DISTRICT 15 2020; JOHNNY</td>
+</tr>
+<tr>
+<td>James Clayton</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1259396</td>
+<td>250.000</td>
+<td>1</td>
+<td>Department of Veterans Affairs</td>
+<td>Nurse Anesthetist</td>
+<td>San Francisco</td>
+<td>EQUALITY FOR CALIFORNIA FAMILIES</td>
+</tr>
+<tr>
+<td>Marilyn Carlson Nelson</td>
+<td>2008</td>
+<td>8</td>
+<td>S</td>
+<td>1302592</td>
+<td>200.000</td>
+<td>1</td>
+<td>n/a</td>
+<td>Retired</td>
+<td>Burlingame</td>
+<td>PROTECTMARRIAGE.COM - YES ON 8</td>
+</tr>
+<tr>
+<td>Lisa Su</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1259396</td>
+<td>200.000</td>
+<td>3</td>
+<td>Travelzoo Inc.</td>
+<td>Controller</td>
+<td>Mountain View</td>
+<td>EQUALITY FOR CALIFORNIA FAMILIES</td>
+</tr>
+<tr>
+<td>John Johnson</td>
+<td>2018</td>
+<td>6</td>
+<td>S</td>
+<td>1268914</td>
+<td>180.000</td>
+<td>9</td>
+<td>N/A</td>
+<td>Retired</td>
+<td>Campbell</td>
+<td>DE MAIO - BALLOT MEASURE COMMITTEE; REFORM CALIFORNIA WITH CARL</td>
+</tr>
+<tr>
+<td>Robert Rich</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1301573</td>
+<td>150.000</td>
+<td>1</td>
+<td>Sarcom, Inc</td>
+<td>Business Executive</td>
+<td>Chicago</td>
+<td>EQUALITY CALIFORNIA ISSUES PAC</td>
+</tr>
+<tr>
+<td>Michael Kim</td>
+<td>2010</td>
+<td>19</td>
+<td>S</td>
+<td>1318272</td>
+<td>129.000</td>
+<td>3</td>
+<td>Self</td>
+<td>Project Management</td>
+<td>Vacaville</td>
+<td>TAX CANNABIS 2010</td>
+</tr>
+<tr>
+<td>George Roberts</td>
+<td>2020</td>
+<td>15</td>
+<td>O</td>
+<td>931447</td>
+<td>100.000</td>
+<td>1</td>
+<td>NONE</td>
+<td>RETIRED</td>
+<td>WOODSIDE</td>
+<td></td>
+</tr>
+<tr>
+<td>William Morris</td>
+<td>2024</td>
+<td>33</td>
+<td>O</td>
+<td>1405723</td>
+<td>100.000</td>
+<td>1</td>
+<td>Self</td>
+<td>Real Estate Investor</td>
+<td>Hermosa Beach</td>
+<td>APARTMENT ASSOCIATION OF GREATER LOS ANGELES ISSUES PAC</td>
+</tr>
+<tr>
+<td>Jared Smith</td>
+<td>2008</td>
+<td>8</td>
+<td>S</td>
+<td>1302592</td>
+<td>100.000</td>
+<td>1</td>
+<td>WedDepot.com</td>
+<td>Entrepreneur</td>
+<td>American Fork</td>
+<td>PROTECTMARRIAGE.COM - YES ON 8</td>
+</tr>
+<tr>
+<td>Mark Davis</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1301573</td>
+<td>100.000</td>
+<td>1</td>
+<td>McCann Worldgroup</td>
+<td>Finance Director</td>
+<td>San Francisco</td>
+<td>EQUALITY CALIFORNIA ISSUES PAC</td>
+</tr>
+<tr>
+<td>John Malone</td>
+<td>2020</td>
+<td>21</td>
+<td>O</td>
+<td>1406018</td>
+<td>100.000</td>
+<td>1</td>
+<td></td>
+<td>Retired</td>
+<td>San Francisco</td>
+<td>CALIFORNIANS FOR AFFORDABLE HOUSING, SPONSORED BY THE CALIFORNIA RENTAL HOUSING ASSOCIATION</td>
+</tr>
+<tr>
+<td>Charles Johnson</td>
+<td>2020</td>
+<td>15</td>
+<td>O</td>
+<td>931447</td>
+<td>100.000</td>
+<td>1</td>
+<td>NONE</td>
+<td>RETIRED</td>
+<td>OXNARD</td>
+<td></td>
+</tr>
+<tr>
+<td>Wendell Murphy</td>
+<td>2008</td>
+<td>8</td>
+<td>O</td>
+<td>1259396</td>
+<td>100.000</td>
+<td>1</td>
+<td>Same Name</td>
+<td>Self Employed Human Resources Consultant</td>
+<td>San Diego</td>
+<td>EQUALITY FOR CALIFORNIA FAMILIES</td>
+</tr>
+<tr>
+<td>John Henry</td>
+<td>2012</td>
+<td>30</td>
+<td>O</td>
+<td>922117</td>
+<td>50.000</td>
+<td>1</td>
+<td>C B R E</td>
+<td>FACILITIES MAINTENANCE</td>
+<td>SAN JOSE</td>
+<td></td>
+</tr>
+<tr>
+<td>David Green</td>
+<td>2020</td>
+<td>21</td>
+<td>S</td>
+<td>1418902</td>
+<td>1.000</td>
+<td>1</td>
+<td>Not Employed</td>
+<td>Not Employed</td>
+<td>Nashville</td>
+<td>HOMEOWNERS AND TENANTS UNITED SPONSORED BY AIDS HEALTHCARE FOUNDATION</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 17th row of 684 shown; full file: <a href="ca_ballot_billionaire_matches.csv">ca_ballot_billionaire_matches.csv</a>.</em></p>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>calaccess_to_parquet.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;California Cal-Access campaign-finance bulk export -&gt; parquet (the tables used for ballot-measure money).
+
+Run:  uv run --with polars,pyarrow python notebooks/calaccess_to_parquet.py
+Input:  notebooks/us_public_data/calaccess/dbwebexport.zip, from
+        https://campaignfinance.cdn.sos.ca.gov/dbwebexport.zip (refreshed daily by the Secretary of State)
+Output: notebooks/us_public_data/calaccess/&lt;TABLE&gt;.parquet, every column as a string, as published:
+  RCPT_CD                       itemized receipts (contributions), all filers, 1999-
+  CVR_CAMPAIGN_DISCLOSURE_CD    filing cover pages: filer, period, ballot measure number and support/oppose code
+  CVR2_CAMPAIGN_DISCLOSURE_CD   extra cover-page rows: further measures a committee supports or opposes
+  FILERNAME_CD, FILER_FILINGS_CD, LOOKUP_CODES_CD
+Amendments: rows repeat per AMEND_ID; keep the highest AMEND_ID per FILING_ID before summing.
+The TSVs are tab-separated with no quoting (stray quotes are literal) and some latin-1 bytes.
+&quot;&quot;&quot;
+import tempfile
+import zipfile
+from pathlib import Path
+
+import polars as pl
+
+ROOT = Path(__file__).resolve().parent / &quot;us_public_data&quot; / &quot;calaccess&quot;
+TABLES = [&quot;RCPT_CD&quot;, &quot;CVR_CAMPAIGN_DISCLOSURE_CD&quot;, &quot;CVR2_CAMPAIGN_DISCLOSURE_CD&quot;, &quot;FILERNAME_CD&quot;,
+          &quot;FILER_FILINGS_CD&quot;, &quot;LOOKUP_CODES_CD&quot;]
+
+
+def convert(z: zipfile.ZipFile, table: str, tmp: Path) -&gt; int:
+    out = ROOT / f&quot;{table}.parquet&quot;
+    tsv = Path(z.extract(f&quot;CalAccess/DATA/{table}.TSV&quot;, tmp))
+    pl.scan_csv(tsv, separator=&quot;\t&quot;, quote_char=None, infer_schema=False, encoding=&quot;utf8-lossy&quot;,
+                truncate_ragged_lines=True).sink_parquet(out, compression=&quot;zstd&quot;)
+    tsv.unlink()
+    return pl.scan_parquet(out).select(pl.len()).collect().item()
+
+
+if __name__ == &quot;__main__&quot;:
+    with zipfile.ZipFile(ROOT / &quot;dbwebexport.zip&quot;) as z, tempfile.TemporaryDirectory(dir=ROOT) as td:
+        for t in TABLES:
+            print(f&quot;{t}: {convert(z, t, Path(td)):,} rows&quot;, flush=True)
+</code></pre>
+<h3><code>ca_ballot_billionaires.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Billionaire money on California ballot measures, social and economic, next to how the state voted.
+
+Data:
+  Cal-Access bulk export (us_public_data/calaccess/*.parquet, built by notebooks/calaccess_to_parquet.py):
+    itemized receipts (RCPT_CD) of every committee registered for or against each measure.
+  Committees: cover-page measure number and support/oppose code (CVR, CVR2) for the election year, plus committee
+    names naming the measure (&quot;Yes on 64&quot;, &quot;No on Prop 8&quot;) in that cycle; COMMITTEE_FIX overrides by hand.
+  Billionaires: everyone on the Forbes 400 in 1980-2014 (Bonica &amp; Rosenthal, via Broockman et al.) and US
+    billionaires on the Forbes 2025 and 2026 lists, matched to individual donors on last name + first name
+    (first token, common nicknames); spouses in SPOUSES and giving vehicles in VEHICLES are credited to the
+    billionaire's household. Matches were reviewed by hand (FALSE_MATCH); households count once (HOUSEHOLD).
+  Results: official statewide yes shares, from the measures' Wikipedia/Ballotpedia result tables.
+&quot;Left side&quot; is the socially liberal or redistributive side of each measure (LEFT = which vote that is).
+Run:  uv run --with polars,pyarrow,matplotlib,pillow,fonttools python notebooks/rich_poor_opinion/ca_ballot_billionaires.py
+Writes ca_ballot_billionaires_vs_voters.png (Unwatermarked graphs/) and its _wm copy (Substack Notes/).
+&quot;&quot;&quot;
+import json
+import re
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import polars as pl
+
+from ces_income_gaps import BG, GRID, INK, INK2, MUTED, UNWM, pb, style, watermark
+
+HERE = Path(__file__).resolve().parent
+PUB = HERE.parent / &quot;us_public_data&quot;
+CAL = PUB / &quot;calaccess&quot;
+
+# (year, prop, short label, social?, left-side vote, statewide yes %)
+MEASURES = [
+    (2008, &quot;8&quot;, &quot;Ban same-sex marriage (Prop 8, 2008)&quot;, True, &quot;N&quot;, 52.24),
+    (2024, &quot;3&quot;, &quot;Repeal same-sex marriage ban (Prop 3, 2024)&quot;, True, &quot;Y&quot;, 62.62),
+    (2008, &quot;4&quot;, &quot;Parental notice for minors' abortions (Prop 4, 2008)&quot;, True, &quot;N&quot;, 48.04),
+    (2022, &quot;1&quot;, &quot;Abortion rights in constitution (Prop 1, 2022)&quot;, True, &quot;Y&quot;, 66.88),
+    (2010, &quot;19&quot;, &quot;Legalize marijuana (Prop 19, 2010)&quot;, True, &quot;Y&quot;, 46.54),
+    (2016, &quot;64&quot;, &quot;Legalize marijuana (Prop 64, 2016)&quot;, True, &quot;Y&quot;, 57.13),
+    (2016, &quot;63&quot;, &quot;Ammunition background checks (Prop 63, 2016)&quot;, True, &quot;Y&quot;, 63.08),
+    (2012, &quot;34&quot;, &quot;Repeal death penalty (Prop 34, 2012)&quot;, True, &quot;Y&quot;, 48.05),
+    (2016, &quot;62&quot;, &quot;Repeal death penalty (Prop 62, 2016)&quot;, True, &quot;Y&quot;, 46.85),
+    (2016, &quot;66&quot;, &quot;Speed up executions (Prop 66, 2016)&quot;, True, &quot;N&quot;, 51.13),
+    (2012, &quot;36&quot;, &quot;Soften three strikes (Prop 36, 2012)&quot;, True, &quot;Y&quot;, 69.30),
+    (2014, &quot;47&quot;, &quot;Reduce drug and theft penalties (Prop 47, 2014)&quot;, True, &quot;Y&quot;, 59.61),
+    (2016, &quot;57&quot;, &quot;Earlier parole for nonviolent felons (Prop 57, 2016)&quot;, True, &quot;Y&quot;, 64.46),
+    (2020, &quot;20&quot;, &quot;Tougher sentencing (Prop 20, 2020)&quot;, True, &quot;N&quot;, 38.28),
+    (2020, &quot;25&quot;, &quot;End cash bail (Prop 25, 2020)&quot;, True, &quot;Y&quot;, 43.59),
+    (2020, &quot;17&quot;, &quot;Let parolees vote (Prop 17, 2020)&quot;, True, &quot;Y&quot;, 58.55),
+    (2020, &quot;16&quot;, &quot;Restore affirmative action (Prop 16, 2020)&quot;, True, &quot;Y&quot;, 42.77),
+    (2024, &quot;36&quot;, &quot;Tougher drug and theft penalties (Prop 36, 2024)&quot;, True, &quot;N&quot;, 68.42),
+    (2012, &quot;30&quot;, &quot;Income tax on high earners (Prop 30, 2012)&quot;, False, &quot;Y&quot;, 55.37),
+    (2016, &quot;55&quot;, &quot;Extend high-earner income tax (Prop 55, 2016)&quot;, False, &quot;Y&quot;, 63.27),
+    (2012, &quot;39&quot;, &quot;Close multistate corporate tax break (Prop 39, 2012)&quot;, False, &quot;Y&quot;, 61.10),
+    (2020, &quot;15&quot;, &quot;Raise commercial property taxes (Prop 15, 2020)&quot;, False, &quot;Y&quot;, 48.03),
+    (2022, &quot;30&quot;, &quot;Tax $2M+ incomes for EVs (Prop 30, 2022)&quot;, False, &quot;Y&quot;, 42.37),
+    (2018, &quot;10&quot;, &quot;Allow local rent control (Prop 10, 2018)&quot;, False, &quot;Y&quot;, 40.57),
+    (2020, &quot;21&quot;, &quot;Expand rent control (Prop 21, 2020)&quot;, False, &quot;Y&quot;, 40.15),
+    (2024, &quot;33&quot;, &quot;Allow local rent control (Prop 33, 2024)&quot;, False, &quot;Y&quot;, 39.98),
+    (2024, &quot;32&quot;, &quot;$18 minimum wage (Prop 32, 2024)&quot;, False, &quot;Y&quot;, 49.29),
+    (2020, &quot;22&quot;, &quot;Gig drivers as contractors (Prop 22, 2020)&quot;, False, &quot;N&quot;, 58.63),
+    (2012, &quot;32&quot;, &quot;Ban union payroll deductions (Prop 32, 2012)&quot;, False, &quot;N&quot;, 43.40),
+    (2018, &quot;6&quot;, &quot;Repeal gas-tax increase (Prop 6, 2018)&quot;, False, &quot;N&quot;, 43.18),
+]
+ELECTION = {2008: &quot;2008-11-04&quot;, 2010: &quot;2010-11-02&quot;, 2012: &quot;2012-11-06&quot;, 2014: &quot;2014-11-04&quot;, 2016: &quot;2016-11-08&quot;,
+            2018: &quot;2018-11-06&quot;, 2020: &quot;2020-11-03&quot;, 2022: &quot;2022-11-08&quot;, 2024: &quot;2024-11-05&quot;}
+NICK = {&quot;bill&quot;: &quot;william&quot;, &quot;will&quot;: &quot;william&quot;, &quot;bob&quot;: &quot;robert&quot;, &quot;rob&quot;: &quot;robert&quot;, &quot;jim&quot;: &quot;james&quot;, &quot;mike&quot;: &quot;michael&quot;,
+        &quot;tom&quot;: &quot;thomas&quot;, &quot;dick&quot;: &quot;richard&quot;, &quot;rick&quot;: &quot;richard&quot;, &quot;chuck&quot;: &quot;charles&quot;, &quot;charlie&quot;: &quot;charles&quot;,
+        &quot;dave&quot;: &quot;david&quot;, &quot;dan&quot;: &quot;daniel&quot;, &quot;steve&quot;: &quot;steven&quot;, &quot;stephen&quot;: &quot;steven&quot;, &quot;ken&quot;: &quot;kenneth&quot;, &quot;ed&quot;: &quot;edward&quot;,
+        &quot;ted&quot;: &quot;edward&quot;, &quot;larry&quot;: &quot;lawrence&quot;, &quot;joe&quot;: &quot;joseph&quot;, &quot;jack&quot;: &quot;john&quot;, &quot;tony&quot;: &quot;anthony&quot;, &quot;andy&quot;: &quot;andrew&quot;,
+        &quot;pete&quot;: &quot;peter&quot;, &quot;ron&quot;: &quot;ronald&quot;, &quot;don&quot;: &quot;donald&quot;, &quot;jerry&quot;: &quot;gerald&quot;, &quot;sam&quot;: &quot;samuel&quot;, &quot;nick&quot;: &quot;nicholas&quot;,
+        &quot;liz&quot;: &quot;elizabeth&quot;, &quot;beth&quot;: &quot;elizabeth&quot;, &quot;kathy&quot;: &quot;katherine&quot;, &quot;cathy&quot;: &quot;catherine&quot;, &quot;sue&quot;: &quot;susan&quot;,
+        &quot;patty&quot;: &quot;patricia&quot;, &quot;pat&quot;: &quot;patricia&quot;, &quot;matt&quot;: &quot;matthew&quot;, &quot;greg&quot;: &quot;gregory&quot;, &quot;jeff&quot;: &quot;jeffrey&quot;,
+        &quot;phil&quot;: &quot;philip&quot;, &quot;fred&quot;: &quot;frederick&quot;, &quot;herb&quot;: &quot;herbert&quot;, &quot;hank&quot;: &quot;henry&quot;, &quot;harry&quot;: &quot;henry&quot;}
+
+
+def first_token(s: str) -&gt; str:
+    t = re.sub(r&quot;[^a-z ]&quot;, &quot; &quot;, (s or &quot;&quot;).lower()).split()
+    t = [w for w in t if len(w) &gt; 1 and w not in (&quot;mr&quot;, &quot;mrs&quot;, &quot;ms&quot;, &quot;dr&quot;, &quot;jr&quot;, &quot;sr&quot;, &quot;ii&quot;, &quot;iii&quot;)]
+    return NICK.get(t[0], t[0]) if t else &quot;&quot;
+
+
+def last_name(s: str) -&gt; str:
+    t = re.sub(r&quot;[^a-z\- ]&quot;, &quot; &quot;, (s or &quot;&quot;).lower()).split()
+    t = [w for w in t if w not in (&quot;jr&quot;, &quot;sr&quot;, &quot;ii&quot;, &quot;iii&quot;, &quot;iv&quot;, &quot;family&quot;)]
+    return t[-1] if t else &quot;&quot;
+
+
+# spouses who give in their own name, credited to the listed billionaire's household (distinctive names only)
+SPOUSES = {&quot;Patty Quillin&quot;: &quot;Reed Hastings&quot;, &quot;Cari Tuna&quot;: &quot;Dustin Moskovitz&quot;, &quot;Priscilla Chan&quot;: &quot;Mark Zuckerberg&quot;,
+           &quot;Wendy Schmidt&quot;: &quot;Eric Schmidt&quot;, &quot;Connie Ballmer&quot;: &quot;Steve Ballmer&quot;, &quot;Stacy Schusterman&quot;: &quot;Lynn Schusterman&quot;}
+
+
+def billionaires() -&gt; pl.DataFrame:
+    &quot;&quot;&quot;One row per (last, first) key with a display name.&quot;&quot;&quot;
+    rows = []
+    f400 = pl.read_csv(PUB / &quot;elites&quot; / &quot;broockman2019&quot; / &quot;f400_wtech.tab&quot;, separator=&quot;\t&quot;, quote_char='&quot;')
+    for fn, ln in f400.filter(pl.col(&quot;in400&quot;) == 1).select(&quot;fname&quot;, &quot;lname&quot;).unique(maintain_order=True).iter_rows():
+        rows.append((last_name(ln), first_token(fn), f&quot;{fn} {ln}&quot;.title()))
+    d = json.loads((HERE.parent / &quot;billionaires_inheritance&quot; / &quot;forbes_2026.json&quot;).read_text())
+    for p in d[&quot;personList&quot;][&quot;personsLists&quot;]:
+        if &quot;United States&quot; in (p.get(&quot;country&quot;), p.get(&quot;countryOfCitizenship&quot;)) and p.get(&quot;lastName&quot;):
+            rows.append((last_name(p[&quot;lastName&quot;]), first_token(p.get(&quot;firstName&quot;, &quot;&quot;)), p[&quot;personName&quot;]))
+    f25 = pl.read_csv(HERE.parent / &quot;billionaires_inheritance&quot; / &quot;forbes_2025.csv&quot;)
+    for name, res in f25.select(&quot;name&quot;, &quot;residence&quot;).iter_rows():
+        if res == &quot;United States&quot;:
+            nm = re.sub(r&quot;\s*&amp;\s*family$&quot;, &quot;&quot;, name)
+            rows.append((last_name(nm), first_token(nm), nm))
+    b = pl.DataFrame(rows, schema=[&quot;last&quot;, &quot;first&quot;, &quot;billionaire&quot;], orient=&quot;row&quot;)
+    b = b.filter((pl.col(&quot;last&quot;) != &quot;&quot;) &amp; (pl.col(&quot;first&quot;) != &quot;&quot;)).unique([&quot;last&quot;, &quot;first&quot;], keep=&quot;first&quot;,
+                                                                           maintain_order=True)
+    display = {(la, fi): nm for la, fi, nm in b.iter_rows()}
+    spouses = [(last_name(sp), first_token(sp), display[(last_name(pt), first_token(pt))]) for sp, pt in SPOUSES.items()]
+    return pl.concat([b, pl.DataFrame(spouses, schema=b.schema, orient=&quot;row&quot;)]).unique([&quot;last&quot;, &quot;first&quot;], keep=&quot;last&quot;)
+
+
+# (year, prop, filer id) -&gt; side, where cover pages disagree or are wrong; None drops the committee
+COMMITTEE_FIX = {
+    (2008, &quot;4&quot;, &quot;1276142&quot;): &quot;O&quot;,   # Campaign for Teen Safety (Planned Parenthood affiliates): No on 4
+    (2020, &quot;16&quot;, &quot;1428061&quot;): &quot;O&quot;,  # Parents and Students for Racial Equality, No on Prop 16
+    (2012, &quot;30&quot;, &quot;1344800&quot;): &quot;S&quot;,  # California Calls Action Fund, for Props 30 and 39
+    (2016, &quot;63&quot;, &quot;1382067&quot;): &quot;O&quot;,  # California Rifle and Pistol Association committee opposed Prop 63
+    (2024, &quot;33&quot;, &quot;1458128&quot;): None,  # TogetherSF Action: tagged both sides, position not established
+}
+
+
+def committees() -&gt; pl.DataFrame:
+    &quot;&quot;&quot;(year, prop, filer_id, side) from cover-page measure fields and committee names.&quot;&quot;&quot;
+    num = pl.col(&quot;BAL_NUM&quot;).str.extract(r&quot;(\d+)&quot;, 1)
+    side = pl.col(&quot;SUP_OPP_CD&quot;).str.to_uppercase().str.slice(0, 1)
+    cvr = pl.scan_parquet(CAL / &quot;CVR_CAMPAIGN_DISCLOSURE_CD.parquet&quot;).with_columns(
+        yr=pl.col(&quot;ELECT_DATE&quot;).str.extract(r&quot;(\d{4})&quot;, 1).cast(pl.Int64, strict=False),
+        thru=pl.col(&quot;THRU_DATE&quot;).str.extract(r&quot;(\d{4})&quot;, 1).cast(pl.Int64, strict=False))
+    a = cvr.select(&quot;FILER_ID&quot;, &quot;yr&quot;, num.alias(&quot;prop&quot;), side.alias(&quot;side&quot;), &quot;BAL_JURIS&quot;)
+    cvr2 = pl.scan_parquet(CAL / &quot;CVR2_CAMPAIGN_DISCLOSURE_CD.parquet&quot;).select(
+        &quot;FILING_ID&quot;, num.alias(&quot;prop&quot;), side.alias(&quot;side&quot;), &quot;BAL_JURIS&quot;)
+    b = cvr2.join(cvr.select(&quot;FILING_ID&quot;, &quot;FILER_ID&quot;, &quot;yr&quot;).unique(&quot;FILING_ID&quot;), on=&quot;FILING_ID&quot;).select(
+        &quot;FILER_ID&quot;, &quot;yr&quot;, &quot;prop&quot;, &quot;side&quot;, &quot;BAL_JURIS&quot;)
+    tagged = pl.concat([a, b]).filter(
+        pl.col(&quot;prop&quot;).is_not_null() &amp; pl.col(&quot;side&quot;).is_in([&quot;S&quot;, &quot;O&quot;])
+        &amp; ~pl.col(&quot;BAL_JURIS&quot;).fill_null(&quot;&quot;).str.to_lowercase().str.contains(&quot;city|county|district|local&quot;))
+    # names: &quot;Yes on 64&quot;, &quot;No on Prop. 8&quot;, &quot;Support Proposition 47&quot;, &quot;Oppose 22&quot;
+    pat = r&quot;(?i)\b(yes|no|support|oppose|for|against)\b[^0-9]{0,25}?\b(?:prop(?:osition)?\.?\s*)?(\d{1,2})\b&quot;
+    names = cvr.filter(pl.col(&quot;FILER_NAML&quot;).str.contains(pat)).select(
+        &quot;FILER_ID&quot;, pl.coalesce(&quot;yr&quot;, &quot;thru&quot;).alias(&quot;yr&quot;),
+        pl.col(&quot;FILER_NAML&quot;).str.extract(pat, 2).alias(&quot;prop&quot;),
+        pl.when(pl.col(&quot;FILER_NAML&quot;).str.extract(pat, 1).str.to_lowercase().is_in([&quot;yes&quot;, &quot;support&quot;, &quot;for&quot;]))
+        .then(pl.lit(&quot;S&quot;)).otherwise(pl.lit(&quot;O&quot;)).alias(&quot;side&quot;))
+    allc = pl.concat([tagged.drop(&quot;BAL_JURIS&quot;).with_columns(named=pl.lit(False)),
+                      names.with_columns(named=pl.lit(True))]).collect()
+    keys = pl.DataFrame([(y, p) for y, p, *_ in MEASURES], schema=[&quot;yr&quot;, &quot;prop&quot;], orient=&quot;row&quot;)
+    allc = (allc.join(keys, on=[&quot;yr&quot;, &quot;prop&quot;])
+            .group_by(&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;, &quot;side&quot;).agg(pl.col(&quot;named&quot;).any()))
+    # general-purpose committees (parties, union and trade PACs) take money for everything; keep them only
+    # when their own name ties them to the measure
+    ctype = (cvr.select(&quot;FILER_ID&quot;, &quot;CMTTE_TYPE&quot;).drop_nulls().group_by(&quot;FILER_ID&quot;)
+             .agg(pl.col(&quot;CMTTE_TYPE&quot;).mode().first()).collect())
+    out = (allc.join(ctype, on=&quot;FILER_ID&quot;, how=&quot;left&quot;)
+           .filter((pl.col(&quot;CMTTE_TYPE&quot;) != &quot;G&quot;) | pl.col(&quot;CMTTE_TYPE&quot;).is_null() | pl.col(&quot;named&quot;))
+           .drop(&quot;named&quot;, &quot;CMTTE_TYPE&quot;))
+    fix = pl.DataFrame([(y, p, f, s) for (y, p, f), s in COMMITTEE_FIX.items()],
+                       schema={&quot;yr&quot;: pl.Int64, &quot;prop&quot;: pl.String, &quot;FILER_ID&quot;: pl.String, &quot;fix&quot;: pl.String}, orient=&quot;row&quot;)
+    out = (out.join(fix, on=[&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;], how=&quot;left&quot;)
+           .filter(~pl.struct(&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;).is_in(fix.filter(pl.col(&quot;fix&quot;).is_null())
+                                                              .select(pl.struct(&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;)).to_series().implode())
+                   | pl.col(&quot;fix&quot;).is_not_null())
+           .with_columns(side=pl.coalesce(&quot;fix&quot;, &quot;side&quot;)).drop(&quot;fix&quot;).unique([&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;, &quot;side&quot;]))
+    # anything still on both sides of one measure is unresolved: drop it
+    n_sides = pl.col(&quot;side&quot;).n_unique().over(&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;)
+    return out.filter(n_sides == 1)
+
+
+VEHICLES = {  # donor-name regex -&gt; billionaire, for entities one billionaire funds and directs
+    r&quot;(?i)open society policy center&quot;: &quot;George Soros&quot;,
+    r&quot;(?i)open philanthropy action fund&quot;: &quot;Dustin Moskovitz&quot;,
+    r&quot;(?i)action now initiative&quot;: &quot;John Arnold&quot;,
+}
+
+
+# name matches reviewed by hand against employer/occupation/city: (name, city or None = all rows); compared on the
+# normalized (last, first) key, so &quot;Charlie&quot; and &quot;Charles&quot; Munger are one entry
+FALSE_MATCH = [
+    (&quot;Charles Munger&quot;, None),    # Charles T. Munger Jr., physicist, the son, not the Berkshire vice chairman
+    (&quot;James Johnson&quot;, None), (&quot;Robert Anderson&quot;, None), (&quot;John Hanson&quot;, None),
+    (&quot;John Cox&quot;, None),          # the Rancho Santa Fe investment adviser and candidate
+    (&quot;William Fisher&quot;, &quot;Carmel&quot;),  # a Carmel attorney; the Manzanita Capital William Fisher (Gap heir) stays
+]
+HOUSEHOLD = {&quot;Lynda Resnick&quot;: &quot;Resnick family&quot;, &quot;Stewart Resnick&quot;: &quot;Resnick family&quot;, &quot;Ray Dolby&quot;: &quot;Dolby family&quot;,
+             &quot;Dagmar Dolby&quot;: &quot;Dolby family&quot;}  # by (last, first) key, so list-name variants fold in
+MIN_USD = 10_000  # a billionaire counts on a measure when they gave at least this much to one side
+
+
+def match_billionaires(r: pl.DataFrame, b: pl.DataFrame) -&gt; pl.DataFrame:
+    &quot;&quot;&quot;Receipts from billionaires: individuals by (last, first) key, plus listed giving vehicles.&quot;&quot;&quot;
+    ind = (r.filter(pl.col(&quot;ENTITY_CD&quot;) == &quot;IND&quot;)
+           .with_columns(last=pl.col(&quot;CTRIB_NAML&quot;).map_elements(last_name, return_dtype=pl.String),
+                         first=pl.col(&quot;CTRIB_NAMF&quot;).map_elements(first_token, return_dtype=pl.String))
+           .join(b, on=[&quot;last&quot;, &quot;first&quot;]))
+    for who, city in FALSE_MATCH:
+        bad = (pl.col(&quot;last&quot;) == last_name(who)) &amp; (pl.col(&quot;first&quot;) == first_token(who))
+        if city:
+            bad = bad &amp; (pl.col(&quot;CTRIB_CITY&quot;).str.to_lowercase() == city.lower())
+        ind = ind.filter(~bad)
+    for who, house in HOUSEHOLD.items():
+        ind = ind.with_columns(billionaire=pl.when((pl.col(&quot;last&quot;) == last_name(who)) &amp; (pl.col(&quot;first&quot;) == first_token(who)))
+                               .then(pl.lit(house)).otherwise(pl.col(&quot;billionaire&quot;)))
+    veh = r.with_columns(billionaire=pl.lit(None, pl.String))
+    for pat, who in VEHICLES.items():
+        veh = veh.with_columns(billionaire=pl.when(pl.col(&quot;CTRIB_NAML&quot;).str.contains(pat)).then(pl.lit(who))
+                               .otherwise(pl.col(&quot;billionaire&quot;)))
+    return pl.concat([ind.drop(&quot;last&quot;, &quot;first&quot;), veh.filter(pl.col(&quot;billionaire&quot;).is_not_null())], how=&quot;diagonal&quot;)
+
+
+def tally(m: pl.DataFrame) -&gt; pl.DataFrame:
+    &quot;&quot;&quot;Per measure: billionaire donors and dollars on the left side, next to the left-side vote share.&quot;&quot;&quot;
+    meta = pl.DataFrame([(y, p, lab, so, left, yes) for y, p, lab, so, left, yes in MEASURES],
+                        schema=[&quot;yr&quot;, &quot;prop&quot;, &quot;label&quot;, &quot;social&quot;, &quot;left&quot;, &quot;yes&quot;], orient=&quot;row&quot;)
+    g = (m.group_by(&quot;yr&quot;, &quot;prop&quot;, &quot;billionaire&quot;, &quot;side&quot;).agg(usd=pl.col(&quot;AMOUNT&quot;).sum())
+         .filter(pl.col(&quot;usd&quot;) &gt;= MIN_USD)
+         .sort(&quot;usd&quot;, descending=True).unique([&quot;yr&quot;, &quot;prop&quot;, &quot;billionaire&quot;], keep=&quot;first&quot;)  # one side each
+         .join(meta, on=[&quot;yr&quot;, &quot;prop&quot;])
+         .with_columns(on_left=(pl.col(&quot;side&quot;) == pl.when(pl.col(&quot;left&quot;) == &quot;Y&quot;).then(pl.lit(&quot;S&quot;)).otherwise(pl.lit(&quot;O&quot;)))))
+    t = g.group_by(&quot;yr&quot;, &quot;prop&quot;).agg(
+        donors=pl.len(), left_donors=pl.col(&quot;on_left&quot;).sum(),
+        usd=pl.col(&quot;usd&quot;).sum(), left_usd=pl.col(&quot;usd&quot;).filter(pl.col(&quot;on_left&quot;)).sum(),
+        left_names=pl.col(&quot;billionaire&quot;).filter(pl.col(&quot;on_left&quot;)).sort_by(pl.col(&quot;usd&quot;).filter(pl.col(&quot;on_left&quot;)),
+                                                                              descending=True).head(3),
+        right_names=pl.col(&quot;billionaire&quot;).filter(~pl.col(&quot;on_left&quot;)).sort_by(pl.col(&quot;usd&quot;).filter(~pl.col(&quot;on_left&quot;)),
+                                                                               descending=True).head(3))
+    return (meta.join(t, on=[&quot;yr&quot;, &quot;prop&quot;], how=&quot;left&quot;)
+            .with_columns(pl.col(&quot;donors&quot;, &quot;left_donors&quot;).fill_null(0), pl.col(&quot;usd&quot;, &quot;left_usd&quot;).fill_null(0.0),
+                          voters_left=pl.when(pl.col(&quot;left&quot;) == &quot;Y&quot;).then(pl.col(&quot;yes&quot;)).otherwise(100 - pl.col(&quot;yes&quot;)))
+            .with_columns(donors_left=pl.col(&quot;left_donors&quot;) / pl.col(&quot;donors&quot;) * 100,
+                          usd_left=pl.col(&quot;left_usd&quot;) / pl.col(&quot;usd&quot;) * 100))
+
+
+def receipts(c: pl.DataFrame) -&gt; pl.DataFrame:
+    &quot;&quot;&quot;Contributions to the mapped committees from Jan 1 of the year before the election through election day,
+    latest amendment of each filing only.&quot;&quot;&quot;
+    cvr = (pl.scan_parquet(CAL / &quot;CVR_CAMPAIGN_DISCLOSURE_CD.parquet&quot;).select(&quot;FILING_ID&quot;, &quot;FILER_ID&quot;)
+           .unique(&quot;FILING_ID&quot;))
+    r = (pl.scan_parquet(CAL / &quot;RCPT_CD.parquet&quot;)
+         .select(&quot;FILING_ID&quot;, &quot;AMEND_ID&quot;, &quot;TRAN_ID&quot;, &quot;ENTITY_CD&quot;, &quot;CTRIB_NAML&quot;, &quot;CTRIB_NAMF&quot;, &quot;CTRIB_CITY&quot;,
+                 &quot;CTRIB_ST&quot;, &quot;CTRIB_EMP&quot;, &quot;CTRIB_OCC&quot;, &quot;RCPT_DATE&quot;, &quot;AMOUNT&quot;)
+         .with_columns(pl.col(&quot;AMEND_ID&quot;).cast(pl.Int64, strict=False),
+                       pl.col(&quot;AMOUNT&quot;).cast(pl.Float64, strict=False),
+                       date=pl.col(&quot;RCPT_DATE&quot;).str.extract(r&quot;^(\d+/\d+/\d{4})&quot;, 1).str.to_date(&quot;%m/%d/%Y&quot;, strict=False))
+         .filter(pl.col(&quot;AMEND_ID&quot;) == pl.col(&quot;AMEND_ID&quot;).max().over(&quot;FILING_ID&quot;))
+         .join(cvr, on=&quot;FILING_ID&quot;))
+    ids = c.select(&quot;FILER_ID&quot;).unique()
+    r = r.join(ids.lazy(), on=&quot;FILER_ID&quot;).collect()
+    win = pl.DataFrame([(y, p, pl.Series([ELECTION[y]]).str.to_date()[0]) for y, p, *_ in MEASURES],
+                       schema=[&quot;yr&quot;, &quot;prop&quot;, &quot;eday&quot;], orient=&quot;row&quot;)
+    out = (r.join(c, on=&quot;FILER_ID&quot;).join(win, on=[&quot;yr&quot;, &quot;prop&quot;])
+           .filter((pl.col(&quot;date&quot;) &lt;= pl.col(&quot;eday&quot;)) &amp; (pl.col(&quot;date&quot;).dt.year() &gt;= pl.col(&quot;yr&quot;) - 1)))
+    return out.unique([&quot;yr&quot;, &quot;prop&quot;, &quot;FILER_ID&quot;, &quot;FILING_ID&quot;, &quot;TRAN_ID&quot;])
+
+
+def chart(t: pl.DataFrame) -&gt; Path:
+    &quot;&quot;&quot;Each measure a row: % of voters vs % of billionaire donors on the liberal side.&quot;&quot;&quot;
+    soc = t.filter(pl.col(&quot;social&quot;) &amp; (pl.col(&quot;donors&quot;) &gt; 0))
+    eco = t.filter(~pl.col(&quot;social&quot;) &amp; (pl.col(&quot;donors&quot;) &gt; 0))
+    pooled = {k: (d[&quot;left_donors&quot;].sum() / d[&quot;donors&quot;].sum() * 100, d[&quot;voters_left&quot;].mean()) for k, d in
+              ((&quot;soc&quot;, soc), (&quot;eco&quot;, eco))}
+    rows = [(&quot;header&quot;, &quot;Social issues&quot;)] + [(&quot;item&quot;, r) for r in soc.iter_rows(named=True)] + \
+           [(&quot;header&quot;, &quot;Economic issues&quot;)] + [(&quot;item&quot;, r) for r in eco.iter_rows(named=True)]
+    fig, ax = plt.subplots(figsize=(11, 12.6), dpi=150)
+    style(ax)
+    y, yt, yl = 0.0, [], []
+    for kind, r in rows:
+        if kind == &quot;header&quot;:
+            y += 0.5
+            ax.text(-2, y, r.upper(), fontsize=12.5, fontweight=&quot;bold&quot;, color=INK, ha=&quot;right&quot;, va=&quot;center&quot;)
+            y += 1.0
+            continue
+        v, b = r[&quot;voters_left&quot;], r[&quot;donors_left&quot;]
+        ax.plot([v, b], [y, y], color=pb.MUTE, lw=3, solid_capstyle=&quot;round&quot;, zorder=2)
+        ax.scatter(v, y, s=70, color=pb.NAVY, edgecolor=BG, linewidth=1.4, zorder=3, clip_on=False)
+        ax.scatter(b, y, s=70, color=pb.RED, edgecolor=BG, linewidth=1.4, zorder=4, clip_on=False)
+        ax.text(106, y, f&quot;{r['left_donors']} of {r['donors']}&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
+        yt.append(y)
+        yl.append(r[&quot;label&quot;])
+        y += 1
+    ax.axvline(50, color=MUTED, lw=1, ls=(0, (3, 3)), zorder=1)
+    ax.set_yticks(yt)
+    ax.set_yticklabels(yl, fontsize=10, color=INK)
+    ax.set_ylim(y - 0.4, -0.4)
+    ax.set_xlim(0, 100)
+    ax.xaxis.tick_top()
+    ax.set_xticks(range(0, 101, 25))
+    ax.set_xticklabels([f&quot;{v}%&quot; for v in range(0, 101, 25)])
+    ax.text(106, -0.15, &quot;Billionaires\non liberal side&quot;, fontsize=9, color=MUTED, va=&quot;bottom&quot;, linespacing=1.1)
+    for lab, color, x in ((&quot;California voters&quot;, pb.NAVY, 0.0), (&quot;Billionaire donors&quot;, pb.RED, 0.2)):
+        ax.scatter([], [], s=70, color=color, label=lab)
+    ax.legend(loc=&quot;lower left&quot;, bbox_to_anchor=(-0.47, 1.04), ncol=2, frameon=False, fontsize=10.5,
+              handletextpad=0.3, columnspacing=1.6)
+    (sb, sv), (eb, ev) = pooled[&quot;soc&quot;], pooled[&quot;eco&quot;]
+    fig.suptitle(&quot;Billionaires who fund social-issue ballot fights almost always take the liberal side&quot;,
+                 x=0.02, y=0.985, ha=&quot;left&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.02, 0.958, f&quot;% on the socially liberal or redistributive side of each California proposition. Social &quot;
+             f&quot;measures: {sb:.0f}% of billionaire donors vs {sv:.0f}% of voters;\neconomic measures: {eb:.0f}% vs &quot;
+             f&quot;{ev:.0f}%. Measures with no billionaire donor are left out.&quot;, fontsize=10.5, color=INK2, ha=&quot;left&quot;,
+             va=&quot;top&quot;, linespacing=1.35)
+    fig.text(0.02, 0.012, &quot;Source: Cal-Access itemized contributions to each measure's committees, from Jan 1 of the &quot;
+             &quot;year before the election to election day; Secretary of State results.\nBillionaires = Forbes 400 &quot;
+             &quot;1980–2014 or Forbes 2025/26 US billionaires, matched by name and checked by hand; a donor counts with &quot;
+             f&quot;${MIN_USD:,}+ to one side. Households, including spouses, counted once.&quot;, fontsize=8.5, color=MUTED, ha=&quot;left&quot;)
+    fig.subplots_adjust(left=0.36, right=0.87, top=0.86, bottom=0.05)
+    UNWM.mkdir(parents=True, exist_ok=True)
+    out = UNWM / &quot;ca_ballot_billionaires_vs_voters.png&quot;
+    fig.savefig(out, facecolor=BG)
+    plt.close(fig)
+    return out
+
+
+if __name__ == &quot;__main__&quot;:
+    pl.Config.set_tbl_rows(200)
+    pl.Config.set_tbl_width_chars(220)
+    pl.Config.set_fmt_str_lengths(70)
+    b = billionaires()
+    print(f&quot;{b.height:,} billionaire name keys&quot;)
+    c = committees()
+    names = (pl.scan_parquet(CAL / &quot;FILERNAME_CD.parquet&quot;).select(&quot;FILER_ID&quot;, &quot;NAML&quot;).collect()
+             .unique(&quot;FILER_ID&quot;, keep=&quot;last&quot;))
+    r = receipts(c)
+    m = match_billionaires(r, b)
+    review = (m.group_by(&quot;billionaire&quot;, &quot;yr&quot;, &quot;prop&quot;, &quot;side&quot;, &quot;FILER_ID&quot;)
+              .agg(usd=pl.col(&quot;AMOUNT&quot;).sum(), n=pl.len(), emp=pl.col(&quot;CTRIB_EMP&quot;).drop_nulls().first(),
+                   occ=pl.col(&quot;CTRIB_OCC&quot;).drop_nulls().first(), city=pl.col(&quot;CTRIB_CITY&quot;).drop_nulls().first())
+              .join(names, on=&quot;FILER_ID&quot;, how=&quot;left&quot;).sort(&quot;usd&quot;, descending=True))
+    review.write_csv(HERE / &quot;ca_ballot_billionaire_matches.csv&quot;)
+    t = tally(m)
+    with pl.Config(fmt_str_lengths=60, tbl_rows=100, tbl_width_chars=260):
+        print(t.select(&quot;label&quot;, &quot;voters_left&quot;, &quot;donors&quot;, &quot;left_donors&quot;, pl.col(&quot;donors_left&quot;).round(0),
+                       (pl.col(&quot;usd&quot;) / 1e6).round(2).alias(&quot;usd_M&quot;), pl.col(&quot;usd_left&quot;).round(0),
+                       &quot;left_names&quot;, &quot;right_names&quot;))
+        print(t.filter(pl.col(&quot;donors&quot;) &gt; 0).group_by(&quot;social&quot;).agg(
+            voters=pl.col(&quot;voters_left&quot;).mean().round(1),
+            donor_pairs=pl.col(&quot;donors&quot;).sum(), left_pairs=pl.col(&quot;left_donors&quot;).sum(),
+            usd_M=(pl.col(&quot;usd&quot;).sum() / 1e6).round(1), left_usd_M=(pl.col(&quot;left_usd&quot;).sum() / 1e6).round(1)))
+    out = chart(t)
+    watermark(out)
+    print(&quot;wrote&quot;, out)
+</code></pre>
+<h3><code>billionaire_liberal_funding_fermi.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;How much liberal vs conservative social-cause money comes from billionaires: a measured anchor plus a Fermi estimate.
+
+A  California social-issue ballot measures 2008-24 (the 18 social MEASURES in ca_ballot_billionaires.py): money from
+   outside donors (committee-to-committee transfers dropped) to each side, and the part from identified billionaires.
+   This is a floor: billionaire money passed through nonprofits (e.g. Drug Policy Action) counts as &quot;everyone else&quot;.
+B  US liberal social-cause funding per year, Fermi estimate. Pot sizes and billionaire shares are rough orders of
+   magnitude, not sourced data: foundation grants for reproductive rights, LGBT, criminal justice, drug policy,
+   guns and immigration (Buffett, Open Society, Arnold, Bloomberg, Arcus, Gill, Moskovitz); donations to membership
+   groups (ACLU, Planned Parenthood, HRC, SPLC...); ballot and issue campaigns (share from panel A plus pass-through).
+Run:  uv run --with polars,pyarrow,matplotlib,pillow,fonttools python notebooks/rich_poor_opinion/billionaire_liberal_funding_fermi.py
+Writes billionaire_liberal_funding_fermi.png (Unwatermarked graphs/) and its _wm copy (Substack Notes/).
+&quot;&quot;&quot;
+import matplotlib.pyplot as plt
+import polars as pl
+
+import ca_ballot_billionaires as cb
+from ces_income_gaps import BG, INK, INK2, MUTED, UNWM, pb, watermark
+
+# Breaks with pb_style on purpose: US political red/blue, so liberal money reads blue and conservative red
+LIB, CON = &quot;#1f6fe5&quot;, pb.RED
+
+# (pot, size low, size high in $B/yr, billionaire share low, high)
+POTS = [
+    (&quot;Foundation grants\n(abortion, LGBT, criminal justice,\ndrugs, guns, immigration)&quot;, 2.0, 3.0, 0.40, 0.60),
+    (&quot;Donations to membership groups\n(ACLU, Planned Parenthood, HRC…)&quot;, 2.0, 3.0, 0.05, 0.15),
+    (&quot;Ballot and issue campaigns&quot;, 0.5, 1.0, 0.25, 0.45),
+]
+TRANSFERS = [&quot;COM&quot;, &quot;RCP&quot;, &quot;CTL&quot;, &quot;BMC&quot;, &quot;SCC&quot;]  # committee and candidate money, already counted at its source
+
+
+def california() -&gt; dict[str, tuple[float, float]]:
+    &quot;&quot;&quot;(total $M, billionaire $M) to the liberal and conservative sides of the social measures.&quot;&quot;&quot;
+    meta = pl.DataFrame([(y, p, left) for y, p, _, so, left, _ in cb.MEASURES if so],
+                        schema=[&quot;yr&quot;, &quot;prop&quot;, &quot;left&quot;], orient=&quot;row&quot;)
+    c = cb.committees()
+    r = cb.receipts(c)
+    m = cb.match_billionaires(r, cb.billionaires())
+
+    def tag(d: pl.DataFrame) -&gt; pl.DataFrame:
+        left_side = pl.when(pl.col(&quot;left&quot;) == &quot;Y&quot;).then(pl.lit(&quot;S&quot;)).otherwise(pl.lit(&quot;O&quot;))
+        return d.join(meta, on=[&quot;yr&quot;, &quot;prop&quot;]).with_columns(lib=pl.col(&quot;side&quot;) == left_side)
+
+    r, m = tag(r).filter(~pl.col(&quot;ENTITY_CD&quot;).is_in(TRANSFERS)), tag(m)
+    return {k: (r.filter(pl.col(&quot;lib&quot;) == lib)[&quot;AMOUNT&quot;].sum() / 1e6, m.filter(pl.col(&quot;lib&quot;) == lib)[&quot;AMOUNT&quot;].sum() / 1e6)
+            for k, lib in ((&quot;Liberal side&quot;, True), (&quot;Conservative side&quot;, False))}
+
+
+def chart(ca: dict[str, tuple[float, float]]) -&gt; plt.Figure:
+    fig, (a, b) = plt.subplots(2, 1, figsize=(11, 9.2), dpi=150, gridspec_kw={&quot;height_ratios&quot;: [2, 3.2], &quot;hspace&quot;: 0.55})
+    for ax in (a, b):
+        ax.grid(axis=&quot;y&quot;, visible=False)
+        ax.grid(axis=&quot;x&quot;, color=pb.GRID, lw=0.8)
+        ax.tick_params(length=0, colors=INK2, labelsize=10)
+
+    # A: measured
+    for i, (side, (tot, bil)) in enumerate(ca.items()):
+        a.barh(i, bil, color=LIB if side.startswith(&quot;Liberal&quot;) else CON, height=0.56, zorder=2)
+        a.barh(i, tot - bil, left=bil, color=pb.MUTE, height=0.56, zorder=2)
+        a.text(tot + 3, i, f&quot;${tot:.0f}M total; {bil / tot:.0%} from billionaires&quot;, va=&quot;center&quot;, fontsize=10.5,
+               color=INK)
+    a.set_yticks(range(len(ca)), list(ca), fontsize=11, color=INK)
+    a.set_ylim(len(ca) - 0.4, -0.6)
+    a.set_xlim(0, 320)
+    a.set_xticks(range(0, 301, 50))
+    a.xaxis.set_major_formatter(lambda v, _: f&quot;${v:.0f}M&quot;)
+    a.set_title(&quot;A  California social-issue ballot measures, 2008–24: where each side's money came from&quot;,
+                loc=&quot;left&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=INK, pad=10)
+    a.text(0.0, -0.32, &quot;Measured. Billionaires counted directly; their money routed through nonprofits sits in grey, &quot;
+           &quot;so this is a floor.&quot;, transform=a.transAxes, fontsize=9.5, color=INK2)
+
+    # B: Fermi
+    lo = sum(s0 * b0 for _, s0, _, b0, _ in POTS)
+    hi = sum(s1 * b1 for _, _, s1, _, b1 in POTS)
+    tot_lo, tot_hi = sum(p[1] for p in POTS), sum(p[2] for p in POTS)
+    for i, (name, s0, s1, b0, b1) in enumerate(POTS):
+        size, share = (s0 + s1) / 2, (b0 + b1) / 2
+        b.barh(i, size * share, color=LIB, height=0.56, zorder=2)
+        b.barh(i, size - size * share, left=size * share, color=pb.MUTE, height=0.56, zorder=2)
+        b.plot([size * b0, size * b1], [i, i], color=INK, lw=1.4, zorder=3, solid_capstyle=&quot;butt&quot;)
+        for x in (size * b0, size * b1):
+            b.plot([x, x], [i - 0.12, i + 0.12], color=INK, lw=1.4, zorder=3)
+        b.text(size + 0.06, i, f&quot;~${size:.1f}B; billionaires {b0:.0%}–{b1:.0%}&quot;, va=&quot;center&quot;, fontsize=10.5,
+               color=INK)
+    b.set_yticks(range(len(POTS)), [p[0] for p in POTS], fontsize=10, color=INK)
+    b.set_ylim(len(POTS) - 0.4, -0.6)
+    b.set_xlim(0, 4.2)
+    b.set_xticks(range(5))
+    b.xaxis.set_major_formatter(lambda v, _: f&quot;${v:.0f}B&quot;)
+    b.set_title(&quot;B  US liberal social-cause funding per year: a Fermi estimate&quot;, loc=&quot;left&quot;, fontsize=12,
+                fontweight=&quot;bold&quot;, color=INK, pad=10)
+    b.text(0.0, -0.13, f&quot;Rough orders of magnitude, not sourced data. Blue = billionaire money at the midpoint; &quot;
+           f&quot;black bar = low–high range.\nAll three pots: ~${lo:.1f}–{hi:.1f}B of ${tot_lo:.1f}–{tot_hi:.0f}B a year &quot;
+           f&quot;({lo / tot_lo:.0%}–{hi / tot_hi:.0%}) comes from billionaires and their foundations.&quot;,
+           transform=b.transAxes, fontsize=9.5, color=INK2, va=&quot;top&quot;, linespacing=1.4)
+
+    fig.suptitle(&quot;Billionaires fund a quarter to a third of liberal social causes, and almost none of the &quot;
+                 &quot;conservative ones&quot;, x=0.02, y=0.985, ha=&quot;left&quot;, fontsize=14, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.02, 0.945, &quot;Shut down the billionaires and the left's social-cause budget shrinks by roughly $1–3B &quot;
+             &quot;a year; the right's barely moves.&quot;, fontsize=11, color=INK2, ha=&quot;left&quot;)
+    fig.text(0.02, 0.012, &quot;Source: A, Cal-Access contributions to 18 social-issue propositions (abortion, same-sex &quot;
+             &quot;marriage, marijuana, guns, death penalty, sentencing, bail, affirmative action),\nbillionaires matched &quot;
+             &quot;to Forbes lists by name and checked by hand. B, author's estimates.&quot;, fontsize=8.5, color=MUTED,
+             ha=&quot;left&quot;)
+    fig.subplots_adjust(left=0.28, right=0.97, top=0.86, bottom=0.17)
+    return fig
+
+
+if __name__ == &quot;__main__&quot;:
+    ca = california()
+    print({k: (round(t, 1), round(b, 1)) for k, (t, b) in ca.items()})
+    fig = chart(ca)
+    UNWM.mkdir(parents=True, exist_ok=True)
+    out = UNWM / &quot;billionaire_liberal_funding_fermi.png&quot;
+    fig.savefig(out, facecolor=BG)
+    plt.close(fig)
+    watermark(out)
+    print(&quot;wrote&quot;, out)
+</code></pre>
+</main></body></html>
