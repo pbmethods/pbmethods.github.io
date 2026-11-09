@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Screen hours by age: phones for the young, TV for the old</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Screen hours by age: phones for the young, TV for the old</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/screen-age/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>screen_time_by_age_chart.py</code></h3>
+<pre><code class="language-text">US daily screen time by age, 2019, including TV: leisure only, and leisure plus work/homework. Two charts.
+
+Run:  uv run --with polars,matplotlib,pillow,fonttools python notebooks/media_time/screen_time_by_age_chart.py
+      (add --refit to recompute the ATUS and NTIA inputs first)
+Writes the _wm copies to ~/Desktop/Recent Projects/Substack Notes/ and originals to its Unwatermarked graphs/:
+  screen_time_by_age_leisure.png, screen_time_by_age_with_work.png
+
+Sources (all 2019, so the groups line up in time):
+- Tweens 8-12, teens 13-18: Common Sense Census: Media Use by Tweens and Teens 2019, Tables A/B (&quot;average time among
+  all&quot;), summed by device across activities. Entertainment only; school/homework excluded. Console/hand-held gaming
+  and DVDs go to the TV screen; movies in theaters and e-reader books (device not given) are left out.
+  Homework on devices: Table 35. PDF in us_public_data/common_sense_census/.
+- Adults: Nielsen Total Audience Report, Feb 2020 edition, Q3 2019, &quot;daily hours:mins of usage, based on total US
+  population&quot; (p.16). TV = live + time-shifted TV + TV-connected devices (streaming boxes/smart-TV apps, consoles,
+  DVD). Radio excluded. PDF in us_public_data/nielsen_total_audience/.
+- Work screen time (estimate): ATUS 2019 average daily minutes working, over everyone in the age group (all days,
+  workers and non-workers; atus_work_minutes.py) x share of employed who use the internet at work (NTIA/CPS
+  Nov 2019; ntia_internet_at_work.py).
+All figures count each device in full, so time on two screens at once counts twice.
+</code></pre>
+<h2>Results</h2>
+<h3><code>atus_work_minutes_2019.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>age</th>
+<th>n</th>
+<th>work_min_all</th>
+<th>employed_share</th>
+<th>work_min_employed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18-24</td>
+<td>468</td>
+<td>194.215</td>
+<td>0.681</td>
+<td>285.388</td>
+</tr>
+<tr>
+<td>25-34</td>
+<td>1337</td>
+<td>265.047</td>
+<td>0.834</td>
+<td>316.905</td>
+</tr>
+<tr>
+<td>35-49</td>
+<td>2378</td>
+<td>280.920</td>
+<td>0.846</td>
+<td>331.922</td>
+</tr>
+<tr>
+<td>50-64</td>
+<td>2409</td>
+<td>228.021</td>
+<td>0.713</td>
+<td>319.426</td>
+</tr>
+<tr>
+<td>65+</td>
+<td>2592</td>
+<td>43.335</td>
+<td>0.198</td>
+<td>216.208</td>
+</tr>
+</tbody>
+</table>
+<h3><code>ntia_internet_at_work_2019.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>age</th>
+<th>n_employed</th>
+<th>internet_at_work_share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18-24</td>
+<td>5411</td>
+<td>0.475</td>
+</tr>
+<tr>
+<td>25-34</td>
+<td>11958</td>
+<td>0.627</td>
+</tr>
+<tr>
+<td>35-49</td>
+<td>18043</td>
+<td>0.648</td>
+</tr>
+<tr>
+<td>50-64</td>
+<td>16480</td>
+<td>0.629</td>
+</tr>
+<tr>
+<td>65+</td>
+<td>4620</td>
+<td>0.579</td>
+</tr>
+<tr>
+<td>desk 18-24</td>
+<td>1301</td>
+<td>0.617</td>
+</tr>
+<tr>
+<td>desk self 18-24</td>
+<td>420</td>
+<td>0.689</td>
+</tr>
+<tr>
+<td>desk 25-34</td>
+<td>4208</td>
+<td>0.748</td>
+</tr>
+<tr>
+<td>desk self 25-34</td>
+<td>2258</td>
+<td>0.794</td>
+</tr>
+<tr>
+<td>desk 35-49</td>
+<td>6854</td>
+<td>0.774</td>
+</tr>
+<tr>
+<td>desk self 35-49</td>
+<td>3850</td>
+<td>0.800</td>
+</tr>
+<tr>
+<td>desk 50-64</td>
+<td>6587</td>
+<td>0.770</td>
+</tr>
+<tr>
+<td>desk self 50-64</td>
+<td>3829</td>
+<td>0.792</td>
+</tr>
+</tbody>
+</table>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>screen_time_by_age_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;US daily screen time by age, 2019, including TV: leisure only, and leisure plus work/homework. Two charts.
+
+Run:  uv run --with polars,matplotlib,pillow,fonttools python notebooks/media_time/screen_time_by_age_chart.py
+      (add --refit to recompute the ATUS and NTIA inputs first)
+Writes the _wm copies to ~/Desktop/Recent Projects/Substack Notes/ and originals to its Unwatermarked graphs/:
+  screen_time_by_age_leisure.png, screen_time_by_age_with_work.png
+
+Sources (all 2019, so the groups line up in time):
+- Tweens 8-12, teens 13-18: Common Sense Census: Media Use by Tweens and Teens 2019, Tables A/B (&quot;average time among
+  all&quot;), summed by device across activities. Entertainment only; school/homework excluded. Console/hand-held gaming
+  and DVDs go to the TV screen; movies in theaters and e-reader books (device not given) are left out.
+  Homework on devices: Table 35. PDF in us_public_data/common_sense_census/.
+- Adults: Nielsen Total Audience Report, Feb 2020 edition, Q3 2019, &quot;daily hours:mins of usage, based on total US
+  population&quot; (p.16). TV = live + time-shifted TV + TV-connected devices (streaming boxes/smart-TV apps, consoles,
+  DVD). Radio excluded. PDF in us_public_data/nielsen_total_audience/.
+- Work screen time (estimate): ATUS 2019 average daily minutes working, over everyone in the age group (all days,
+  workers and non-workers; atus_work_minutes.py) x share of employed who use the internet at work (NTIA/CPS
+  Nov 2019; ntia_internet_at_work.py).
+All figures count each device in full, so time on two screens at once counts twice.
+&quot;&quot;&quot;
+import csv
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE / &quot;data&quot;
+OUT = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+pb.apply()
+INK, INK2, MUTED, GRID, SURFACE = pb.INK, pb.INK2, pb.MUTED, pb.GRID, pb.SURFACE
+
+
+def m(s):
+    h, mm = s.split(&quot;:&quot;)
+    return int(h or 0) * 60 + int(mm)
+
+
+# Common Sense 2019, minutes/day by device, summed from Tables A and B (average among all, 2019 column).
+#   TV screen: TV on TV set + DVDs + video games (console/hand-held). Phone includes iPod Touch.
+TWEEN = dict(tv=64 + 8 + 44,
+             computer=3 + 8 + 11 + 6 + 0 + 2 + 1 + 0 + 1,          # TV, online video, games, browse, social, art, chat, write, other
+             tablet=8 + 19 + 16 + 4 + 1 + 2 + 2 + 0 + 2,
+             phone=7 + 28 + 16 + 5 + 9 + 3 + 3 + 0 + 4 + 1 + 2)    # ... + iPod (online video, games)
+TEEN = dict(tv=67 + 4 + 49,
+            computer=10 + 12 + 19 + 6 + 11 + 1 + 1 + 3 + 1 + 6,    # TV, online video, games, social, browse, read, chat, art, write, other
+            tablet=5 + 7 + 6 + 4 + 2 + 1 + 2 + 1 + 0 + 1,
+            phone=22 + 39 + 21 + 60 + 24 + 5 + 16 + 4 + 2 + 21)
+HOMEWORK = {&quot;8–12&quot;: 22, &quot;13–18&quot;: 60}                                 # Table 35, all devices
+
+# Nielsen Q3 2019 (live+TS TV, TV-connected devices, computer, smartphone, tablet), h:mm/day.
+NIELSEN = {
+    &quot;18–34&quot;: (&quot;1:34&quot;, &quot;1:20&quot;, &quot;0:29&quot;, &quot;4:45&quot;, &quot;0:39&quot;),
+    &quot;35–49&quot;: (&quot;3:09&quot;, &quot;1:03&quot;, &quot;0:35&quot;, &quot;4:32&quot;, &quot;0:53&quot;),
+    &quot;50–64&quot;: (&quot;5:10&quot;, &quot;0:39&quot;, &quot;0:39&quot;, &quot;3:37&quot;, &quot;1:00&quot;),
+    &quot;65+&quot;: (&quot;6:38&quot;, &quot;0:27&quot;, &quot;0:24&quot;, &quot;2:37&quot;, &quot;1:00&quot;),
+}
+
+LAYERS = [(&quot;tv&quot;, &quot;TV screen (live, recorded, streaming, consoles)&quot;, pb.NAVY),
+          (&quot;computer&quot;, &quot;Computer&quot;, pb.GRAYS[0]),
+          (&quot;tablet&quot;, &quot;Tablet&quot;, pb.GRAYS[1]),
+          (&quot;phone&quot;, &quot;Smartphone&quot;, pb.RED)]
+WORK_COLOR = pb.GRAYS[2]
+
+
+# Nielsen's 2019 reports only publish 18-34. To split it, use the 18-24 vs 25-34 ratio for each device from Nielsen's
+# Total Audience Report Q1 2017, Table 1A (weekly minutes, US population): live+DVR TV 14:31 vs 21:13; TV-connected
+# devices (DVD + game console + multimedia device) 0:33+4:26+2:38 vs 0:52+3:22+3:35; internet on a PC 4:09 vs 7:14;
+# app/web on a smartphone 18:09 vs 17:22. Tablet isn't broken out by age, so both get the 18-34 rate.
+# The split keeps the population-weighted 18-34 average equal to Nielsen's 2019 figure (18-24 = 40% of 18-34, ACS 2019).
+RATIO_2017 = dict(tv=871 / 1273, tvcd=(33 + 266 + 158) / (52 + 202 + 215), pc=249 / 434, phone=1089 / 1042, tab=1.0)
+W_18_24 = 0.40
+
+
+def adult_minutes():
+    &quot;&quot;&quot;Daily minutes by device for each adult age group, Nielsen Q3 2019 (18-34 split into 18-24 and 25-34).&quot;&quot;&quot;
+    out = {}
+    for age, vals in NIELSEN.items():
+        v = dict(zip((&quot;tv&quot;, &quot;tvcd&quot;, &quot;pc&quot;, &quot;phone&quot;, &quot;tab&quot;), (m(s) for s in vals)))
+        if age == &quot;18–34&quot;:
+            young, older = {}, {}
+            for k, total in v.items():
+                r = RATIO_2017[k]
+                older[k] = total / (W_18_24 * r + (1 - W_18_24))
+                young[k] = r * older[k]
+            out[&quot;18–24&quot;], out[&quot;25–34&quot;] = young, older
+        else:
+            out[age] = v
+    return {a: dict(tv=v[&quot;tv&quot;] + v[&quot;tvcd&quot;], computer=v[&quot;pc&quot;], tablet=v[&quot;tab&quot;], phone=v[&quot;phone&quot;])
+            for a, v in out.items()}
+
+
+def work_minutes():
+    atus = {r[&quot;age&quot;]: float(r[&quot;work_min_all&quot;]) for r in csv.DictReader(open(DATA / &quot;atus_work_minutes_2019.csv&quot;))}
+    ntia = {r[&quot;age&quot;]: float(r[&quot;internet_at_work_share&quot;])
+            for r in csv.DictReader(open(DATA / &quot;ntia_internet_at_work_2019.csv&quot;))}
+    return {k.replace(&quot;-&quot;, &quot;–&quot;): atus[k] * ntia[k] for k in atus}
+
+
+def groups():
+    return [(&quot;8–12&quot;, TWEEN), (&quot;13–18&quot;, TEEN)] + list(adult_minutes().items())
+
+
+def draw(with_work, fname, title, subtitle, footnote):
+    gs = groups()
+    work = work_minutes()
+    xs = [0, 1, 2.5, 3.5, 4.5, 5.5, 6.5]      # gap between the survey (kids) and the meter (adults) groups
+    fig, ax = plt.subplots(figsize=(12, 7.6), facecolor=SURFACE)
+    fig.subplots_adjust(left=0.06, right=0.975, top=0.76 if with_work else 0.8, bottom=0.215)
+    w = 0.72
+    for x, (age, d) in zip(xs, gs):
+        bottom = 0.0
+        for key, _, color in LAYERS:
+            h = d[key] / 60
+            ax.bar(x, h, w, bottom=bottom, color=color, edgecolor=SURFACE, linewidth=1)
+            if h &gt;= 0.45:
+                ax.text(x, bottom + h / 2, f&quot;{h:.1f}&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=9, fontweight=&quot;bold&quot;,
+                        color=&quot;white&quot; if key in (&quot;tv&quot;, &quot;phone&quot;, &quot;tablet&quot;) else INK)
+            bottom += h
+        if with_work:
+            extra = (HOMEWORK.get(age) or work.get(age)) / 60
+            ax.bar(x, extra, w, bottom=bottom, color=WORK_COLOR, edgecolor=SURFACE, linewidth=1, hatch=&quot;///&quot;)
+            if extra &gt;= 0.45:
+                ax.text(x, bottom + extra / 2, f&quot;{extra:.1f}&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=9,
+                        fontweight=&quot;bold&quot;, color=&quot;white&quot;,
+                        bbox=dict(boxstyle=&quot;square,pad=0.15&quot;, facecolor=WORK_COLOR, edgecolor=&quot;none&quot;))
+            bottom += extra
+        ax.text(x, bottom + 0.15, f&quot;{bottom:.1f}h&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=11, fontweight=&quot;bold&quot;,
+                color=INK)
+    ax.set_xticks(xs)
+    ax.set_xticklabels([a for a, _ in gs], fontsize=11, color=INK, fontweight=&quot;bold&quot;)
+    ymax = 15 if with_work else 12.5
+    ax.set_ylim(0, ymax)
+    ax.set_xlim(-0.6, 7.1)
+    ax.set_yticks(range(0, int(ymax) + 1, 3))
+    ax.set_yticklabels([f&quot;{v}h&quot; for v in range(0, int(ymax) + 1, 3)])
+    ax.tick_params(colors=INK2, labelsize=9.5, length=0)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    # group captions under the age labels
+    tr = ax.get_xaxis_transform()
+    ax.text(0.5, -0.1, &quot;Children: Common Sense survey&quot;, transform=tr, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=9, color=INK2)
+    ax.text(4.5, -0.1, &quot;Adults: Nielsen meters and panels&quot;, transform=tr, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=9,
+            color=INK2)
+
+    handles = [Patch(facecolor=c, label=lab) for _, lab, c in LAYERS]
+    if with_work:
+        handles.append(Patch(facecolor=WORK_COLOR, hatch=&quot;///&quot;, edgecolor=SURFACE,
+                             label=&quot;Work (adults) or homework (children) on a screen, est.&quot;))
+    ax.legend(handles=handles[::-1], loc=&quot;upper left&quot;, bbox_to_anchor=(0.0, 1.02), frameon=False, fontsize=9.5,
+              labelcolor=INK2, handlelength=1.3)
+
+    fig.text(0.06, 0.935, title, fontsize=18, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.06, 0.885, subtitle, fontsize=11, color=INK2, va=&quot;top&quot;, linespacing=1.4)
+    fig.text(0.06, 0.025, footnote, fontsize=7.6, color=MUTED, linespacing=1.55)
+
+    out = OUT / &quot;Unwatermarked graphs&quot; / fname
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    wm = OUT / (out.stem + &quot;_wm.png&quot;)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(out), str(wm)], check=True)
+    print(wm)
+
+
+SRC_NOTE = (
+    &quot;Children: Common Sense Census: Media Use by Tweens and Teens 2019 (survey of 1,677 8–18-year-olds), entertainment &quot;
+    &quot;screen use summed by device; console games and DVDs counted as TV screen.\n&quot;
+    &quot;Adults: Nielsen Total Audience Report (Feb 2020), Q3 2019, per adult based on total US population; TV includes &quot;
+    &quot;live, time-shifted and TV-connected devices (streaming, consoles, DVD). Radio excluded.\n&quot;
+    &quot;Nielsen publishes only 18–34 for 2019; it is split into 18–24 and 25–34 using each device's ratio between those &quot;
+    &quot;ages in Nielsen's Q1 2017 report (tablet not split).\n&quot;
+)
+
+
+def main():
+    if &quot;--refit&quot; in sys.argv:
+        for s in (&quot;atus_work_minutes.py&quot;, &quot;ntia_internet_at_work.py&quot;):
+            subprocess.run([sys.executable, str(HERE / s)], check=True)
+    draw(False, &quot;screen_time_by_age_leisure.png&quot;,
+         &quot;The young spend their screen hours on phones, the old on TV&quot;,
+         &quot;Daily hours of leisure screen time per person, by age, US 2019. Every device is counted in full, so time &quot;
+         &quot;on two screens at once counts twice.&quot;,
+         SRC_NOTE + &quot;Averages include everyone in the age group, all seven days. The two sources use different methods &quot;
+         &quot;(diary survey vs. meters), so compare children and adults with care.&quot;)
+    draw(True, &quot;screen_time_by_age_with_work.png&quot;,
+         &quot;Add work, and adults 35–64 spend over 13 hours a day on screens&quot;,
+         &quot;Daily hours of leisure screen time plus estimated work or homework screen time, per person, by age, US 2019. &quot;
+         &quot;Every device is counted\nin full, so time on two screens at once counts twice.&quot;,
+         SRC_NOTE + &quot;Work: ATUS 2019 time spent working (all respondents, all days, non-workers included) × share of &quot;
+         &quot;workers who use the internet at work (NTIA/CPS Nov 2019), assuming they are on a screen\nfor all of their work &quot;
+         &quot;hours. Homework on devices: Common Sense 2019; screen use in class isn't measured. Nielsen's computer and phone &quot;
+         &quot;time may already include some work use.&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
