@@ -13,3 +13,4 @@ Methodology, results and code behind charts from <a href="https://performativeba
 - [Screen hours by age: phones for the young, TV for the old](screen-age/) (2026-11-09)
 - [White-collar workers are ~2 hours from screens every waking hour](screen-work/) (2026-11-09)
 - [Same food, easier to digest: how processing can make you fat](softer-food/) (2026-11-09)
+- [Who actually reads, and what: reading minutes from the leisure day to romance](who-reads/) (2026-11-09)

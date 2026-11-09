@@ -1,0 +1,1329 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Who actually reads, and what: reading minutes from the leisure day to romance</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Who actually reads, and what: reading minutes from the leisure day to romance</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/who-reads/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>reading_inputs.py</code></h3>
+<pre><code class="language-text">Hand-entered published figures for the reading GIF. Every value cites its source.
+
+YouGov: &quot;2025 Reading and Books&quot;, Dec 15-19 2025, 2,203 U.S. adult citizens.
+  Results PDF saved at notebooks/us_public_data/yougov_reading/2025_Reading_and_Books_poll_results.pdf
+  (from https://ygo-assets-websites-editorial-emea.yougov.net/documents/2025_Reading_and_Books_poll_results.pdf)
+  Article: https://yougov.com/en-us/articles/53804-most-americans-didnt-read-many-books-in-2025
+Circana BookScan 2025 via Publishers Weekly.
+</code></pre>
+<h3><code>reading_data.py</code></h3>
+<pre><code class="language-text">Numbers for the reading GIF: ATUS leisure/reading, YouGov books model, romance composition.
+
+Run: uv run --with pandas,pyarrow python reading_data.py   (writes numbers.json, prints a report)
+</code></pre>
+<h3><code>reading_frames.py</code></h3>
+<pre><code class="language-text">Frame specs and keyframe rendering for the reading GIF (house style, 1080x1350).
+
+Run: uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_frames.py   -&gt; frames/NN_&lt;key&gt;.png
+</code></pre>
+<h3><code>reading_stills.py</code></h3>
+<pre><code class="language-text">Still PNGs of the nine reading-GIF frames, watermarked with their methods page (pbmethods.github.io/who-reads).
+
+What the frames show, in order: (1) the ATUS leisure day, with reading as a 16-minute sliver of ~297;
+(2) who does the reading, by age and sex (ATUS 2022-24, all reading); (3) books only: 40% of adults read
+none, women read ~65% of books (YouGov 2025, est.); (4) the Pareto shape of book reading: 4% of adults do
+46% of it (YouGov's published breakdown), converted to minutes at 6 hours a book (est.); (5) romance as
+adult fiction's largest print category (Circana BookScan 2025); (6) romance readers by age and sex (YouGov
+Q9 weighted by the ACS 2024 adult-citizen mix); (7) romance reading minutes by age, from a model anchored
+to NielsenIQ BookData's 1.6x youth over-representation (est.); (8) women 18-29's share of all reading
+minutes (ATUS) vs of romance minutes (est.); (9) romance's ~0.7 minutes in the 297-minute leisure day (est.).
+Every number, assumption and range is in reading_data.py, reading_inputs.py and the notes below.
+
+Each frame is rendered by reading_frames.render (the same keyframe the GIF holds on), saved unwatermarked,
+then marked with the house footer strip (~/_watermark/watermark.py style 7), which adds the methods link
+and rebuilds this page. All but the last frame build the page locally; the last one pushes it.
+
+Run: uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_stills.py
+</code></pre>
+<h3><code>reading_gif.py</code></h3>
+<pre><code class="language-text">Assemble the reading keyframes into a tweened, watermarked GIF + MP4 for Substack Notes.
+
+Run: uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_gif.py
+</code></pre>
+<h2>Notes and caveats</h2>
+<p>A nine-frame GIF that starts from Americans' whole leisure day and narrows step by step: reading, then
+books, then the heavy readers who do most of it, then romance, then the young women who are
+over-represented in it, before zooming back out. All figures are for <strong>adults 18+</strong>. Every frame that
+uses a modeled number says "est." and gives its range in the footnote. This document records each number,
+where it comes from, and what it assumes.</p>
+<p>Code: <code>notebooks/reading/</code>. <code>reading_inputs.py</code> holds the hand-entered published figures with their
+sources. <code>reading_data.py</code> computes everything and writes <code>numbers.json</code>. <code>reading_frames.py</code> draws the
+frames, <code>reading_gif.py</code> assembles them and <code>reading_stills.py</code> writes each frame as a watermarked PNG. <code>test_reading.py</code> holds 32 tests that pin the numbers and
+layout rules. To rebuild, run from <code>notebooks/reading</code>:</p>
+<pre><code>uv run --with pandas,pyarrow python reading_data.py
+uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_gif.py
+uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_stills.py
+</code></pre>
+<h3>Sources</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>What we use</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>American Time Use Survey (ATUS)</strong> 2022–2024 microdata (BLS), <code>us_public_data/atus_0324/</code></td>
+<td>Leisure minutes by activity; reading minutes by sex and age</td>
+<td>n = 23,861 adults 18+, weights <code>TUFNWGTP</code>. Reading = code 120312, "reading for personal interest" (books, news and magazines alike). Respondents who did no reading count as 0 minutes.</td>
+</tr>
+<tr>
+<td><strong>YouGov "2025 Reading and Books"</strong>, Dec 15–19 2025, 2,203 US adult citizens. <a href="https://yougov.com/en-us/articles/53804-most-americans-didnt-read-many-books-in-2025">Article</a>, <a href="https://ygo-assets-websites-editorial-emea.yougov.net/documents/2025_Reading_and_Books_poll_results.pdf">results PDF</a>, saved to <code>us_public_data/yougov_reading/</code></td>
+<td>Read any book (Q1); books read, by sex and age (Q2); genres read, by sex and age (Q9); published mean books by age; YouGov's own concentration breakdown</td>
+<td>"Read or listened to", so audiobooks count. Age subsamples are ~440–600, about ±4 pts.</td>
+</tr>
+<tr>
+<td><strong>Circana BookScan 2025</strong> via Publishers Weekly (<a href="https://www.publishersweekly.com/pw/by-topic/industry-news/bookselling/article/99417-print-book-sales-rose-slightly-in-2025.html">full year</a>, <a href="https://www.publishersweekly.com/pw/by-topic/industry-news/financial-reporting/article/98811-print-book-sales-dip-0-9-in-first-nine-months-of-2025.html">nine months</a>)</td>
+<td>Print units by genre; segment totals</td>
+<td>Print only. Ebooks and Kindle Unlimited are not counted.</td>
+</tr>
+<tr>
+<td><strong>NielsenIQ BookData</strong> (<a href="https://www.londonbookfair.co.uk/en-gb/blog/industry-news/book-sale-trends.html">London Book Fair release</a>; <a href="https://nielseniq.com/global/en/insights/commentary/2025/the-age-of-social-reading/">The age of social reading</a>)</td>
+<td>66% of romantasy titles bought by 13–34s, against ~41% ("just over two in five") of all books bought for oneself</td>
+<td>Consumer panel. The market isn't stated, but it is almost certainly the UK. Used only to calibrate how strongly romance reading tilts young.</td>
+</tr>
+<tr>
+<td><strong>ACS 2024</strong> 1-year PUMS, <code>us_public_data/acs_full/</code></td>
+<td>Adult-citizen age mix and female share (to weight YouGov's rates)</td>
+<td>Adults 18+, <code>CIT != 5</code>. The columns are stored as strings and cast before use.</td>
+</tr>
+<tr>
+<td>Pew Research Center, Jan–Feb 2021</td>
+<td>Not on a frame</td>
+<td>Pew finds 75% read a book "in whole or in part", in any format, including for work or school. That's a looser definition than YouGov's, which is why its non-reader share (25%) is lower than YouGov's 40%.</td>
+</tr>
+</tbody>
+</table>
+<h3>Frame by frame</h3>
+<p><strong>1. Reading is a sliver of Americans' free time.</strong> ATUS: adults average 296.6 leisure minutes a day
+(tier-1 codes 12 and 13). TV gets 163.9 (164 on the frame); reading for personal interest gets 16.4 (5.5%). The treemap groups
+are TV (120303–04), socializing and communicating (1201), games (120307), computer/phone leisure (120308),
+relaxing &amp; thinking (120301), reading (120312), sports and exercise (13), arts and events (1202, 1204, 1205),
+and other leisure (everything else in 12).</p>
+<p><strong>2. Adults 55+ do 64% of all reading.</strong> ATUS reading minutes: adults 55+ are 38.9% (39%) of adults but do 64.4%
+of reading minutes. Ages 18–34: 28.6% of adults, 16.6% of minutes; 35–54: 32.5% (33%) of adults, 19.1% of minutes. Men do 40.4%. On a given day 16.5% of
+adults read at all, and those who do average 99 minutes. <em>ATUS can't separate books from news or magazines,
+so this frame is about reading of all kinds and makes no claim about what men read.</em></p>
+<p><strong>3. Narrow to books: women read 65% of them.</strong> 40% of adults read or listened to no book in 2025 (YouGov
+Q1). Readers make up 56% of men and 63% of women, weighted by the ACS sex mix to give each group's share of
+adults. <em>Est.:</em> women's share of books read (65.1%) comes from YouGov's books-read distribution by sex
+(Q2), with ranges valued at their midpoints and the open "50 or more" answer valued at 81.7 books. That
+value is the one that makes the overall mean equal YouGov's published 8 books.</p>
+<p><strong>4. 4% of adults do 46% of the book reading.</strong> YouGov's own published breakdown, computed from exact
+counts: 0 books 40% of adults / 0% of books; 1–4 27% / 8%; 5–9 13% / 10%; 10–19 9% / 14%; 20–49 6% / 22%;
+50+ 4% / 46%. Our reconstruction from the bucketed crosstab gets 82% for the 10+ group (YouGov: 82%) and
+40% for the 50+ group (YouGov: 46%). The frame shows YouGov's figures. <em>Est. minutes:</em> 8 books a year ×
+6 hours per book ÷ 365 ≈ 7.9 book-minutes a day per adult. The 50+ group averages 0.46 × 8 / 0.04 ≈ 92
+books, or ~91 minutes a day.</p>
+<p><strong>5. Romance is adult fiction's best-seller.</strong> Circana BookScan 2025 print units: romance ~44M,
+suspense and thriller 25.5M, fantasy 24.1M, science fiction ~6M. Romance is the largest adult fiction
+category by volume. Religion (~67M, largely Bibles) is larger but is nonfiction, so it isn't shown. 14% of
+adults read a romance in 2025 (YouGov Q9).</p>
+<p><strong>6. Romance's biggest readership: ages 18–29.</strong> This is headcount. YouGov Q9 romance readership by age
+(18–29 24%, 30–44 14%, 45–64 9%, 65+ 10%), weighted by the ACS adult-citizen age mix (20.1%, 25.1%, 30.7%,
+24.1%), gives the composition of romance readers: 35.7% / 26.0% / 20.5% / 17.9%. By sex (20% of women vs 7%
+of men read romance, ACS female share 51.5%), 75% of romance readers are women.</p>
+<p><strong>7. Under-30s: 14% of books, ~23% of romance.</strong> <em>Est.</em> This is the most modeled frame. See "Romance
+minutes by age" below. The top bar is each age group's share of all books read: ACS population share ×
+YouGov's published mean books for that age (5.8, 8.2, 6.4, 12.1). That gives 14.4% for ages 18–29. The
+bottom bar is the estimated share of romance reading: 23.1% for 18–29 (range 18.9–28.8%), 28.3% for 30–44,
+17.5% for 45–64, 31.0% for 65+.</p>
+<p><strong>8. Women 18–29: reading 7%, romance ~18%.</strong> Top bar, measured (ATUS): women 18–29 are 9.8% of
+adults and do 6.6% of all reading minutes. Men do 40.4%; other women 52.9%. Bottom bar, <em>est.</em>: women
+18–29's share of romance reading = the 18–29 share (23.1%) × the female share of romance reading (78.3%),
+or 18.1% (range 14.7–22.8%). This multiplication assumes romance's female share is the same at every age,
+because YouGov doesn't cross sex by age. If young romance readers are more female than older ones, as
+BookTok suggests, the true figure is higher.</p>
+<p><strong>9. All that romance: ~0.7 of 297 leisure minutes.</strong> <em>Est.</em> Book minutes per adult (7.9) × romance's share
+of book reading (9.0%) = 0.71 romance minutes a day (range 0.30–1.90), or 0.24% of leisure time (range
+0.10–0.64%). Averaged over the 14% who read any romance, that's ~5.1 minutes a day (range 2.2–13.6). The
+zoom splits ATUS's 16.4 reading minutes into romance (0.7), other books (7.2) and "other reading
+(remainder, est.)" (8.5). That last block is a remainder, ATUS reading minus estimated book minutes, not a
+measured news-and-magazines figure. The two sources also differ in scope: YouGov's books include audiobooks
+("read or listened to"), while ATUS code 120312 mostly doesn't (listening while driving or doing chores is
+coded as that activity). So the split is indicative only.</p>
+<h3>Assumptions</h3>
+<table>
+<thead>
+<tr>
+<th>Assumption</th>
+<th>Central</th>
+<th>Range</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hours per book</td>
+<td>6</td>
+<td>4–8</td>
+<td>A typical ~80–90k-word book at 200–300 words a minute; audiobooks run longer. Applied to everyone, so heavy readers' minutes are probably overstated: they likely read faster or shorter books.</td>
+</tr>
+<tr>
+<td>Value of YouGov's "50 or more" answer</td>
+<td>81.7 books</td>
+<td>n/a</td>
+<td>Set so the overall mean equals YouGov's published 8. For age groups, set to each group's published mean.</td>
+</tr>
+<tr>
+<td>Romance's share of book reading</td>
+<td>9.0% = romance ÷ all adult print units</td>
+<td>5.8% (÷ all print, including children's) to 18.1% (× 2 for ebooks and Kindle Unlimited)</td>
+<td>YouGov's question covers all books, so the denominator is all adult books, not adult fiction (where romance is ~21%). The ×2 ebook uplift is an <strong>assumption</strong>: no credible public source gives romance's share of all-format units.</td>
+</tr>
+<tr>
+<td>Adult fiction and nonfiction full-year units</td>
+<td>204.9M and 281.6M</td>
+<td>n/a</td>
+<td>Circana publishes segment totals only for the first nine months. Their nine-month shares are scaled to the full-year 762.4M.</td>
+</tr>
+<tr>
+<td>Romance minutes by age</td>
+<td>Over-representation of 1.61× for 18–29</td>
+<td>1.31× to 2.0×</td>
+<td>See below.</td>
+</tr>
+<tr>
+<td>Female share is the same across ages (frame 8)</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>YouGov doesn't publish sex × age. Probably understates young women.</td>
+</tr>
+<tr>
+<td>Value of "50 or more" by sex</td>
+<td>Pooled 81.7 for both sexes</td>
+<td>n/a</td>
+<td>Calibrating men alone to mean 8 would give 194; YouGov publishes no means by sex, so the pooled value is used for both.</td>
+</tr>
+<tr>
+<td>ATUS book share</td>
+<td>Books ≤ all reading</td>
+<td>n/a</td>
+<td>Book minutes (7.9) are checked to stay below ATUS reading minutes (16.4) in every case. They never hit the cap.</td>
+</tr>
+</tbody>
+</table>
+<h4>Romance minutes by age</h4>
+<p>No public source says how much romance each age group reads. YouGov says who reads <em>any</em> romance and how
+many books each age group reads, but not how the two combine. Two models bracket the answer:</p>
+<ul>
+<li><strong>Coin flip:</strong> within an age group, every book is romance with the same probability q, with q set so the
+  share reading any romance matches YouGov. Romance volume = q × books. This ignores devotees, and it
+  implies romance is only 2.7% of all books, well below Circana's 9%. It <strong>overstates</strong> the youth skew:
+  18–29s come out 2.9× over-represented.</li>
+<li><strong>Fixed share:</strong> whether someone reads any romance follows the same curve (more books, more likely), but
+  every romance reader spends a common share of their books on romance (15%, which makes romance 9% of
+  books). This makes an omnivorous older heavy reader who read one romance a big romance reader, so it
+  <strong>understates</strong> the skew: 1.31×.</li>
+</ul>
+<p>The NielsenIQ BookData anchor sits between them. 13–34s buy 66% of romantasy but ~41% of all books, a
+<strong>1.61×</strong> over-representation. The two models' age shares are mixed with the single weight (λ = 0.18) that
+reproduces 1.61× for US 18–29s, and the same weight is used for the sex split. The range runs from the
+fixed-share model (1.31×) to 2.0×.</p>
+<p>Caveats on the anchor: it is UK data, it covers romantasy (likely more youth-skewed than romance overall),
+its age band includes 13–17s and is wider than 18–29, and it measures purchases, not reading. Each of the
+first three probably makes the anchor <em>higher</em> than the true US romance figure.</p>
+<h3>What the data can't say</h3>
+<ul>
+<li><strong>Books vs other reading in ATUS.</strong> Frames 1, 2 and 8's top bar cover reading of all kinds.</li>
+<li><strong>Romance volume by age</strong> is modeled, not measured (above). Frame 6 is the measured headcount.</li>
+<li><strong>18–24.</strong> YouGov's youngest age band is 18–29.</li>
+<li><strong>Ebooks and Kindle Unlimited</strong> aren't in Circana's print counts, and romance is especially large there.</li>
+<li><strong>YouGov subsample error:</strong> about ±4 pts on each age group's rates.</li>
+</ul>
+<h3>Other sources checked</h3>
+<p>See <code>research_notes.md</code> for everything searched for romance volume by age: Nielsen 2015 (average romance
+buyer age 42), Circana's qualitative "readers are getting younger", RWA stat sheets, and self-selected
+reader surveys.</p>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>reading_inputs.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Hand-entered published figures for the reading GIF. Every value cites its source.
+
+YouGov: &quot;2025 Reading and Books&quot;, Dec 15-19 2025, 2,203 U.S. adult citizens.
+  Results PDF saved at notebooks/us_public_data/yougov_reading/2025_Reading_and_Books_poll_results.pdf
+  (from https://ygo-assets-websites-editorial-emea.yougov.net/documents/2025_Reading_and_Books_poll_results.pdf)
+  Article: https://yougov.com/en-us/articles/53804-most-americans-didnt-read-many-books-in-2025
+Circana BookScan 2025 via Publishers Weekly.
+&quot;&quot;&quot;
+
+# Q2 &quot;About how many books have you read or listened to so far in 2025?&quot; response buckets, with the
+# value each bucket stands for. Ranges use their midpoint; &quot;50+&quot; is calibrated (reading_data.py).
+YG_BUCKETS = [(&quot;0&quot;, 0), (&quot;1&quot;, 1), (&quot;2&quot;, 2), (&quot;3&quot;, 3), (&quot;4&quot;, 4), (&quot;5&quot;, 5), (&quot;6&quot;, 6), (&quot;7&quot;, 7), (&quot;8&quot;, 8),
+              (&quot;9&quot;, 9), (&quot;10-14&quot;, 12), (&quot;15-19&quot;, 17), (&quot;20-24&quot;, 22), (&quot;25-29&quot;, 27), (&quot;30-34&quot;, 32),
+              (&quot;35-39&quot;, 37), (&quot;40-44&quot;, 42), (&quot;45-49&quot;, 47), (&quot;50+&quot;, None)]
+
+# Q2 crosstab (PDF table &quot;2. Number of Books Read in 2025 (combined)&quot;, p.2), % in bucket order.
+# &quot;Not sure&quot; (0-1%) excluded; columns are renormalized downstream.
+YG_BOOKS_DIST = {
+    &quot;total&quot;: [40, 6, 10, 7, 5, 5, 3, 2, 2, 1, 7, 2, 2, 1, 2, 1, 1, 0, 4],
+    &quot;male&quot;:  [44, 6, 10, 7, 4, 6, 3, 2, 1, 1, 5, 2, 1, 1, 1, 1, 1, 0, 2],
+    &quot;female&quot;: [37, 5, 9, 7, 5, 5, 3, 1, 2, 1, 8, 3, 3, 1, 2, 1, 1, 0, 6],
+    &quot;18-29&quot;: [39, 6, 10, 7, 6, 6, 2, 2, 2, 1, 10, 2, 2, 0, 1, 0, 1, 0, 2],
+    &quot;30-44&quot;: [34, 9, 12, 7, 6, 7, 3, 2, 1, 1, 6, 2, 2, 1, 1, 1, 0, 0, 5],
+    &quot;45-64&quot;: [43, 5, 9, 9, 4, 4, 4, 1, 2, 1, 7, 2, 2, 0, 2, 1, 1, 0, 3],
+    &quot;65+&quot;:   [44, 3, 8, 5, 3, 5, 3, 1, 2, 1, 6, 4, 3, 1, 2, 1, 2, 1, 5],
+}
+
+# Q1 &quot;Have you read any books or listened to any audiobooks in 2025?&quot; % Yes (PDF table 1, p.1).
+YG_READ_ANY = {&quot;total&quot;: 60, &quot;male&quot;: 56, &quot;female&quot;: 63, &quot;18-29&quot;: 61, &quot;30-44&quot;: 66, &quot;45-64&quot;: 57, &quot;65+&quot;: 56}
+
+# Q9 &quot;Which of the following types of books have you read or listened to in 2025?&quot; % Romance, of ALL
+# adults (base includes non-readers; PDF table 9, p.11).
+YG_ROMANCE = {&quot;total&quot;: 14, &quot;male&quot;: 7, &quot;female&quot;: 20, &quot;18-29&quot;: 24, &quot;30-44&quot;: 14, &quot;45-64&quot;: 9, &quot;65+&quot;: 10}
+
+# YouGov's own published summary figures (article, computed from exact counts for 50+ answers).
+YG_PUBLISHED = {&quot;mean_books&quot;: 8, &quot;median_books&quot;: 2, &quot;top4_share&quot;: 0.46, &quot;top19_share&quot;: 0.82}
+
+# Circana BookScan 2025 print units.
+#  total_print, romance, thriller, fantasy, religion: full-year 2025, PW &quot;Print Book Sales Rose Slightly in
+#   2025&quot; https://www.publishersweekly.com/pw/by-topic/industry-news/bookselling/article/99417-print-book-sales-rose-slightly-in-2025.html
+#  adult_fiction / adult_nonfiction: full-year totals are not published; estimated by applying each
+#   segment's share of the first-nine-months total (PW 98811: adult NF 196,192k, adult fiction 142,766k,
+#   of 531,106k) to the full-year 762.4M.
+#   https://www.publishersweekly.com/pw/by-topic/industry-news/financial-reporting/article/98811-print-book-sales-dip-0-9-in-first-nine-months-of-2025.html
+_TOTAL = 762.4e6
+_NINE_MO_TOTAL = 531_106
+CIRCANA_2025 = {
+    &quot;total_print&quot;: _TOTAL,
+    &quot;romance&quot;: 44e6,
+    &quot;thriller&quot;: 25.5e6,
+    &quot;fantasy&quot;: 24.1e6,
+    &quot;scifi&quot;: 6.0e6,       # &quot;just over six million&quot; (PW 99417)
+    &quot;religion&quot;: 67e6,
+    &quot;adult_fiction&quot;: _TOTAL * 142_766 / _NINE_MO_TOTAL,      # ~205M (est.)
+    &quot;adult_nonfiction&quot;: _TOTAL * 196_192 / _NINE_MO_TOTAL,   # ~282M (est.)
+}
+
+# Multiplier on romance's share of print units, to allow for ebooks/Kindle Unlimited, where romance is far
+# larger than in print. ASSUMPTION: no credible public source gives romance's share of all-format units
+# (BookStat figures are paywalled; the &quot;60% of romance is ebook&quot; claims found are unsourced). 2.0 is the
+# high end of the range only; the central estimate uses print shares as-is.
+ROMANCE_EBOOK_UPLIFT = 2.0
+
+# YouGov's published concentration breakdown (chart &quot;19% of American adults do 82% of the country's book
+# reading&quot;, David H. Montgomery, YouGov, Dec 2025; computed by YouGov from exact counts). Used on frame 4.
+YG_PUBLISHED_GROUPS = {
+    &quot;labels&quot;: [&quot;0&quot;, &quot;1–4&quot;, &quot;5–9&quot;, &quot;10–19&quot;, &quot;20–49&quot;, &quot;50+&quot;],
+    &quot;people&quot;: [40, 27, 13, 9, 6, 4],
+    &quot;books&quot;: [0, 8, 10, 14, 22, 46],
+}
+
+# YouGov 2025 published mean books read, by age (article, https://yougov.com/en-us/articles/53804).
+YG_MEAN_BY_AGE = {&quot;18-29&quot;: 5.8, &quot;30-44&quot;: 8.2, &quot;45-64&quot;: 6.4, &quot;65+&quot;: 12.1}
+
+# Volume anchor for romance by age (NielsenIQ BookData, consumer panel; market not stated, almost certainly UK):
+#  66% of romantasy titles bought were bought by 13-34s (London Book Fair / NIQ, 2024 sales)
+#   https://www.londonbookfair.co.uk/en-gb/blog/industry-news/book-sale-trends.html
+#  &quot;just over two in five&quot; books bought for oneself were bought by 13-34s (NIQ, 12 months to Mar 2025)
+#   https://nielseniq.com/global/en/insights/commentary/2025/the-age-of-social-reading/
+NIQ_ROMANTASY_U35_SHARE = 0.66
+NIQ_ALL_BOOKS_U35_SHARE = 0.41
+# Range for the over-representation ratio applied to US 18-29s: low = no youth tilt beyond the readers-and-
+# book-counts model; high = 2.0 (romantasy-level skew plus a narrower, younger band).
+YOUTH_RATIO_RANGE = {&quot;low&quot;: None, &quot;high&quot;: 2.0}
+</code></pre>
+<h3><code>reading_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Numbers for the reading GIF: ATUS leisure/reading, YouGov books model, romance composition.
+
+Run: uv run --with pandas,pyarrow python reading_data.py   (writes numbers.json, prints a report)
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+ATUS = DATA / &quot;atus_0324&quot;
+CACHE = HERE / &quot;_cache&quot;
+
+# Display name -&gt; 6-digit ATUS activity-code prefixes (TRCODEP). &quot;Other leisure&quot; = rest of tier-1 12.
+LEISURE_GROUPS = {
+    &quot;TV&quot;: (&quot;120303&quot;, &quot;120304&quot;),
+    &quot;Socializing &amp; communicating&quot;: (&quot;1201&quot;,),
+    &quot;Games&quot;: (&quot;120307&quot;,),
+    &quot;Computer/phone leisure&quot;: (&quot;120308&quot;,),
+    &quot;Relaxing &amp; thinking&quot;: (&quot;120301&quot;,),
+    &quot;Reading&quot;: (&quot;120312&quot;,),
+    &quot;Sports &amp; exercise&quot;: (&quot;13&quot;,),
+    &quot;Arts &amp; events&quot;: (&quot;1202&quot;, &quot;1204&quot;, &quot;1205&quot;),
+}
+OTHER = &quot;Other leisure&quot;
+
+
+def _group_of(code: str) -&gt; str | None:
+    for name, prefixes in LEISURE_GROUPS.items():
+        if code.startswith(prefixes):
+            return name
+    return OTHER if code.startswith(&quot;12&quot;) else None
+
+
+def load_atus(years=(2022, 2023, 2024), min_age=18) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;One row per respondent: caseid, weight, age, sex, reading_min, plus minutes per leisure group.
+    Respondents with no leisure activity of a kind get 0 (activity rows exist only for things done).&quot;&quot;&quot;
+    CACHE.mkdir(exist_ok=True)
+    cache = CACHE / f&quot;atus_{'_'.join(map(str, years))}.parquet&quot;
+    if cache.exists():
+        wide = pd.read_parquet(cache)
+    else:
+        resp = pd.read_csv(ATUS / &quot;atusresp-0324/atusresp_0324.dat&quot;,
+                           usecols=[&quot;TUCASEID&quot;, &quot;TUYEAR&quot;, &quot;TUFNWGTP&quot;], dtype={&quot;TUCASEID&quot;: str})
+        resp = resp[resp.TUYEAR.isin(years)]
+        rost = pd.read_csv(ATUS / &quot;atusrost-0324/atusrost_0324.dat&quot;,
+                           usecols=[&quot;TUCASEID&quot;, &quot;TULINENO&quot;, &quot;TEAGE&quot;, &quot;TESEX&quot;], dtype={&quot;TUCASEID&quot;: str})
+        rost = rost[rost.TULINENO == 1].drop(columns=&quot;TULINENO&quot;)
+        prefixes = tuple(str(y) for y in years)
+        parts = []
+        for chunk in pd.read_csv(ATUS / &quot;atusact-0324/atusact_0324.dat&quot;, chunksize=2_000_000,
+                                 usecols=[&quot;TUCASEID&quot;, &quot;TRCODEP&quot;, &quot;TUACTDUR24&quot;],
+                                 dtype={&quot;TUCASEID&quot;: str, &quot;TRCODEP&quot;: str}):
+            chunk = chunk[chunk.TUCASEID.str.startswith(prefixes)]
+            chunk = chunk.assign(group=chunk.TRCODEP.str.zfill(6).map(_group_of)).dropna(subset=[&quot;group&quot;])
+            parts.append(chunk.groupby([&quot;TUCASEID&quot;, &quot;group&quot;]).TUACTDUR24.sum())
+        mins = pd.concat(parts).groupby(level=[0, 1]).sum().unstack(fill_value=0)
+        wide = (resp.merge(rost, on=&quot;TUCASEID&quot;, how=&quot;left&quot;)
+                    .merge(mins, left_on=&quot;TUCASEID&quot;, right_index=True, how=&quot;left&quot;))
+        groups = list(LEISURE_GROUPS) + [OTHER]
+        for g in groups:
+            if g not in wide:
+                wide[g] = 0
+        wide[groups] = wide[groups].fillna(0)
+        wide.to_parquet(cache)
+    df = wide.rename(columns={&quot;TUCASEID&quot;: &quot;caseid&quot;, &quot;TUFNWGTP&quot;: &quot;weight&quot;, &quot;TEAGE&quot;: &quot;age&quot;})
+    df[&quot;sex&quot;] = df.TESEX.map({1: &quot;M&quot;, 2: &quot;F&quot;})
+    df[&quot;reading_min&quot;] = df[&quot;Reading&quot;]
+    return df[df.age &gt;= min_age].reset_index(drop=True)
+
+
+def _wmean(x, w):
+    return float((x * w).sum() / w.sum())
+
+
+def atus_leisure(df: pd.DataFrame) -&gt; dict[str, float]:
+    out = {g: _wmean(df[g], df.weight) for g in list(LEISURE_GROUPS) + [OTHER]}
+    out[&quot;total&quot;] = sum(out.values())
+    return out
+
+
+def atus_reading_split(df: pd.DataFrame) -&gt; pd.DataFrame:
+    age = pd.cut(df.age, [17, 34, 54, 200], labels=[&quot;18-34&quot;, &quot;35-54&quot;, &quot;55+&quot;])
+    w, r = df.weight, df.reading_min
+    rows = {}
+    for dim, col in ((&quot;sex&quot;, df.sex), (&quot;age&quot;, age)):
+        for g in col.dropna().unique():
+            m = col == g
+            rows[(dim, str(g))] = {
+                &quot;pop_share&quot;: w[m].sum() / w.sum(),
+                &quot;minute_share&quot;: (w[m] * r[m]).sum() / (w * r).sum(),
+                &quot;pct_reading_day&quot;: (w[m] * (r[m] &gt; 0)).sum() / w[m].sum(),
+                &quot;n&quot;: int(m.sum()),
+            }
+    order = [(&quot;sex&quot;, &quot;M&quot;), (&quot;sex&quot;, &quot;F&quot;), (&quot;age&quot;, &quot;18-34&quot;), (&quot;age&quot;, &quot;35-54&quot;), (&quot;age&quot;, &quot;55+&quot;)]
+    return pd.DataFrame.from_dict(rows, orient=&quot;index&quot;).loc[order]
+
+
+# ---------------------------------------------------------------- books model (YouGov 2025)
+import json
+
+from reading_inputs import (CIRCANA_2025, NIQ_ALL_BOOKS_U35_SHARE, NIQ_ROMANTASY_U35_SHARE,
+                            ROMANCE_EBOOK_UPLIFT, YG_BOOKS_DIST, YG_BUCKETS, YG_MEAN_BY_AGE, YG_PUBLISHED,
+                            YG_READ_ANY, YG_ROMANCE, YOUTH_RATIO_RANGE)
+
+HOURS_PER_BOOK = {&quot;low&quot;: 4.0, &quot;central&quot;: 6.0, &quot;high&quot;: 8.0}
+YG_AGES = [&quot;18-29&quot;, &quot;30-44&quot;, &quot;45-64&quot;, &quot;65+&quot;]
+
+
+def _norm(dist) -&gt; np.ndarray:
+    p = np.asarray(dist, dtype=float)
+    return p / p.sum()
+
+
+def _mids(top_value: float) -&gt; np.ndarray:
+    return np.array([m if m is not None else top_value for _, m in YG_BUCKETS], dtype=float)
+
+
+def calibrate_top_bucket(dist, target_mean: float = YG_PUBLISHED[&quot;mean_books&quot;]) -&gt; float:
+    &quot;&quot;&quot;Value for the open '50+' bucket so the renormalized mean equals target_mean.&quot;&quot;&quot;
+    p = _norm(dist)
+    rest = sum(pi * m for pi, (_, m) in zip(p, YG_BUCKETS) if m is not None)
+    p_top = p[-1]
+    if p_top &lt;= 0:
+        raise ValueError(&quot;no mass in the 50+ bucket&quot;)
+    return float((target_mean - rest) / p_top)
+
+
+def volume_shares(dist, top_value: float) -&gt; dict:
+    p = _norm(dist)
+    vol = p * _mids(top_value)
+    return {&quot;people&quot;: p.tolist(), &quot;volume&quot;: (vol / vol.sum()).tolist()}
+
+
+def mean_books(dist, top_value: float) -&gt; float:
+    return float((_norm(dist) * _mids(top_value)).sum())
+
+
+def women_volume_share(top_value: float, pop_female: float) -&gt; float:
+    f = pop_female * mean_books(YG_BOOKS_DIST[&quot;female&quot;], top_value)
+    m = (1 - pop_female) * mean_books(YG_BOOKS_DIST[&quot;male&quot;], top_value)
+    return f / (f + m)
+
+
+def _acs_adults(year: int) -&gt; pd.DataFrame:
+    p = pd.read_parquet(DATA / f&quot;acs_full/persons/year={year}&quot;, columns=[&quot;AGEP&quot;, &quot;PWGTP&quot;, &quot;CIT&quot;, &quot;SEX&quot;])
+    p = p.astype({&quot;AGEP&quot;: int, &quot;PWGTP&quot;: float, &quot;CIT&quot;: int, &quot;SEX&quot;: int})  # stored as strings in the parquet
+    return p[(p.AGEP &gt;= 18) &amp; (p.CIT != 5)]
+
+
+def acs_adult_citizen_age_mix(year: int = 2024) -&gt; dict[str, float]:
+    p = _acs_adults(year)
+    g = pd.cut(p.AGEP, [17, 29, 44, 64, 200], labels=YG_AGES)
+    s = p.PWGTP.groupby(g, observed=True).sum()
+    return {k: float(v) for k, v in (s / s.sum()).items()}
+
+
+def acs_adult_citizen_female_share(year: int = 2024) -&gt; float:
+    p = _acs_adults(year)
+    return float(p.PWGTP[p.SEX == 2].sum() / p.PWGTP.sum())
+
+
+def romance_reader_mix(age_mix: dict, pop_female: float = 0.515) -&gt; dict:
+    &quot;&quot;&quot;Composition of romance readers = YouGov romance rate x population share, normalized (headcount).&quot;&quot;&quot;
+    a = {k: YG_ROMANCE[k] * age_mix[k] for k in YG_AGES}
+    t = sum(a.values())
+    f = YG_ROMANCE[&quot;female&quot;] * pop_female
+    m = YG_ROMANCE[&quot;male&quot;] * (1 - pop_female)
+    return {&quot;female&quot;: f / (f + m), &quot;age&quot;: {k: v / t for k, v in a.items()}}
+
+
+def romance_share_range() -&gt; dict:
+    c = CIRCANA_2025
+    central = c[&quot;romance&quot;] / (c[&quot;adult_fiction&quot;] + c[&quot;adult_nonfiction&quot;])
+    return {&quot;low&quot;: c[&quot;romance&quot;] / c[&quot;total_print&quot;], &quot;central&quot;: central, &quot;high&quot;: central * ROMANCE_EBOOK_UPLIFT}
+
+
+def minutes_chain(hours_per_book: float, romance_share: float,
+                  mean_books_year: float = YG_PUBLISHED[&quot;mean_books&quot;]) -&gt; dict:
+    book = mean_books_year * hours_per_book * 60 / 365
+    return {&quot;book_min_day&quot;: book, &quot;romance_min_day&quot;: book * romance_share}
+
+
+def book_share_by_age(age_mix: dict) -&gt; dict[str, float]:
+    &quot;&quot;&quot;Share of all books read, by age: population share x YouGov's published mean books for that age.&quot;&quot;&quot;
+    v = {a: age_mix[a] * YG_MEAN_BY_AGE[a] for a in YG_AGES}
+    t = sum(v.values())
+    return {a: x / t for a, x in v.items()}
+
+
+def _romance_reader_prob(dist, top: float, rate: float) -&gt; np.ndarray:
+    &quot;&quot;&quot;P(read any romance | books read) = 1-(1-q)^b, with q solved so the group's rate matches YouGov.&quot;&quot;&quot;
+    p, b = _norm(dist), _mids(top)
+    lo, hi = 1e-9, 0.999
+    for _ in range(200):
+        q = (lo + hi) / 2
+        if (p * (1 - (1 - q) ** b)).sum() &lt; rate:
+            lo = q
+        else:
+            hi = q
+    return q, 1 - (1 - q) ** b
+
+
+def _romance_two_models(dist, top: float, rate: float) -&gt; tuple[float, float]:
+    &quot;&quot;&quot;Romance books per capita, up to a constant, under two bracketing models.
+    m1 'coin flip': every book is romance with prob q -&gt; q * mean books.
+    m2 'fixed share': romance readers (more likely the more they read) spend a common share of their books
+       on romance -&gt; sum P(R|b) * b.&quot;&quot;&quot;
+    p, b = _norm(dist), _mids(top)
+    q, P = _romance_reader_prob(dist, top, rate)
+    return float(q * (p * b).sum()), float((p * P * b).sum())
+
+
+def romance_minutes(age_mix: dict, pop_female: float) -&gt; dict:
+    &quot;&quot;&quot;Romance reading volume (minutes) shares by age and sex. The two models bracket the truth; they're
+    mixed with the one weight that makes 18-29s over-represented in romance (vs their share of all books)
+    by the NIQ ratio (13-34s' share of romantasy purchases / of all books).&quot;&quot;&quot;
+    bs = book_share_by_age(age_mix)
+    m1, m2 = {}, {}
+    for a in YG_AGES:
+        top = calibrate_top_bucket(YG_BOOKS_DIST[a], YG_MEAN_BY_AGE[a])
+        x1, x2 = _romance_two_models(YG_BOOKS_DIST[a], top, YG_ROMANCE[a] / 100)
+        m1[a], m2[a] = age_mix[a] * x1, age_mix[a] * x2
+    s1 = {a: v / sum(m1.values()) for a, v in m1.items()}
+    s2 = {a: v / sum(m2.values()) for a, v in m2.items()}
+    T = calibrate_top_bucket(YG_BOOKS_DIST[&quot;total&quot;])
+    sexes = {}
+    for sx, w in ((&quot;female&quot;, pop_female), (&quot;male&quot;, 1 - pop_female)):
+        sexes[sx] = [w * v for v in _romance_two_models(YG_BOOKS_DIST[sx], T, YG_ROMANCE[sx] / 100)]
+    f1 = sexes[&quot;female&quot;][0] / (sexes[&quot;female&quot;][0] + sexes[&quot;male&quot;][0])
+    f2 = sexes[&quot;female&quot;][1] / (sexes[&quot;female&quot;][1] + sexes[&quot;male&quot;][1])
+    r1, r2 = s1[&quot;18-29&quot;] / bs[&quot;18-29&quot;], s2[&quot;18-29&quot;] / bs[&quot;18-29&quot;]
+    ratios = {&quot;low&quot;: r2, &quot;central&quot;: NIQ_ROMANTASY_U35_SHARE / NIQ_ALL_BOOKS_U35_SHARE,
+              &quot;high&quot;: YOUTH_RATIO_RANGE[&quot;high&quot;]}
+    out = {&quot;ratio&quot;: ratios, &quot;model_ratios&quot;: {&quot;coin_flip&quot;: r1, &quot;fixed_share&quot;: r2}}
+    for case, R in ratios.items():
+        lam = min(max((R - r2) / (r1 - r2), 0.0), 1.0)
+        out[case] = {&quot;lambda&quot;: lam, &quot;age&quot;: {a: (1 - lam) * s2[a] + lam * s1[a] for a in YG_AGES},
+                     &quot;female&quot;: (1 - lam) * f2 + lam * f1}
+    return out
+
+
+def atus_young_women(df: pd.DataFrame) -&gt; dict:
+    m = (df.sex == &quot;F&quot;) &amp; (df.age &lt;= 29)
+    w, r = df.weight, df.reading_min
+    return {&quot;pop_share&quot;: float(w[m].sum() / w.sum()),
+            &quot;all_reading_share&quot;: float((w * r)[m].sum() / (w * r).sum())}
+
+
+# Reader groups for the &quot;lumpy&quot; frame: bucket index ranges into YG_BUCKETS.
+READER_GROUPS = {&quot;0 books&quot;: (0, 1), &quot;1-4&quot;: (1, 5), &quot;5-9&quot;: (5, 10), &quot;10-49&quot;: (10, 18), &quot;50+&quot;: (18, 19)}
+
+
+def build_numbers(path: Path = HERE / &quot;numbers.json&quot;) -&gt; dict:
+    df = load_atus()
+    leisure = atus_leisure(df)
+    split = atus_reading_split(df)
+    top = calibrate_top_bucket(YG_BOOKS_DIST[&quot;total&quot;])
+    sh = volume_shares(YG_BOOKS_DIST[&quot;total&quot;], top)
+    age_mix = acs_adult_citizen_age_mix()
+    pop_f = acs_adult_citizen_female_share()
+    rshare = romance_share_range()
+
+    chain = {}
+    for case in (&quot;low&quot;, &quot;central&quot;, &quot;high&quot;):
+        c = minutes_chain(HOURS_PER_BOOK[case], rshare[case])
+        c[&quot;capped&quot;] = c[&quot;book_min_day&quot;] &gt; leisure[&quot;Reading&quot;]
+        if c[&quot;capped&quot;]:
+            c[&quot;romance_min_day&quot;] *= leisure[&quot;Reading&quot;] / c[&quot;book_min_day&quot;]
+            c[&quot;book_min_day&quot;] = leisure[&quot;Reading&quot;]
+        c[&quot;romance_share_of_leisure&quot;] = c[&quot;romance_min_day&quot;] / leisure[&quot;total&quot;]
+        c[&quot;romance_min_per_romance_reader&quot;] = c[&quot;romance_min_day&quot;] / (YG_ROMANCE[&quot;total&quot;] / 100)
+        chain[case] = c
+
+    mids = _mids(top)
+    groups = {}
+    for name, (a, b) in READER_GROUPS.items():
+        ppl = sum(sh[&quot;people&quot;][a:b])
+        vol = sum(sh[&quot;volume&quot;][a:b])
+        books_per_person = (sum(np.array(sh[&quot;people&quot;][a:b]) * mids[a:b]) / ppl) if ppl else 0.0
+        groups[name] = {&quot;people&quot;: ppl, &quot;volume&quot;: vol,
+                        &quot;book_min_day&quot;: books_per_person * HOURS_PER_BOOK[&quot;central&quot;] * 60 / 365}
+
+    n = {
+        &quot;atus&quot;: {&quot;years&quot;: [2022, 2023, 2024], &quot;n&quot;: int(len(df)), &quot;min_age&quot;: 18,
+                 &quot;pct_reading_day&quot;: _wmean(df.reading_min &gt; 0, df.weight),
+                 &quot;reader_min_on_reading_day&quot;: _wmean(df.reading_min[df.reading_min &gt; 0],
+                                                     df.weight[df.reading_min &gt; 0])},
+        &quot;leisure&quot;: leisure,
+        &quot;reading_split&quot;: {f&quot;{d}:{g}&quot;: row.to_dict() for (d, g), row in split.iterrows()},
+        &quot;yougov&quot;: {&quot;read_any&quot;: YG_READ_ANY, &quot;published&quot;: YG_PUBLISHED, &quot;romance_rate&quot;: YG_ROMANCE},
+        &quot;books&quot;: {&quot;top_bucket_value&quot;: top, &quot;women_volume_share&quot;: women_volume_share(top, pop_f),
+                  &quot;reconstructed_top4_share&quot;: sh[&quot;volume&quot;][-1],
+                  &quot;reconstructed_top10plus_share&quot;: sum(sh[&quot;volume&quot;][10:]),
+                  &quot;top10plus_people&quot;: sum(sh[&quot;people&quot;][10:]),
+                  &quot;reader_groups&quot;: groups},
+        &quot;genres_units&quot;: {k: CIRCANA_2025[k] for k in (&quot;romance&quot;, &quot;thriller&quot;, &quot;fantasy&quot;, &quot;religion&quot;,
+                                                      &quot;adult_fiction&quot;, &quot;adult_nonfiction&quot;, &quot;total_print&quot;)},
+        &quot;acs&quot;: {&quot;age_mix&quot;: age_mix, &quot;female_share&quot;: pop_f},
+        &quot;romance_mix&quot;: romance_reader_mix(age_mix, pop_f),
+        &quot;romance_share&quot;: rshare,
+        &quot;hours_per_book&quot;: HOURS_PER_BOOK,
+        &quot;chain&quot;: chain,
+    }
+    n[&quot;book_share_by_age&quot;] = book_share_by_age(age_mix)
+    n[&quot;romance_minutes&quot;] = rm = romance_minutes(age_mix, pop_f)
+    yw = atus_young_women(df)
+    yw[&quot;romance_share&quot;] = {c: rm[c][&quot;age&quot;][&quot;18-29&quot;] * rm[c][&quot;female&quot;] for c in (&quot;low&quot;, &quot;central&quot;, &quot;high&quot;)}
+    n[&quot;young_women&quot;] = yw
+    path.write_text(json.dumps(n, indent=2))
+    return n
+
+
+def _report(n: dict) -&gt; None:
+    L = n[&quot;leisure&quot;]
+    print(f&quot;ATUS {n['atus']['years']} adults n={n['atus']['n']}: leisure {L['total']:.1f} min/day, &quot;
+          f&quot;reading {L['Reading']:.1f} ({L['Reading']/L['total']:.1%}); reading on diary day &quot;
+          f&quot;{n['atus']['pct_reading_day']:.1%}, {n['atus']['reader_min_on_reading_day']:.0f} min when they do&quot;)
+    for k, v in n[&quot;reading_split&quot;].items():
+        print(f&quot;  {k:10s} pop {v['pop_share']:.1%}  minutes {v['minute_share']:.1%}&quot;)
+    b = n[&quot;books&quot;]
+    print(f&quot;50+ bucket calibrated to {b['top_bucket_value']:.1f} books (mean 8). Women's share of book volume &quot;
+          f&quot;{b['women_volume_share']:.1%}&quot;)
+    print(f&quot;Reconstruction check: 50+ ({YG_BOOKS_DIST['total'][-1]}%) read {b['reconstructed_top4_share']:.0%} &quot;
+          f&quot;(YouGov 46%); 10+ ({b['top10plus_people']:.0%}) read {b['reconstructed_top10plus_share']:.0%} (YouGov 82%)&quot;)
+    for g, v in b[&quot;reader_groups&quot;].items():
+        print(f&quot;  {g:8s} people {v['people']:.0%}  volume {v['volume']:.0%}  {v['book_min_day']:.1f} book-min/day&quot;)
+    print(&quot;Romance mix:&quot;, {k: round(v, 3) for k, v in n[&quot;romance_mix&quot;][&quot;age&quot;].items()},
+          f&quot;female {n['romance_mix']['female']:.1%}&quot;)
+    print(&quot;Romance share of book minutes:&quot;, {k: round(v, 3) for k, v in n[&quot;romance_share&quot;].items()})
+    rm = n[&quot;romance_minutes&quot;]
+    print(&quot;Romance minutes by age (NIQ-anchored):&quot;, {c: {a: round(v, 3) for a, v in rm[c][&quot;age&quot;].items()}
+          for c in (&quot;low&quot;, &quot;central&quot;, &quot;high&quot;)})
+    print(&quot;  ratios&quot;, {k: round(v, 2) for k, v in rm[&quot;ratio&quot;].items()}, &quot;models&quot;,
+          {k: round(v, 2) for k, v in rm[&quot;model_ratios&quot;].items()}, &quot;female&quot;,
+          {c: round(rm[c][&quot;female&quot;], 3) for c in (&quot;low&quot;, &quot;central&quot;, &quot;high&quot;)})
+    print(&quot;Book share by age&quot;, {a: round(v, 3) for a, v in n[&quot;book_share_by_age&quot;].items()})
+    print(&quot;Young women&quot;, {k: (round(v, 3) if isinstance(v, float) else {c: round(x, 3) for c, x in v.items()})
+                          for k, v in n[&quot;young_women&quot;].items()})
+    for case, c in n[&quot;chain&quot;].items():
+        print(f&quot;  {case:7s} book {c['book_min_day']:.1f} min/day, romance {c['romance_min_day']:.2f} min/day &quot;
+              f&quot;({c['romance_share_of_leisure']:.2%} of leisure; {c['romance_min_per_romance_reader']:.1f} &quot;
+              f&quot;min/day per romance reader){' CAPPED' if c['capped'] else ''}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    _report(build_numbers())
+</code></pre>
+<h3><code>reading_frames.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Frame specs and keyframe rendering for the reading GIF (house style, 1080x1350).
+
+Run: uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_frames.py   -&gt; frames/NN_&lt;key&gt;.png
+&quot;&quot;&quot;
+from __future__ import annotations
+
+import json
+import sys
+import textwrap
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Literal
+
+import matplotlib
+
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.patches import Polygon, Rectangle  # noqa: E402
+from PIL import Image  # noqa: E402
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+from reading_inputs import CIRCANA_2025, YG_PUBLISHED_GROUPS  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+W, H, DPI = 1080, 1350, 100
+PAL = pb.apply()
+LEFT, RIGHT = 0.065, 0.935
+SEP = &quot;#ffffff&quot;
+
+
+@dataclass
+class Segment:
+    label: str
+    people: float | None
+    minutes: float | None
+    highlight: bool = False
+    parent: str | None = None      # zoomout: sub-blocks of a treemap node
+
+
+@dataclass
+class FrameSpec:
+    key: str
+    kind: Literal[&quot;leisure&quot;, &quot;paired&quot;, &quot;bars&quot;, &quot;zoomout&quot;]
+    headline: str
+    subtitle: str
+    footnote: str
+    segments: list[Segment]
+    top_label: str = &quot;Share of adults&quot;
+    bottom_label: str = &quot;Share of reading minutes&quot;
+    note: str = &quot;&quot;
+    step: int = 1
+    n_steps: int = 9
+    unit: str = &quot;min&quot;
+
+
+# ------------------------------------------------------------------ specs from numbers.json
+def frame_specs(n: dict) -&gt; list[FrameSpec]:
+    L = n[&quot;leisure&quot;]
+    total, read, tv = L[&quot;total&quot;], L[&quot;Reading&quot;], L[&quot;TV&quot;]
+    groups = [g for g in L if g != &quot;total&quot;]
+    rs = n[&quot;reading_split&quot;]
+    pop_f = n[&quot;acs&quot;][&quot;female_share&quot;]
+    rd = n[&quot;yougov&quot;][&quot;read_any&quot;]
+    c = n[&quot;chain&quot;]
+
+    specs = []
+
+    specs.append(FrameSpec(
+        &quot;leisure&quot;, &quot;leisure&quot;,
+        &quot;Reading is a sliver of Americans' free time&quot;,
+        f&quot;Adults average {total:.0f} minutes of leisure a day. Reading of any kind gets {read:.0f} of them &quot;
+        f&quot;({read / total:.1%}); TV gets {tv:.0f}.&quot;,
+        &quot;Source: American Time Use Survey 2022–24, adults 18+, weighted. Reading = reading for personal &quot;
+        &quot;interest: books, news and magazines alike.&quot;,
+        [Segment(g, None, L[g], highlight=(g == &quot;Reading&quot;)) for g in groups]))
+
+    ages = [&quot;18-34&quot;, &quot;35-54&quot;, &quot;55+&quot;]
+    old = rs[&quot;age:55+&quot;]
+    specs.append(FrameSpec(
+        &quot;who_reads&quot;, &quot;paired&quot;,
+        f&quot;Adults 55+ do {old['minute_share']:.0%} of all reading&quot;,
+        f&quot;They're {old['pop_share']:.0%} of adults. And reading isn't as female as you'd think: &quot;
+        f&quot;men put in {rs['sex:M']['minute_share']:.0%} of reading minutes.&quot;,
+        &quot;Source: American Time Use Survey 2022–24, adults 18+, weighted. Reading of all kinds: the survey &quot;
+        &quot;doesn't separate books from news or magazines.&quot;,
+        [Segment(a.replace(&quot;-&quot;, &quot;–&quot;), rs[f&quot;age:{a}&quot;][&quot;pop_share&quot;], rs[f&quot;age:{a}&quot;][&quot;minute_share&quot;],
+                 highlight=(a == &quot;55+&quot;)) for a in ages],
+        note=f&quot;On a given day only {n['atus']['pct_reading_day']:.0%} of adults read at all; those who do &quot;
+             f&quot;average {n['atus']['reader_min_on_reading_day']:.0f} minutes.&quot;))
+
+    men_r, wom_r = (1 - pop_f) * rd[&quot;male&quot;] / 100, pop_f * rd[&quot;female&quot;] / 100
+    none = 1 - men_r - wom_r
+    wv = n[&quot;books&quot;][&quot;women_volume_share&quot;]
+    specs.append(FrameSpec(
+        &quot;books&quot;, &quot;paired&quot;,
+        f&quot;Narrow to books: women read {wv:.0%} of them&quot;,
+        f&quot;First, {100 - rd['total']}% of adults didn't read or listen to a single book in 2025.&quot;,
+        &quot;Source: YouGov, Dec 2025, 2,203 US adult citizens. Women's share of books is est. from YouGov's &quot;
+        &quot;books-read distribution by sex (open 50+ answer set so the mean matches YouGov's 8 books).&quot;,
+        [Segment(&quot;Read no books&quot;, none, 0.0), Segment(&quot;Men&quot;, men_r, 1 - wv),
+         Segment(&quot;Women&quot;, wom_r, wv, highlight=True)],
+        bottom_label=&quot;Share of books read&quot;))
+
+    g = YG_PUBLISHED_GROUPS
+    mean_books = n[&quot;yougov&quot;][&quot;published&quot;][&quot;mean_books&quot;]
+    hpb = n[&quot;hours_per_book&quot;][&quot;central&quot;]
+    top_books = g[&quot;books&quot;][-1] / 100 * mean_books / (g[&quot;people&quot;][-1] / 100)
+    specs.append(FrameSpec(
+        &quot;lumpy&quot;, &quot;paired&quot;,
+        f&quot;{g['people'][-1]}% of adults do {g['books'][-1]}% of the book reading&quot;,
+        f&quot;The {sum(g['people'][3:])}% who read 10+ books a year do {sum(g['books'][3:])}% of it. &quot;
+        f&quot;Most people read none, or a handful.&quot;,
+        f&quot;Source: YouGov 2025, its own published breakdown (books read in 2025). Minutes est. at {hpb:.0f} &quot;
+        f&quot;hours per book (range 4–8).&quot;,
+        [Segment((&quot;0 books&quot; if lab == &quot;0&quot; else lab), p / 100, b / 100, highlight=(lab == &quot;50+&quot;))
+         for lab, p, b in zip(g[&quot;labels&quot;], g[&quot;people&quot;], g[&quot;books&quot;])],
+        top_label=&quot;Share of adults, by books read in 2025&quot;, bottom_label=&quot;Share of all books read&quot;,
+        note=f&quot;In minutes (est.): the average adult reads ~{c['central']['book_min_day']:.0f} min of books a &quot;
+             f&quot;day. The top {g['people'][-1]}% read ~{top_books * hpb * 60 / 365:.0f}.&quot;))
+
+    cu = CIRCANA_2025
+    bars = [(&quot;Romance&quot;, cu[&quot;romance&quot;]), (&quot;Suspense &amp; thriller&quot;, cu[&quot;thriller&quot;]), (&quot;Fantasy&quot;, cu[&quot;fantasy&quot;]),
+            (&quot;Science fiction&quot;, cu[&quot;scifi&quot;])]
+    specs.append(FrameSpec(
+        &quot;genres&quot;, &quot;bars&quot;,
+        &quot;Romance is adult fiction's best-seller&quot;,
+        f&quot;Print books sold in the US in 2025, millions. {n['yougov']['romance_rate']['total']}% of adults &quot;
+        f&quot;read a romance last year.&quot;,
+        &quot;Source: Circana BookScan 2025 via Publishers Weekly; YouGov 2025. Print only: ebooks and Kindle &quot;
+        &quot;Unlimited, where romance is bigger still, aren't counted.&quot;,
+        [Segment(lab, None, v / 1e6, highlight=(lab == &quot;Romance&quot;)) for lab, v in bars], unit=&quot;M&quot;))
+
+    mix, age_mix = n[&quot;romance_mix&quot;], n[&quot;acs&quot;][&quot;age_mix&quot;]
+    yg_ages = [&quot;18-29&quot;, &quot;30-44&quot;, &quot;45-64&quot;, &quot;65+&quot;]
+    under45 = mix[&quot;age&quot;][&quot;18-29&quot;] + mix[&quot;age&quot;][&quot;30-44&quot;]
+    specs.append(FrameSpec(
+        &quot;romance&quot;, &quot;paired&quot;,
+        &quot;Romance's biggest readership: ages 18–29&quot;,
+        f&quot;{mix['female']:.0%} of romance readers are women, and {under45:.0%} are under 45.&quot;,
+        &quot;Source: YouGov 2025 genre crosstab, weighted by ACS 2024 adult citizens. Counts readers (anyone &quot;
+        &quot;who read a romance in 2025); the next frame estimates reading minutes.&quot;,
+        [Segment(a.replace(&quot;-&quot;, &quot;–&quot;), age_mix[a], mix[&quot;age&quot;][a], highlight=(a == &quot;18-29&quot;)) for a in yg_ages],
+        bottom_label=&quot;Share of romance readers&quot;))
+
+    rm, bs, yw = n[&quot;romance_minutes&quot;], n[&quot;book_share_by_age&quot;], n[&quot;young_women&quot;]
+    rc = rm[&quot;central&quot;][&quot;age&quot;]
+    specs.append(FrameSpec(
+        &quot;romance_minutes&quot;, &quot;paired&quot;,
+        f&quot;Under-30s: {bs['18-29']:.0%} of books, ~{rc['18-29']:.0%} of romance&quot;,
+        f&quot;{rm['ratio']['central']:.1f}× their share: the tilt NielsenIQ finds for young romantasy buyers. But &quot;
+        f&quot;they're {mix['age']['18-29']:.0%} of romance readers: many readers, fewer books each.&quot;,
+        f&quot;est.: romance minutes by age from YouGov readership and books read, calibrated so 18–29s' &quot;
+        f&quot;over-representation matches NielsenIQ BookData (13–34s buy 66% of romantasy vs ~41% of all books). &quot;
+        f&quot;Range for 18–29: {rm['low']['age']['18-29']:.0%}–{rm['high']['age']['18-29']:.0%}.&quot;,
+        [Segment(a.replace(&quot;-&quot;, &quot;–&quot;), bs[a], rc[a], highlight=(a == &quot;18-29&quot;)) for a in yg_ages],
+        top_label=&quot;Share of all book reading&quot;, bottom_label=&quot;Share of romance reading (est.)&quot;))
+
+    fem_all = rs[&quot;sex:F&quot;][&quot;minute_share&quot;]
+    rf = rm[&quot;central&quot;][&quot;female&quot;]
+    yr = yw[&quot;romance_share&quot;]
+    specs.append(FrameSpec(
+        &quot;young_women&quot;, &quot;paired&quot;,
+        f&quot;Women 18–29: reading {yw['all_reading_share']:.0%}, romance ~{yr['central']:.0%}&quot;,
+        f&quot;Reading overall is old and {rs['sex:M']['minute_share']:.0%} male. ~{rf:.0%} of romance reading &quot;
+        f&quot;time is women's (est.), and it leans young. Women 18–29 are {yw['pop_share']:.0%} of adults.&quot;,
+        f&quot;Top: American Time Use Survey 2022–24, all reading. Bottom est.: the romance model above, assuming &quot;
+        f&quot;romance's female share is the same at every age (YouGov doesn't cross sex by age). &quot;
+        f&quot;Range {yr['low']:.0%}–{yr['high']:.0%}.&quot;,
+        [Segment(&quot;Men&quot;, rs[&quot;sex:M&quot;][&quot;minute_share&quot;], 1 - rf),
+         Segment(&quot;Other women&quot;, fem_all - yw[&quot;all_reading_share&quot;], rf - yr[&quot;central&quot;]),
+         Segment(&quot;Women 18–29&quot;, yw[&quot;all_reading_share&quot;], yr[&quot;central&quot;], highlight=True)],
+        top_label=&quot;Share of all reading time&quot;, bottom_label=&quot;Share of romance reading time (est.)&quot;))
+
+    cc, lo, hi = c[&quot;central&quot;], c[&quot;low&quot;], c[&quot;high&quot;]
+    book = cc[&quot;book_min_day&quot;]
+    rom = cc[&quot;romance_min_day&quot;]
+    segs = [Segment(gname, None, L[gname]) for gname in groups if gname != &quot;Reading&quot;]
+    segs += [Segment(&quot;Other reading (remainder, est.)&quot;, None, read - book, parent=&quot;Reading&quot;),
+             Segment(&quot;Other books&quot;, None, book - rom, parent=&quot;Reading&quot;),
+             Segment(&quot;Romance&quot;, None, rom, highlight=True, parent=&quot;Reading&quot;)]
+    specs.append(FrameSpec(
+        &quot;zoomout&quot;, &quot;zoomout&quot;,
+        f&quot;All that romance: ~{rom:.1f} of {total:.0f} leisure minutes&quot;,
+        f&quot;Averaged over every adult ({lo['romance_min_day']:.1f}–{hi['romance_min_day']:.1f} min, est.). &quot;
+        f&quot;But it's lumpy: romance readers average ~{cc['romance_min_per_romance_reader']:.0f} min a day, &quot;
+        f&quot;heavy readers far more.&quot;,
+        f&quot;est.: books = {n['yougov']['published']['mean_books']} a year × {hpb:.0f} h (4–8 h); romance = &quot;
+        f&quot;{n['romance_share']['central']:.0%} of adult print units ({n['romance_share']['low']:.0%}–&quot;
+        f&quot;{n['romance_share']['high']:.0%}). ATUS 2022–24, YouGov 2025, Circana 2025.&quot;,
+        segs))
+
+    for i, s in enumerate(specs, 1):
+        s.step, s.n_steps = i, len(specs)
+    return specs
+
+
+# ------------------------------------------------------------------ drawing helpers
+def _ease(t: float) -&gt; float:
+    t = min(max(t, 0.0), 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def _squarify(values, x, y, w, h):
+    &quot;&quot;&quot;Squarified treemap. values sorted desc; returns list of (x, y, w, h) in the same order.&quot;&quot;&quot;
+    vals = list(values)
+    total = sum(vals)
+    vals = [v * w * h / total for v in vals]
+    rects, i = [], 0
+
+    def worst(row, side):
+        s = sum(row)
+        return max(max(side * side * r / (s * s), (s * s) / (side * side * r)) for r in row)
+
+    while i &lt; len(vals):
+        side = min(w, h)
+        row = [vals[i]]
+        i += 1
+        while i &lt; len(vals) and worst(row + [vals[i]], side) &lt;= worst(row, side):
+            row.append(vals[i])
+            i += 1
+        s = sum(row)
+        if w &gt;= h:  # lay row as a column on the left
+            cw = s / h
+            yy = y + h
+            for r in row:
+                rh = r / cw
+                yy -= rh
+                rects.append((x, yy, cw, rh))
+            x += cw
+            w -= cw
+        else:       # lay row along the top
+            rh = s / w
+            xx = x
+            for r in row:
+                rw = r / rh
+                rects.append((xx, y + h - rh, rw, rh))
+                xx += rw
+            h -= rh
+    return rects
+
+
+def _text(fig, x, y, s, size, **kw):
+    kw.setdefault(&quot;color&quot;, PAL[&quot;INK&quot;])
+    return fig.text(x, y, s, fontsize=size, transform=fig.transFigure, **kw)
+
+
+def _chrome(fig, spec: FrameSpec):
+    N_STEPS = spec.n_steps
+    _text(fig, LEFT, 0.962, f&quot;{spec.step} / {N_STEPS}&quot;, 15, color=PAL[&quot;MUTED&quot;], fontweight=600, va=&quot;top&quot;)
+    # step dots
+    for i in range(N_STEPS):
+        fig.patches.append(Rectangle((RIGHT - (N_STEPS - i) * 0.03 + 0.006, 0.952), 0.022, 0.006,
+                                     transform=fig.transFigure, color=PAL[&quot;NAVY&quot;] if i &lt; spec.step else PAL[&quot;GRID&quot;]))
+    _text(fig, LEFT, 0.935, spec.headline, 30, fontweight=700, va=&quot;top&quot;)
+    _text(fig, LEFT, 0.885, textwrap.fill(spec.subtitle, 62), 19, color=PAL[&quot;INK2&quot;], va=&quot;top&quot;, linespacing=1.35)
+    _text(fig, LEFT, 0.022, textwrap.fill(spec.footnote, 98), 12.5, color=PAL[&quot;MUTED&quot;], va=&quot;bottom&quot;,
+          linespacing=1.35)
+
+
+def _seg_color(s: Segment):
+    return PAL[&quot;RED&quot;] if s.highlight else PAL[&quot;MUTE&quot;]
+
+
+def _label_in(ax, x0, w, y, h, name, val, s: Segment, alpha):
+    ink = &quot;white&quot; if s.highlight else PAL[&quot;INK&quot;]
+    if w &gt;= 0.11:
+        ax.text(x0 + 0.012, y + h * 0.66, name, fontsize=16, color=ink, va=&quot;center&quot;, alpha=alpha)
+        ax.text(x0 + 0.012, y + h * 0.30, val, fontsize=21, color=ink, fontweight=700, va=&quot;center&quot;, alpha=alpha)
+    elif w &gt;= 0.05:
+        ax.text(x0 + w / 2, y + h / 2, val, fontsize=16, color=ink, fontweight=700, va=&quot;center&quot;, ha=&quot;center&quot;,
+                alpha=alpha)
+
+
+def _paired(fig, spec: FrameSpec, t: float, prev: FrameSpec | None):
+    ax = fig.add_axes([LEFT, 0.26, RIGHT - LEFT, 0.55])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis(&quot;off&quot;)
+    e = _ease(t)
+    ytop, ybot, bh = 0.68, 0.10, 0.19
+    prev_map = {s.label: s for s in prev.segments} if prev and prev.kind == &quot;paired&quot; else {}
+
+    def widths(attr):
+        tot = sum(getattr(s, attr) for s in spec.segments)
+        out = []
+        for s in spec.segments:
+            final = getattr(s, attr) / tot
+            p = prev_map.get(s.label)
+            start = getattr(p, attr) / sum(getattr(q, attr) for q in prev.segments) if p else 0.0
+            out.append(start + (final - start) * e)
+        return out
+
+    wt, wb = widths(&quot;people&quot;), widths(&quot;minutes&quot;)
+    ft = [s.people / sum(q.people for q in spec.segments) for s in spec.segments]
+    fb = [s.minutes / sum(q.minutes for q in spec.segments) for s in spec.segments]
+    fxt = [sum(ft[:i]) for i in range(len(ft))]
+    fxb = [sum(fb[:i]) for i in range(len(fb))]
+    ax.text(0, ytop + bh + 0.035, spec.top_label, fontsize=18, fontweight=700, va=&quot;bottom&quot;)
+    ax.text(0, ybot + bh + 0.035, spec.bottom_label, fontsize=18, fontweight=700, va=&quot;bottom&quot;)
+    xt = xb = 0.0
+    for i, (s, a, b) in enumerate(zip(spec.segments, wt, wb)):
+        col = _seg_color(s)
+        band = Polygon([(xt, ytop), (xt + a, ytop), (xb + b, ybot + bh), (xb, ybot + bh)],
+                       color=col, alpha=(0.28 if s.highlight else 0.35) * e, lw=0)
+        ax.add_patch(band)
+        ax.add_patch(Rectangle((xt, ytop), a, bh, color=col, ec=SEP, lw=3))
+        ax.add_patch(Rectangle((xb, ybot), b, bh, color=col, ec=SEP, lw=3))
+        _label_in(ax, xt, a, ytop, bh, s.label, f&quot;{s.people:.0%}&quot;, s, e)
+        _label_in(ax, xb, b, ybot, bh, s.label, f&quot;{s.minutes:.0%}&quot;, s, e)
+        if s.highlight and ft[i] &lt; 0.11:   # callouts use final geometry so tweens can't push them off-canvas
+            ax.text(fxt[i] + ft[i], ytop + bh + 0.035, f&quot;{s.label}: {s.people:.0%}&quot;, fontsize=16, fontweight=700,
+                    ha=&quot;right&quot;, va=&quot;bottom&quot;, color=PAL[&quot;INK&quot;], alpha=e)
+        if s.highlight and fb[i] &lt; 0.11:
+            ax.text(fxb[i] + fb[i] / 2, ybot - 0.03, f&quot;{s.label}: {s.minutes:.0%}&quot;, fontsize=16, fontweight=700,
+                    ha=&quot;center&quot;, va=&quot;top&quot;, color=PAL[&quot;INK&quot;], alpha=e)
+        xt += a
+        xb += b
+    if spec.note:
+        _text(fig, LEFT, 0.255, textwrap.fill(spec.note, 66), 18, color=PAL[&quot;INK&quot;], va=&quot;top&quot;, alpha=e,
+              linespacing=1.35)
+
+
+def _bars(fig, spec: FrameSpec, t: float):
+    ax = fig.add_axes([LEFT + 0.25, 0.24, RIGHT - LEFT - 0.25, 0.52])
+    e = _ease(t)
+    segs = spec.segments
+    vmax = max(s.minutes for s in segs)
+    ys = list(range(len(segs)))[::-1]
+    ax.barh(ys, [s.minutes * e for s in segs], color=[_seg_color(s) for s in segs], height=0.62)
+    ax.set_xlim(0, vmax * 1.18)
+    ax.set_ylim(-0.6, len(segs) - 0.4)
+    ax.grid(False)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for y, s in zip(ys, segs):
+        ax.text(-vmax * 0.03, y, s.label, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=19,
+                fontweight=700 if s.highlight else 400)
+        ax.text(s.minutes * e + vmax * 0.02, y, f&quot;{s.minutes:.1f}{spec.unit}&quot;.replace(&quot;.0M&quot;, &quot;M&quot;),
+                va=&quot;center&quot;, fontsize=19, fontweight=700, alpha=e)
+
+
+def _treemap_rects(spec: FrameSpec, box):
+    tops: dict[str, float] = {}
+    for s in spec.segments:
+        key = s.parent or s.label
+        tops[key] = tops.get(key, 0) + s.minutes
+    names = sorted(tops, key=tops.get, reverse=True)
+    rects = dict(zip(names, _squarify([tops[k] for k in names], *box)))
+    return tops, rects
+
+
+def _treemap(fig, spec: FrameSpec, t: float, zoom: bool):
+    ax = fig.add_axes([LEFT, 0.12, RIGHT - LEFT, 0.68])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis(&quot;off&quot;)
+    box = (0, 0.42, 1, 0.58)
+    tops, rects = _treemap_rects(spec, box)
+    seg_by = {s.label: s for s in spec.segments}
+    e = _ease(t)
+    for name, (x, y, w, h) in rects.items():
+        s = seg_by.get(name)
+        hl = s.highlight if s else False
+        color = PAL[&quot;RED&quot;] if hl else (PAL[&quot;NAVY&quot;] if (zoom and name == &quot;Reading&quot;) else PAL[&quot;MUTE&quot;])
+        ax.add_patch(Rectangle((x, y), w, h, color=color, ec=SEP, lw=3, zorder=2))
+        ink = &quot;white&quot; if color != PAL[&quot;MUTE&quot;] else PAL[&quot;INK&quot;]
+        label = &quot;TV&quot; if name == &quot;TV&quot; else name
+        if w &gt; 0.16 and h &gt; 0.09:
+            tl = ax.text(x + 0.012, y + h - 0.02, textwrap.fill(label, int(w * 48), break_long_words=False),
+                         fontsize=15 if name != &quot;TV&quot; else 22, color=ink, va=&quot;top&quot;,
+                         fontweight=700 if (hl or name == &quot;TV&quot;) else 400)
+            tl._cell = (x, y, w, h)
+            ax.text(x + 0.012, y + 0.018, f&quot;{tops[name]:.0f} min&quot;, fontsize=15 if name != &quot;TV&quot; else 22,
+                    color=ink, va=&quot;bottom&quot;, fontweight=700)
+    rx, ry, rw, rh = rects[&quot;Reading&quot;]
+    # lower panel: frame 1 = callout; zoomout = magnified reading block
+    if not zoom:
+        ax.annotate(&quot;&quot;, xy=(rx + rw / 2, ry), xytext=(0.5, 0.33),
+                    arrowprops=dict(arrowstyle=&quot;-&quot;, color=PAL[&quot;RED&quot;], lw=2, alpha=e))
+        ax.text(0.5, 0.31, f&quot;Reading: {tops['Reading']:.0f} of {sum(tops.values()):.0f} minutes&quot;,
+                ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=24, fontweight=700, color=PAL[&quot;INK&quot;], alpha=e)
+        return
+    sub = [s for s in spec.segments if s.parent == &quot;Reading&quot;]
+    iy, ih = 0.06, 0.22
+    ax.add_patch(Polygon([(rx, ry), (rx + rw, ry), (1, iy + ih), (0, iy + ih)], color=PAL[&quot;NAVY&quot;],
+                         alpha=0.10 * e, lw=0, zorder=1))
+    xx = 0.0
+    tot = sum(s.minutes for s in sub)
+    for s in sub:
+        w = s.minutes / tot * e
+        col = PAL[&quot;RED&quot;] if s.highlight else PAL[&quot;MUTE&quot;]
+        ax.add_patch(Rectangle((xx, iy), w, ih, color=col, ec=SEP, lw=3))
+        if not s.highlight and w &gt; 0.2:
+            ax.text(xx + 0.012, iy + ih - 0.025, s.label, fontsize=16, va=&quot;top&quot;, alpha=e)
+            ax.text(xx + 0.012, iy + 0.02, f&quot;{s.minutes:.1f} min&quot;, fontsize=18, fontweight=700, alpha=e)
+        if s.highlight:
+            ax.annotate(f&quot;{s.label}: ~{s.minutes:.1f} min (est.)&quot;, xy=(xx + w / 2, iy), xytext=(1, iy - 0.045),
+                        ha=&quot;right&quot;, va=&quot;top&quot;, fontsize=19, fontweight=700, color=PAL[&quot;INK&quot;], alpha=e,
+                        arrowprops=dict(arrowstyle=&quot;-&quot;, color=PAL[&quot;RED&quot;], lw=2, alpha=e))
+        xx += w
+    ax.text(0, iy + ih + 0.015, f&quot;Zoom: the {tot:.0f} reading minutes&quot;, fontsize=17, fontweight=700, va=&quot;bottom&quot;,
+            alpha=e)
+
+
+# ------------------------------------------------------------------ public
+def render(spec: FrameSpec, t: float = 1.0, prev: FrameSpec | None = None) -&gt; Image.Image:
+    fig = plt.figure(figsize=(W / DPI, H / DPI), dpi=DPI)
+    try:
+        _chrome(fig, spec)
+        if spec.kind == &quot;paired&quot;:
+            _paired(fig, spec, t, prev)
+        elif spec.kind == &quot;bars&quot;:
+            _bars(fig, spec, t)
+        else:
+            _treemap(fig, spec, t, zoom=spec.kind == &quot;zoomout&quot;)
+        fig.canvas.draw()
+        r = fig.canvas.get_renderer()
+        texts = list(fig.texts) + [tx for ax in fig.axes for tx in ax.texts]
+        for tx in texts:
+            if not tx.get_text().strip():
+                continue
+            b = tx.get_window_extent(r)
+            if b.x0 &lt; -1 or b.y0 &lt; -1 or b.x1 &gt; W + 1 or b.y1 &gt; H + 1:
+                raise ValueError(f&quot;{spec.key}: text overflows canvas: {tx.get_text()[:40]!r}&quot;)
+            if tx in fig.texts and b.x1 &gt; RIGHT * W + 2:
+                raise ValueError(f&quot;{spec.key}: text past right margin: {tx.get_text()[:40]!r}&quot;)
+            cell = getattr(tx, &quot;_cell&quot;, None)
+            if cell is not None:
+                x, y, w, h = cell
+                (cx1, _), (cx2, _) = tx.axes.transData.transform([(x, y), (x + w, y + h)])
+                if b.x1 &gt; cx2 - 4:   # keep a little padding inside the cell
+                    raise ValueError(f&quot;{spec.key}: label spills out of its cell: {tx.get_text()[:40]!r}&quot;)
+        img = Image.frombuffer(&quot;RGBA&quot;, fig.canvas.get_width_height(), fig.canvas.buffer_rgba()).convert(&quot;RGB&quot;)
+    finally:
+        plt.close(fig)
+    return img
+
+
+def main():
+    n = json.loads((HERE / &quot;numbers.json&quot;).read_text())
+    out = HERE / &quot;frames&quot;
+    out.mkdir(exist_ok=True)
+    for s in frame_specs(n):
+        render(s).save(out / f&quot;{s.step:02d}_{s.key}.png&quot;)
+        print(&quot;wrote&quot;, out / f&quot;{s.step:02d}_{s.key}.png&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>reading_stills.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Still PNGs of the nine reading-GIF frames, watermarked with their methods page (pbmethods.github.io/who-reads).
+
+What the frames show, in order: (1) the ATUS leisure day, with reading as a 16-minute sliver of ~297;
+(2) who does the reading, by age and sex (ATUS 2022-24, all reading); (3) books only: 40% of adults read
+none, women read ~65% of books (YouGov 2025, est.); (4) the Pareto shape of book reading: 4% of adults do
+46% of it (YouGov's published breakdown), converted to minutes at 6 hours a book (est.); (5) romance as
+adult fiction's largest print category (Circana BookScan 2025); (6) romance readers by age and sex (YouGov
+Q9 weighted by the ACS 2024 adult-citizen mix); (7) romance reading minutes by age, from a model anchored
+to NielsenIQ BookData's 1.6x youth over-representation (est.); (8) women 18-29's share of all reading
+minutes (ATUS) vs of romance minutes (est.); (9) romance's ~0.7 minutes in the 297-minute leisure day (est.).
+Every number, assumption and range is in reading_data.py, reading_inputs.py and the notes below.
+
+Each frame is rendered by reading_frames.render (the same keyframe the GIF holds on), saved unwatermarked,
+then marked with the house footer strip (~/_watermark/watermark.py style 7), which adds the methods link
+and rebuilds this page. All but the last frame build the page locally; the last one pushes it.
+
+Run: uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_stills.py
+&quot;&quot;&quot;
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+from reading_frames import FrameSpec, frame_specs, render
+
+HERE = Path(__file__).resolve().parent
+SLUG = &quot;who-reads&quot;
+WM_DIR = Path.home() / &quot;Desktop/Recent Projects/Substack Notes/Reading&quot;
+UNMARKED_DIR = Path.home() / &quot;Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Reading&quot;
+WATERMARK = Path.home() / &quot;_watermark/watermark.py&quot;
+
+
+def still_targets(specs: list[FrameSpec], wm_dir: Path, unmarked_dir: Path) -&gt; list[tuple[Path, Path]]:
+    &quot;&quot;&quot;(unwatermarked, watermarked) path per frame, numbered in GIF order.&quot;&quot;&quot;
+    names = [f&quot;reading_{i:02d}_{s.key}&quot; for i, s in enumerate(specs, 1)]
+    return [(unmarked_dir / f&quot;{n}.png&quot;, wm_dir / f&quot;{n}_wm.png&quot;) for n in names]
+
+
+def main():
+    specs = frame_specs(json.loads((HERE / &quot;numbers.json&quot;).read_text()))
+    WM_DIR.mkdir(parents=True, exist_ok=True)
+    UNMARKED_DIR.mkdir(parents=True, exist_ok=True)
+    pairs = still_targets(specs, WM_DIR, UNMARKED_DIR)
+    for i, (spec, (plain, wm)) in enumerate(zip(specs, pairs)):
+        render(spec).save(plain)
+        env = dict(os.environ)
+        if i &lt; len(pairs) - 1:
+            env[&quot;PB_NO_PUSH&quot;] = &quot;1&quot;  # one push, after the last frame, carries every frame's page update
+        subprocess.run([sys.executable, str(WATERMARK), &quot;7&quot;, str(plain), str(wm)], check=True, env=env)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>reading_gif.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Assemble the reading keyframes into a tweened, watermarked GIF + MP4 for Substack Notes.
+
+Run: uv run --with pandas,pyarrow,matplotlib,pillow,fonttools python reading_gif.py
+&quot;&quot;&quot;
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from PIL import Image
+
+from reading_frames import PAL, FrameSpec, _ease, frame_specs, render
+
+HERE = Path(__file__).resolve().parent
+SUBSTACK = Path.home() / &quot;Desktop/Recent Projects/Substack Notes/Reading&quot;
+UNMARKED = Path.home() / &quot;Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Reading&quot;
+METHODS_SLUG = &quot;who-reads&quot;  # pbmethods.github.io/who-reads, built from the stills (reading_stills.py)
+WATERMARK = Path.home() / &quot;_watermark/watermark.py&quot;
+FFMPEG = shutil.which(&quot;ffmpeg&quot;) or &quot;/opt/homebrew/bin/ffmpeg&quot;
+
+
+def build_sequence(specs: list[FrameSpec], fps: int = 15, hold: float = 3.5, last_hold: float = 6.0,
+                   tween: float = 0.6) -&gt; list[tuple[Image.Image, float]]:
+    &quot;&quot;&quot;(frame, seconds) list: each keyframe held, joined by eased crossfades in which the incoming frame's
+    bars also grow in (render t 0 -&gt; 1).&quot;&quot;&quot;
+    seq: list[tuple[Image.Image, float]] = []
+    prev_spec, prev_img = None, None
+    nt = max(1, round(tween * fps))
+    for i, spec in enumerate(specs):
+        if prev_img is not None:
+            for k in range(1, nt + 1):
+                t = k / nt
+                inc = render(spec, t=t, prev=prev_spec)
+                seq.append((Image.blend(prev_img, inc, _ease(min(1.0, 2 * t))), tween / nt))
+        key = render(spec)
+        seq.append((key, last_hold if i == len(specs) - 1 else hold))
+        prev_spec, prev_img = spec, key
+    return seq
+
+
+def watermark_strip(width: int = 1080, methods: str | None = None) -&gt; Image.Image:
+    &quot;&quot;&quot;The house footer strip (watermark.py style 7), rendered once on a blank chart-coloured canvas.
+    With methods=SLUG the strip also names the methods page (the blank canvas isn't registered, so this
+    doesn't rebuild the page).&quot;&quot;&quot;
+    with tempfile.TemporaryDirectory() as d:
+        src, dst = Path(d) / &quot;blank.png&quot;, Path(d) / &quot;blank_wm.png&quot;
+        base_h = 400
+        Image.new(&quot;RGB&quot;, (width, base_h), PAL[&quot;SURFACE&quot;]).save(src)
+        extra = [&quot;--methods&quot;, methods] if methods else []
+        subprocess.run([sys.executable, str(WATERMARK), &quot;7&quot;, str(src), str(dst), *extra], check=True,
+                       capture_output=True)
+        out = Image.open(dst).convert(&quot;RGB&quot;)
+        return out.crop((0, base_h, width, out.height))
+
+
+def _encode(frames: list[tuple[Path, float]], gif: Path, mp4: Path, work: Path) -&gt; None:
+    lst = work / f&quot;{gif.stem}.txt&quot;
+    lines = []
+    for p, dur in frames:
+        lines += [f&quot;file '{p}'&quot;, f&quot;duration {dur:.4f}&quot;]
+    lines.append(f&quot;file '{frames[-1][0]}'&quot;)  # concat demuxer needs the last file repeated
+    lst.write_text(&quot;\n&quot;.join(lines) + &quot;\n&quot;)
+    base = [FFMPEG, &quot;-y&quot;, &quot;-loglevel&quot;, &quot;error&quot;, &quot;-f&quot;, &quot;concat&quot;, &quot;-safe&quot;, &quot;0&quot;, &quot;-i&quot;, str(lst)]
+    subprocess.run(base + [&quot;-vf&quot;, &quot;split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];&quot;
+                                  &quot;[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle&quot;,
+                           &quot;-fps_mode&quot;, &quot;vfr&quot;, &quot;-loop&quot;, &quot;0&quot;, str(gif)], check=True)
+    subprocess.run(base + [&quot;-vf&quot;, &quot;fps=30,scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p&quot;,
+                           &quot;-c:v&quot;, &quot;libx264&quot;, &quot;-crf&quot;, &quot;20&quot;, &quot;-movflags&quot;, &quot;+faststart&quot;, str(mp4)], check=True)
+
+
+def write_outputs(seq, out_dir: Path, unmarked_dir: Path, name: str = &quot;reading_narrowing&quot;) -&gt; dict[str, Path]:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    unmarked_dir.mkdir(parents=True, exist_ok=True)
+    strip = watermark_strip(seq[0][0].width, methods=METHODS_SLUG)
+    paths = {&quot;gif&quot;: unmarked_dir / f&quot;{name}.gif&quot;, &quot;mp4&quot;: unmarked_dir / f&quot;{name}.mp4&quot;,
+             &quot;gif_wm&quot;: out_dir / f&quot;{name}_wm.gif&quot;, &quot;mp4_wm&quot;: out_dir / f&quot;{name}_wm.mp4&quot;}
+    with tempfile.TemporaryDirectory() as d:
+        work = Path(d)
+        plain, marked = [], []
+        for i, (img, dur) in enumerate(seq):
+            p = work / f&quot;p{i:04d}.png&quot;
+            img.save(p)
+            m = Image.new(&quot;RGB&quot;, (img.width, img.height + strip.height))
+            m.paste(img, (0, 0))
+            m.paste(strip, (0, img.height))
+            mp = work / f&quot;m{i:04d}.png&quot;
+            m.save(mp)
+            plain.append((p, dur))
+            marked.append((mp, dur))
+        _encode(plain, paths[&quot;gif&quot;], paths[&quot;mp4&quot;], work)
+        _encode(marked, paths[&quot;gif_wm&quot;], paths[&quot;mp4_wm&quot;], work)
+    return paths
+
+
+def main():
+    specs = frame_specs(json.loads((HERE / &quot;numbers.json&quot;).read_text()))
+    paths = write_outputs(build_sequence(specs), SUBSTACK, UNMARKED)
+    for k, p in paths.items():
+        print(f&quot;{k:7s} {p}  {p.stat().st_size / 1e6:.1f} MB&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
