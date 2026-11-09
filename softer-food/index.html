@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Same food, easier to digest: how processing can make you fat</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Same food, easier to digest: how processing can make you fat</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/softer-food/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>softer_food_chart.py</code></h3>
+<pre><code class="language-text">Same food, easier to digest: softer chow fattens rats; grinding and cooking cut pythons' and humans' digestion cost.
+
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/processed_food/softer_food_chart.py
+Data (hard-coded, from the papers):
+  Oka et al. 2003, J Dent Res 82(6):491-4 — air-puffed soft vs standard hard pellets, same nutrients, same intake;
+    soft-fed rats +6% body weight, +30% abdominal fat at 26 weeks of age.
+  Boback, Secor et al. 2007, Comp Biochem Physiol A 148:651-6 — Burmese pythons fed beef intact/ground x raw/cooked;
+    specific dynamic action (energy spent digesting the meal) fell 12.4% ground, 12.7% cooked, 23.4% both.
+  Barr &amp; Wright 2010, Food Nutr Res 54 — 17 adults, crossover, matched ~690 kcal cheese sandwiches; postprandial energy
+    expenditure over 5-6 h was 137 kcal (19.9% of meal) whole-food vs 73.1 kcal (10.7%) processed.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Health and weight/ and the original to its
+Unwatermarked graphs/Health and weight/:
+  processed_food_softer_food.png
+</code></pre>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>softer_food_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Same food, easier to digest: softer chow fattens rats; grinding and cooking cut pythons' and humans' digestion cost.
+
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/processed_food/softer_food_chart.py
+Data (hard-coded, from the papers):
+  Oka et al. 2003, J Dent Res 82(6):491-4 — air-puffed soft vs standard hard pellets, same nutrients, same intake;
+    soft-fed rats +6% body weight, +30% abdominal fat at 26 weeks of age.
+  Boback, Secor et al. 2007, Comp Biochem Physiol A 148:651-6 — Burmese pythons fed beef intact/ground x raw/cooked;
+    specific dynamic action (energy spent digesting the meal) fell 12.4% ground, 12.7% cooked, 23.4% both.
+  Barr &amp; Wright 2010, Food Nutr Res 54 — 17 adults, crossover, matched ~690 kcal cheese sandwiches; postprandial energy
+    expenditure over 5-6 h was 137 kcal (19.9% of meal) whole-food vs 73.1 kcal (10.7%) processed.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Health and weight/ and the original to its
+Unwatermarked graphs/Health and weight/:
+  processed_food_softer_food.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUBDIR = &quot;Health and weight&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED, GRID, SURFACE = pb.INK, pb.INK2, pb.MUTED, pb.GRID, pb.SURFACE
+PLAIN = pb.NAVY  # unprocessed baseline
+GRAYS = pb.GRAYS  # processed, light -&gt; deep as the effect grows
+
+RATS = [  # label, % more in soft-pellet rats vs hard-pellet rats
+    (&quot;Calories eaten&quot;, 0),
+    (&quot;Body weight&quot;, 6),
+    (&quot;Abdominal fat&quot;, 30),
+]
+PYTHONS = [  # label, energy spent digesting, raw intact meat = 100
+    (&quot;Raw,\nwhole&quot;, 100.0),
+    (&quot;Raw,\nground&quot;, 100 - 12.4),
+    (&quot;Cooked,\nwhole&quot;, 100 - 12.7),
+    (&quot;Cooked,\nground&quot;, 100 - 23.4),
+]
+HUMANS = [  # label, post-meal energy expenditure in kcal (5-6 h), share of meal energy
+    (&quot;Whole-food\nsandwich&quot;, 137.0, 19.9),
+    (&quot;Processed\nsandwich&quot;, 73.1, 10.7),
+]
+
+FOOTNOTE = (
+    &quot;Rats: K. Oka et al., \&quot;Food texture differences affect energy metabolism in rats,\&quot; J Dent Res (2003). Weaned rats fed &quot;
+    &quot;standard pellets or the same pellets air-puffed to be softer, to 26 weeks of age.\nSoft-fed rats ate the same calories &quot;
+    &quot;but showed less heat production after meals, so fewer calories were burned digesting.\n&quot;
+    &quot;Pythons: S. Boback, S. Secor et al., \&quot;Cooking and grinding reduces the cost of meat digestion,\&quot; Comp Biochem Physiol A &quot;
+    &quot;(2007). Burmese pythons fed equal beef meals; bars are specific dynamic action\n(oxygen-measured energy cost of &quot;
+    &quot;digesting the meal), relative to raw whole meat.\n&quot;
+    &quot;Humans: S. Barr &amp; J. Wright, \&quot;Postprandial energy expenditure in whole-food and processed-food meals,\&quot; Food Nutr Res &quot;
+    &quot;(2010). 17 adults, crossover; ~690 kcal cheese sandwiches on multigrain bread with cheddar\nvs white bread with &quot;
+    &quot;processed cheese, similar macros; extra energy burned over 5–6 h after the meal, relative to the whole-food meal. &quot;
+    &quot;Energy not spent digesting is left over for the body.&quot;
+)
+
+
+def style(ax):
+    ax.tick_params(colors=INK2, labelsize=10, length=0)
+    ax.set_axisbelow(True)
+    ax.set_facecolor(SURFACE)
+    for s in ax.spines.values():
+        s.set_visible(False)
+
+
+def main():
+    fig = plt.figure(figsize=(14.5, 6.8), facecolor=SURFACE)
+    gs = fig.add_gridspec(1, 3, width_ratios=[1, 1.15, 0.62], wspace=0.24, left=0.09, right=0.98, top=0.76, bottom=0.27)
+    ax, bx, cx = (fig.add_subplot(gs[i]) for i in range(3))
+
+    # --- A: rats, soft vs hard pellets
+    ys = range(len(RATS))
+    vals = [v for _, v in RATS]
+    ax.barh(ys, vals, height=0.56, color=GRAYS[:1] + GRAYS[::2])
+    for y, v in zip(ys, vals):
+        txt = &quot;same&quot; if v == 0 else f&quot;+{v}%&quot;
+        ax.text(v + 0.8, y, txt, va=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;, color=INK)
+    ax.set_yticks(list(ys))
+    ax.set_yticklabels([l for l, _ in RATS], fontsize=11, color=INK)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 36)
+    ax.set_xticks([0, 10, 20, 30])
+    ax.set_xticklabels([&quot;0%&quot;, &quot;+10%&quot;, &quot;+20%&quot;, &quot;+30%&quot;])
+    ax.xaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.yaxis.grid(False)
+    ax.axvline(0, color=INK2, linewidth=1)
+    style(ax)
+    ax.set_title(&quot;A   Rats: softer (air-puffed) chow vs regular chow&quot;, fontsize=11.5, color=INK, loc=&quot;left&quot;, pad=12,
+                 fontweight=&quot;bold&quot;, x=-0.14)
+
+    # --- B: pythons, cost of digestion
+    xs = range(len(PYTHONS))
+    vals = [v for _, v in PYTHONS]
+    colors = [PLAIN] + GRAYS
+    bx.bar(xs, vals, width=0.62, color=colors)
+    for x, v in zip(xs, vals):
+        bx.text(x, v + 2, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;, color=INK)
+        if x:
+            bx.text(x, v - 5, f&quot;−{100 - v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=10.5, fontweight=&quot;bold&quot;,
+                    color=SURFACE)
+    bx.set_xticks(list(xs))
+    bx.set_xticklabels([l for l, _ in PYTHONS], fontsize=10.5, color=INK)
+    bx.set_ylim(0, 115)
+    bx.set_yticks([0, 25, 50, 75, 100])
+    bx.yaxis.grid(True, color=GRID, linewidth=0.8)
+    style(bx)
+    bx.set_title(&quot;B   Pythons: energy spent digesting beef (raw whole = 100)&quot;, fontsize=11.5, color=INK,
+                 loc=&quot;left&quot;, pad=12, fontweight=&quot;bold&quot;)
+
+    # --- C: humans, whole-food vs processed-food meal
+    base = HUMANS[0][1]
+    vals = [100 * kcal / base for _, kcal, _ in HUMANS]
+    cx.bar(range(len(HUMANS)), vals, width=0.62, color=[PLAIN, GRAYS[-1]])
+    for x, ((_, kcal, share), v) in enumerate(zip(HUMANS, vals)):
+        cx.text(x, v + 2, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;, color=INK)
+        cx.text(x, 4, f&quot;{kcal:.0f} kcal\n{share:.0f}% of\nthe meal&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=9,
+                color=SURFACE, linespacing=1.3)
+        if x:
+            cx.text(x, v - 5, f&quot;−{100 - v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=10.5, fontweight=&quot;bold&quot;,
+                    color=SURFACE)
+    cx.set_xticks(range(len(HUMANS)))
+    cx.set_xticklabels([l for l, _, _ in HUMANS], fontsize=10.5, color=INK)
+    cx.set_ylim(0, 115)
+    cx.set_yticks([0, 25, 50, 75, 100])
+    cx.yaxis.grid(True, color=GRID, linewidth=0.8)
+    style(cx)
+    cx.set_title(&quot;C   Humans: cheese sandwich&quot;, fontsize=11.5, color=INK, loc=&quot;left&quot;, pad=12,
+                 fontweight=&quot;bold&quot;)
+
+    fig.text(0.03, 0.925, &quot;Same food, softer or cooked: more of it ends up on the body&quot;, fontsize=18,
+             fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.03, 0.873, &quot;Processing does part of the digesting for you. Rats eating identical calories of softer chow got &quot;
+             &quot;fatter; pythons spent a quarter less\nenergy digesting ground, cooked meat; people burned about half as much &quot;
+             &quot;digesting a processed sandwich, ~9% of its calories.&quot;, fontsize=11,
+             color=INK2, va=&quot;top&quot;)
+    fig.text(0.03, 0.035, FOOTNOTE, fontsize=7.8, color=MUTED, linespacing=1.55)
+
+    out = NOTES / &quot;Unwatermarked graphs&quot; / SUBDIR / &quot;processed_food_softer_food.png&quot;
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    wm = NOTES / SUBDIR / (out.stem + &quot;_wm.png&quot;)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(out), str(wm)], check=True)
+    print(out, wm, sep=&quot;\n&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>

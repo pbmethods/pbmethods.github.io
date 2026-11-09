@@ -4,3 +4,4 @@ Methodology, results and code behind charts from <a href="https://performativeba
 
 - [Her parents vs. her report card: what reveals the status she'll pass on](lineage-her/) (2026-11-09)
 - [White-collar workers are ~2 hours from screens every waking hour](screen-work/) (2026-11-09)
+- [Same food, easier to digest: how processing can make you fat](softer-food/) (2026-11-09)
