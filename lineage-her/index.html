@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Her parents vs. her report card: what reveals the status she&#x27;ll pass on</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Her parents vs. her report card: what reveals the status she'll pass on</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-09.</p>
+
+<p><img alt="chart" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/lineage-her/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>addhealth_signals.py</code></h3>
+<p>How much does each trait you can see in a woman reveal about her underlying (Clark) social status?</p>
+<p>Run:  uv run --with pandas,pyreadstat python notebooks/lineage_vs_individual/addhealth_signals.py
+Writes addhealth_signals.csv next to this script.</p>
+<p>Data: Add Health public-use file (ICPSR 21600). Wave I (1994-95, ages ~12-19) with the parent questionnaire
+(PA12: responding parent's education, usually the mother; PB8: that parent's partner's education) and
+self-reported grades (H1ED11-14: English, math, history, science); the Education Data / AHAA high-school
+transcript file (DS0016, EAOGPAC: cumulative GPA across all high-school years); Wave IV (2008, ~24-32). Women only (BIO_SEX = 2), unweighted.</p>
+<p>Method (Clark's latent-status model). Every observed trait is s = sqrt(r_s) * x + noise, where x is the
+underlying status that is passed down, and r_s is the trait's reliability as a reading of x. A parent's latent
+status correlates b = 0.79 with the child's (Clark 2023, PNAS). Then
+    corr(her trait s, parent's education) = b * sqrt(r_s * r_par).
+Parent education's own reliability r_par comes from the same-measure case: assume her education in her late
+20s and her parent's education are equally good readings (r_ed = r_par), so r_par = corr(ed, ed_parent) / b.
+Then r_s = corr(s, ed_parent)^2 / (b^2 * r_par).</p>
+<p>This treats any non-status channel linking a trait to parents' education (tutors, better schools, a quiet
+place to study) as if it ran through status, so it overstates the reliability of grades if anything.</p>
+<h3><code>lineage_model.py</code></h3>
+<p>How much does her family tell you about her underlying status, compared with her own traits?</p>
+<p>Run:  uv run --with numpy,pandas python notebooks/lineage_vs_individual/lineage_model.py
+Writes latent_cov.npy and lineage_r2.csv next to this script.</p>
+<p>Model: Clark's (2023, PNAS) additive model of underlying status x. Spouses match on x with correlation
+M = 0.57; a child's x = (mother + father)/2 + noise, which gives a parent-child correlation of (1 + M)/2 = 0.79,
+Clark's per-generation persistence. We simulate four generations of a population (3 children per couple), then
+read off the covariance of x between a focal woman and her relatives: 2 siblings, 2 parents, 4 grandparents,
+4 aunts/uncles, 8 first cousins.</p>
+<p>What you observe about anyone is a noisy reading y = sqrt(r) x + sqrt(1 - r) e with independent noise.
+Relatives are read at R_REL = 0.59, the reliability of a settled adult's education estimated in
+addhealth_signals.py. Her own reading has reliability r, the x-axis of the chart. Variance explained in her x by
+a set of readings is the R^2 of the best linear predictor, computed exactly from the latent covariance.</p>
+<h3><code>lineage_vs_her_chart.py</code></h3>
+<p>Her family tells you more about the status she'll pass on than her grades do: Clark's model with Add Health inputs.</p>
+<p>Run (after addhealth_signals.py and lineage_model.py):
+  uv run --with matplotlib,pillow,fonttools,numpy,pandas python notebooks/lineage_vs_individual/lineage_vs_her_chart.py
+Writes lineage_vs_her_wm.png to ~/Desktop/Recent Projects/Substack Notes/Dating/ and the unwatermarked original
+to Substack Notes/Unwatermarked graphs/Dating/, then publishes the methods page to pbmethods.github.io/lineage-her/
+(add --no-push to build it locally only).</p>
+<p>A: share of a woman's underlying status (what passes to her kids) revealed by her own traits, as their
+   reliability rises, against her family's settled adult outcomes (flat lines). Dots: where real traits sit.
+B: the same shares for the specific things you can observe.</p>
+<h2>Results</h2>
+<h3><code>addhealth_signals.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>signal</th>
+<th>label</th>
+<th>rho_with_parent_ed</th>
+<th>n</th>
+<th>reliability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>grades_self</td>
+<td>Her grades at ~16 (self-reported)</td>
+<td>0.249</td>
+<td>2771</td>
+<td>0.169</td>
+</tr>
+<tr>
+<td>gpa</td>
+<td>Her high-school GPA (transcript)</td>
+<td>0.355</td>
+<td>1838</td>
+<td>0.341</td>
+</tr>
+<tr>
+<td>earn</td>
+<td>Her own earnings at 28 (log)</td>
+<td>0.201</td>
+<td>2013</td>
+<td>0.110</td>
+</tr>
+<tr>
+<td>ed</td>
+<td>Her own education at 28</td>
+<td>0.467</td>
+<td>2393</td>
+<td>0.591</td>
+</tr>
+<tr>
+<td>all_of_her</td>
+<td>All of the above, combined</td>
+<td>0.454</td>
+<td>1441</td>
+<td>0.559</td>
+</tr>
+</tbody>
+</table>
+<h3><code>lineage_r2.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>r_her</th>
+<th>Her alone</th>
+<th>Her parents</th>
+<th>Her + her parents</th>
+<th>Parents + siblings</th>
+<th>Her + parents + siblings</th>
+<th>Whole family</th>
+<th>Her + whole family</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.544</td>
+<td>0.544</td>
+<td>0.627</td>
+<td>0.627</td>
+<td>0.685</td>
+<td>0.685</td>
+</tr>
+<tr>
+<td>0.020</td>
+<td>0.020</td>
+<td>0.544</td>
+<td>0.549</td>
+<td>0.627</td>
+<td>0.630</td>
+<td>0.685</td>
+<td>0.687</td>
+</tr>
+<tr>
+<td>0.040</td>
+<td>0.040</td>
+<td>0.544</td>
+<td>0.553</td>
+<td>0.627</td>
+<td>0.633</td>
+<td>0.685</td>
+<td>0.689</td>
+</tr>
+<tr>
+<td>0.060</td>
+<td>0.060</td>
+<td>0.544</td>
+<td>0.557</td>
+<td>0.627</td>
+<td>0.636</td>
+<td>0.685</td>
+<td>0.692</td>
+</tr>
+<tr>
+<td>0.080</td>
+<td>0.080</td>
+<td>0.544</td>
+<td>0.562</td>
+<td>0.627</td>
+<td>0.639</td>
+<td>0.685</td>
+<td>0.694</td>
+</tr>
+<tr>
+<td>0.100</td>
+<td>0.100</td>
+<td>0.544</td>
+<td>0.566</td>
+<td>0.627</td>
+<td>0.642</td>
+<td>0.685</td>
+<td>0.696</td>
+</tr>
+<tr>
+<td>0.120</td>
+<td>0.120</td>
+<td>0.544</td>
+<td>0.571</td>
+<td>0.627</td>
+<td>0.645</td>
+<td>0.685</td>
+<td>0.698</td>
+</tr>
+<tr>
+<td>0.140</td>
+<td>0.140</td>
+<td>0.544</td>
+<td>0.576</td>
+<td>0.627</td>
+<td>0.649</td>
+<td>0.685</td>
+<td>0.701</td>
+</tr>
+<tr>
+<td>0.160</td>
+<td>0.160</td>
+<td>0.544</td>
+<td>0.581</td>
+<td>0.627</td>
+<td>0.652</td>
+<td>0.685</td>
+<td>0.703</td>
+</tr>
+<tr>
+<td>0.180</td>
+<td>0.180</td>
+<td>0.544</td>
+<td>0.586</td>
+<td>0.627</td>
+<td>0.656</td>
+<td>0.685</td>
+<td>0.706</td>
+</tr>
+<tr>
+<td>0.200</td>
+<td>0.200</td>
+<td>0.544</td>
+<td>0.591</td>
+<td>0.627</td>
+<td>0.659</td>
+<td>0.685</td>
+<td>0.708</td>
+</tr>
+<tr>
+<td>0.220</td>
+<td>0.220</td>
+<td>0.544</td>
+<td>0.596</td>
+<td>0.627</td>
+<td>0.663</td>
+<td>0.685</td>
+<td>0.711</td>
+</tr>
+<tr>
+<td>0.240</td>
+<td>0.240</td>
+<td>0.544</td>
+<td>0.602</td>
+<td>0.627</td>
+<td>0.667</td>
+<td>0.685</td>
+<td>0.714</td>
+</tr>
+<tr>
+<td>0.260</td>
+<td>0.260</td>
+<td>0.544</td>
+<td>0.607</td>
+<td>0.627</td>
+<td>0.671</td>
+<td>0.685</td>
+<td>0.717</td>
+</tr>
+<tr>
+<td>0.280</td>
+<td>0.280</td>
+<td>0.544</td>
+<td>0.613</td>
+<td>0.627</td>
+<td>0.675</td>
+<td>0.685</td>
+<td>0.720</td>
+</tr>
+<tr>
+<td>0.300</td>
+<td>0.300</td>
+<td>0.544</td>
+<td>0.619</td>
+<td>0.627</td>
+<td>0.679</td>
+<td>0.685</td>
+<td>0.723</td>
+</tr>
+<tr>
+<td>0.320</td>
+<td>0.320</td>
+<td>0.544</td>
+<td>0.625</td>
+<td>0.627</td>
+<td>0.683</td>
+<td>0.685</td>
+<td>0.726</td>
+</tr>
+<tr>
+<td>0.340</td>
+<td>0.340</td>
+<td>0.544</td>
+<td>0.631</td>
+<td>0.627</td>
+<td>0.687</td>
+<td>0.685</td>
+<td>0.729</td>
+</tr>
+<tr>
+<td>0.360</td>
+<td>0.360</td>
+<td>0.544</td>
+<td>0.637</td>
+<td>0.627</td>
+<td>0.692</td>
+<td>0.685</td>
+<td>0.733</td>
+</tr>
+<tr>
+<td>0.380</td>
+<td>0.380</td>
+<td>0.544</td>
+<td>0.644</td>
+<td>0.627</td>
+<td>0.697</td>
+<td>0.685</td>
+<td>0.736</td>
+</tr>
+<tr>
+<td>0.400</td>
+<td>0.400</td>
+<td>0.544</td>
+<td>0.651</td>
+<td>0.627</td>
+<td>0.702</td>
+<td>0.685</td>
+<td>0.740</td>
+</tr>
+<tr>
+<td>0.420</td>
+<td>0.420</td>
+<td>0.544</td>
+<td>0.657</td>
+<td>0.627</td>
+<td>0.707</td>
+<td>0.685</td>
+<td>0.744</td>
+</tr>
+<tr>
+<td>0.440</td>
+<td>0.440</td>
+<td>0.544</td>
+<td>0.664</td>
+<td>0.627</td>
+<td>0.712</td>
+<td>0.685</td>
+<td>0.748</td>
+</tr>
+<tr>
+<td>0.460</td>
+<td>0.460</td>
+<td>0.544</td>
+<td>0.672</td>
+<td>0.627</td>
+<td>0.717</td>
+<td>0.685</td>
+<td>0.752</td>
+</tr>
+<tr>
+<td>0.480</td>
+<td>0.480</td>
+<td>0.544</td>
+<td>0.679</td>
+<td>0.627</td>
+<td>0.723</td>
+<td>0.685</td>
+<td>0.756</td>
+</tr>
+<tr>
+<td>0.500</td>
+<td>0.500</td>
+<td>0.544</td>
+<td>0.687</td>
+<td>0.627</td>
+<td>0.729</td>
+<td>0.685</td>
+<td>0.761</td>
+</tr>
+<tr>
+<td>0.520</td>
+<td>0.520</td>
+<td>0.544</td>
+<td>0.695</td>
+<td>0.627</td>
+<td>0.735</td>
+<td>0.685</td>
+<td>0.765</td>
+</tr>
+<tr>
+<td>0.540</td>
+<td>0.540</td>
+<td>0.544</td>
+<td>0.703</td>
+<td>0.627</td>
+<td>0.741</td>
+<td>0.685</td>
+<td>0.770</td>
+</tr>
+<tr>
+<td>0.560</td>
+<td>0.560</td>
+<td>0.544</td>
+<td>0.712</td>
+<td>0.627</td>
+<td>0.747</td>
+<td>0.685</td>
+<td>0.775</td>
+</tr>
+<tr>
+<td>0.580</td>
+<td>0.580</td>
+<td>0.544</td>
+<td>0.720</td>
+<td>0.627</td>
+<td>0.754</td>
+<td>0.685</td>
+<td>0.781</td>
+</tr>
+<tr>
+<td>0.600</td>
+<td>0.600</td>
+<td>0.544</td>
+<td>0.729</td>
+<td>0.627</td>
+<td>0.761</td>
+<td>0.685</td>
+<td>0.786</td>
+</tr>
+<tr>
+<td>0.620</td>
+<td>0.620</td>
+<td>0.544</td>
+<td>0.739</td>
+<td>0.627</td>
+<td>0.768</td>
+<td>0.685</td>
+<td>0.792</td>
+</tr>
+<tr>
+<td>0.640</td>
+<td>0.640</td>
+<td>0.544</td>
+<td>0.748</td>
+<td>0.627</td>
+<td>0.776</td>
+<td>0.685</td>
+<td>0.798</td>
+</tr>
+<tr>
+<td>0.660</td>
+<td>0.660</td>
+<td>0.544</td>
+<td>0.758</td>
+<td>0.627</td>
+<td>0.784</td>
+<td>0.685</td>
+<td>0.805</td>
+</tr>
+<tr>
+<td>0.680</td>
+<td>0.680</td>
+<td>0.544</td>
+<td>0.769</td>
+<td>0.627</td>
+<td>0.792</td>
+<td>0.685</td>
+<td>0.811</td>
+</tr>
+<tr>
+<td>0.700</td>
+<td>0.700</td>
+<td>0.544</td>
+<td>0.779</td>
+<td>0.627</td>
+<td>0.801</td>
+<td>0.685</td>
+<td>0.819</td>
+</tr>
+<tr>
+<td>0.720</td>
+<td>0.720</td>
+<td>0.544</td>
+<td>0.790</td>
+<td>0.627</td>
+<td>0.810</td>
+<td>0.685</td>
+<td>0.826</td>
+</tr>
+<tr>
+<td>0.740</td>
+<td>0.740</td>
+<td>0.544</td>
+<td>0.802</td>
+<td>0.627</td>
+<td>0.819</td>
+<td>0.685</td>
+<td>0.834</td>
+</tr>
+<tr>
+<td>0.760</td>
+<td>0.760</td>
+<td>0.544</td>
+<td>0.813</td>
+<td>0.627</td>
+<td>0.829</td>
+<td>0.685</td>
+<td>0.842</td>
+</tr>
+<tr>
+<td>0.780</td>
+<td>0.780</td>
+<td>0.544</td>
+<td>0.826</td>
+<td>0.627</td>
+<td>0.839</td>
+<td>0.685</td>
+<td>0.851</td>
+</tr>
+<tr>
+<td>0.800</td>
+<td>0.800</td>
+<td>0.544</td>
+<td>0.839</td>
+<td>0.627</td>
+<td>0.850</td>
+<td>0.685</td>
+<td>0.861</td>
+</tr>
+<tr>
+<td>0.820</td>
+<td>0.820</td>
+<td>0.544</td>
+<td>0.852</td>
+<td>0.627</td>
+<td>0.862</td>
+<td>0.685</td>
+<td>0.871</td>
+</tr>
+<tr>
+<td>0.840</td>
+<td>0.840</td>
+<td>0.544</td>
+<td>0.866</td>
+<td>0.627</td>
+<td>0.874</td>
+<td>0.685</td>
+<td>0.881</td>
+</tr>
+<tr>
+<td>0.860</td>
+<td>0.860</td>
+<td>0.544</td>
+<td>0.880</td>
+<td>0.627</td>
+<td>0.887</td>
+<td>0.685</td>
+<td>0.893</td>
+</tr>
+<tr>
+<td>0.880</td>
+<td>0.880</td>
+<td>0.544</td>
+<td>0.895</td>
+<td>0.627</td>
+<td>0.900</td>
+<td>0.685</td>
+<td>0.905</td>
+</tr>
+<tr>
+<td>0.900</td>
+<td>0.900</td>
+<td>0.544</td>
+<td>0.911</td>
+<td>0.627</td>
+<td>0.914</td>
+<td>0.685</td>
+<td>0.918</td>
+</tr>
+<tr>
+<td>0.920</td>
+<td>0.920</td>
+<td>0.544</td>
+<td>0.927</td>
+<td>0.627</td>
+<td>0.929</td>
+<td>0.685</td>
+<td>0.932</td>
+</tr>
+<tr>
+<td>0.940</td>
+<td>0.940</td>
+<td>0.544</td>
+<td>0.944</td>
+<td>0.627</td>
+<td>0.946</td>
+<td>0.685</td>
+<td>0.947</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 2th row of 96 shown; full file: <a href="lineage_r2.csv">lineage_r2.csv</a>.</em></p>
+<h2>Notes and caveats</h2>
+<ul>
+<li><strong>The claim is about status only.</strong> It covers what Clark's latent "social competence" captures: education,
+  occupation, wealth. It says nothing about traits outside that.</li>
+<li><strong>The reliability assumption is a simplification.</strong> It assumes her education at ~29 and her parent's
+  education read status equally well (59%). Every trait's reliability is backed out of
+  corr(trait, parent education) through Clark's 0.79.</li>
+<li><strong>Any non-status path is counted as signal.</strong> Tutors, better schools and a quiet place to study all link
+  grades to parents' education, and the method books all of it as status. So GPA's 34% is if anything an
+  overstatement.</li>
+<li><strong>GPA has no cross-school adjustment.</strong> It comes from the AHAA transcript study (n ≈ 1,800 women) and isn't
+  adjusted for school difficulty or grading standards.</li>
+<li><strong>The 0.57 spousal match is a modelling choice.</strong> It is Clark's additive-model figure. Observed parental
+  education homogamy in Add Health is 0.60, which would imply tighter latent matching. Tighter matching would
+  make the family more informative, not less.</li>
+<li><strong>Model mechanics.</strong> Relatives' outcomes are read with independent noise. Women only, unweighted. Families
+  are simulated with 3 children per couple.</li>
+<li><strong>The "all of her" composite is not on the chart.</strong> Education, earnings and GPA combined come out ~56%, no
+  better than education alone; the subsample is smaller, and the noise is shared across traits.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>addhealth_signals.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;How much does each trait you can see in a woman reveal about her underlying (Clark) social status?
+
+Run:  uv run --with pandas,pyreadstat python notebooks/lineage_vs_individual/addhealth_signals.py
+Writes addhealth_signals.csv next to this script.
+
+Data: Add Health public-use file (ICPSR 21600). Wave I (1994-95, ages ~12-19) with the parent questionnaire
+(PA12: responding parent's education, usually the mother; PB8: that parent's partner's education) and
+self-reported grades (H1ED11-14: English, math, history, science); the Education Data / AHAA high-school
+transcript file (DS0016, EAOGPAC: cumulative GPA across all high-school years); Wave IV (2008, ~24-32). Women only (BIO_SEX = 2), unweighted.
+
+Method (Clark's latent-status model). Every observed trait is s = sqrt(r_s) * x + noise, where x is the
+underlying status that is passed down, and r_s is the trait's reliability as a reading of x. A parent's latent
+status correlates b = 0.79 with the child's (Clark 2023, PNAS). Then
+    corr(her trait s, parent's education) = b * sqrt(r_s * r_par).
+Parent education's own reliability r_par comes from the same-measure case: assume her education in her late
+20s and her parent's education are equally good readings (r_ed = r_par), so r_par = corr(ed, ed_parent) / b.
+Then r_s = corr(s, ed_parent)^2 / (b^2 * r_par).
+
+This treats any non-status channel linking a trait to parents' education (tutors, better schools, a quiet
+place to study) as if it ran through status, so it overstates the reliability of grades if anything.
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pyreadstat
+
+ROOT = Path(__file__).resolve().parents[1] / &quot;us_public_data&quot; / &quot;Add Health - ICPSR_21600&quot;
+OUT = Path(__file__).with_name(&quot;addhealth_signals.csv&quot;)
+B = 0.79
+
+w1, _ = pyreadstat.read_dta(ROOT / &quot;DS0001/21600-0001-Data.dta&quot;,
+                            usecols=[&quot;AID&quot;, &quot;BIO_SEX&quot;, &quot;PA12&quot;, &quot;PB8&quot;, &quot;H1ED11&quot;, &quot;H1ED12&quot;, &quot;H1ED13&quot;, &quot;H1ED14&quot;])
+tr, _ = pyreadstat.read_dta(ROOT / &quot;DS0016/21600-0016-Data.dta&quot;, usecols=[&quot;AID&quot;, &quot;EAOGPAC&quot;])
+w4, _ = pyreadstat.read_dta(ROOT / &quot;DS0022/21600-0022-Data.dta&quot;,
+                            usecols=[&quot;AID&quot;, &quot;H4ED2&quot;, &quot;H4EC2&quot;, &quot;H4OD1Y&quot;, &quot;IYEAR4&quot;])
+d = w1.merge(w4, on=&quot;AID&quot;, how=&quot;left&quot;).merge(tr, on=&quot;AID&quot;, how=&quot;left&quot;).apply(pd.to_numeric, errors=&quot;coerce&quot;)
+d = d[d.BIO_SEX == 2]
+
+PARENT_YEARS = {1: 8, 2: 10, 3: 11, 4: 12, 5: 12, 6: 13, 7: 14, 8: 16, 9: 18}
+OWN_YEARS = {1: 8, 2: 10, 3: 12, 4: 13, 5: 13, 6: 14, 7: 16, 8: 17, 9: 18, 10: 19, 11: 21, 12: 18, 13: 20}
+d[&quot;par_ed&quot;] = d.PA12.map(PARENT_YEARS)
+d[&quot;par2_ed&quot;] = d.PB8.map(PARENT_YEARS)
+d[&quot;ed&quot;] = d.H4ED2.map(OWN_YEARS)
+d[&quot;earn&quot;] = np.log(d.H4EC2.where(d.H4EC2.between(1000, 5e6)))
+d[&quot;gpa&quot;] = d.EAOGPAC.where(d.EAOGPAC.between(0, 4))
+for c in [&quot;H1ED11&quot;, &quot;H1ED12&quot;, &quot;H1ED13&quot;, &quot;H1ED14&quot;]:
+    d[c] = 5 - d[c].where(d[c].between(1, 4))  # A = 4 ... D or lower = 1
+d[&quot;grades_self&quot;] = d[[&quot;H1ED11&quot;, &quot;H1ED12&quot;, &quot;H1ED13&quot;, &quot;H1ED14&quot;]].mean(axis=1)
+d[&quot;age4&quot;] = d.IYEAR4 - d.H4OD1Y
+
+SIGNALS = [  # (column, label shown on the chart)
+    (&quot;grades_self&quot;, &quot;Her grades at ~16 (self-reported)&quot;),
+    (&quot;gpa&quot;, &quot;Her high-school GPA (transcript)&quot;),
+    (&quot;earn&quot;, &quot;Her own earnings at 28 (log)&quot;),
+    (&quot;ed&quot;, &quot;Her own education at 28&quot;),
+]
+
+
+def corr(a, b):
+    s = d[[a, b]].dropna()
+    return s.corr().iloc[0, 1], len(s)
+
+
+rho_ed, n_ed = corr(&quot;ed&quot;, &quot;par_ed&quot;)
+r_par = rho_ed / B
+rows = []
+for col, label in SIGNALS:
+    rho, n = corr(col, &quot;par_ed&quot;)
+    r = rho**2 / (B**2 * r_par)
+    rows.append(dict(signal=col, label=label, rho_with_parent_ed=rho, n=n, reliability=r))
+# Everything about her at once: the best linear combination of her traits for predicting parent education.
+COMBO = [&quot;ed&quot;, &quot;earn&quot;, &quot;gpa&quot;]
+s = d[COMBO + [&quot;par_ed&quot;]].dropna()
+X = np.column_stack([np.ones(len(s)), s[COMBO].to_numpy()])
+beta = np.linalg.lstsq(X, s.par_ed.to_numpy(), rcond=None)[0]
+rho = np.corrcoef(X @ beta, s.par_ed)[0, 1]  # in-sample, so a slight overstatement
+rows.append(dict(signal=&quot;all_of_her&quot;, label=&quot;All of the above, combined&quot;, rho_with_parent_ed=rho, n=len(s),
+                 reliability=rho**2 / (B**2 * r_par)))
+out = pd.DataFrame(rows)
+out.to_csv(OUT, index=False)
+
+print(f&quot;women n={len(d)}, mean W4 age {d.age4.mean():.1f}&quot;)
+print(f&quot;parent ed ~ partner ed: {corr('par_ed', 'par2_ed')[0]:.3f}&quot;)
+print(f&quot;her ed ~ parent ed: {rho_ed:.3f} (n={n_ed}) -&gt; parent-education reliability r_par = {r_par:.2f}&quot;)
+print(out.round(3).to_string(index=False))
+</code></pre>
+<h3><code>lineage_model.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;How much does her family tell you about her underlying status, compared with her own traits?
+
+Run:  uv run --with numpy,pandas python notebooks/lineage_vs_individual/lineage_model.py
+Writes latent_cov.npy and lineage_r2.csv next to this script.
+
+Model: Clark's (2023, PNAS) additive model of underlying status x. Spouses match on x with correlation
+M = 0.57; a child's x = (mother + father)/2 + noise, which gives a parent-child correlation of (1 + M)/2 = 0.79,
+Clark's per-generation persistence. We simulate four generations of a population (3 children per couple), then
+read off the covariance of x between a focal woman and her relatives: 2 siblings, 2 parents, 4 grandparents,
+4 aunts/uncles, 8 first cousins.
+
+What you observe about anyone is a noisy reading y = sqrt(r) x + sqrt(1 - r) e with independent noise.
+Relatives are read at R_REL = 0.59, the reliability of a settled adult's education estimated in
+addhealth_signals.py. Her own reading has reliability r, the x-axis of the chart. Variance explained in her x by
+a set of readings is the R^2 of the best linear predictor, computed exactly from the latent covariance.
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).parent
+M = 0.57
+R_REL = 0.59
+rng = np.random.default_rng(7)
+
+
+def marry(x, sex, m):
+    &quot;&quot;&quot;Pair women with men so that spouses' x correlates m: rank-match on x plus noise.&quot;&quot;&quot;
+    w, h = np.flatnonzero(sex == 0), np.flatnonzero(sex == 1)
+    k = min(len(w), len(h))
+    w, h = rng.permutation(w)[:k], rng.permutation(h)[:k]
+    s = np.sqrt(1 / m - 1)
+    w = w[np.argsort(x[w] + s * rng.standard_normal(k))]
+    h = h[np.argsort(x[h] + s * rng.standard_normal(k))]
+    return w, h
+
+
+def next_gen(x, sex, kids=3):
+    w, h = marry(x, sex, M)
+    mom, dad = np.repeat(w, kids), np.repeat(h, kids)
+    seg = np.sqrt(1 - (1 + M) / 2)
+    xc = (x[mom] + x[dad]) / 2 + seg * rng.standard_normal(len(mom))
+    return xc, rng.integers(0, 2, len(mom)), mom, dad
+
+
+def simulate(n0=80_000):
+    gens = [dict(x=rng.standard_normal(n0), sex=rng.integers(0, 2, n0))]
+    for _ in range(3):
+        x, sex, mom, dad = next_gen(gens[-1][&quot;x&quot;], gens[-1][&quot;sex&quot;])
+        gens.append(dict(x=x, sex=sex, mom=mom, dad=dad))
+    return gens
+
+
+def family_table(gens):
+    &quot;&quot;&quot;One row per focal woman in the last generation: latent x of her and 21 relatives, in a fixed order.&quot;&quot;&quot;
+    g1, g2, g3 = gens[1], gens[2], gens[3]
+    # children of each couple in a generation, keyed by mother index (each mother has exactly one couple)
+    def kids_by_mom(g):
+        order = np.argsort(g[&quot;mom&quot;], kind=&quot;stable&quot;)
+        return {m: order[i:i + 3] for i, m in zip(range(0, len(order), 3), g[&quot;mom&quot;][order][::3])}
+    kids2, kids3 = kids_by_mom(g2), kids_by_mom(g3)
+    spouse_of = {}  # g2 person -&gt; their spouse's g2 index, to find cousins through either sex
+    for m, d in zip(g3[&quot;mom&quot;][::3], g3[&quot;dad&quot;][::3]):
+        spouse_of[m], spouse_of[d] = d, m
+
+    def cousins_via(p):  # g2 person p -&gt; their 2 eldest kids in g3, or None
+        if p not in spouse_of:
+            return None
+        mom = p if g2[&quot;sex&quot;][p] == 0 else spouse_of[p]
+        return kids3[mom][:2]
+
+    rows = []
+    focal = np.flatnonzero(g3[&quot;sex&quot;] == 0)
+    for i in rng.permutation(focal)[:60_000]:
+        mom, dad = g3[&quot;mom&quot;][i], g3[&quot;dad&quot;][i]
+        sibs = [k for k in kids3[mom] if k != i]
+        gp = [g2[&quot;mom&quot;][mom], g2[&quot;dad&quot;][mom], g2[&quot;mom&quot;][dad], g2[&quot;dad&quot;][dad]]
+        au = [k for k in kids2[g2[&quot;mom&quot;][mom]] if k != mom] + [k for k in kids2[g2[&quot;mom&quot;][dad]] if k != dad]
+        cz = [cousins_via(a) for a in au]
+        if any(c is None for c in cz):
+            continue
+        rows.append(np.concatenate([[g3[&quot;x&quot;][i]], g3[&quot;x&quot;][sibs], g2[&quot;x&quot;][[mom, dad]], g1[&quot;x&quot;][gp],
+                                    g2[&quot;x&quot;][au], g3[&quot;x&quot;][np.concatenate(cz)]]))
+    return np.array(rows)
+
+
+# index groups into the 22-vector
+HER, SIBS, PARENTS, GRAND, AUNTS, COUSINS = [0], [1, 2], [3, 4], [5, 6, 7, 8], [9, 10, 11, 12], list(range(13, 21))
+SETS = {
+    &quot;Her parents&quot;: PARENTS,
+    &quot;Parents + siblings&quot;: PARENTS + SIBS,
+    &quot;Whole family&quot;: PARENTS + SIBS + GRAND + AUNTS + COUSINS,
+}
+
+
+def r2(cov, idx, r_her=None, r_rel=R_REL):
+    &quot;&quot;&quot;R^2 of her latent x from noisy readings of the relatives in idx (and of her, if r_her is given).&quot;&quot;&quot;
+    idx = list(idx) + ([0] if r_her is not None else [])
+    rel = np.array([r_her if (j == 0) else r_rel for j in idx])
+    if len(idx) == 0:
+        return 0.0
+    lat = cov[np.ix_(idx, idx)]
+    load = np.sqrt(rel)
+    Y = np.outer(load, load) * lat + np.diag(1 - rel)  # cov of the standardized readings
+    c = load * cov[0, idx]
+    return float(c @ np.linalg.solve(Y, c))
+
+
+if __name__ == &quot;__main__&quot;:
+    gens = simulate()
+    fam = family_table(gens)
+    cov = np.cov(fam, rowvar=False)
+    sd = np.sqrt(np.diag(cov))
+    cov = cov / np.outer(sd, sd)  # correlations; every generation has variance ~1
+    np.save(HERE / &quot;latent_cov.npy&quot;, cov)
+    print(f&quot;focal women: {len(fam)}  var(x) by gen: &quot; +
+          &quot;, &quot;.join(f&quot;{g['x'].var():.3f}&quot; for g in gens))
+    print(&quot;latent corr with her: sib %.2f  parent %.2f  grandparent %.2f  aunt/uncle %.2f  cousin %.2f&quot; %
+          tuple(cov[0, g].mean() for g in (SIBS, PARENTS, GRAND, AUNTS, COUSINS)))
+    grid = np.round(np.arange(0, 0.951, 0.01), 2)
+    rows = []
+    for r in grid:
+        row = {&quot;r_her&quot;: r, &quot;Her alone&quot;: r2(cov, [], r) if r &gt; 0 else 0.0}
+        for name, idx in SETS.items():
+            row[name] = r2(cov, idx)
+            row[f&quot;Her + {name.lower()}&quot;] = r2(cov, idx, r) if r &gt; 0 else r2(cov, idx)
+        rows.append(row)
+    tab = pd.DataFrame(rows)
+    tab.to_csv(HERE / &quot;lineage_r2.csv&quot;, index=False)
+    for name in SETS:
+        fam_r2 = tab[name].iloc[0]
+        cross = tab.loc[tab[&quot;Her alone&quot;] &gt;= fam_r2, &quot;r_her&quot;].min()
+        print(f&quot;{name:20s} R2 {fam_r2:.3f}  -&gt; her own traits must have reliability &gt;= {cross:.2f} to beat it&quot;)
+    print(tab.iloc[[2, 11, 59]].round(3).T.to_string())
+</code></pre>
+<h3><code>lineage_vs_her_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Her family tells you more about the status she'll pass on than her grades do: Clark's model with Add Health inputs.
+
+Run (after addhealth_signals.py and lineage_model.py):
+  uv run --with matplotlib,pillow,fonttools,numpy,pandas python notebooks/lineage_vs_individual/lineage_vs_her_chart.py
+Writes lineage_vs_her_wm.png to ~/Desktop/Recent Projects/Substack Notes/Dating/ and the unwatermarked original
+to Substack Notes/Unwatermarked graphs/Dating/, then publishes the methods page to pbmethods.github.io/lineage-her/
+(add --no-push to build it locally only).
+
+A: share of a woman's underlying status (what passes to her kids) revealed by her own traits, as their
+   reliability rises, against her family's settled adult outcomes (flat lines). Dots: where real traits sit.
+B: the same shares for the specific things you can observe.
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy.stats import norm
+
+HERE = Path(__file__).parent
+sys.path.insert(0, str(HERE))
+from lineage_model import PARENTS, SETS, r2  # noqa: E402
+
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = Path(&quot;Dating&quot;)
+OUT = NOTES / &quot;Unwatermarked graphs&quot; / SUB
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED, GRID, SURFACE = pb.INK, pb.INK2, pb.MUTED, pb.GRID, pb.SURFACE
+
+cov = np.load(HERE / &quot;latent_cov.npy&quot;)
+tab = pd.read_csv(HERE / &quot;lineage_r2.csv&quot;)
+sig = pd.read_csv(HERE / &quot;addhealth_signals.csv&quot;).set_index(&quot;signal&quot;)
+r_gpa, r_earn, r_ed = sig.loc[&quot;gpa&quot;, &quot;reliability&quot;], sig.loc[&quot;earn&quot;, &quot;reliability&quot;], sig.loc[&quot;ed&quot;, &quot;reliability&quot;]
+whole = SETS[&quot;Whole family&quot;]
+
+# ---- scenario numbers for the Note text
+def blup(idx, r_her, y):
+    &quot;&quot;&quot;E[her x | standardized readings y] for relatives idx plus her own reading (last entry of y).&quot;&quot;&quot;
+    idx = list(idx) + [0]
+    rel = np.array([0.59] * (len(idx) - 1) + [r_her])
+    load = np.sqrt(rel)
+    Y = np.outer(load, load) * cov[np.ix_(idx, idx)] + np.diag(1 - rel)
+    c = load * cov[0, idx]
+    return float(c @ np.linalg.solve(Y, np.asarray(y, float)))
+
+
+z90, z99 = norm.ppf(0.90), norm.ppf(0.99)
+pct = lambda v: 100 * norm.cdf(v)  # noqa: E731
+print(f&quot;GPA r={r_gpa:.3f} earnings r={r_earn:.3f} education r={r_ed:.3f}&quot;)
+print(f&quot;Top-1% GPA, median parents          -&gt; her latent at the {pct(blup(PARENTS, r_gpa, [0, 0, z99])):.0f}th pct&quot;)
+print(f&quot;Top-10% GPA, median parents         -&gt; {pct(blup(PARENTS, r_gpa, [0, 0, z90])):.0f}th pct&quot;)
+print(f&quot;Median GPA, both parents top-10%    -&gt; {pct(blup(PARENTS, r_gpa, [z90, z90, 0])):.0f}th pct&quot;)
+print(f&quot;Top-10% education, median parents   -&gt; {pct(blup(PARENTS, r_ed, [0, 0, z90])):.0f}th pct&quot;)
+print(f&quot;Median education, parents top-10%   -&gt; {pct(blup(PARENTS, r_ed, [z90, z90, 0])):.0f}th pct&quot;)
+fam = [z90] * len(whole)
+print(f&quot;Median education, whole family top-10% -&gt; {pct(blup(whole, r_ed, fam + [0])):.0f}th pct&quot;)
+
+# ---- chart
+fig, (a, b) = plt.subplots(1, 2, figsize=(15, 7.4), gridspec_kw=dict(width_ratios=[1.05, 1], wspace=0.42))
+
+x = tab.r_her
+a.plot(x, tab[&quot;Her alone&quot;], color=pb.GRAYS[2], lw=2.6)
+a.text(0.47, 0.44, &quot;Her own traits&quot;, ha=&quot;left&quot;, va=&quot;top&quot;, fontsize=11, color=INK, fontweight=&quot;bold&quot;)
+for name, col in zip(SETS, pb.NAVY_RAMP):
+    v = tab[name].iloc[0]
+    a.axhline(v, color=col, lw=2.2)
+    a.text(0.94, v + 0.008, f&quot;{name}  {v:.0%}&quot;, fontsize=10.5, color=INK, va=&quot;bottom&quot;, ha=&quot;right&quot;)
+a.plot(x, tab[&quot;Her + whole family&quot;], color=pb.NAVY_RAMP[2], lw=1.6, ls=(0, (4, 3)))
+a.text(0.30, float(np.interp(0.30, x, tab[&quot;Her + whole family&quot;])) + 0.02, &quot;Her + whole family&quot;, ha=&quot;center&quot;,
+       fontsize=10, color=INK2, va=&quot;bottom&quot;)
+for r, lab, red in [(r_gpa, &quot;High-school\nGPA&quot;, True), (r_earn, &quot;Earnings\nat 28&quot;, False), (r_ed, &quot;Education\nat 28&quot;, False)]:
+    a.scatter([r], [r], s=70, color=pb.RED if red else pb.GRAYS[2], zorder=5, edgecolor=SURFACE, lw=1.2)
+    a.annotate(lab, (r, r), xytext=(8, -4), textcoords=&quot;offset points&quot;, fontsize=10.5, color=INK,
+               fontweight=&quot;bold&quot;, va=&quot;top&quot;)
+a.set_xlim(0, 0.95)
+a.set_ylim(0, 1.0)
+a.set_xlabel(&quot;How reliably her own trait reads her underlying status&quot;)
+a.set_ylabel(&quot;Share of her underlying status revealed&quot;)
+a.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0%}&quot;))
+a.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0%}&quot;))
+a.grid(color=GRID, lw=0.7)
+a.set_title(&quot;A  Her traits beat her family only above ~55–70% reliability&quot;, loc=&quot;left&quot;, fontsize=13,
+            fontweight=&quot;bold&quot;, color=INK, pad=10)
+
+bars = [  # label, value, color
+    (&quot;Her earnings at 28&quot;, r_earn, pb.MUTE),
+    (&quot;Her grades at 16 (self-reported)&quot;, sig.loc[&quot;grades_self&quot;, &quot;reliability&quot;], pb.MUTE),
+    (&quot;Her high-school GPA&quot;, r_gpa, pb.RED),
+    (&quot;Her education at 28&quot;, r_ed, pb.MUTE),
+    (&quot;Her parents&quot;, tab[&quot;Her parents&quot;].iloc[0], pb.MUTE),
+    (&quot;Her whole family&quot;, tab[&quot;Whole family&quot;].iloc[0], pb.MUTE),
+    (&quot;Her education + whole family&quot;, float(np.interp(r_ed, x, tab[&quot;Her + whole family&quot;])), pb.MUTE),
+]
+ys = np.arange(len(bars))[::-1]
+for yy, (lab, v, col) in zip(ys, bars):
+    b.barh(yy, v, color=col, height=0.62)
+    b.text(v + 0.012, yy, f&quot;{v:.0%}&quot;, va=&quot;center&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK)
+b.set_yticks(ys, [l for l, *_ in bars], fontsize=11)
+b.set_xlim(0, 0.9)
+b.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0%}&quot;))
+b.set_xlabel(&quot;Share of her underlying status revealed&quot;)
+b.grid(axis=&quot;x&quot;, color=GRID, lw=0.7)
+b.tick_params(axis=&quot;y&quot;, length=0)
+b.set_title(&quot;B  Her report card reveals a third; her parents, over half&quot;, loc=&quot;left&quot;, fontsize=13, fontweight=&quot;bold&quot;,
+            color=INK, pad=10)
+
+fig.text(0.035, 0.965, &quot;Her parents tell you more about the status she'll pass on than her report card does&quot;,
+         fontsize=17.5, fontweight=&quot;bold&quot;, color=INK, ha=&quot;left&quot;)
+fig.text(0.035, 0.925,
+         &quot;Gregory Clark's model of inherited status, with how much each trait reveals estimated from women in Add Health. &quot;
+         &quot;Relatives are read by their settled adult education.&quot;,
+         fontsize=12, color=INK2, ha=&quot;left&quot;)
+fig.text(0.035, 0.018,
+         &quot;Model: underlying status persists 0.79 per generation, spouses match on it at 0.57 (Clark 2023, PNAS, &quot;
+         &quot;422,374 English lineage members 1600–2022); simulated family trees: 2 siblings,\n2 parents, 4 grandparents, &quot;
+         &quot;4 aunts/uncles, 8 cousins. Trait reliability = corr(trait, parent's education)² / (0.79² × parent-education &quot;
+         &quot;reliability), from Add Health women (n ≈ 1,800–2,800):\ncumulative high-school GPA from transcripts (AHAA), Wave I self-reported grades, &quot;
+         &quot;log earnings and education at Wave IV (mean age 29). Parent and own education both read status at 59%.&quot;,
+         fontsize=9, color=MUTED, ha=&quot;left&quot;)
+fig.subplots_adjust(left=0.06, right=0.975, top=0.84, bottom=0.17)
+
+png = OUT / &quot;lineage_vs_her.png&quot;
+png.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(png, facecolor=SURFACE, dpi=150)
+wm = NOTES / SUB / (png.stem + &quot;_wm.png&quot;)
+wm.parent.mkdir(parents=True, exist_ok=True)
+SLUG = &quot;lineage-her&quot;
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(png), str(wm),
+                &quot;--methods&quot;, SLUG], check=True)
+print(png, wm, sep=&quot;\n&quot;)
+
+# Methodology page at pbmethods.github.io/&lt;SLUG&gt;/ (also writes METHODOLOGY.md here). Pass --no-push to skip
+# publishing, e.g. while iterating on the chart.
+subprocess.run([&quot;uv&quot;, &quot;run&quot;, &quot;--quiet&quot;, &quot;--with&quot;, &quot;markdown&quot;, &quot;python&quot;, str(Path.home() / &quot;_methods&quot; / &quot;methods.py&quot;),
+                &quot;--slug&quot;, SLUG, &quot;--title&quot;, &quot;Her parents vs. her report card: what reveals the status she'll pass on&quot;,
+                &quot;--chart&quot;, str(wm),
+                &quot;--scripts&quot;, str(HERE / &quot;addhealth_signals.py&quot;), str(HERE / &quot;lineage_model.py&quot;), str(Path(__file__)),
+                &quot;--data&quot;, str(HERE / &quot;addhealth_signals.csv&quot;), str(HERE / &quot;lineage_r2.csv&quot;),
+                &quot;--notes&quot;, str(HERE / &quot;CAVEATS.md&quot;)] + ([&quot;--no-push&quot;] if &quot;--no-push&quot; in sys.argv else []),
+               check=True)
+</code></pre>
+</main></body></html>

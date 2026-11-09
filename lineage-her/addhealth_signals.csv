@@ -1,0 +1,6 @@
+signal,label,rho_with_parent_ed,n,reliability
+grades_self,Her grades at ~16 (self-reported),0.2493500094868496,2771,0.1687040462952672
+gpa,Her high-school GPA (transcript),0.35467435051194385,1838,0.34132357453470896
+earn,Her own earnings at 28 (log),0.2009248965403679,2013,0.10954037608964098
+ed,Her own education at 28,0.46651561816527776,2393,0.5905260989433895
+all_of_her,"All of the above, combined",0.4539357198906088,1441,0.5591076541613744
