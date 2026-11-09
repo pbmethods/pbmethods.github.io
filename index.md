@@ -8,7 +8,7 @@ Methodology, results and code behind charts from <a href="https://performativeba
 - [High-performer hit rates](hit-rates/) (2026-11-09)
 - [The fiscal math of the bottom half of men opting out, and of 'wife licenses'](hypergamy-fiscal/) (2026-11-09)
 - [Her parents vs. her report card: what reveals the status she'll pass on](lineage-her/) (2026-11-09)
+- [How different are rich and regular people's political opinions?](rich-poor-gap/) (2026-11-09)
 - [Screen hours by age: phones for the young, TV for the old](screen-age/) (2026-11-09)
 - [White-collar workers are ~2 hours from screens every waking hour](screen-work/) (2026-11-09)
 - [Same food, easier to digest: how processing can make you fat](softer-food/) (2026-11-09)
-- [How different are rich and regular people's political opinions?](rich-poor-gap/) (2026-11-09)
