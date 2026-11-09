@@ -10,6 +10,7 @@
 
 ### `addhealth_signals.py`
 
+```text
 How much does each trait you can see in a woman reveal about her underlying (Clark) social status?
 
 Run:  uv run --with pandas,pyreadstat python notebooks/lineage_vs_individual/addhealth_signals.py
@@ -30,9 +31,11 @@ Then r_s = corr(s, ed_parent)^2 / (b^2 * r_par).
 
 This treats any non-status channel linking a trait to parents' education (tutors, better schools, a quiet
 place to study) as if it ran through status, so it overstates the reliability of grades if anything.
+```
 
 ### `lineage_model.py`
 
+```text
 How much does her family tell you about her underlying status, compared with her own traits?
 
 Run:  uv run --with numpy,pandas python notebooks/lineage_vs_individual/lineage_model.py
@@ -48,9 +51,11 @@ What you observe about anyone is a noisy reading y = sqrt(r) x + sqrt(1 - r) e w
 Relatives are read at R_REL = 0.59, the reliability of a settled adult's education estimated in
 addhealth_signals.py. Her own reading has reliability r, the x-axis of the chart. Variance explained in her x by
 a set of readings is the R^2 of the best linear predictor, computed exactly from the latent covariance.
+```
 
 ### `lineage_vs_her_chart.py`
 
+```text
 Her family tells you more about the status she'll pass on than her grades do: Clark's model with Add Health inputs.
 
 Run (after addhealth_signals.py and lineage_model.py):
@@ -62,6 +67,7 @@ to Substack Notes/Unwatermarked graphs/Dating/, then publishes the methods page 
 A: share of a woman's underlying status (what passes to her kids) revealed by her own traits, as their
    reliability rises, against her family's settled adult outcomes (flat lines). Dots: where real traits sit.
 B: the same shares for the specific things you can observe.
+```
 
 ## Results
 

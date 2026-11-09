@@ -29,45 +29,57 @@ li{margin:.2rem 0}
 
 <h2>Method</h2>
 <h3><code>addhealth_signals.py</code></h3>
-<p>How much does each trait you can see in a woman reveal about her underlying (Clark) social status?</p>
-<p>Run:  uv run --with pandas,pyreadstat python notebooks/lineage_vs_individual/addhealth_signals.py
-Writes addhealth_signals.csv next to this script.</p>
-<p>Data: Add Health public-use file (ICPSR 21600). Wave I (1994-95, ages ~12-19) with the parent questionnaire
+<pre><code class="language-text">How much does each trait you can see in a woman reveal about her underlying (Clark) social status?
+
+Run:  uv run --with pandas,pyreadstat python notebooks/lineage_vs_individual/addhealth_signals.py
+Writes addhealth_signals.csv next to this script.
+
+Data: Add Health public-use file (ICPSR 21600). Wave I (1994-95, ages ~12-19) with the parent questionnaire
 (PA12: responding parent's education, usually the mother; PB8: that parent's partner's education) and
 self-reported grades (H1ED11-14: English, math, history, science); the Education Data / AHAA high-school
-transcript file (DS0016, EAOGPAC: cumulative GPA across all high-school years); Wave IV (2008, ~24-32). Women only (BIO_SEX = 2), unweighted.</p>
-<p>Method (Clark's latent-status model). Every observed trait is s = sqrt(r_s) * x + noise, where x is the
+transcript file (DS0016, EAOGPAC: cumulative GPA across all high-school years); Wave IV (2008, ~24-32). Women only (BIO_SEX = 2), unweighted.
+
+Method (Clark's latent-status model). Every observed trait is s = sqrt(r_s) * x + noise, where x is the
 underlying status that is passed down, and r_s is the trait's reliability as a reading of x. A parent's latent
 status correlates b = 0.79 with the child's (Clark 2023, PNAS). Then
     corr(her trait s, parent's education) = b * sqrt(r_s * r_par).
 Parent education's own reliability r_par comes from the same-measure case: assume her education in her late
 20s and her parent's education are equally good readings (r_ed = r_par), so r_par = corr(ed, ed_parent) / b.
-Then r_s = corr(s, ed_parent)^2 / (b^2 * r_par).</p>
-<p>This treats any non-status channel linking a trait to parents' education (tutors, better schools, a quiet
-place to study) as if it ran through status, so it overstates the reliability of grades if anything.</p>
+Then r_s = corr(s, ed_parent)^2 / (b^2 * r_par).
+
+This treats any non-status channel linking a trait to parents' education (tutors, better schools, a quiet
+place to study) as if it ran through status, so it overstates the reliability of grades if anything.
+</code></pre>
 <h3><code>lineage_model.py</code></h3>
-<p>How much does her family tell you about her underlying status, compared with her own traits?</p>
-<p>Run:  uv run --with numpy,pandas python notebooks/lineage_vs_individual/lineage_model.py
-Writes latent_cov.npy and lineage_r2.csv next to this script.</p>
-<p>Model: Clark's (2023, PNAS) additive model of underlying status x. Spouses match on x with correlation
+<pre><code class="language-text">How much does her family tell you about her underlying status, compared with her own traits?
+
+Run:  uv run --with numpy,pandas python notebooks/lineage_vs_individual/lineage_model.py
+Writes latent_cov.npy and lineage_r2.csv next to this script.
+
+Model: Clark's (2023, PNAS) additive model of underlying status x. Spouses match on x with correlation
 M = 0.57; a child's x = (mother + father)/2 + noise, which gives a parent-child correlation of (1 + M)/2 = 0.79,
 Clark's per-generation persistence. We simulate four generations of a population (3 children per couple), then
 read off the covariance of x between a focal woman and her relatives: 2 siblings, 2 parents, 4 grandparents,
-4 aunts/uncles, 8 first cousins.</p>
-<p>What you observe about anyone is a noisy reading y = sqrt(r) x + sqrt(1 - r) e with independent noise.
+4 aunts/uncles, 8 first cousins.
+
+What you observe about anyone is a noisy reading y = sqrt(r) x + sqrt(1 - r) e with independent noise.
 Relatives are read at R_REL = 0.59, the reliability of a settled adult's education estimated in
 addhealth_signals.py. Her own reading has reliability r, the x-axis of the chart. Variance explained in her x by
-a set of readings is the R^2 of the best linear predictor, computed exactly from the latent covariance.</p>
+a set of readings is the R^2 of the best linear predictor, computed exactly from the latent covariance.
+</code></pre>
 <h3><code>lineage_vs_her_chart.py</code></h3>
-<p>Her family tells you more about the status she'll pass on than her grades do: Clark's model with Add Health inputs.</p>
-<p>Run (after addhealth_signals.py and lineage_model.py):
+<pre><code class="language-text">Her family tells you more about the status she'll pass on than her grades do: Clark's model with Add Health inputs.
+
+Run (after addhealth_signals.py and lineage_model.py):
   uv run --with matplotlib,pillow,fonttools,numpy,pandas python notebooks/lineage_vs_individual/lineage_vs_her_chart.py
 Writes lineage_vs_her_wm.png to ~/Desktop/Recent Projects/Substack Notes/Dating/ and the unwatermarked original
 to Substack Notes/Unwatermarked graphs/Dating/, then publishes the methods page to pbmethods.github.io/lineage-her/
-(add --no-push to build it locally only).</p>
-<p>A: share of a woman's underlying status (what passes to her kids) revealed by her own traits, as their
+(add --no-push to build it locally only).
+
+A: share of a woman's underlying status (what passes to her kids) revealed by her own traits, as their
    reliability rises, against her family's settled adult outcomes (flat lines). Dots: where real traits sit.
-B: the same shares for the specific things you can observe.</p>
+B: the same shares for the specific things you can observe.
+</code></pre>
 <h2>Results</h2>
 <h3><code>addhealth_signals.csv</code></h3>
 <table>
