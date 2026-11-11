@@ -43,10 +43,21 @@ CHART 2  Fermi estimates of the US life-expectancy gain from one big interventio
   contribution (0.54 yr, ~45k excess deaths) implies ~43 life-years per firearm death, plausible for a
   mean age at death in the late 30s.
 
-  1. Free GLP-1s at scale (cardiovascular disease).
-     f = share of US CVD deaths occurring in people with obesity (~0.45: ~35% prevalence at older ages
-         x ~1.5 relative risk) x uptake among them (0.5) x relative reduction in CV death on drug (0.20,
-         SELECT trial MACE HR 0.80, all-cause HR 0.81).   Low 0.40 x 0.4 x 0.15; high 0.50 x 0.6 x 0.25.
+  1. Free GLP-1s at scale (excess weight, all causes; counted against the CVD row, the main channel).
+     All-cause, not CVD-only: SELECT (semaglutide) cut all-cause deaths 19%, not just CV deaths.
+     Ceiling = life-expectancy gain if every overweight/obese US adult had healthy-weight mortality:
+       - BMI class shares by age band (20-59, 60-79, 80+) from NHANES Aug 2021-Aug 2023 (BMX_L/DEMO_L,
+         MEC weights; notebooks/us_public_data/nhanes/).
+       - All-cause HRs vs BMI 22.5-25, never-smokers (Global BMI Mortality Collaboration, Lancet 2016):
+         25-30 1.13, 30-35 1.45, 35-40 1.94, 40+ 2.76; underweight ignored. The BMI effect fades with
+         age, so log-HRs are scaled by 1.0 / 0.75 / 0.4 in the three bands (approximation of GBMC's
+         age-specific results).
+       - Attributable fraction per band = sum p(HR-1) / (1 + sum p(HR-1)); deaths averted = AF x US
+         deaths in band (2023: ~3.09M total; shares ~19% / 41% / 40%, approx.); life-years = deaths x
+         remaining life expectancy at the band's mean age at death (~32 / ~14.5 / ~5 years); gain =
+         life-years / 3.6M births. Result ~16% of deaths, ~2.5 years (cf. Masters et al. 2013 AJPH: 18%).
+     Gain = ceiling x uptake among eligible adults (0.5; low 0.4, high 0.6) x share of the excess risk
+     the drug removes (0.5; low 0.4, high 0.65 -- SELECT's 19% at mean BMI ~33 is about half the excess).
   2. Legal "pill mill" pharmaceutical opioid supply (overdose).
      Overdose deaths fell from ~105k (2023, JHU's year) to ~80k (2024). Pharmaceutical-grade supply
      displacing illicit fentanyl returns deaths to the 2010 pill-mill-era total (~38k; NCHS) -> 40k.
@@ -133,10 +144,21 @@ CHART 2  Fermi estimates of the US life-expectancy gain from one big interventio
   contribution (0.54 yr, ~45k excess deaths) implies ~43 life-years per firearm death, plausible for a
   mean age at death in the late 30s.
 
-  1. Free GLP-1s at scale (cardiovascular disease).
-     f = share of US CVD deaths occurring in people with obesity (~0.45: ~35% prevalence at older ages
-         x ~1.5 relative risk) x uptake among them (0.5) x relative reduction in CV death on drug (0.20,
-         SELECT trial MACE HR 0.80, all-cause HR 0.81).   Low 0.40 x 0.4 x 0.15; high 0.50 x 0.6 x 0.25.
+  1. Free GLP-1s at scale (excess weight, all causes; counted against the CVD row, the main channel).
+     All-cause, not CVD-only: SELECT (semaglutide) cut all-cause deaths 19%, not just CV deaths.
+     Ceiling = life-expectancy gain if every overweight/obese US adult had healthy-weight mortality:
+       - BMI class shares by age band (20-59, 60-79, 80+) from NHANES Aug 2021-Aug 2023 (BMX_L/DEMO_L,
+         MEC weights; notebooks/us_public_data/nhanes/).
+       - All-cause HRs vs BMI 22.5-25, never-smokers (Global BMI Mortality Collaboration, Lancet 2016):
+         25-30 1.13, 30-35 1.45, 35-40 1.94, 40+ 2.76; underweight ignored. The BMI effect fades with
+         age, so log-HRs are scaled by 1.0 / 0.75 / 0.4 in the three bands (approximation of GBMC's
+         age-specific results).
+       - Attributable fraction per band = sum p(HR-1) / (1 + sum p(HR-1)); deaths averted = AF x US
+         deaths in band (2023: ~3.09M total; shares ~19% / 41% / 40%, approx.); life-years = deaths x
+         remaining life expectancy at the band's mean age at death (~32 / ~14.5 / ~5 years); gain =
+         life-years / 3.6M births. Result ~16% of deaths, ~2.5 years (cf. Masters et al. 2013 AJPH: 18%).
+     Gain = ceiling x uptake among eligible adults (0.5; low 0.4, high 0.6) x share of the excess risk
+     the drug removes (0.5; low 0.4, high 0.65 -- SELECT's 19% at mean BMI ~33 is about half the excess).
   2. Legal "pill mill" pharmaceutical opioid supply (overdose).
      Overdose deaths fell from ~105k (2023, JHU's year) to ~80k (2024). Pharmaceutical-grade supply
      displacing illicit fentanyl returns deaths to the 2010 pill-mill-era total (~38k; NCHS) -> 40k.
@@ -180,6 +202,31 @@ JHU = {
 }
 BIRTHS = 3.6e6
 E_AT_16 = 62.0
+NHANES = Path(__file__).resolve().parents[1] / "us_public_data" / "nhanes"
+BMI_HR = {(25, 30): 1.13, (30, 35): 1.45, (35, 40): 1.94, (40, 200): 2.76}  # GBMC 2016, vs 22.5-25
+# age band: (log-HR scale, share of US deaths, remaining life expectancy at mean age of death)
+BANDS = {(20, 60): (1.0, 0.19, 32.0), (60, 80): (0.75, 0.41, 14.5), (80, 200): (0.4, 0.40, 5.0)}
+US_DEATHS = 3.09e6
+
+
+def excess_weight_ceiling():
+    """Years of US e0 if overweight/obese adults had healthy-weight all-cause mortality."""
+    import numpy as np
+    import pandas as pd
+    x = pd.read_sas(NHANES / "DEMO_L.xpt").merge(pd.read_sas(NHANES / "BMX_L.xpt"), on="SEQN")
+    x = x[(x.RIDAGEYR >= 20) & x.BMXBMI.notna()]
+    life_years, deaths_averted = 0.0, 0.0
+    for (a0, a1), (scale, dshare, ex) in BANDS.items():
+        g = x[(x.RIDAGEYR >= a0) & (x.RIDAGEYR < a1)]
+        s = sum(np.average((g.BMXBMI >= b0) & (g.BMXBMI < b1), weights=g.WTMEC2YR) * (hr ** scale - 1)
+                for (b0, b1), hr in BMI_HR.items())
+        af = s / (1 + s)
+        d = af * dshare * US_DEATHS
+        print(f"  ages {a0}-{min(a1, 99)}: attributable fraction {af:.1%}, deaths {d / 1e3:.0f}k")
+        deaths_averted += d
+        life_years += d * ex
+    print(f"  all ages: {deaths_averted / US_DEATHS:.1%} of deaths, ceiling {life_years / BIRTHS:.2f} yr")
+    return life_years / BIRTHS
 
 
 def yrs_per_full_cut(cause):
@@ -190,8 +237,9 @@ def yrs_per_full_cut(cause):
 def fermi():
     out = {}
     # 1 GLP-1s
-    k = yrs_per_full_cut("cvd")
-    out["glp1"] = [k * a * b * c for a, b, c in ((0.45, 0.5, 0.20), (0.40, 0.4, 0.15), (0.50, 0.6, 0.25))]
+    ceil = excess_weight_ceiling()
+    out["glp1_ceiling"] = ceil
+    out["glp1"] = [ceil * u * r for u, r in ((0.5, 0.5), (0.4, 0.4), (0.6, 0.65))]
     # 2 pill mills: deaths averted from today's 80k, as share of 2023's 105k
     k = yrs_per_full_cut("od")
     out["pills"] = [k * (80 - to) / 105 for to in (40, 50, 20)]
@@ -295,7 +343,7 @@ def chart_interventions(est):
         ("Legal pill mills", "Overdose", "pills", "od",
          "Pharma-grade opioids displace fentanyl:\n80k deaths/yr back to the 2010 level (~40k)"),
         ("Free GLP-1s at scale", "Heart disease & stroke", "glp1", "cvd",
-         "Half of Americans with obesity treated;\n−20% cardiovascular deaths among them"),
+         "Half of eligible adults on it, removing half\nthe extra all-cause death risk of their weight"),
         ("Self-driving cars", "Car crashes", "av", "mvc",
          "Half of all miles driven autonomously, at\nWaymo’s ~85% lower serious-crash rate"),
         ("Free gun safes for parents of teens", "Gun homicide & suicide", "safes", "gun",
@@ -322,12 +370,17 @@ def chart_interventions(est):
         sub = f"≈ {c * 12:.1f} months" if c >= 0.05 else f"range {lo * 365:.1f}–{hi * 365:.0f} days"
         lx = (hi if gap_part > 1.0 else max(hi, gap_part)) + 0.03
         if gap_part > 1.0:  # target box runs off the axis: say how far
-            ax.text(0.99, y + 0.22, f"gap share {gap_part:.2f} yr \u2192", ha="right", va="center", fontsize=8.5,
+            ax.text(0.99, y + 0.2, f"gap share {gap_part:.2f} yr \u2192", ha="right", va="center", fontsize=8.5,
                     color=MUTED)
+        if key == "glp1":
+            ax.text(0.99, y - 0.2, f"ceiling, no excess-weight deaths: {est['glp1_ceiling']:.1f} yr \u2192",
+                    ha="right", va="center", fontsize=8.5, color=MUTED)
         ax.text(lx, y + 0.1, lab, va="center", ha="left", fontsize=12, fontweight="bold", color=INK)
         ax.text(lx, y - 0.17, sub, va="center", ha="left", fontsize=9.5, color=INK2)
         fig.text(0.03, y + 0.2, name, transform=tr, ha="left", va="center", fontsize=12, fontweight="bold", color=INK)
-        fig.text(0.03, y, f"Target: {cause.lower()} ({gap_part:.2f} yr of the gap)", transform=tr, ha="left",
+        tgt = (f"Target: excess weight, all causes (CVD: {gap_part:.2f} yr of the gap)" if key == "glp1"
+               else f"Target: {cause.lower()} ({gap_part:.2f} yr of the gap)")
+        fig.text(0.03, y, tgt, transform=tr, ha="left",
                  va="center", fontsize=9.5, color=INK2)
         fig.text(0.03, y - 0.13, how, transform=tr, ha="left", va="top", linespacing=1.3, fontsize=8.3, color=MUTED)
 
@@ -347,7 +400,7 @@ def chart_interventions(est):
              va="center")
 
     tot = sum(est[k][0] for k in ("pills", "glp1", "av", "safes"))
-    fig.text(0.03, 0.935, f"Four big swings would buy back about {tot:.0f} year of the 2.7",
+    fig.text(0.03, 0.935, f"Four big swings would buy back about {tot:.1f} years of the 2.7",
              fontsize=18, fontweight="bold", color=INK)
     fig.text(0.03, 0.89, "Fermi estimates of the US life-expectancy gain from one ambitious intervention per "
              f"cause. Together ≈ {tot:.1f} years. Overdose deaths have\nalready fallen from 105k (2023) to "
@@ -356,8 +409,8 @@ def chart_interventions(est):
     fig.text(0.03, 0.035,
              "Conversion: years per death averted calibrated on the JHU 2023 decomposition (gap share × US rate "
              "÷ US–E&W rate gap); teen safes use deaths × 62 remaining years ÷ 3.6M births.\n"
-             "Inputs: SELECT trial (semaglutide, MACE HR 0.80); NCHS overdose deaths 2010 (38k), 2024 (~80k); Waymo "
-             "rider-only crash data; Grossman et al. 2005 (locked storage).", fontsize=7.8, color=MUTED,
+             "Inputs: NHANES 2021–23 BMI; Global BMI Mortality Collab. 2016; SELECT trial (all-cause HR 0.81); NCHS overdose deaths 2010 (38k), 2024 (~80k); Waymo "
+             "rider-only crash data;\nGrossman et al. 2005 (locked storage). GLP-1s: NHANES-weighted excess-weight deaths × life-years ÷ births, × uptake × share of risk removed.", fontsize=7.8, color=MUTED,
              linespacing=1.55)
     out = NOTES / "Unwatermarked graphs" / SUBDIR / "us_uk_gap_interventions.png"
     out.parent.mkdir(parents=True, exist_ok=True)
