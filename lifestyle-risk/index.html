@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Obese, sedentary, bad diet, smoking: all-cause death-rate multipliers at ages 40+</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Obese, sedentary, bad diet, smoking: all-cause death-rate multipliers at ages 40+</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-11.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/lifestyle-risk/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>risk_multipliers_chart.py</code></h3>
+<pre><code class="language-text">All-cause death-rate multipliers for weight, activity, diet and smoking, Americans aged 40+.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/life_expectancy/risk_multipliers_chart.py
+
+REFERENCE  A healthy-weight (BMI 22.5-25), physically active, good-diet never-smoker of the same age (40-69,
+           where these risks are measured best; by 70+ the weight term shrinks, see below).
+
+SINGLE FACTORS (central, low-high)
+  Overweight (BMI 25-30)   1.13 (1.05-1.20)  Global BMI Mortality Collaboration (GBMC), Lancet 2016, never-smokers:
+                                             25-27.5 HR 1.07, 27.5-30 HR 1.20.
+  Obese (BMI 30+)          1.80 (1.55-1.90)  GBMC class HRs (30-35 1.45, 35-40 1.94, 40+ 2.76) averaged over the
+                                             BMI mix of obese Americans aged 40-69 in NHANES Aug 2021-Aug 2023
+                                             (mean BMI 36.7; half 30-35, a quarter 35-40, a quarter 40+), with the
+                                             log-HR scaled x0.75 at ages 60-69. 1.91 at 40-59, 1.56 at 60-69.
+  Sedentary                1.60 (1.45-1.90)  vs regular exercisers. Arem et al. 2015 JAMA Intern Med (661k, self-
+                                             report): none vs 150-300 min/wk HR 0.69 (1.45x), vs 3-5x guidelines
+                                             0.61 (1.64x). Ekelund et al. 2019 BMJ (accelerometers): top vs bottom
+                                             quartile of moderate-to-vigorous activity HR 0.52 (1.9x).
+  Bad diet                 1.30 (1.20-1.50)  top vs bottom quartile of ultra-processed food share, adjusted
+                                             cohorts (NHANES III 1.31, Moli-sani 1.32, SUN 1.62).
+  Current smoker           2.50 (2.00-3.00)  vs never-smokers, ages 40+: Jha et al. 2013 NEJM (US, ~3x, ~10 years
+                                             lost); Carter et al. 2015 NEJM (2.8x); lower in older cohorts.
+
+COMBINATIONS  Products of the single factors (and of their lows / highs for the range). Multiplying assumes the
+  factors act independently: Khaw et al. 2008 (EPIC-Norfolk) found no interaction between its behaviour score and
+  BMI, and its BMI-adjusted &quot;inactive + poor diet, non-smoker&quot; group (RR 1.95-2.52) matches the product here. But
+  stacked cells probably run 10-30% high: Moore et al. 2012 PLoS Med measured inactive BMI 35+ vs active normal
+  weight directly at ~7 years of life lost at 40 (about 2x), below the 2.9x product for obese + sedentary.
+
+YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US adult death rates double about
+  every 8 years (slope ~0.085/yr), so a constant multiplier m shifts life expectancy by ln(m)/0.085. Checks:
+  smoking 2.5x -&gt; 10.8 years (Jha 2013: ~10).
+</code></pre>
+<h2>Results</h2>
+<h3><code>risk_multipliers.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>profile</th>
+<th>multiplier</th>
+<th>low</th>
+<th>high</th>
+<th>years_lost_at_40</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One factor</td>
+<td>Overweight</td>
+<td>1.130</td>
+<td>1.050</td>
+<td>1.200</td>
+<td>1.400</td>
+</tr>
+<tr>
+<td>One factor</td>
+<td>Bad diet</td>
+<td>1.300</td>
+<td>1.200</td>
+<td>1.500</td>
+<td>3.100</td>
+</tr>
+<tr>
+<td>One factor</td>
+<td>Sedentary</td>
+<td>1.600</td>
+<td>1.450</td>
+<td>1.900</td>
+<td>5.500</td>
+</tr>
+<tr>
+<td>One factor</td>
+<td>Obese</td>
+<td>1.800</td>
+<td>1.550</td>
+<td>1.900</td>
+<td>6.900</td>
+</tr>
+<tr>
+<td>One factor</td>
+<td>Smoker</td>
+<td>2.500</td>
+<td>2.000</td>
+<td>3.000</td>
+<td>10.800</td>
+</tr>
+<tr>
+<td>Combined</td>
+<td>Overweight + sedentary + bad diet</td>
+<td>2.350</td>
+<td>1.830</td>
+<td>3.420</td>
+<td>10.100</td>
+</tr>
+<tr>
+<td>Combined</td>
+<td>Obese + sedentary</td>
+<td>2.880</td>
+<td>2.250</td>
+<td>3.610</td>
+<td>12.400</td>
+</tr>
+<tr>
+<td>Combined</td>
+<td>Obese + sedentary + bad diet</td>
+<td>3.740</td>
+<td>2.700</td>
+<td>5.420</td>
+<td>15.500</td>
+</tr>
+<tr>
+<td>Combined</td>
+<td>Smoker + sedentary + bad diet</td>
+<td>5.200</td>
+<td>3.480</td>
+<td>8.550</td>
+<td>19.400</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>How big is "obese, sedentary and eating badly"? Literature triangulations</h1>
+<p>The headline cell, an obese, sedentary, bad-diet American aged 40–69 against a healthy-weight, active, good-diet
+never-smoker of the same age, comes out at <strong>about 3.7× the all-cause death rate (range ~2.6–5.4×), roughly 15
+years of life lost at 40</strong>. Three independent routes bracket it.</p>
+<h2>Triangulation 1: Khaw et al. 2008 (EPIC-Norfolk) × obesity → ~3.5–4.5×</h2>
+<p>Khaw KT et al., <em>Combined impact of health behaviours and mortality in men and women: the EPIC-Norfolk Prospective
+Population Study</em>, PLoS Medicine 5:e12 (2008). 20,244 adults aged 45–79, ~11 years of follow-up, 1,987 deaths.
+One point each for: not smoking; not inactive (inactive = sedentary job and no recreational activity); 1–14 units
+of alcohol a week; plasma vitamin C ≥ 50 µmol/l (a biomarker for ~5 servings of fruit and vegetables a day).
+All-cause mortality vs a score of 4, adjusted for age, sex, <strong>BMI</strong> and social class:</p>
+<table>
+<thead>
+<tr>
+<th>Score</th>
+<th>RR (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>1.39 (1.21–1.60)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1.95 (1.70–2.25)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2.52 (2.13–3.00)</td>
+</tr>
+<tr>
+<td>0</td>
+<td>4.04 (2.95–5.54)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>An inactive, poor-diet <strong>non-smoker</strong> scores 1 (2.52×), or 2 (1.95×) with moderate drinking. Score 0 requires
+  current smoking, so its 4.04× (and the 5.54 upper bound) is not an obesity or sedentary figure.</li>
+<li>Because the model already adjusts for BMI, and the score–BMI interaction was not significant, the obesity
+  multiplier can be applied on top: 1.95–2.52 × ~1.8 = <strong>~3.5–4.5×</strong>.</li>
+<li>Caveats: non-drinkers lose a point, and part of that penalty is "sick quitters"; vitamin C is a biomarker of more
+  than diet; the cohort is British and older than 40–69 on average.</li>
+</ul>
+<h2>Triangulation 2: Moore et al. 2012, measured directly → ~2× (a floor)</h2>
+<p>Moore SC et al., <em>Leisure time physical activity of moderate to vigorous intensity and mortality: a large pooled
+cohort analysis</em>, PLoS Medicine 9:e1001335 (2012). ~650,000 adults, six US/Swedish cohorts. Being inactive with BMI
+35+, compared with being active (≥ 7.5 MET-hours a week, about 150 minutes of brisk walking) at normal weight, was
+associated with <strong>~7.2 fewer years of life expectancy at 40</strong>, which is about 2× on the Gompertz conversion below.</p>
+<ul>
+<li>This is the one study that measures the obese-and-inactive combination directly rather than multiplying.</li>
+<li>It is a floor for the headline cell: "active" is set low (guideline minimum, self-reported), and diet is not
+  counted. Adding a junk-vs-good diet (~1.3×) gives <strong>~2.6×</strong>.</li>
+<li>It is also the main reason to think the multiplied cells run high: the obese + sedentary product here is 2.9×,
+  against Moore's measured ~2× for a heavier group.</li>
+</ul>
+<h2>Triangulation 3: product of single factors → 3.7× (2.7–5.4×)</h2>
+<table>
+<thead>
+<tr>
+<th>Factor (ages 40–69)</th>
+<th>Multiplier</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Obese</td>
+<td>1.80 (1.55–1.90)</td>
+<td>Global BMI Mortality Collaboration, Lancet 2016 (never-smokers; 30–35 1.45, 35–40 1.94, 40+ 2.76), weighted to the BMI mix of obese Americans aged 40–69 in NHANES Aug 2021–Aug 2023 (mean BMI 36.7; half 30–35, a quarter 35–40, a quarter 40+)</td>
+</tr>
+<tr>
+<td>Sedentary</td>
+<td>1.60 (1.45–1.90)</td>
+<td>Arem et al., JAMA Internal Medicine 2015 (661k, self-report): none vs 150–300 min/wk HR 0.69, vs 3–5× guidelines 0.61; Ekelund et al., BMJ 2019 (accelerometers): top vs bottom quartile of moderate-to-vigorous activity HR 0.52</td>
+</tr>
+<tr>
+<td>Bad diet</td>
+<td>1.30 (1.20–1.50)</td>
+<td>Top vs bottom quartile of ultra-processed-food share in adjusted cohorts: NHANES III 1.31, Moli-sani 1.32, SUN 1.62</td>
+</tr>
+<tr>
+<td>Overweight</td>
+<td>1.13 (1.05–1.20)</td>
+<td>GBMC 2016: BMI 25–27.5 HR 1.07, 27.5–30 HR 1.20</td>
+</tr>
+<tr>
+<td>Current smoker</td>
+<td>2.50 (2.00–3.00)</td>
+<td>Jha et al., NEJM 2013 (US, ~3×, ~10 years lost); Carter et al., NEJM 2015 (2.8×); lower in older cohorts</td>
+</tr>
+</tbody>
+</table>
+<p>1.80 × 1.60 × 1.30 = <strong>3.74×</strong>; lows and highs multiplied give 2.7–5.4×.</p>
+<h2>Reading the three together</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Moore 2012, direct, guideline-level "active", no diet</td>
+<td>~2× (2.6× with diet)</td>
+</tr>
+<tr>
+<td>Product of single factors</td>
+<td>3.7× (2.7–5.4×)</td>
+</tr>
+<tr>
+<td>Khaw 2008 behaviours × obesity</td>
+<td>3.5–4.5×</td>
+</tr>
+</tbody>
+</table>
+<p>A defensible one-liner: <strong>obese, sedentary and eating junk in midlife ≈ 3–4× the death rate of a lean, active,
+good-diet peer; about 12–15 fewer years at 40.</strong> It reaches 4–5× only with severe obesity (BMI 40+, 2.8× on its
+own) or with fitness-test measures of activity. Overweight (BMI 25–30) rather than obese, with the same habits, is
+about 2.4×.</p>
+<h2>Cross-checks</h2>
+<ul>
+<li><strong>Years lost.</strong> ln(multiplier) ÷ 0.085: US adult death rates double about every 8 years, so a constant
+  multiplier m shifts life expectancy at 40 by ln(m)/0.085. Smoking's 2.5× gives 10.8 years, close to Jha 2013's
+  ~10; Moore's 7.2 years corresponds to ~1.85×.</li>
+<li><strong>Population scale.</strong> Applying the same BMI hazard ratios to the whole NHANES 2021–23 adult population, with the
+  weight effect fading by age, attributes ~17% of US deaths to excess weight; Masters et al. (American Journal of
+  Public Health, 2013) estimated 18%.</li>
+</ul>
+<h2>Caveats</h2>
+<ul>
+<li><strong>Observational hazard ratios, not proof of cause.</strong> Reverse causation (people who are ill move less and lose
+  weight) inflates the activity terms and deflates the weight terms. The GBMC estimates use never-smokers and drop
+  early deaths to limit this, and Mendelian-randomisation studies support a causal BMI effect.</li>
+<li><strong>Multiplying assumes independence.</strong> Khaw supports it for behaviours and BMI; Moore suggests three-way stacks
+  run 10–30% high.</li>
+<li><strong>Age.</strong> The weight term is largest at 40–59 (1.9× for obesity) and fades to ~1.6× in the 60s and ~1.3× past 70.
+  Behaviour terms fade less.</li>
+<li><strong>"Active" is a moving target.</strong> Self-reported guideline-level activity buys ~1.45×; device-measured top-quartile
+  activity ~1.9×; elite treadmill fitness 4–5×, but fitness is partly genetic and depressed by illness, so those
+  numbers overstate what exercising would buy.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>risk_multipliers_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;All-cause death-rate multipliers for weight, activity, diet and smoking, Americans aged 40+.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/life_expectancy/risk_multipliers_chart.py
+
+REFERENCE  A healthy-weight (BMI 22.5-25), physically active, good-diet never-smoker of the same age (40-69,
+           where these risks are measured best; by 70+ the weight term shrinks, see below).
+
+SINGLE FACTORS (central, low-high)
+  Overweight (BMI 25-30)   1.13 (1.05-1.20)  Global BMI Mortality Collaboration (GBMC), Lancet 2016, never-smokers:
+                                             25-27.5 HR 1.07, 27.5-30 HR 1.20.
+  Obese (BMI 30+)          1.80 (1.55-1.90)  GBMC class HRs (30-35 1.45, 35-40 1.94, 40+ 2.76) averaged over the
+                                             BMI mix of obese Americans aged 40-69 in NHANES Aug 2021-Aug 2023
+                                             (mean BMI 36.7; half 30-35, a quarter 35-40, a quarter 40+), with the
+                                             log-HR scaled x0.75 at ages 60-69. 1.91 at 40-59, 1.56 at 60-69.
+  Sedentary                1.60 (1.45-1.90)  vs regular exercisers. Arem et al. 2015 JAMA Intern Med (661k, self-
+                                             report): none vs 150-300 min/wk HR 0.69 (1.45x), vs 3-5x guidelines
+                                             0.61 (1.64x). Ekelund et al. 2019 BMJ (accelerometers): top vs bottom
+                                             quartile of moderate-to-vigorous activity HR 0.52 (1.9x).
+  Bad diet                 1.30 (1.20-1.50)  top vs bottom quartile of ultra-processed food share, adjusted
+                                             cohorts (NHANES III 1.31, Moli-sani 1.32, SUN 1.62).
+  Current smoker           2.50 (2.00-3.00)  vs never-smokers, ages 40+: Jha et al. 2013 NEJM (US, ~3x, ~10 years
+                                             lost); Carter et al. 2015 NEJM (2.8x); lower in older cohorts.
+
+COMBINATIONS  Products of the single factors (and of their lows / highs for the range). Multiplying assumes the
+  factors act independently: Khaw et al. 2008 (EPIC-Norfolk) found no interaction between its behaviour score and
+  BMI, and its BMI-adjusted &quot;inactive + poor diet, non-smoker&quot; group (RR 1.95-2.52) matches the product here. But
+  stacked cells probably run 10-30% high: Moore et al. 2012 PLoS Med measured inactive BMI 35+ vs active normal
+  weight directly at ~7 years of life lost at 40 (about 2x), below the 2.9x product for obese + sedentary.
+
+YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US adult death rates double about
+  every 8 years (slope ~0.085/yr), so a constant multiplier m shifts life expectancy by ln(m)/0.085. Checks:
+  smoking 2.5x -&gt; 10.8 years (Jha 2013: ~10).
+&quot;&quot;&quot;
+import csv
+import math
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+from matplotlib.transforms import blended_transform_factory as blend
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUBDIR = &quot;Life expectancy&quot;
+HERE = Path(__file__).resolve().parent
+GOMPERTZ = 0.085
+
+F = {  # factor: (central, low, high)
+    &quot;overweight&quot;: (1.13, 1.05, 1.20),
+    &quot;obese&quot;: (1.80, 1.55, 1.90),
+    &quot;sedentary&quot;: (1.60, 1.45, 1.90),
+    &quot;diet&quot;: (1.30, 1.20, 1.50),
+    &quot;smoker&quot;: (2.50, 2.00, 3.00),
+}
+ROWS = [  # label, factors, group
+    (&quot;Overweight&quot;, [&quot;overweight&quot;], &quot;One factor&quot;),
+    (&quot;Bad diet&quot;, [&quot;diet&quot;], &quot;One factor&quot;),
+    (&quot;Sedentary&quot;, [&quot;sedentary&quot;], &quot;One factor&quot;),
+    (&quot;Obese&quot;, [&quot;obese&quot;], &quot;One factor&quot;),
+    (&quot;Smoker&quot;, [&quot;smoker&quot;], &quot;One factor&quot;),
+    (&quot;Overweight + sedentary + bad diet&quot;, [&quot;overweight&quot;, &quot;sedentary&quot;, &quot;diet&quot;], &quot;Combined&quot;),
+    (&quot;Obese + sedentary&quot;, [&quot;obese&quot;, &quot;sedentary&quot;], &quot;Combined&quot;),
+    (&quot;Obese + sedentary + bad diet&quot;, [&quot;obese&quot;, &quot;sedentary&quot;, &quot;diet&quot;], &quot;Combined&quot;),
+    (&quot;Smoker + sedentary + bad diet&quot;, [&quot;smoker&quot;, &quot;sedentary&quot;, &quot;diet&quot;], &quot;Combined&quot;),
+]
+HEADLINE = &quot;Obese + sedentary + bad diet&quot;
+
+
+def compute():
+    out = []
+    for label, fs, grp in ROWS:
+        c, lo, hi = (math.prod(F[f][i] for f in fs) for i in range(3))
+        out.append(dict(group=grp, profile=label, multiplier=round(c, 2), low=round(lo, 2), high=round(hi, 2),
+                        years_lost_at_40=round(math.log(c) / GOMPERTZ, 1)))
+    return out
+
+
+def chart(res):
+    pal = pb.apply()
+    INK, INK2, MUTED, GRID = pal[&quot;INK&quot;], pal[&quot;INK2&quot;], pal[&quot;MUTED&quot;], pal[&quot;GRID&quot;]
+    fig = plt.figure(figsize=(11, 7.4))
+    ax = fig.add_axes([0.335, 0.15, 0.53, 0.64])
+    ys, y = [], 0.0
+    for i, r in enumerate(res):  # top to bottom, with a gap between groups
+        if i and r[&quot;group&quot;] != res[i - 1][&quot;group&quot;]:
+            y -= 0.7
+        ys.append(y)
+        y -= 1
+    ax.set_xscale(&quot;log&quot;, base=2)
+    ax.set_xlim(1, 11)
+    ax.set_ylim(y + 0.4, 1.6)
+    tr = blend(fig.transFigure, ax.transData)
+    for r, yy in zip(res, ys):
+        hot = r[&quot;profile&quot;] == HEADLINE
+        wt = &quot;bold&quot; if hot else &quot;normal&quot;
+        ax.barh(yy, r[&quot;multiplier&quot;] - 1, left=1, height=0.62, color=pal[&quot;RED&quot;] if hot else pal[&quot;MUTE&quot;], linewidth=0)
+        ax.plot([r[&quot;low&quot;], r[&quot;high&quot;]], [yy, yy], color=INK, lw=1.2)
+        for xx in (r[&quot;low&quot;], r[&quot;high&quot;]):
+            ax.plot([xx, xx], [yy - 0.09, yy + 0.09], color=INK, lw=1.2)
+        ax.text(max(r[&quot;high&quot;], r[&quot;multiplier&quot;]) * 1.05, yy, f&quot;{r['multiplier']:.1f}\u00d7&quot;, va=&quot;center&quot;,
+                ha=&quot;left&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=INK)
+        fig.text(0.32, yy, r[&quot;profile&quot;], transform=tr, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5, fontweight=wt,
+                 color=INK)
+        fig.text(0.955, yy, f&quot;{r['years_lost_at_40']:.0f}&quot;, transform=tr, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5,
+                 fontweight=wt, color=INK)
+    for grp in (&quot;One factor&quot;, &quot;Combined&quot;):
+        yy = max(yy for r, yy in zip(res, ys) if r[&quot;group&quot;] == grp)
+        fig.text(0.03, yy + 0.62, grp.upper(), transform=tr, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=9,
+                 fontweight=&quot;bold&quot;, color=MUTED)
+    fig.text(0.955, ys[0] + 0.62, &quot;YEARS LOST\nAT 40&quot;, transform=tr, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5,
+             fontweight=&quot;bold&quot;, color=MUTED, linespacing=1.1)
+    ax.set_yticks([])
+    ticks = [1, 1.5, 2, 3, 4, 6, 8]
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([f&quot;{t:g}\u00d7&quot; for t in ticks], fontsize=10)
+    ax.xaxis.set_minor_locator(plt.NullLocator())
+    ax.grid(axis=&quot;x&quot;, color=GRID, lw=0.8)
+    ax.grid(axis=&quot;y&quot;, visible=False)
+
+    fig.text(0.03, 0.935, &quot;Obese, sedentary and eating badly at 40+: about 4× the death rate&quot;,
+             fontsize=18, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.03, 0.89, &quot;All-cause death rate compared with a healthy-weight, active, good-diet never-smoker of the &quot;
+             &quot;same age (40–69). Bars are central estimates,\nwhiskers the range; combinations multiply the single &quot;
+             &quot;factors, which probably runs 10–30% high for three-way stacks.&quot;, fontsize=11, color=INK2,
+             va=&quot;top&quot;)
+    fig.text(0.03, 0.035,
+             &quot;Sources: Global BMI Mortality Collaboration 2016 (BMI) applied to NHANES 2021–23 obese adults &quot;
+             &quot;40–69; Arem 2015, Ekelund 2019 (activity); ultra-processed-food cohorts (diet); Jha 2013,\nCarter &quot;
+             &quot;2015 (smoking); Khaw 2008, Moore 2012 (combinations). Years lost = ln(multiplier) ÷ 0.085.&quot;, fontsize=7.8, color=MUTED,
+             linespacing=1.55)
+    out = NOTES / &quot;Unwatermarked graphs&quot; / SUBDIR / &quot;risk_multipliers_40plus.png&quot;
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200, facecolor=pal[&quot;SURFACE&quot;])
+    plt.close(fig)
+    return out
+
+
+def main():
+    res = compute()
+    with open(HERE / &quot;risk_multipliers.csv&quot;, &quot;w&quot;, newline=&quot;&quot;) as f:
+        w = csv.DictWriter(f, fieldnames=list(res[0]))
+        w.writeheader()
+        w.writerows(res)
+    for r in res:
+        print(r)
+    out = chart(res)
+    wm = NOTES / SUBDIR / (out.stem + &quot;_wm.png&quot;)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(out), str(wm)],
+                   check=True)
+    print(out, wm, sep=&quot;\n&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
