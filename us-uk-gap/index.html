@@ -164,6 +164,93 @@ YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US a
 <li><strong>Not additive in a strict sense</strong>, but the four target different causes and mostly different ages, so overlap
   is small.</li>
 </ul>
+<h2 id="risk-multipliers">Risk multipliers by lifestyle, ages 40+</h2>
+
+<p>Chart 3. All-cause death-rate multipliers relative to a healthy-weight (BMI 22.5–25), physically active, good-diet
+never-smoker of the same age. Full inputs and sources are in the docstring of <code>risk_multipliers_chart.py</code> (Method
+section above).</p>
+<table>
+<thead>
+<tr>
+<th>Profile (vs healthy-weight, active, good-diet never-smoker, ages 40–69)</th>
+<th>Multiplier</th>
+<th>Range</th>
+<th>Years lost at 40</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Overweight</td>
+<td>1.13×</td>
+<td>1.05–1.20×</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Bad diet</td>
+<td>1.30×</td>
+<td>1.20–1.50×</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Sedentary</td>
+<td>1.60×</td>
+<td>1.45–1.90×</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Obese</td>
+<td>1.80×</td>
+<td>1.55–1.90×</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Smoker</td>
+<td>2.50×</td>
+<td>2.00–3.00×</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Overweight + sedentary + bad diet</td>
+<td>2.35×</td>
+<td>1.83–3.42×</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Obese + sedentary</td>
+<td>2.88×</td>
+<td>2.25–3.61×</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Obese + sedentary + bad diet</td>
+<td>3.74×</td>
+<td>2.70–5.42×</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Smoker + sedentary + bad diet</td>
+<td>5.20×</td>
+<td>3.48–8.55×</td>
+<td>19</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Single factors</strong> come from large pooled cohorts: BMI from the Global BMI Mortality Collaboration (Lancet 2016,
+  never-smokers), weighted to the BMI mix of obese Americans aged 40–69 in NHANES 2021–23 (mean BMI 36.7); activity
+  from Arem 2015 (self-report) and Ekelund 2019 (accelerometers); diet from ultra-processed-food cohorts (top vs
+  bottom quartile); smoking from Jha 2013 and Carter 2015.</li>
+<li><strong>Combinations multiply the single factors.</strong> Khaw 2008 (EPIC-Norfolk) found no interaction between behaviours
+  and BMI, and its BMI-adjusted inactive, poor-diet non-smokers (RR 1.95–2.52) match the product here. But Moore
+  2012 measured inactive BMI 35+ vs active normal-weight people directly at ~7 years of life lost at 40 (about 2×),
+  below the 2.9× product, so three-way stacks probably run 10–30% high.</li>
+<li><strong>Years lost at 40</strong> = ln(multiplier) ÷ 0.085 (US adult death rates double about every 8 years). Smoking's 2.5×
+  gives 10.8 years, close to Jha 2013's ~10.</li>
+<li><strong>Age.</strong> The weight term is largest at 40–59 (1.9× for obesity) and fades to ~1.6× in the 60s and ~1.3× past 70.
+  Behaviour terms fade less.</li>
+<li><strong>Not causal proof.</strong> These are observational hazard ratios; reverse causation (sick people move less and lose
+  weight) inflates the activity terms and deflates the weight terms.</li>
+</ul>
 <h2>Code</h2>
 <p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
 <h3><code>us_uk_gap_charts.py</code></h3>

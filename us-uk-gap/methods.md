@@ -153,6 +153,39 @@ YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US a
 - **Not additive in a strict sense**, but the four target different causes and mostly different ages, so overlap
   is small.
 
+<h2 id="risk-multipliers">Risk multipliers by lifestyle, ages 40+</h2>
+
+Chart 3. All-cause death-rate multipliers relative to a healthy-weight (BMI 22.5–25), physically active, good-diet
+never-smoker of the same age. Full inputs and sources are in the docstring of `risk_multipliers_chart.py` (Method
+section above).
+
+| Profile (vs healthy-weight, active, good-diet never-smoker, ages 40–69) | Multiplier | Range | Years lost at 40 |
+|---|---|---|---|
+| Overweight | 1.13× | 1.05–1.20× | 1 |
+| Bad diet | 1.30× | 1.20–1.50× | 3 |
+| Sedentary | 1.60× | 1.45–1.90× | 6 |
+| Obese | 1.80× | 1.55–1.90× | 7 |
+| Smoker | 2.50× | 2.00–3.00× | 11 |
+| Overweight + sedentary + bad diet | 2.35× | 1.83–3.42× | 10 |
+| Obese + sedentary | 2.88× | 2.25–3.61× | 12 |
+| Obese + sedentary + bad diet | 3.74× | 2.70–5.42× | 16 |
+| Smoker + sedentary + bad diet | 5.20× | 3.48–8.55× | 19 |
+
+- **Single factors** come from large pooled cohorts: BMI from the Global BMI Mortality Collaboration (Lancet 2016,
+  never-smokers), weighted to the BMI mix of obese Americans aged 40–69 in NHANES 2021–23 (mean BMI 36.7); activity
+  from Arem 2015 (self-report) and Ekelund 2019 (accelerometers); diet from ultra-processed-food cohorts (top vs
+  bottom quartile); smoking from Jha 2013 and Carter 2015.
+- **Combinations multiply the single factors.** Khaw 2008 (EPIC-Norfolk) found no interaction between behaviours
+  and BMI, and its BMI-adjusted inactive, poor-diet non-smokers (RR 1.95–2.52) match the product here. But Moore
+  2012 measured inactive BMI 35+ vs active normal-weight people directly at ~7 years of life lost at 40 (about 2×),
+  below the 2.9× product, so three-way stacks probably run 10–30% high.
+- **Years lost at 40** = ln(multiplier) ÷ 0.085 (US adult death rates double about every 8 years). Smoking's 2.5×
+  gives 10.8 years, close to Jha 2013's ~10.
+- **Age.** The weight term is largest at 40–59 (1.9× for obesity) and fades to ~1.6× in the 60s and ~1.3× past 70.
+  Behaviour terms fade less.
+- **Not causal proof.** These are observational hazard ratios; reverse causation (sick people move less and lose
+  weight) inflates the activity terms and deflates the weight terms.
+
 ## Code
 
 Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.
