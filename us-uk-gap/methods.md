@@ -6,8 +6,6 @@
 
 ![chart 2](chart2.png)
 
-![chart 3](chart3.png)
-
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/us-uk-gap/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -80,43 +78,6 @@ CHART 2  Fermi estimates of the US life-expectancy gain from one big interventio
   (different causes, different ages).
 ```
 
-### `risk_multipliers_chart.py`
-
-```text
-All-cause death-rate multipliers for weight, activity, diet and smoking, Americans aged 40+.
-
-Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/life_expectancy/risk_multipliers_chart.py
-
-REFERENCE  A healthy-weight (BMI 22.5-25), physically active, good-diet never-smoker of the same age (40-69,
-           where these risks are measured best; by 70+ the weight term shrinks, see below).
-
-SINGLE FACTORS (central, low-high)
-  Overweight (BMI 25-30)   1.13 (1.05-1.20)  Global BMI Mortality Collaboration (GBMC), Lancet 2016, never-smokers:
-                                             25-27.5 HR 1.07, 27.5-30 HR 1.20.
-  Obese (BMI 30+)          1.80 (1.55-1.90)  GBMC class HRs (30-35 1.45, 35-40 1.94, 40+ 2.76) averaged over the
-                                             BMI mix of obese Americans aged 40-69 in NHANES Aug 2021-Aug 2023
-                                             (mean BMI 36.7; half 30-35, a quarter 35-40, a quarter 40+), with the
-                                             log-HR scaled x0.75 at ages 60-69. 1.91 at 40-59, 1.56 at 60-69.
-  Sedentary                1.60 (1.45-1.90)  vs regular exercisers. Arem et al. 2015 JAMA Intern Med (661k, self-
-                                             report): none vs 150-300 min/wk HR 0.69 (1.45x), vs 3-5x guidelines
-                                             0.61 (1.64x). Ekelund et al. 2019 BMJ (accelerometers): top vs bottom
-                                             quartile of moderate-to-vigorous activity HR 0.52 (1.9x).
-  Bad diet                 1.30 (1.20-1.50)  top vs bottom quartile of ultra-processed food share, adjusted
-                                             cohorts (NHANES III 1.31, Moli-sani 1.32, SUN 1.62).
-  Current smoker           2.50 (2.00-3.00)  vs never-smokers, ages 40+: Jha et al. 2013 NEJM (US, ~3x, ~10 years
-                                             lost); Carter et al. 2015 NEJM (2.8x); lower in older cohorts.
-
-COMBINATIONS  Products of the single factors (and of their lows / highs for the range). Multiplying assumes the
-  factors act independently: Khaw et al. 2008 (EPIC-Norfolk) found no interaction between its behaviour score and
-  BMI, and its BMI-adjusted "inactive + poor diet, non-smoker" group (RR 1.95-2.52) matches the product here. But
-  stacked cells probably run 10-30% high: Moore et al. 2012 PLoS Med measured inactive BMI 35+ vs active normal
-  weight directly at ~7 years of life lost at 40 (about 2x), below the 2.9x product for obese + sedentary.
-
-YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US adult death rates double about
-  every 8 years (slope ~0.085/yr), so a constant multiplier m shifts life expectancy by ln(m)/0.085. Checks:
-  smoking 2.5x -> 10.8 years (Jha 2013: ~10).
-```
-
 ## Notes and caveats
 
 # Caveats: US vs UK life-expectancy gap charts
@@ -152,39 +113,6 @@ YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US a
   is most youth gun deaths, is excluded because the gun is rarely from the victim's home.
 - **Not additive in a strict sense**, but the four target different causes and mostly different ages, so overlap
   is small.
-
-<h2 id="risk-multipliers">Risk multipliers by lifestyle, ages 40+</h2>
-
-Chart 3. All-cause death-rate multipliers relative to a healthy-weight (BMI 22.5–25), physically active, good-diet
-never-smoker of the same age. Full inputs and sources are in the docstring of `risk_multipliers_chart.py` (Method
-section above).
-
-| Profile (vs healthy-weight, active, good-diet never-smoker, ages 40–69) | Multiplier | Range | Years lost at 40 |
-|---|---|---|---|
-| Overweight | 1.13× | 1.05–1.20× | 1 |
-| Bad diet | 1.30× | 1.20–1.50× | 3 |
-| Sedentary | 1.60× | 1.45–1.90× | 6 |
-| Obese | 1.80× | 1.55–1.90× | 7 |
-| Smoker | 2.50× | 2.00–3.00× | 11 |
-| Overweight + sedentary + bad diet | 2.35× | 1.83–3.42× | 10 |
-| Obese + sedentary | 2.88× | 2.25–3.61× | 12 |
-| Obese + sedentary + bad diet | 3.74× | 2.70–5.42× | 16 |
-| Smoker + sedentary + bad diet | 5.20× | 3.48–8.55× | 19 |
-
-- **Single factors** come from large pooled cohorts: BMI from the Global BMI Mortality Collaboration (Lancet 2016,
-  never-smokers), weighted to the BMI mix of obese Americans aged 40–69 in NHANES 2021–23 (mean BMI 36.7); activity
-  from Arem 2015 (self-report) and Ekelund 2019 (accelerometers); diet from ultra-processed-food cohorts (top vs
-  bottom quartile); smoking from Jha 2013 and Carter 2015.
-- **Combinations multiply the single factors.** Khaw 2008 (EPIC-Norfolk) found no interaction between behaviours
-  and BMI, and its BMI-adjusted inactive, poor-diet non-smokers (RR 1.95–2.52) match the product here. But Moore
-  2012 measured inactive BMI 35+ vs active normal-weight people directly at ~7 years of life lost at 40 (about 2×),
-  below the 2.9× product, so three-way stacks probably run 10–30% high.
-- **Years lost at 40** = ln(multiplier) ÷ 0.085 (US adult death rates double about every 8 years). Smoking's 2.5×
-  gives 10.8 years, close to Jha 2013's ~10.
-- **Age.** The weight term is largest at 40–59 (1.9× for obesity) and fades to ~1.6× in the 60s and ~1.3× past 70.
-  Behaviour terms fade less.
-- **Not causal proof.** These are observational hazard ratios; reverse causation (sick people move less and lose
-  weight) inflates the activity terms and deflates the weight terms.
 
 ## Code
 
@@ -500,169 +428,6 @@ def main():
         print(k, [round(x, 4) for x in v] if isinstance(v, list) else round(v, 3))
     for out in (chart_drivers(), chart_interventions(est)):
         watermark(out)
-
-
-if __name__ == "__main__":
-    main()
-```
-
-### `risk_multipliers_chart.py`
-
-```python
-"""All-cause death-rate multipliers for weight, activity, diet and smoking, Americans aged 40+.
-
-Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/life_expectancy/risk_multipliers_chart.py
-
-REFERENCE  A healthy-weight (BMI 22.5-25), physically active, good-diet never-smoker of the same age (40-69,
-           where these risks are measured best; by 70+ the weight term shrinks, see below).
-
-SINGLE FACTORS (central, low-high)
-  Overweight (BMI 25-30)   1.13 (1.05-1.20)  Global BMI Mortality Collaboration (GBMC), Lancet 2016, never-smokers:
-                                             25-27.5 HR 1.07, 27.5-30 HR 1.20.
-  Obese (BMI 30+)          1.80 (1.55-1.90)  GBMC class HRs (30-35 1.45, 35-40 1.94, 40+ 2.76) averaged over the
-                                             BMI mix of obese Americans aged 40-69 in NHANES Aug 2021-Aug 2023
-                                             (mean BMI 36.7; half 30-35, a quarter 35-40, a quarter 40+), with the
-                                             log-HR scaled x0.75 at ages 60-69. 1.91 at 40-59, 1.56 at 60-69.
-  Sedentary                1.60 (1.45-1.90)  vs regular exercisers. Arem et al. 2015 JAMA Intern Med (661k, self-
-                                             report): none vs 150-300 min/wk HR 0.69 (1.45x), vs 3-5x guidelines
-                                             0.61 (1.64x). Ekelund et al. 2019 BMJ (accelerometers): top vs bottom
-                                             quartile of moderate-to-vigorous activity HR 0.52 (1.9x).
-  Bad diet                 1.30 (1.20-1.50)  top vs bottom quartile of ultra-processed food share, adjusted
-                                             cohorts (NHANES III 1.31, Moli-sani 1.32, SUN 1.62).
-  Current smoker           2.50 (2.00-3.00)  vs never-smokers, ages 40+: Jha et al. 2013 NEJM (US, ~3x, ~10 years
-                                             lost); Carter et al. 2015 NEJM (2.8x); lower in older cohorts.
-
-COMBINATIONS  Products of the single factors (and of their lows / highs for the range). Multiplying assumes the
-  factors act independently: Khaw et al. 2008 (EPIC-Norfolk) found no interaction between its behaviour score and
-  BMI, and its BMI-adjusted "inactive + poor diet, non-smoker" group (RR 1.95-2.52) matches the product here. But
-  stacked cells probably run 10-30% high: Moore et al. 2012 PLoS Med measured inactive BMI 35+ vs active normal
-  weight directly at ~7 years of life lost at 40 (about 2x), below the 2.9x product for obese + sedentary.
-
-YEARS OF LIFE LOST AT 40  ln(multiplier) / 0.085, a Gompertz approximation: US adult death rates double about
-  every 8 years (slope ~0.085/yr), so a constant multiplier m shifts life expectancy by ln(m)/0.085. Checks:
-  smoking 2.5x -> 10.8 years (Jha 2013: ~10).
-"""
-import csv
-import math
-import subprocess
-import sys
-from pathlib import Path
-
-import matplotlib.pyplot as plt
-from matplotlib.transforms import blended_transform_factory as blend
-
-sys.path.insert(0, str(Path.home() / "_watermark"))
-import pb_style as pb  # noqa: E402
-
-NOTES = Path.home() / "Desktop" / "Recent Projects" / "Substack Notes"
-SUBDIR = "Life expectancy"
-HERE = Path(__file__).resolve().parent
-GOMPERTZ = 0.085
-
-F = {  # factor: (central, low, high)
-    "overweight": (1.13, 1.05, 1.20),
-    "obese": (1.80, 1.55, 1.90),
-    "sedentary": (1.60, 1.45, 1.90),
-    "diet": (1.30, 1.20, 1.50),
-    "smoker": (2.50, 2.00, 3.00),
-}
-ROWS = [  # label, factors, group
-    ("Overweight", ["overweight"], "One factor"),
-    ("Bad diet", ["diet"], "One factor"),
-    ("Sedentary", ["sedentary"], "One factor"),
-    ("Obese", ["obese"], "One factor"),
-    ("Smoker", ["smoker"], "One factor"),
-    ("Overweight + sedentary + bad diet", ["overweight", "sedentary", "diet"], "Combined"),
-    ("Obese + sedentary", ["obese", "sedentary"], "Combined"),
-    ("Obese + sedentary + bad diet", ["obese", "sedentary", "diet"], "Combined"),
-    ("Smoker + sedentary + bad diet", ["smoker", "sedentary", "diet"], "Combined"),
-]
-HEADLINE = "Obese + sedentary + bad diet"
-
-
-def compute():
-    out = []
-    for label, fs, grp in ROWS:
-        c, lo, hi = (math.prod(F[f][i] for f in fs) for i in range(3))
-        out.append(dict(group=grp, profile=label, multiplier=round(c, 2), low=round(lo, 2), high=round(hi, 2),
-                        years_lost_at_40=round(math.log(c) / GOMPERTZ, 1)))
-    return out
-
-
-def chart(res):
-    pal = pb.apply()
-    INK, INK2, MUTED, GRID = pal["INK"], pal["INK2"], pal["MUTED"], pal["GRID"]
-    fig = plt.figure(figsize=(11, 7.4))
-    ax = fig.add_axes([0.335, 0.15, 0.53, 0.64])
-    ys, y = [], 0.0
-    for i, r in enumerate(res):  # top to bottom, with a gap between groups
-        if i and r["group"] != res[i - 1]["group"]:
-            y -= 0.7
-        ys.append(y)
-        y -= 1
-    ax.set_xscale("log", base=2)
-    ax.set_xlim(1, 11)
-    ax.set_ylim(y + 0.4, 1.6)
-    tr = blend(fig.transFigure, ax.transData)
-    for r, yy in zip(res, ys):
-        hot = r["profile"] == HEADLINE
-        wt = "bold" if hot else "normal"
-        ax.barh(yy, r["multiplier"] - 1, left=1, height=0.62, color=pal["RED"] if hot else pal["MUTE"], linewidth=0)
-        ax.plot([r["low"], r["high"]], [yy, yy], color=INK, lw=1.2)
-        for xx in (r["low"], r["high"]):
-            ax.plot([xx, xx], [yy - 0.09, yy + 0.09], color=INK, lw=1.2)
-        ax.text(max(r["high"], r["multiplier"]) * 1.05, yy, f"{r['multiplier']:.1f}\u00d7", va="center",
-                ha="left", fontsize=12, fontweight="bold", color=INK)
-        fig.text(0.32, yy, r["profile"], transform=tr, va="center", ha="right", fontsize=11.5, fontweight=wt,
-                 color=INK)
-        fig.text(0.955, yy, f"{r['years_lost_at_40']:.0f}", transform=tr, va="center", ha="right", fontsize=11.5,
-                 fontweight=wt, color=INK)
-    for grp in ("One factor", "Combined"):
-        yy = max(yy for r, yy in zip(res, ys) if r["group"] == grp)
-        fig.text(0.03, yy + 0.62, grp.upper(), transform=tr, va="center", ha="left", fontsize=9,
-                 fontweight="bold", color=MUTED)
-    fig.text(0.955, ys[0] + 0.62, "YEARS LOST\nAT 40", transform=tr, va="center", ha="right", fontsize=8.5,
-             fontweight="bold", color=MUTED, linespacing=1.1)
-    ax.set_yticks([])
-    ticks = [1, 1.5, 2, 3, 4, 6, 8]
-    ax.set_xticks(ticks)
-    ax.set_xticklabels([f"{t:g}\u00d7" for t in ticks], fontsize=10)
-    ax.xaxis.set_minor_locator(plt.NullLocator())
-    ax.grid(axis="x", color=GRID, lw=0.8)
-    ax.grid(axis="y", visible=False)
-
-    fig.text(0.03, 0.935, "Obese, sedentary and eating badly at 40+: about 4× the death rate",
-             fontsize=18, fontweight="bold", color=INK)
-    fig.text(0.03, 0.89, "All-cause death rate compared with a healthy-weight, active, good-diet never-smoker of the "
-             "same age (40–69). Bars are central estimates,\nwhiskers the range; combinations multiply the single "
-             "factors, which probably runs 10–30% high for three-way stacks.", fontsize=11, color=INK2,
-             va="top")
-    fig.text(0.03, 0.035,
-             "Sources: Global BMI Mortality Collaboration 2016 (BMI) applied to NHANES 2021–23 obese adults "
-             "40–69; Arem 2015, Ekelund 2019 (activity); ultra-processed-food cohorts (diet); Jha 2013,\nCarter "
-             "2015 (smoking); Khaw 2008, Moore 2012 (combinations). Years lost = ln(multiplier) ÷ 0.085. "
-             "Method: pbmethods.github.io/us-uk-gap/#risk-multipliers", fontsize=7.8, color=MUTED,
-             linespacing=1.55)
-    out = NOTES / "Unwatermarked graphs" / SUBDIR / "risk_multipliers_40plus.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, dpi=200, facecolor=pal["SURFACE"])
-    plt.close(fig)
-    return out
-
-
-def main():
-    res = compute()
-    with open(HERE / "risk_multipliers.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(res[0]))
-        w.writeheader()
-        w.writerows(res)
-    for r in res:
-        print(r)
-    out = chart(res)
-    wm = NOTES / SUBDIR / (out.stem + "_wm.png")
-    subprocess.run([sys.executable, str(Path.home() / "_watermark" / "watermark.py"), "7", str(out), str(wm)],
-                   check=True)
-    print(out, wm, sep="\n")
 
 
 if __name__ == "__main__":

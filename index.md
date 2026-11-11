@@ -2,8 +2,8 @@
 
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
-- [The US–UK life expectancy gap: what drives it, and what four big interventions could buy back](us-uk-gap/) (2026-11-11)
 - [Obese, sedentary, bad diet, smoking: all-cause death-rate multipliers at ages 40+](lifestyle-risk/) (2026-11-11)
+- [The US–UK life expectancy gap: what drives it, and what four big interventions could buy back](us-uk-gap/) (2026-11-11)
 - [Phones added ~3 hours a day of screen time, then ate print](attention-ceiling/) (2026-11-09)
 - [Ideal vs. actual birth control: perfect-use vs. typical-use failure rates](birth-control/) (2026-11-09)
 - [California billionaires' political giving vs. voters](ca-billionaires/) (2026-11-09)
