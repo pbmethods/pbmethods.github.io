@@ -45,7 +45,10 @@ Data: hiya_2025q2.csv, built by hiya_parse.py from Hiya's Global Call Threat Rep
 Chart 1, spam calls per person per month by country, sorted. The United States is highlighted. "English-speaking
   peers" are Canada, the UK, Australia, New Zealand and Ireland; their simple (unweighted) mean is 3.6 calls a month,
   against 22 in the US, about 6x. The right-hand column is Hiya's flag rate on calls from numbers not in the
-  recipient's contacts.
+  recipient's contacts. The headline "4x" compares the US with the peers' population-weighted mean (2025 populations,
+  millions, rounded: Canada 41.5, UK 69.5, Australia 27.4, New Zealand 5.3, Ireland 5.4), which comes to about 5.0
+  calls a month, so 22 / 5.0 = 4.4x. The plain unweighted mean is 3.6 (6.1x); the weighted one is used because
+  it is the conservative figure and describes the average English-speaking person rather than the average country.
 
 Chart 2, share of your incoming calls that are spam, as a function of how many wanted calls you get:
     share = S / (S + L),  S = 22 (the US average spam calls a month),  L = wanted calls a month (0-60).
@@ -128,8 +131,9 @@ _Every 1th row of 44 shown; full file: [hiya_2025q2.csv](hiya_2025q2.csv)._
   in both 2025 Hiya editions checked (Q1: US 17 a month against 1-6 for the peers; Q2: 22 against 1-6).
 - **One quarter.** Q2 2025 only. The US rose from 17 a month in Q1 2025 to 22 in Q2; Hiya attributes part of the
   rise to better detection.
-- **The peer average is unweighted.** The 3.6 is the plain mean of five countries. A population-weighted mean
-  (dominated by the UK and Canada) is about 5, which makes the US about 4x rather than 6x.
+- **"4x" uses the population-weighted peer average.** Weighted by population (dominated by the UK and Canada),
+  the five peers average about 5.0 calls a month, so the US gets 4.4x. The plain mean of the five countries is
+  3.6, which would make it 6x. The title uses the lower figure.
 - **Chart 2 is arithmetic, not data.** Nobody publishes how many wanted calls a typical American receives, so the
   x-axis is a range of assumptions. The 80-90% band is the author's own phone. Across all US call traffic,
   including business lines and heavy phone users, the spam share is far lower. Hiya estimated about 10% of all
@@ -219,7 +223,10 @@ Data: hiya_2025q2.csv, built by hiya_parse.py from Hiya's Global Call Threat Rep
 Chart 1, spam calls per person per month by country, sorted. The United States is highlighted. "English-speaking
   peers" are Canada, the UK, Australia, New Zealand and Ireland; their simple (unweighted) mean is 3.6 calls a month,
   against 22 in the US, about 6x. The right-hand column is Hiya's flag rate on calls from numbers not in the
-  recipient's contacts.
+  recipient's contacts. The headline "4x" compares the US with the peers' population-weighted mean (2025 populations,
+  millions, rounded: Canada 41.5, UK 69.5, Australia 27.4, New Zealand 5.3, Ireland 5.4), which comes to about 5.0
+  calls a month, so 22 / 5.0 = 4.4x. The plain unweighted mean is 3.6 (6.1x); the weighted one is used because
+  it is the conservative figure and describes the average English-speaking person rather than the average country.
 
 Chart 2, share of your incoming calls that are spam, as a function of how many wanted calls you get:
     share = S / (S + L),  S = 22 (the US average spam calls a month),  L = wanted calls a month (0-60).
@@ -251,7 +258,7 @@ import pb_style as pb  # noqa: E402
 pb.apply()
 INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
 US, PEER, REST = pb.RED, pb.NAVY, pb.MUTE
-PEERS = {"Canada", "United Kingdom", "Australia", "New Zealand", "Ireland"}
+PEERS = {"Canada": 41.5, "United Kingdom": 69.5, "Australia": 27.4, "New Zealand": 5.3, "Ireland": 5.4}  # pop, M
 SHORT = {"United Kingdom": "UK", "Czech Republic": "Czechia"}
 SRC = ("Source: Hiya Global Call Threat Report, Q2 2025 (44 countries). Calls flagged as spam or fraud on phones with "
        "Samsung Smart Call or the Hiya app;\ncalls blocked by carriers in the network are not counted.")
@@ -289,7 +296,7 @@ def by_country(rows):
     ax.text(33.6, len(rows) - 0.1, "% of calls from\nunknown numbers\nthat are spam", ha="right", va="bottom",
             fontsize=8.5, color=INK2, linespacing=1.1)
 
-    fig.text(0.03, 0.977, "Americans get 22 spam calls a month, 6x the rest of the English-speaking world",
+    fig.text(0.03, 0.977, "Americans get 22 spam calls a month, 4x the rest of the English-speaking world",
              fontsize=15, fontweight="bold", color=INK, ha="left", va="top")
     fig.text(0.03, 0.954, "Spam calls per person per month, Q2 2025. Latin America, Hong Kong and southern Europe are "
              "in the same league: the US is 5th of 44.", fontsize=10.5, color=INK2, ha="left", va="top")
@@ -339,9 +346,12 @@ def main():
     rows = load()
     us = next(r for r in rows if r[0] == "United States")
     rank = sorted(rows, key=lambda r: -r[1]).index(us) + 1
-    peer_mean = np.mean([r[1] for r in rows if r[0] in PEERS])
-    print(f"US: {us[1]}/month, {us[2]}% of unknown calls; rank {rank} of {len(rows)}; "
-          f"peer mean {peer_mean:.1f}/month ({us[1] / peer_mean:.1f}x)")
+    peers = [(r[1], PEERS[r[0]]) for r in rows if r[0] in PEERS]
+    weighted = sum(c * p for c, p in peers) / sum(p for _, p in peers)
+    plain = np.mean([c for c, _ in peers])
+    print(f"US: {us[1]}/month, {us[2]}% of unknown calls; rank {rank} of {len(rows)}; peer mean "
+          f"{weighted:.1f}/month population-weighted ({us[1] / weighted:.1f}x), {plain:.1f} unweighted "
+          f"({us[1] / plain:.1f}x)")
     wm_dir, raw_dir = NOTES / SUBDIR, NOTES / "Unwatermarked graphs" / SUBDIR
     raw_dir.mkdir(parents=True, exist_ok=True)
     for name, fig in (("spam_calls_by_country", by_country(rows)),
