@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>US spam calls vs the world, and what share of your calls are spam</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>US spam calls vs the world, and what share of your calls are spam</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-11.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/spam-calls/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>hiya_parse.py</code></h3>
+<pre><code class="language-text">Per-country spam-call figures from Hiya's Global Call Threat Report, Q2 2025.
+
+Source: Hiya, &quot;Global Call Threat Report: Insights into today's worldwide spam problem, Q2 2025&quot;
+  https://work.hiya.com/hubfs/2025/Global%20Call%20Threat%20Report_2025Q2.pdf
+  (cached to notebooks/us_public_data/hiya/ on first run). The report's second section has one page per country
+  (44 countries) with three numbers, which this script reads off the PDF text (poppler's pdftotext -layout):
+  - spam_calls_per_month: average calls per person per month that Hiya flagged as &quot;suspected spam&quot; or
+    &quot;potential fraud&quot;.
+  - spam_rate_pct: the share of calls from non-contacts (numbers not in the recipient's address book) that were
+    flagged. Calls from contacts are not in the denominator.
+  - fraud_pct: the fraud part of that share. Blank where the page shows no separate fraud slice (Hiya uses a single
+    &quot;spam&quot; label in some countries).
+How Hiya measures (its methodology page): a representative sample of calls in the quarter on the Hiya Voice Security
+  Network, meaning phones with Samsung Smart Call enabled and the Hiya app. Only calls that reach the handset are
+  seen, so calls the carrier blocks in the network are not counted.
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/spam_calls/hiya_parse.py
+Writes notebooks/spam_calls/hiya_2025q2.csv: country, spam_calls_per_month, spam_rate_pct, fraud_pct.
+</code></pre>
+<h3><code>spam_calls_charts.py</code></h3>
+<pre><code class="language-text">Spam calls: the US vs 43 other countries, and what share of *your* calls that works out to.
+
+Data: hiya_2025q2.csv, built by hiya_parse.py from Hiya's Global Call Threat Report, Q2 2025 (April-June 2025),
+  44 countries. Per country: spam calls per person per month (calls Hiya flagged as &quot;suspected spam&quot; or &quot;potential
+  fraud&quot; on phones running Samsung Smart Call or the Hiya app), and the share of calls from non-contacts that were
+  flagged. Calls the carrier blocks in the network never reach the phone and are not counted.
+
+Chart 1, spam calls per person per month by country, sorted. The United States is highlighted. &quot;English-speaking
+  peers&quot; are Canada, the UK, Australia, New Zealand and Ireland; their simple (unweighted) mean is 3.6 calls a month,
+  against 22 in the US, about 6x. The right-hand column is Hiya's flag rate on calls from numbers not in the
+  recipient's contacts.
+
+Chart 2, share of your incoming calls that are spam, as a function of how many wanted calls you get:
+    share = S / (S + L),  S = 22 (the US average spam calls a month),  L = wanted calls a month (0-60).
+  So 2.4 wanted calls a month gives 90% spam, 5.5 gives 80%, 22 gives 50%. L is illustrative: no source measures how
+  many wanted calls a typical American gets. The shaded 80-90% band is the author's own count from their phone, not
+  survey data. S is a floor for the same reason as above (network-blocked calls are not counted, and some spam
+  goes unflagged); a bigger S moves the curve up.
+
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/spam_calls/spam_calls_charts.py
+Writes the _wm copies to ~/Desktop/Recent Projects/Substack Notes/IT security/ and the originals to its
+Unwatermarked graphs/IT security/:
+  spam_calls_by_country.png
+  spam_share_of_your_calls.png
+</code></pre>
+<h2>Results</h2>
+<h3><code>hiya_2025q2.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>country</th>
+<th>spam_calls_per_month</th>
+<th>spam_rate_pct</th>
+<th>fraud_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Brazil</td>
+<td>29</td>
+<td>46</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Mexico</td>
+<td>26</td>
+<td>55</td>
+<td>24</td>
+</tr>
+<tr>
+<td>Chile</td>
+<td>23</td>
+<td>68</td>
+<td>30</td>
+</tr>
+<tr>
+<td>Hong Kong</td>
+<td>23</td>
+<td>70</td>
+<td>29</td>
+</tr>
+<tr>
+<td>United States</td>
+<td>22</td>
+<td>41</td>
+<td>1</td>
+</tr>
+<tr>
+<td>France</td>
+<td>18</td>
+<td>62</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Indonesia</td>
+<td>16</td>
+<td>87</td>
+<td>47</td>
+</tr>
+<tr>
+<td>Italy</td>
+<td>15</td>
+<td>55</td>
+<td></td>
+</tr>
+<tr>
+<td>Spain</td>
+<td>13</td>
+<td>51</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Philippines</td>
+<td>12</td>
+<td>56</td>
+<td>19</td>
+</tr>
+<tr>
+<td>South Africa</td>
+<td>11</td>
+<td>37</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Portugal</td>
+<td>10</td>
+<td>46</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Argentina</td>
+<td>8</td>
+<td>67</td>
+<td>39</td>
+</tr>
+<tr>
+<td>Peru</td>
+<td>8</td>
+<td>24</td>
+<td>3</td>
+</tr>
+<tr>
+<td>India</td>
+<td>8</td>
+<td>11</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Poland</td>
+<td>7</td>
+<td>35</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Canada</td>
+<td>6</td>
+<td>27</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Australia</td>
+<td>5</td>
+<td>33</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Thailand</td>
+<td>5</td>
+<td>21</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Turkey</td>
+<td>5</td>
+<td>19</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Finland</td>
+<td>5</td>
+<td>33</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Israel</td>
+<td>5</td>
+<td>13</td>
+<td>3</td>
+</tr>
+<tr>
+<td>United Kingdom</td>
+<td>5</td>
+<td>39</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Puerto Rico</td>
+<td>4</td>
+<td>18</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Malaysia</td>
+<td>4</td>
+<td>31</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Belgium</td>
+<td>4</td>
+<td>32</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Greece</td>
+<td>4</td>
+<td>19</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Sweden</td>
+<td>4</td>
+<td>26</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Singapore</td>
+<td>3</td>
+<td>31</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Czech Republic</td>
+<td>3</td>
+<td>19</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Denmark</td>
+<td>3</td>
+<td>21</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Germany</td>
+<td>3</td>
+<td>30</td>
+<td></td>
+</tr>
+<tr>
+<td>Slovakia</td>
+<td>3</td>
+<td>18</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Hungary</td>
+<td>2</td>
+<td>14</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Netherlands</td>
+<td>2</td>
+<td>26</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Norway</td>
+<td>2</td>
+<td>11</td>
+<td>1</td>
+</tr>
+<tr>
+<td>New Zealand</td>
+<td>1</td>
+<td>9</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Austria</td>
+<td>1</td>
+<td>15</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Botswana</td>
+<td>1</td>
+<td>4</td>
+<td></td>
+</tr>
+<tr>
+<td>Ireland</td>
+<td>1</td>
+<td>10</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Luxembourg</td>
+<td>1</td>
+<td>13</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Namibia</td>
+<td>1</td>
+<td>3</td>
+<td></td>
+</tr>
+<tr>
+<td>Saudi Arabia</td>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Switzerland</td>
+<td>1</td>
+<td>17</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 1th row of 44 shown; full file: <a href="hiya_2025q2.csv">hiya_2025q2.csv</a>.</em></p>
+<h2>Notes and caveats</h2>
+<ul>
+<li><strong>Hiya measures what reaches the phone, on its own users.</strong> The sample is phones with Samsung Smart Call or the
+  Hiya app. Android/Samsung share differs by country, and calls blocked by carriers never show up. The US blocks a
+  lot in the network (only 1% of what gets through is fraud, against 17% in Brazil and Spain), so the US figure is a
+  floor on attempted spam. It is not a full count.</li>
+<li><strong>"Spam" includes legal calls.</strong> Hiya counts nuisance calls (telemarketers, debt collectors, political calls,
+  surveys, charities, robocalls) as well as fraud. In the US, 40 of the 41 points are nuisance calls.</li>
+<li><strong>Flagging is Hiya's call.</strong> Different apps (Truecaller, YouMail, carrier filters) flag differently and give
+  different country rankings. Truecaller's 2021 ranking put the US 20th, at 4.8 spam calls a month. The ranking
+  depends on the vendor; the large gap between the US and Canada, the UK, Australia, New Zealand and Ireland appears
+  in both 2025 Hiya editions checked (Q1: US 17 a month against 1-6 for the peers; Q2: 22 against 1-6).</li>
+<li><strong>One quarter.</strong> Q2 2025 only. The US rose from 17 a month in Q1 2025 to 22 in Q2; Hiya attributes part of the
+  rise to better detection.</li>
+<li><strong>The peer average is unweighted.</strong> The 3.6 is the plain mean of five countries. A population-weighted mean
+  (dominated by the UK and Canada) is about 5, which makes the US about 4x rather than 6x.</li>
+<li><strong>Chart 2 is arithmetic, not data.</strong> Nobody publishes how many wanted calls a typical American receives, so the
+  x-axis is a range of assumptions. The 80-90% band is the author's own phone. Across all US call traffic,
+  including business lines and heavy phone users, the spam share is far lower. Hiya estimated about 10% of all
+  calls worldwide in 2022.</li>
+<li><strong>Related survey data (not charted).</strong> Pew, April 2025 (n = 9,397 US adults): 68% get scam calls at least
+  weekly, 31% at least daily and 21% several times a day. Pew, July 2020: about 8 in 10 don't answer cellphone
+  calls from unknown numbers.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>hiya_parse.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Per-country spam-call figures from Hiya's Global Call Threat Report, Q2 2025.
+
+Source: Hiya, &quot;Global Call Threat Report: Insights into today's worldwide spam problem, Q2 2025&quot;
+  https://work.hiya.com/hubfs/2025/Global%20Call%20Threat%20Report_2025Q2.pdf
+  (cached to notebooks/us_public_data/hiya/ on first run). The report's second section has one page per country
+  (44 countries) with three numbers, which this script reads off the PDF text (poppler's pdftotext -layout):
+  - spam_calls_per_month: average calls per person per month that Hiya flagged as &quot;suspected spam&quot; or
+    &quot;potential fraud&quot;.
+  - spam_rate_pct: the share of calls from non-contacts (numbers not in the recipient's address book) that were
+    flagged. Calls from contacts are not in the denominator.
+  - fraud_pct: the fraud part of that share. Blank where the page shows no separate fraud slice (Hiya uses a single
+    &quot;spam&quot; label in some countries).
+How Hiya measures (its methodology page): a representative sample of calls in the quarter on the Hiya Voice Security
+  Network, meaning phones with Samsung Smart Call enabled and the Hiya app. Only calls that reach the handset are
+  seen, so calls the carrier blocks in the network are not counted.
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/spam_calls/hiya_parse.py
+Writes notebooks/spam_calls/hiya_2025q2.csv: country, spam_calls_per_month, spam_rate_pct, fraud_pct.
+&quot;&quot;&quot;
+import csv
+import re
+import subprocess
+import urllib.request
+from pathlib import Path
+
+HERE = Path(__file__).parent
+URL = &quot;https://work.hiya.com/hubfs/2025/Global%20Call%20Threat%20Report_2025Q2.pdf&quot;
+PDF = HERE.parent / &quot;us_public_data&quot; / &quot;hiya&quot; / &quot;Global_Call_Threat_Report_2025Q2.pdf&quot;
+OUT = HERE / &quot;hiya_2025q2.csv&quot;
+
+
+def main():
+    if not PDF.exists():
+        PDF.parent.mkdir(parents=True, exist_ok=True)
+        urllib.request.urlretrieve(URL, PDF)
+    text = subprocess.run([&quot;pdftotext&quot;, &quot;-layout&quot;, str(PDF), &quot;-&quot;], capture_output=True, text=True,
+                          check=True).stdout
+    text = text[text.find(&quot;Spam calls\nby country&quot;):]  # the per-country section
+    lines = [l.strip() for l in text.split(&quot;\n&quot;) if l.strip()]
+    rows = []
+    for k, line in enumerate(lines):
+        if not line.startswith(&quot;Average spam calls per person&quot;):
+            continue
+        j = k - 1  # country name is the nearest short line above, skipping the &quot;PERIOD / Q2&quot; labels
+        while lines[j].startswith(&quot;P ERIO&quot;) or lines[j] in (&quot;Q1&quot;, &quot;Q2&quot;) or len(lines[j]) &gt; 25:
+            j -= 1
+        nums = next(m for d in range(1, 4) if (m := re.match(r&quot;(\d+)\s+(\d+)%&quot;, lines[k + d])))
+        fraud = next((int(m.group(1)) for d in range(1, 8)
+                      if (m := re.match(r&quot;^(\d+)%&quot;, lines[k + d])) and lines[k + d + 1].startswith(&quot;Fraud&quot;)), None)
+        rows.append([lines[j], int(nums.group(1)), int(nums.group(2)), fraud])
+    assert len(rows) == 44, len(rows)
+    with OUT.open(&quot;w&quot;, newline=&quot;&quot;) as f:
+        w = csv.writer(f)
+        w.writerow([&quot;country&quot;, &quot;spam_calls_per_month&quot;, &quot;spam_rate_pct&quot;, &quot;fraud_pct&quot;])
+        w.writerows(sorted(rows, key=lambda r: -r[1]))
+    print(f&quot;wrote {OUT} ({len(rows)} countries)&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>spam_calls_charts.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Spam calls: the US vs 43 other countries, and what share of *your* calls that works out to.
+
+Data: hiya_2025q2.csv, built by hiya_parse.py from Hiya's Global Call Threat Report, Q2 2025 (April-June 2025),
+  44 countries. Per country: spam calls per person per month (calls Hiya flagged as &quot;suspected spam&quot; or &quot;potential
+  fraud&quot; on phones running Samsung Smart Call or the Hiya app), and the share of calls from non-contacts that were
+  flagged. Calls the carrier blocks in the network never reach the phone and are not counted.
+
+Chart 1, spam calls per person per month by country, sorted. The United States is highlighted. &quot;English-speaking
+  peers&quot; are Canada, the UK, Australia, New Zealand and Ireland; their simple (unweighted) mean is 3.6 calls a month,
+  against 22 in the US, about 6x. The right-hand column is Hiya's flag rate on calls from numbers not in the
+  recipient's contacts.
+
+Chart 2, share of your incoming calls that are spam, as a function of how many wanted calls you get:
+    share = S / (S + L),  S = 22 (the US average spam calls a month),  L = wanted calls a month (0-60).
+  So 2.4 wanted calls a month gives 90% spam, 5.5 gives 80%, 22 gives 50%. L is illustrative: no source measures how
+  many wanted calls a typical American gets. The shaded 80-90% band is the author's own count from their phone, not
+  survey data. S is a floor for the same reason as above (network-blocked calls are not counted, and some spam
+  goes unflagged); a bigger S moves the curve up.
+
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/spam_calls/spam_calls_charts.py
+Writes the _wm copies to ~/Desktop/Recent Projects/Substack Notes/IT security/ and the originals to its
+Unwatermarked graphs/IT security/:
+  spam_calls_by_country.png
+  spam_share_of_your_calls.png
+&quot;&quot;&quot;
+import csv
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+HERE = Path(__file__).parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUBDIR = &quot;IT security&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
+US, PEER, REST = pb.RED, pb.NAVY, pb.MUTE
+PEERS = {&quot;Canada&quot;, &quot;United Kingdom&quot;, &quot;Australia&quot;, &quot;New Zealand&quot;, &quot;Ireland&quot;}
+SHORT = {&quot;United Kingdom&quot;: &quot;UK&quot;, &quot;Czech Republic&quot;: &quot;Czechia&quot;}
+SRC = (&quot;Source: Hiya Global Call Threat Report, Q2 2025 (44 countries). Calls flagged as spam or fraud on phones with &quot;
+       &quot;Samsung Smart Call or the Hiya app;\ncalls blocked by carriers in the network are not counted.&quot;)
+
+
+def load():
+    with (HERE / &quot;hiya_2025q2.csv&quot;).open() as f:
+        return [(r[&quot;country&quot;], int(r[&quot;spam_calls_per_month&quot;]), int(r[&quot;spam_rate_pct&quot;])) for r in csv.DictReader(f)]
+
+
+def by_country(rows):
+    rows = sorted(rows, key=lambda r: (r[1], r[2]))
+    names = [SHORT.get(r[0], r[0]) for r in rows]
+    colors = [US if r[0] == &quot;United States&quot; else PEER if r[0] in PEERS else REST for r in rows]
+
+    fig, ax = plt.subplots(figsize=(10, 12.5), dpi=150)
+    y = np.arange(len(rows))
+    ax.barh(y, [r[1] for r in rows], height=0.72, color=colors, zorder=2)
+    for yi, (_, calls, rate), col in zip(y, rows, colors):
+        w = &quot;bold&quot; if col != REST else &quot;normal&quot;
+        ax.text(calls + 0.35, yi, f&quot;{calls}&quot;, va=&quot;center&quot;, fontsize=9.5, color=INK, fontweight=w)
+        ax.text(33.6, yi, f&quot;{rate}%&quot;, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=9, color=INK if col != REST else INK2,
+                fontweight=w)
+    ax.set_yticks(y)
+    ax.set_yticklabels(names, fontsize=9.5, color=INK)
+    for lab, col in zip(ax.get_yticklabels(), colors):
+        if col != REST:
+            lab.set_fontweight(&quot;bold&quot;)
+    ax.set_ylim(-0.7, len(rows) - 0.3)
+    ax.set_xlim(0, 34)
+    ax.set_xticks(range(0, 31, 5))
+    ax.tick_params(axis=&quot;x&quot;, labelsize=9.5)
+    ax.grid(axis=&quot;x&quot;)
+    ax.grid(axis=&quot;y&quot;, visible=False)
+    ax.text(33.6, len(rows) - 0.1, &quot;% of calls from\nunknown numbers\nthat are spam&quot;, ha=&quot;right&quot;, va=&quot;bottom&quot;,
+            fontsize=8.5, color=INK2, linespacing=1.1)
+
+    fig.text(0.03, 0.977, &quot;Americans get 22 spam calls a month, 6x the rest of the English-speaking world&quot;,
+             fontsize=15, fontweight=&quot;bold&quot;, color=INK, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.text(0.03, 0.954, &quot;Spam calls per person per month, Q2 2025. Latin America, Hong Kong and southern Europe are &quot;
+             &quot;in the same league: the US is 5th of 44.&quot;, fontsize=10.5, color=INK2, ha=&quot;left&quot;, va=&quot;top&quot;)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c) for c in (US, PEER, REST)]
+    fig.legend(handles, [&quot;United States&quot;, &quot;Canada, UK, Australia, NZ, Ireland&quot;, &quot;Other countries&quot;],
+               loc=&quot;upper left&quot;, bbox_to_anchor=(0.025, 0.942), ncol=3, frameon=False, fontsize=9.5,
+               handlelength=1.2, columnspacing=1.6)
+    fig.text(0.03, 0.01, SRC, fontsize=8, color=MUTED, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.3)
+    fig.subplots_adjust(left=0.17, right=0.97, top=0.905, bottom=0.05)
+    return fig
+
+
+def share_of_your_calls(us_spam):
+    legit = np.linspace(0, 60, 400)
+    fig, ax = plt.subplots(figsize=(10, 6.4), dpi=150)
+    ax.axhspan(80, 90, color=US, alpha=0.10, zorder=1, lw=0)
+    ax.plot(legit, us_spam / (us_spam + legit) * 100, color=PEER, lw=2.4, zorder=3)
+    for L, txt, col in ((us_spam / 9, f&quot;~{us_spam / 9:.1f} wanted calls a month\n= 90% spam&quot;, US),
+                        (us_spam / 4, f&quot;~{us_spam / 4:.1f} wanted calls a month\n= 80% spam&quot;, US),
+                        (us_spam, f&quot;{us_spam} wanted calls a month\n= 50% spam&quot;, PEER)):
+        s = us_spam / (us_spam + L) * 100
+        ax.plot(L, s, &quot;o&quot;, ms=8, color=col, mec=pb.SURFACE, mew=2, zorder=4)
+        ax.text(L + 1.6, s + 1.8, txt, fontsize=10, color=INK, ha=&quot;left&quot;, va=&quot;bottom&quot;)
+    ax.text(59, 85, &quot;My own phone:\n80-90% spam&quot;, fontsize=9.5, color=INK2, ha=&quot;right&quot;, va=&quot;center&quot;)
+    ax.set_xlim(0, 60)
+    ax.set_ylim(0, 102)
+    ax.set_yticks(range(0, 101, 20))
+    ax.set_yticklabels([f&quot;{v}%&quot; for v in range(0, 101, 20)])
+    ax.set_xlabel(&quot;Calls a month from people and businesses you actually want to hear from&quot;, fontsize=10.5,
+                  labelpad=8)
+    ax.tick_params(labelsize=10)
+    ax.spines[&quot;bottom&quot;].set_visible(True)
+    ax.spines[&quot;bottom&quot;].set_color(MUTED)
+
+    fig.text(0.03, 0.965, &quot;If you mostly text, most of the calls you get are spam&quot;,
+             fontsize=15, fontweight=&quot;bold&quot;, color=INK, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.text(0.03, 0.915, f&quot;Share of your incoming calls that are spam, given the US average of {us_spam} &quot;
+             &quot;flagged spam calls a month&quot;, fontsize=10.5, color=INK2, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.text(0.03, 0.012, &quot;Source: Hiya Global Call Threat Report, Q2 2025. Spam share = 22 / (22 + wanted calls). &quot;
+             &quot;Wanted-call volumes are illustrative; the 80-90% band is one person's phone, not survey data.&quot;,
+             fontsize=8, color=MUTED, ha=&quot;left&quot;)
+    fig.subplots_adjust(left=0.08, right=0.97, top=0.85, bottom=0.15)
+    return fig
+
+
+def main():
+    rows = load()
+    us = next(r for r in rows if r[0] == &quot;United States&quot;)
+    rank = sorted(rows, key=lambda r: -r[1]).index(us) + 1
+    peer_mean = np.mean([r[1] for r in rows if r[0] in PEERS])
+    print(f&quot;US: {us[1]}/month, {us[2]}% of unknown calls; rank {rank} of {len(rows)}; &quot;
+          f&quot;peer mean {peer_mean:.1f}/month ({us[1] / peer_mean:.1f}x)&quot;)
+    wm_dir, raw_dir = NOTES / SUBDIR, NOTES / &quot;Unwatermarked graphs&quot; / SUBDIR
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    for name, fig in ((&quot;spam_calls_by_country&quot;, by_country(rows)),
+                      (&quot;spam_share_of_your_calls&quot;, share_of_your_calls(us[1]))):
+        png = raw_dir / f&quot;{name}.png&quot;
+        fig.savefig(png)
+        plt.close(fig)
+        subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(png),
+                        str(wm_dir / f&quot;{name}_wm.png&quot;)], check=True)
+        print(&quot;wrote&quot;, png)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>

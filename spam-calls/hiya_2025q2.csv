@@ -1,0 +1,45 @@
+country,spam_calls_per_month,spam_rate_pct,fraud_pct
+Brazil,29,46,17
+Mexico,26,55,24
+Chile,23,68,30
+Hong Kong,23,70,29
+United States,22,41,1
+France,18,62,4
+Indonesia,16,87,47
+Italy,15,55,
+Spain,13,51,17
+Philippines,12,56,19
+South Africa,11,37,9
+Portugal,10,46,14
+Argentina,8,67,39
+Peru,8,24,3
+India,8,11,3
+Poland,7,35,9
+Canada,6,27,8
+Australia,5,33,6
+Thailand,5,21,3
+Turkey,5,19,14
+Finland,5,33,4
+Israel,5,13,3
+United Kingdom,5,39,5
+Puerto Rico,4,18,4
+Malaysia,4,31,12
+Belgium,4,32,3
+Greece,4,19,2
+Sweden,4,26,4
+Singapore,3,31,11
+Czech Republic,3,19,1
+Denmark,3,21,1
+Germany,3,30,
+Slovakia,3,18,2
+Hungary,2,14,3
+Netherlands,2,26,5
+Norway,2,11,1
+New Zealand,1,9,1
+Austria,1,15,1
+Botswana,1,4,
+Ireland,1,10,1
+Luxembourg,1,13,1
+Namibia,1,3,
+Saudi Arabia,1,3,1
+Switzerland,1,17,1
