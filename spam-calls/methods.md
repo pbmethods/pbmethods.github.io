@@ -43,8 +43,8 @@ Data: hiya_2025q2.csv, built by hiya_parse.py from Hiya's Global Call Threat Rep
   flagged. Calls the carrier blocks in the network never reach the phone and are not counted.
 
 Chart 1, spam calls per person per month by country, sorted. The United States is highlighted. "English-speaking
-  peers" are Canada, the UK, Australia, New Zealand and Ireland. The right-hand column is Hiya's flag rate on calls from numbers not in the
-  recipient's contacts. The headline "4x" compares the US with the peers' population-weighted mean (2025 populations,
+  peers" are Canada, the UK, Australia, New Zealand and Ireland. The right-hand column is Hiya's flag rate on
+  calls from numbers not in the recipient's contacts. The headline "4x" compares the US with the peers' population-weighted mean (2025 populations,
   millions, rounded: Canada 41.5, UK 69.5, Australia 27.4, New Zealand 5.3, Ireland 5.4), which comes to about 5.0
   calls a month, so 22 / 5.0 = 4.4x. The plain unweighted mean is 3.6 (6.1x); the weighted one is used because
   it is the conservative figure and describes the average English-speaking person rather than the average country.
@@ -220,8 +220,8 @@ Data: hiya_2025q2.csv, built by hiya_parse.py from Hiya's Global Call Threat Rep
   flagged. Calls the carrier blocks in the network never reach the phone and are not counted.
 
 Chart 1, spam calls per person per month by country, sorted. The United States is highlighted. "English-speaking
-  peers" are Canada, the UK, Australia, New Zealand and Ireland. The right-hand column is Hiya's flag rate on calls from numbers not in the
-  recipient's contacts. The headline "4x" compares the US with the peers' population-weighted mean (2025 populations,
+  peers" are Canada, the UK, Australia, New Zealand and Ireland. The right-hand column is Hiya's flag rate on
+  calls from numbers not in the recipient's contacts. The headline "4x" compares the US with the peers' population-weighted mean (2025 populations,
   millions, rounded: Canada 41.5, UK 69.5, Australia 27.4, New Zealand 5.3, Ireland 5.4), which comes to about 5.0
   calls a month, so 22 / 5.0 = 4.4x. The plain unweighted mean is 3.6 (6.1x); the weighted one is used because
   it is the conservative figure and describes the average English-speaking person rather than the average country.
