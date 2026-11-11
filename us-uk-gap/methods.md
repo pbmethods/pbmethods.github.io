@@ -340,10 +340,11 @@ def chart_interventions(est):
     pal = pb.apply()
     INK, INK2, MUTED, GRID = pal["INK"], pal["INK2"], pal["MUTED"], pal["GRID"]
     rows = [
+        ("Free GLP-1s at scale", "Heart disease & stroke", "glp1", "cvd",
+         "Half of eligible adults on it, removing half the\nextra all-cause death risk of their weight. Ceiling\n"
+         f"(no excess-weight deaths at all): {est['glp1_ceiling']:.1f} years"),
         ("Legal pill mills", "Overdose", "pills", "od",
          "Pharma-grade opioids displace fentanyl:\n80k deaths/yr back to the 2010 level (~40k)"),
-        ("Free GLP-1s at scale", "Heart disease & stroke", "glp1", "cvd",
-         "Half of eligible adults on it, removing half\nthe extra all-cause death risk of their weight"),
         ("Self-driving cars", "Car crashes", "av", "mvc",
          "Half of all miles driven autonomously, at\nWaymo’s ~85% lower serious-crash rate"),
         ("Free gun safes for parents of teens", "Gun homicide & suicide", "safes", "gun",
@@ -352,7 +353,7 @@ def chart_interventions(est):
     fig = plt.figure(figsize=(11, 7.2))
     ax = fig.add_axes([0.375, 0.17, 0.53, 0.6])
     n = len(rows)
-    ax.set_xlim(0, 1.0)
+    ax.set_xlim(0, 1.6)
     ax.set_ylim(0.45, n + 0.6)
     tr = blend(fig.transFigure, ax.transData)
     for i, (name, cause, key, ckey, how) in enumerate(rows):
@@ -368,13 +369,8 @@ def chart_interventions(est):
             ax.plot([xx, xx], [y - 0.1, y + 0.1], color=INK, lw=1.4)
         lab = f"+{c:.2f} yr" if c >= 0.05 else f"+{c * 365:.0f} days"
         sub = f"≈ {c * 12:.1f} months" if c >= 0.05 else f"range {lo * 365:.1f}–{hi * 365:.0f} days"
-        lx = (hi if gap_part > 1.0 else max(hi, gap_part)) + 0.03
-        if gap_part > 1.0:  # target box runs off the axis: say how far
-            ax.text(0.99, y + 0.2, f"gap share {gap_part:.2f} yr \u2192", ha="right", va="center", fontsize=8.5,
-                    color=MUTED)
-        if key == "glp1":
-            ax.text(0.99, y - 0.2, f"ceiling, no excess-weight deaths: {est['glp1_ceiling']:.1f} yr \u2192",
-                    ha="right", va="center", fontsize=8.5, color=MUTED)
+        # label just past the whisker if it fits inside the dashed box, else past the box
+        lx = (hi if hi + 0.3 < gap_part else max(hi, gap_part)) + 0.03
         ax.text(lx, y + 0.1, lab, va="center", ha="left", fontsize=12, fontweight="bold", color=INK)
         ax.text(lx, y - 0.17, sub, va="center", ha="left", fontsize=9.5, color=INK2)
         fig.text(0.03, y + 0.2, name, transform=tr, ha="left", va="center", fontsize=12, fontweight="bold", color=INK)
@@ -385,8 +381,8 @@ def chart_interventions(est):
         fig.text(0.03, y - 0.13, how, transform=tr, ha="left", va="top", linespacing=1.3, fontsize=8.3, color=MUTED)
 
     ax.set_yticks([])
-    ax.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
-    ax.set_xticklabels(["0", "¼", "½", "¾", "1 year"], fontsize=10)
+    ax.set_xticks([0, 0.5, 1.0, 1.5])
+    ax.set_xticklabels(["0", "½", "1", "1½ years"], fontsize=10)
     ax.grid(axis="x", color=GRID, lw=0.8)
     ax.grid(axis="y", visible=False)
     # key
