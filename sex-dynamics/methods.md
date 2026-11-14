@@ -1238,10 +1238,10 @@ she = mt.iloc[(mt.per_month - 52 / 12).abs().argmin()]
 ax.plot([he.per_month], [he.women_want_at_least], "o", ms=10, color=RED, mec=P["SURFACE"], mew=1.6, zorder=5)
 ax.plot([she.per_month], [she.men_want_at_most], "o", ms=9, color=INK, mec=P["SURFACE"], mew=1.6, zorder=5)
 ax.annotate(f"He wants it twice a week:\nonly {he.women_want_at_least:.0%} of women want it that often",
-            xy=(he.per_month, he.women_want_at_least), xytext=(12.5, 0.36), fontsize=9.5, fontweight="bold",
+            xy=(he.per_month, he.women_want_at_least), xytext=(13.5, 0.30), fontsize=9.5, fontweight="bold",
             color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
 ax.annotate(f"She wants it once a week:\n{she.men_want_at_most:.0%} of men would be happy with that little",
-            xy=(she.per_month, she.men_want_at_most), xytext=(9.5, 0.86), fontsize=9.5, fontweight="bold",
+            xy=(she.per_month, she.men_want_at_most), xytext=(13.5, 0.52), fontsize=9.5, fontweight="bold",
             color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
 ax.text(29.6, mt.women_want_at_least.iloc[-1] + 0.03, "women who want sex\nat least this often",
         color=NAVY, fontsize=9.5, fontweight="bold", ha="right", va="bottom")
@@ -1253,17 +1253,17 @@ ax.grid(axis="x", visible=True)
 ax.set_xlim(1, 31); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
 ax.set_xlabel("how often you'd ideally like sex")
 ax.set_ylabel("share of the other sex who'd be a match")
-panel_title(ax, "A", "The more he wants, the fewer women match; the less she wants, the more men don't")
+panel_title(ax, "A", "Who wants it as often as you do?")
 
 m = ym_line(ax2, "want_more", "men", NAVY)
 w = ym_line(ax2, "want_more", "women", GRAY, lw=2.0)
 single = float(ym.loc[ym.sex == "single men", "adj"].iloc[0])
 ax2.axhline(single, color=MUTED, lw=1.0, ls=(0, (1, 2)))
-ax2.text(36.5, single + 0.02, f"single men: {single:.0%}", color=MUTED, fontsize=9.5, ha="right", va="bottom")
+ax2.text(36.5, single - 0.035, f"single men: {single:.0%}", color=MUTED, fontsize=9.5, ha="right", va="top")
 ax2.plot([5.5], [m.loc[5.5]], "o", ms=9, color=RED, mec=P["SURFACE"], mew=1.5, zorder=5)
 ax2.annotate(f"Men, years 5-6: {m.loc[5.5]:.0%}", xy=(5.5, m.loc[5.5]), xytext=(7.5, 0.88), fontsize=9.5,
              fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-ax2.text(36.5, m.iloc[-1] - 0.03, "men", color=NAVY, fontsize=10, fontweight="bold", ha="right", va="top")
+ax2.text(36.5, m.iloc[-1] + 0.03, "men", color=NAVY, fontsize=10, fontweight="bold", ha="right", va="bottom")
 ax2.text(36.5, w.iloc[-1] - 0.03, "women", color=INK2, fontsize=10, fontweight="bold", ha="right", va="top")
 ax2.set_xticks(*XT); ax2.set_xlim(-0.8, 37); ax2.set_ylim(0, 1); ax2.yaxis.set_major_formatter(pct)
 ax2.set_xlabel("years married"); ax2.set_ylabel("would like sex more often")
@@ -1317,7 +1317,7 @@ save(fig, "sex_satisfaction")
 # =============================================================== 6. men's lifetime partner distribution
 dist = read("bodycount_distribution.csv").set_index("stat").value
 cut = read("bodycount_crosscuts.csv")
-fig, axes = plt.subplots(1, 3, figsize=(17.5, 5.8), gridspec_kw=dict(width_ratios=[1.15, 0.85, 1.25], wspace=0.32))
+fig, axes = plt.subplots(1, 3, figsize=(18.5, 5.8), gridspec_kw=dict(width_ratios=[1.15, 0.8, 1.1], wspace=0.62))
 
 ax = axes[0]
 qs = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95]
@@ -1328,7 +1328,7 @@ for xi, v in zip(x, vals):
     ax.text(xi, v + 1.2, f"{v:.0f}", ha="center", fontsize=10, fontweight="bold", color=INK)
 mean = dist["mean_capped100"]
 ax.axhline(mean, color=RED, lw=1.6, ls=(0, (4, 3)))
-ax.text(-0.4, mean + 1.5, f"mean {mean:.0f}: more than {dist['share_below_mean']:.0%} of men have had fewer",
+ax.text(-0.4, mean + 9, f"mean {mean:.0f}\n{dist['share_below_mean']:.0%} of men\nare below it",
         color=INK, fontsize=9.5, fontweight="bold", ha="left", va="bottom")
 ax.set_xticks(x, [f"{q}th" if q != 50 else "median" for q in qs], fontsize=9)
 ax.set_ylim(0, 80); ax.set_ylabel("lifetime female partners")
@@ -1344,7 +1344,7 @@ for xi, s_, m_ in zip(x, shares, means):
     ax.text(xi, s_ + 0.015, f"{s_:.0%}", ha="center", fontsize=11, fontweight="bold", color=INK)
     ax.text(xi, s_ + 0.06, f"avg {m_:.0f}", ha="center", fontsize=8.5, color=INK2)
 ax.set_xticks(x, ["bottom\nfifth", "2nd", "middle", "4th", "top\nfifth"], fontsize=9)
-ax.yaxis.set_major_formatter(pct); ax.set_ylim(0, 0.85)
+ax.yaxis.set_major_formatter(pct); ax.set_ylim(0, 0.85); ax.set_xlim(-0.6, 4.6)
 ax.set_ylabel("share of all partners men report")
 panel_title(ax, "B", "The top fifth: two-thirds of the total")
 
