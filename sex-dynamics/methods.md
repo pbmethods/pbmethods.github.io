@@ -1869,7 +1869,7 @@ header(fig, "Among single college men, the ones having the most sex aren't worse
 footnote(fig, "GSS 1989-2022, men, survey-weighted, regression-adjusted to each segment's age mix (lines: 95% "
               "intervals). Single = never married, divorced or separated. Income and prestige are percentiles "
               "within year among men.\nLifetime partners capped at 300. Height (2022 only) and looks (2016-22) "
-              f"are not drawn where fewer than {MIN_N} top-band men have them. Single BA+ men's raw looks point the "
+              f"are not drawn where fewer than {MIN_N} top-band men have them. Single BA+ men's looks point the "
               "same way (4.1 vs 3.0 of 5), but on 4 men.", y=0.02)
 save(fig, "most_sex_by_segment")
 ```
