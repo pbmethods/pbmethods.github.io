@@ -1423,7 +1423,7 @@ for xi, s_, m_ in zip(x, shares, means):
 ax.set_xticks(x, ["bottom\nfifth", "2nd", "middle", "4th", "top\nfifth"], fontsize=9)
 ax.yaxis.set_major_formatter(pct); ax.set_ylim(0, 0.85); ax.set_xlim(-0.6, 4.6)
 ax.set_ylabel("share of all partners men report")
-panel_title(ax, "B", "The top fifth: two-thirds of the total")
+panel_title(ax, "B", f"The top fifth: {shares[-1]:.0%} of the total")
 
 ax = axes[2]
 c = cut.iloc[::-1].reset_index(drop=True)
@@ -1446,7 +1446,7 @@ ax.text(0.0, len(c) - 0.45, "● top 10% (40+)", color=NAVY, fontsize=9.5, fontw
 ax.set_ylim(-0.7, len(c) + 0.7)
 panel_title(ax, "C", "Who the top 10% are: cheaters and buyers, not elites")
 
-header(fig, "The typical man has had six partners; the top fifth average fifty",
+header(fig, f"The typical man has had {dist['p50']:.0f} partners; the top fifth average {means[-1]:.0f}",
        "Lifetime female partners, US men aged 40-60: percentiles (A), each fifth's share of the total (B), and "
        "how the top 10% differ from the typical man (C)", y=0.92)
 footnote(fig, "GSS 1989-2022, men 40-60 (n = 5,435; older, so counts are close to lifetime), survey-weighted. Partner "
