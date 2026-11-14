@@ -1233,7 +1233,8 @@ panel_title(ax2, "C", "Who pays, by income: basically flat")
 header(fig, "Men who pay for sex aren't richer; they just have far more partners",
        f"Men 25-60 who have ever paid for sex ({allm:.1%}) against those who have not, GSS 1991-2022", y=0.92)
 footnote(fig, "Survey-weighted, bootstrap 95% intervals. A: differences in means divided by the pooled SD so measures "
-              "are comparable. A, B: partners capped at 100 (uncapped means 45 vs 12;\nmedians shown in B). 'Looks, SES-adjusted' removes age, income "
+              f"are comparable. A, B: partners capped at 100 (uncapped means {pp.mean_uncapped.iloc[0]:.0f} vs "
+              f"{pp.mean_uncapped.iloc[1]:.0f}; medians shown in B).\n'Looks, SES-adjusted' removes age, income "
               "rank, prestige rank, degree and year first. Height was asked only in 2022, so its bar rests on 20 buyers.",
          y=0.0)
 save(fig, "paid_sex_profile")
