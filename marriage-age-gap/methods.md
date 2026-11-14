@@ -384,8 +384,19 @@ dist = pd.read_csv(HERE / "age_gap_distribution_2021_24.csv")
 recent = d[d.year.ge(2021) & d.source.eq("ACS newlyweds")].groupby("band").mean(numeric_only=True)
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(16, 6.2), gridspec_kw=dict(width_ratios=[1.35, 1], wspace=0.16))
+fig.subplots_adjust(top=0.84)
 
 # ---------------------------------------------------------------- A: trend
+def spread(vals, gap=0.17):
+    """Nudge label heights apart (top to bottom) so they don't overlap."""
+    order = sorted(vals, key=vals.get, reverse=True); out, prev = {}, None
+    for k in order:
+        y = vals[k] if prev is None else min(vals[k], prev - gap)
+        out[k] = prev = y
+    return out
+
+
+ends, starts = {}, {}
 for band, col in BAND_COL.items():
     s = d[d.band.eq(band)]
     cen = s[s.source.eq("census newlyweds")].sort_values("year")
@@ -395,13 +406,11 @@ for band, col in BAND_COL.items():
     ax.plot(cen.year, cen.mean_gap, color=col, lw=lw * 0.6, ls=(0, (1, 1.5)), marker="o", ms=6.5, zorder=3)
     ax.plot(rec.year, rec.mean_gap, color=col, lw=lw * 0.75, ls=(0, (4, 2.5)), alpha=0.85, zorder=2)
     ax.plot(acs.year, acs.mean_gap, color=col, lw=lw, marker="o", ms=3.5, zorder=3)
-    last = acs.iloc[-1]
-    ax.text(2025.3, last.mean_gap, f"{band}: {last.mean_gap:.1f}", color=INK, fontsize=10.5, fontweight="bold",
-            va="center", ha="left")
-    first = cen.iloc[0]
-    ax.text(1938.6, first.mean_gap, f"{first.mean_gap:.1f}", color=INK, fontsize=10, fontweight="bold",
-            va="center", ha="right")
-# keep the 2024 labels apart (25-29 and 30-35 end close together)
+    ends[band], starts[band] = acs.iloc[-1].mean_gap, cen.iloc[0].mean_gap
+for band, y in spread(ends).items():
+    ax.text(2025.3, y, f"{band}: {ends[band]:.1f}", color=INK, fontsize=10.5, fontweight="bold", va="center")
+for band, y in spread(starts).items():
+    ax.text(1938.6, y, f"{starts[band]:.1f}", color=INK, fontsize=10, fontweight="bold", va="center", ha="right")
 ax.set_xlim(1934, 2033); ax.set_ylim(0, 5)
 ax.set_xticks([1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2024])
 ax.set_ylabel("husband's age minus wife's, years (mean)")
@@ -424,16 +433,16 @@ bx.text(-10.3, 0.15, f"She's older: {r.share_she_older:.0%}\nby {-r.mean_when_sh
 bx.annotate(f"same age: {r.share_same_age:.0%}", xy=(0, a.share[a.gap == 0].iloc[0]), xytext=(-6.5, 0.185),
             fontsize=10, fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
 bx.set_xticks([-10, -5, 0, 5, 10, 15], ["she's\n10+ older", "-5", "0", "+5", "+10", "he's\n15+ older"])
-bx.set_xlim(-10.8, 15.8); bx.set_ylim(0, 0.2)
+bx.set_xlim(-10.8, 15.8); bx.set_ylim(0, 0.2); bx.set_yticks(np.arange(0, 0.21, 0.04))
 bx.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
 bx.set_xlabel("husband's age minus wife's, years"); bx.set_ylabel("share of newlywed couples")
 bx.set_title(f"B   Why the average stays near +{r.mean_gap:.0f}: his leads are bigger (2021-24)", loc="left",
              fontsize=11.5, fontweight="bold", color=INK, pad=12)
 
 y18 = d[d.band.eq("18-24") & d.source.eq("census newlyweds") & d.year.eq(1940)].mean_gap.iloc[0]
-fig.text(0.01, 1.075, f"The marriage age gap has shrunk to about two years, and it's now the same at every age",
+fig.text(0.01, 0.975, f"The marriage age gap has shrunk to about two years, and it's now the same at every age",
          fontsize=17, fontweight="bold", color=INK, ha="left", va="bottom")
-fig.text(0.01, 1.035, f"Husband's age minus wife's among US newlyweds in her first marriage, by her age at marriage "
+fig.text(0.01, 0.935, f"Husband's age minus wife's among US newlyweds in her first marriage, by her age at marriage "
          f"(A); the 2021-24 distribution (B). Young brides: {y18:.1f} years in 1940, "
          f"{recent.loc['18-24'].mean_gap:.1f} in 2021-24", fontsize=11, color=INK2, ha="left", va="bottom")
 n_recent = int(d[d.year.ge(2021) & d.source.eq("ACS newlyweds") & d.band.eq("all 18+")].n.sum())
@@ -443,7 +452,7 @@ fig.text(0.01, -0.03,
          "2008-2024, no 2020 (wives married in the past 12 months, linked to the husband in the household). 1981-2007: "
          "ACS 2008-10 couples by the year they married, only marriages still intact then, so lower bounds\n"
          "(widowhood removes big-gap marriages). Wife's first marriage only; opposite-sex couples living together; "
-         f"weighted. B: ACS 2021-24, n = {n_recent:,}; ends pooled at 10 and 15 years. Ages are whole years.",
+         f"weighted. 1970's 30-35 point is a small, noisy cell. B: ACS 2021-24, n = {n_recent:,}; ends pooled at 10 and 15 years. Ages are whole years.",
          fontsize=8.2, color=MUTED, ha="left", va="top", linespacing=1.45)
 
 OUT_WM.mkdir(parents=True, exist_ok=True); OUT_RAW.mkdir(parents=True, exist_ok=True)
