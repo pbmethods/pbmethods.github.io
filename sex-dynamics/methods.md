@@ -83,15 +83,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
     sex and cut into thirds. "Bottom both" = bottom third on both; "bottom either" = bottom third on one; "high
     both" = top third on both; "high either" = top third on one (and not bottom on the other); the rest are
-    "middle". Split by bachelor's degree or more (`degree` >= 3). Men 25-60, partners winsorised at 100.
+    "middle". Split by bachelor's degree or more (`degree` >= 3). Men 25-60, partners capped at 300.
   - *Paying for sex* (`evpaidsx`, men 25-60, 1991-2022): share who have ever paid, by own-income decile ranked
     within survey year; and standardised differences (buyers minus non-buyers, divided by the pooled SD) on
     degree, income and prestige rank, interviewer looks (raw and SES-adjusted: residual after regressing on age,
     age^2, income rank, prestige rank, degree and year), height (`rheight`, 2022 only), lifetime partners
-    (capped 100) and marital status.
+    (capped at 300) and marital status.
   - *Partner distribution* (men 40-60, so counts are close to lifetime): weighted percentiles of `numwomen`
-    (uncapped), the mean capped at 100, and men ranked by count and split into fifths, each fifth's share of all
-    reported partners (capped at 100). The trait profile compares men in the middle of the distribution (40th-60th
+    (uncapped), the mean capped at 300, and men ranked by count and split into fifths, each fifth's share of all
+    reported partners (capped at 300). The trait profile compares men in the middle of the distribution (40th-60th
     percentile, 4-10 partners) with the top 10% (40+): share with a bachelor's degree, top-third own income (within
     year), monthly church attendance (`attend`), currently married, ever divorced (`divorce`), interviewer looks
     4-5 (2016-22 only), an X-rated film in the past year (`xmovie`), ever cheated while married (`evstray`) and
@@ -174,16 +174,16 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 
 | college | rung | n | mean_partners | lo | hi |
 |---|---|---|---|---|---|
-| True | bottom both | 117 | 7.832 | 5.758 | 10.386 |
-| True | bottom either | 538 | 11.505 | 9.814 | 13.204 |
-| True | middle | 246 | 13.567 | 9.555 | 18.003 |
-| True | high either | 897 | 10.826 | 9.580 | 12.134 |
-| True | high both | 1127 | 10.796 | 9.717 | 11.845 |
-| False | bottom both | 1166 | 11.699 | 10.546 | 12.887 |
-| False | bottom either | 2113 | 14.743 | 13.717 | 16.000 |
-| False | middle | 848 | 13.823 | 12.364 | 15.460 |
-| False | high either | 960 | 14.147 | 12.668 | 15.842 |
-| False | high both | 468 | 14.685 | 12.670 | 16.906 |
+| True | bottom both | 117 | 7.962 | 5.843 | 10.587 |
+| True | bottom either | 538 | 12.125 | 10.211 | 14.050 |
+| True | middle | 246 | 18.919 | 10.205 | 29.481 |
+| True | high either | 897 | 12.025 | 10.199 | 13.811 |
+| True | high both | 1127 | 11.504 | 10.130 | 12.879 |
+| False | bottom both | 1166 | 12.134 | 10.792 | 13.496 |
+| False | bottom either | 2113 | 16.326 | 14.944 | 18.041 |
+| False | middle | 848 | 16.107 | 13.706 | 19.031 |
+| False | high either | 960 | 15.770 | 13.661 | 18.152 |
+| False | high both | 468 | 16.375 | 13.354 | 19.805 |
 
 ### `nsfg_height_sexless.csv`
 
@@ -207,7 +207,7 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 
 | measure | buyers | non_buyers | d | d_lo | d_hi | n_buyers | n_others |
 |---|---|---|---|---|---|---|---|
-| Lifetime partners | 27.476 | 11.174 | 0.675 | 0.597 | 0.757 | 1393 | 8063 |
+| Lifetime partners | 33.299 | 12.136 | 0.549 | 0.471 | 0.635 | 1393 | 8063 |
 | Height | 71.557 | 70.254 | 0.392 | -0.143 | 1.069 | 20 | 234 |
 | Looks, SES-adjusted | 0.015 | -0.002 | 0.023 | -0.237 | 0.278 | 92 | 686 |
 | Looks (interviewer) | 3.301 | 3.338 | -0.047 | -0.284 | 0.180 | 117 | 896 |
@@ -219,10 +219,10 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 
 ### `paid_sex_partners.csv`
 
-| group | n | mean_capped100 | lo | hi | median | mean_uncapped |
+| group | n | mean_capped | lo | hi | median | mean_uncapped |
 |---|---|---|---|---|---|---|
-| has paid for sex | 1393 | 27.476 | 25.796 | 29.261 | 15.000 | 35.662 |
-| has not | 8063 | 11.174 | 10.683 | 11.664 | 5.000 | 12.514 |
+| has paid for sex | 1393 | 33.299 | 30.389 | 36.484 | 15.000 | 35.662 |
+| has not | 8063 | 12.136 | 11.451 | 12.866 | 5.000 | 12.514 |
 
 ### `paid_sex_by_income.csv`
 
@@ -254,18 +254,18 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 | p80 | 20.000 |
 | p90 | 40.000 |
 | p95 | 70.000 |
-| mean_capped100 | 14.587 |
-| share_below_mean | 0.718 |
-| fifth1_share | 0.011 |
+| mean_capped | 16.621 |
+| share_below_mean | 0.758 |
+| fifth1_share | 0.010 |
 | fifth1_mean | 0.828 |
-| fifth2_share | 0.041 |
+| fifth2_share | 0.036 |
 | fifth2_mean | 2.973 |
-| fifth3_share | 0.084 |
+| fifth3_share | 0.074 |
 | fifth3_mean | 6.162 |
-| fifth4_share | 0.185 |
+| fifth4_share | 0.162 |
 | fifth4_mean | 13.472 |
-| fifth5_share | 0.679 |
-| fifth5_mean | 49.499 |
+| fifth5_share | 0.718 |
+| fifth5_mean | 59.667 |
 
 ### `bodycount_crosscuts.csv`
 
@@ -459,7 +459,8 @@ not how much more. The desired-frequency fit in the wanting-more chart caps "a b
 count. The cap moves the levels in panel A, but not the gap between the sexes.
 
 **Partner counts are a skewed, self-reported distribution.** The median and percentiles use raw answers; means and
-shares cap answers at 100, which trims a handful of very large reports (uncapped, the mean is higher). Year-0
+shares cap answers at 300. That keeps plausible high-volume men (athletes, musicians) and trims only a handful of
+implausible reports (GSS allows 989; one Natsal man reports 3,300): 12 GSS men aged 40-60 answer above 300. Year-0
 married estimates rest on about 40 people per sex.
 
 **The porn and satisfaction charts are Aella's data, redrawn.** We don't have her microdata. Values were read
@@ -675,15 +676,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
     sex and cut into thirds. "Bottom both" = bottom third on both; "bottom either" = bottom third on one; "high
     both" = top third on both; "high either" = top third on one (and not bottom on the other); the rest are
-    "middle". Split by bachelor's degree or more (`degree` >= 3). Men 25-60, partners winsorised at 100.
+    "middle". Split by bachelor's degree or more (`degree` >= 3). Men 25-60, partners capped at 300.
   - *Paying for sex* (`evpaidsx`, men 25-60, 1991-2022): share who have ever paid, by own-income decile ranked
     within survey year; and standardised differences (buyers minus non-buyers, divided by the pooled SD) on
     degree, income and prestige rank, interviewer looks (raw and SES-adjusted: residual after regressing on age,
     age^2, income rank, prestige rank, degree and year), height (`rheight`, 2022 only), lifetime partners
-    (capped 100) and marital status.
+    (capped at 300) and marital status.
   - *Partner distribution* (men 40-60, so counts are close to lifetime): weighted percentiles of `numwomen`
-    (uncapped), the mean capped at 100, and men ranked by count and split into fifths, each fifth's share of all
-    reported partners (capped at 100). The trait profile compares men in the middle of the distribution (40th-60th
+    (uncapped), the mean capped at 300, and men ranked by count and split into fifths, each fifth's share of all
+    reported partners (capped at 300). The trait profile compares men in the middle of the distribution (40th-60th
     percentile, 4-10 partners) with the top 10% (40+): share with a bachelor's degree, top-third own income (within
     year), monthly church attendance (`attend`), currently married, ever divorced (`divorce`), interviewer looks
     4-5 (2016-22 only), an X-rated film in the past year (`xmovie`), ever cheated while married (`evstray`) and
@@ -734,6 +735,7 @@ from scipy.stats import norm
 HERE = Path(__file__).resolve().parent
 DATA = HERE.parent / "us_public_data"
 GSS = DATA / "gss7224_r2.dta"
+CAP = 300          # partner counts above this are set to it (GSS allows 989, Natsal has a 3,300)
 NAT = DATA / "NATSAL" / "UKDA-7799-stata" / "stata" / "stata11" / "eul_natsal_2010_for_archive.dta"
 
 
@@ -761,7 +763,7 @@ g["w"] = g.wtssps.fillna(1.0)
 g["inc_pct"] = g.groupby(["year", "sex"]).conrinc.rank(pct=True) * 100
 g["pres_pct"] = g.groupby(["year", "sex"]).prestg10.rank(pct=True) * 100
 men = g[g.sex.eq(1) & g.numwomen.between(0, 989)].copy()
-men["bc"] = men.numwomen.clip(upper=100)
+men["bc"] = men.numwomen.clip(upper=CAP)
 
 # single men (never married, divorced, separated) 20-60, UNCAPPED partner counts, as in the post's original chart
 lk = read_gss(["year", "age", "sex", "numwomen", "rlooks", "marital", "wtssps"])
@@ -808,7 +810,7 @@ p["inc_pct"] = p.groupby("year").conrinc.rank(pct=True) * 100
 p["pres_pct"] = p.groupby("year").prestg10.rank(pct=True) * 100
 p["ba"] = p.degree.where(p.degree.between(0, 4)).ge(3)
 p.loc[~p.degree.between(0, 4), "ba"] = np.nan
-p["bc100"] = p.numwomen.where(p.numwomen.between(0, 989)).clip(upper=100)
+p["bc_cap"] = p.numwomen.where(p.numwomen.between(0, 989)).clip(upper=CAP)
 mar = p.marital.where(p.marital.between(1, 5))
 p["evermar"] = mar.ne(5).where(mar.notna())
 p["curmar"] = mar.eq(1).where(mar.notna())
@@ -821,7 +823,7 @@ X = np.column_stack([np.ones(len(lkp)), (lkp.age - 42) / 10, ((lkp.age - 42) / 1
                      lkp.pres_pct / 100, lkp.ba.astype(float), (lkp.year - 2019) / 10])
 lkp["looks_resid"] = lkp.looks - sm.WLS(lkp.looks.astype(float), X, weights=lkp.w).fit().predict(X)
 
-MEASURES = [("Lifetime partners", "bc100"), ("Height", "height"), ("Looks, SES-adjusted", "looks_resid"),
+MEASURES = [("Lifetime partners", "bc_cap"), ("Height", "height"), ("Looks, SES-adjusted", "looks_resid"),
             ("Looks (interviewer)", "looks"), ("Income rank", "inc_pct"), ("Prestige rank", "pres_pct"),
             ("Has a BA+", "ba"), ("Ever married", "evermar"), ("Currently married", "curmar")]
 rows = []
@@ -843,14 +845,14 @@ PAIDP.to_csv(HERE / "paid_sex_profile.csv", index=False)
 print(f"ever paid for sex: {PAID_SHARE:.1%} of men 25-60 (n = {len(p):,})")
 print(PAIDP.round(2).to_string(index=False))
 
-bcp = p[p.bc100.notna()]
+bcp = p[p.bc_cap.notna()]
 rows = []
 for lab, mask in [("has paid for sex", bcp.paid), ("has not", ~bcp.paid)]:
     d = bcp[mask]
-    lo, hi = boot_ci(d.bc100, d.w)
+    lo, hi = boot_ci(d.bc_cap, d.w)
     raw = d.numwomen.where(d.numwomen.between(0, 989))
     o = np.argsort(raw.to_numpy()); x_, w_ = raw.to_numpy()[o], d.w.to_numpy()[o]
-    rows.append({"group": lab, "n": len(d), "mean_capped100": wmean(d.bc100, d.w), "lo": lo, "hi": hi,
+    rows.append({"group": lab, "n": len(d), "mean_capped": wmean(d.bc_cap, d.w), "lo": lo, "hi": hi,
                  "median": float(np.interp(0.5, (np.cumsum(w_) - 0.5 * w_) / w_.sum(), x_)),
                  "mean_uncapped": wmean(raw, d.w)})
 pd.DataFrame(rows).to_csv(HERE / "paid_sex_partners.csv", index=False)
@@ -952,16 +954,16 @@ def wq(x, w, q):
 
 PCTS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95]
 dist = [{"stat": f"p{q}", "value": wq(bcg.numwomen, bcg.w, q / 100)} for q in PCTS]
-dist.append({"stat": "mean_capped100", "value": wmean(bcg.numwomen.clip(upper=100), bcg.w)})
-dist.append({"stat": "share_below_mean", "value": wmean(bcg.numwomen < wmean(bcg.numwomen.clip(upper=100), bcg.w), bcg.w)})
-# fifths of men ranked by count (ties split by position), and each fifth's share of all partners (capped at 100)
+dist.append({"stat": "mean_capped", "value": wmean(bcg.numwomen.clip(upper=CAP), bcg.w)})
+dist.append({"stat": "share_below_mean", "value": wmean(bcg.numwomen < wmean(bcg.numwomen.clip(upper=CAP), bcg.w), bcg.w)})
+# fifths of men ranked by count (ties split by position), and each fifth's share of all partners (capped at CAP)
 o = bcg.sort_values("numwomen")
 cum = (np.cumsum(o.w) - 0.5 * o.w) / o.w.sum()
 o["fifth"] = np.minimum((cum * 5).astype(int), 4) + 1
-tot = (o.numwomen.clip(upper=100) * o.w).sum()
+tot = (o.numwomen.clip(upper=CAP) * o.w).sum()
 for q, d in o.groupby("fifth"):
-    dist.append({"stat": f"fifth{q}_share", "value": float((d.numwomen.clip(upper=100) * d.w).sum() / tot)})
-    dist.append({"stat": f"fifth{q}_mean", "value": wmean(d.numwomen.clip(upper=100), d.w)})
+    dist.append({"stat": f"fifth{q}_share", "value": float((d.numwomen.clip(upper=CAP) * d.w).sum() / tot)})
+    dist.append({"stat": f"fifth{q}_mean", "value": wmean(d.numwomen.clip(upper=CAP), d.w)})
 DIST = pd.DataFrame(dist)
 DIST.to_csv(HERE / "bodycount_distribution.csv", index=False)
 print(f"men 40-60 with a partner count: n = {len(bcg):,}")
@@ -1166,7 +1168,7 @@ for i, (coll, colr, lab) in enumerate([(True, NAVY, "college grads"), (False, GR
     ax.text(-0.45, 24.5 - 2.0 * i, "■ " + lab, fontsize=9.5, color=colr, fontweight="bold", ha="left")
 ax.set_xticks(x, ["bottom\nboth", "bottom\neither", "middle", "top\neither", "top\nboth"], fontsize=9)
 ax.set_xlabel("income x occupational prestige (thirds, within year)")
-ax.set_ylim(0, 27); ax.set_ylabel("lifetime female partners (mean)")
+ax.set_ylim(0, max(27, ses.hi.max() * 1.12)); ax.set_ylabel("lifetime female partners (mean)")
 panel_title(ax, "B", "Income and job prestige")
 
 ax = axes[2]
@@ -1189,7 +1191,7 @@ header(fig, "Looks, money and height barely move men's sex lives",
 footnote(fig, f"A: GSS 2016-22 (the only years with the interviewer's 1-5 looks rating), never-married, divorced or separated men 20-60, "
               f"uncapped means; rating 2 rests on {int(looks.n[1])} men, one of whom reported {looks.largest_answer[1]:.0f} "
               f"partners (without him: {looks.mean_without_largest[1]:.0f}).\nB: GSS 1989-2022, men 25-60, partners capped "
-              "at 100. A, B: survey-weighted, bootstrap 95% intervals. "
+              "at 300. A, B: survey-weighted, bootstrap 95% intervals. "
               "Income and occupational prestige each split into thirds within survey year; 'top both' = top third "
               "on both. College = bachelor's or more.\n"
               f"C: NSFG 2011-17, heterosexual non-Hispanic white men 18-29 (n = {int(ht.loc[ht.inches == 0, 'n'].iloc[0]):,}), "
@@ -1218,15 +1220,15 @@ ax.set_xlabel("buyers minus everyone else, in standard deviations")
 panel_title(ax, "A", "What sets buyers apart: partner count, not status")
 
 x = np.arange(2)
-axm.bar(x, pp.mean_capped100, width=0.6, color=[RED, MUTE])
-errbars(axm, x, pp.mean_capped100, pp.lo, pp.hi)
+axm.bar(x, pp.mean_capped, width=0.6, color=[RED, MUTE])
+errbars(axm, x, pp.mean_capped, pp.lo, pp.hi)
 for xi, r_ in zip(x, pp.itertuples()):
-    axm.text(xi, r_.hi + 0.8, f"{r_.mean_capped100:.0f}", ha="center", fontsize=13, fontweight="bold", color=INK)
+    axm.text(xi, r_.hi + 0.8, f"{r_.mean_capped:.0f}", ha="center", fontsize=13, fontweight="bold", color=INK)
     axm.text(xi, 1.0, f"median {r_.median:.0f}\nn={r_.n:,}", ha="center", fontsize=8.5,
              color="white" if xi == 0 else INK2)
 axm.set_xticks(x, ["has paid\nfor sex", "has not"], fontsize=9.5)
-axm.set_ylim(0, 33); axm.set_ylabel("lifetime female partners (mean)")
-ratio = pp.mean_capped100.iloc[0] / pp.mean_capped100.iloc[1]
+axm.set_ylim(0, pp.hi.max() * 1.18); axm.set_ylabel("lifetime female partners (mean)")
+ratio = pp.mean_capped.iloc[0] / pp.mean_capped.iloc[1]
 panel_title(axm, "B", f"{ratio:.1f}x the partners")
 
 dec = inc[inc.decile > 0]
@@ -1246,7 +1248,7 @@ panel_title(ax2, "C", "Who pays, by income: basically flat")
 header(fig, "Men who pay for sex aren't richer; they just have far more partners",
        f"Men 25-60 who have ever paid for sex ({allm:.1%}) against those who have not, GSS 1991-2022", y=0.92)
 footnote(fig, "Survey-weighted, bootstrap 95% intervals. A: differences in means divided by the pooled SD so measures "
-              f"are comparable. A, B: partners capped at 100 (uncapped means {pp.mean_uncapped.iloc[0]:.0f} vs "
+              f"are comparable. A, B: partners capped at 300 (uncapped means {pp.mean_uncapped.iloc[0]:.0f} vs "
               f"{pp.mean_uncapped.iloc[1]:.0f}; medians shown in B).\n'Looks, SES-adjusted' removes age, income "
               "rank, prestige rank, degree and year first. Height was asked only in 2022, so its bar rests on 20 buyers.",
          y=0.0)
@@ -1401,7 +1403,7 @@ x = np.arange(len(qs))
 ax.bar(x, vals, width=0.68, color=NAVY)
 for xi, v in zip(x, vals):
     ax.text(xi, v + 1.2, f"{v:.0f}", ha="center", fontsize=10, fontweight="bold", color=INK)
-mean = dist["mean_capped100"]
+mean = dist["mean_capped"]
 ax.axhline(mean, color=RED, lw=1.6, ls=(0, (4, 3)))
 ax.text(-0.4, mean + 9, f"mean {mean:.0f}\n{dist['share_below_mean']:.0%} of men\nare below it",
         color=INK, fontsize=9.5, fontweight="bold", ha="left", va="bottom")
@@ -1448,7 +1450,7 @@ header(fig, "The typical man has had six partners; the top fifth average fifty",
        "Lifetime female partners, US men aged 40-60: percentiles (A), each fifth's share of the total (B), and "
        "how the top 10% differ from the typical man (C)", y=0.92)
 footnote(fig, "GSS 1989-2022, men 40-60 (n = 5,435; older, so counts are close to lifetime), survey-weighted. Partner "
-              "counts are self-reported; the mean and B cap answers at 100 so a few very large ones don't dominate.\n"
+              "counts are self-reported; the mean and B cap answers at 300 so a few implausibly large ones don't dominate.\n"
               "B ranks men by count and splits them into fifths. C: each trait's rate among men at the 40th-60th percentile "
               "(4-10 partners) vs the top 10% (40+); ratios are top / median. Looks were rated only in 2016-22.", y=0.0)
 save(fig, "bodycount_distribution")
