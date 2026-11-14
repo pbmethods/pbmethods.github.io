@@ -215,6 +215,13 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 | Ever married | 0.727 | 0.756 | -0.065 | -0.125 | -0.009 | 1495 | 8733 |
 | Currently married | 0.499 | 0.614 | -0.234 | -0.303 | -0.168 | 1495 | 8733 |
 
+### `paid_sex_partners.csv`
+
+| group | n | mean_capped100 | lo | hi | median | mean_uncapped |
+|---|---|---|---|---|---|---|
+| has paid for sex | 1393 | 27.476 | 25.796 | 29.261 | 15.000 | 35.662 |
+| has not | 8063 | 11.174 | 10.683 | 11.664 | 5.000 | 12.514 |
+
 ### `paid_sex_by_income.csv`
 
 | decile | share_paid | lo | hi | n |
@@ -835,6 +842,19 @@ PAIDP.to_csv(HERE / "paid_sex_profile.csv", index=False)
 print(f"ever paid for sex: {PAID_SHARE:.1%} of men 25-60 (n = {len(p):,})")
 print(PAIDP.round(2).to_string(index=False))
 
+bcp = p[p.bc100.notna()]
+rows = []
+for lab, mask in [("has paid for sex", bcp.paid), ("has not", ~bcp.paid)]:
+    d = bcp[mask]
+    lo, hi = boot_ci(d.bc100, d.w)
+    raw = d.numwomen.where(d.numwomen.between(0, 989))
+    o = np.argsort(raw.to_numpy()); x_, w_ = raw.to_numpy()[o], d.w.to_numpy()[o]
+    rows.append({"group": lab, "n": len(d), "mean_capped100": wmean(d.bc100, d.w), "lo": lo, "hi": hi,
+                 "median": float(np.interp(0.5, (np.cumsum(w_) - 0.5 * w_) / w_.sum(), x_)),
+                 "mean_uncapped": wmean(raw, d.w)})
+pd.DataFrame(rows).to_csv(HERE / "paid_sex_partners.csv", index=False)
+print(pd.DataFrame(rows).round(1).to_string(index=False))
+
 inc = p[p.inc_pct.notna()].copy()
 inc["dec"] = np.minimum((inc.inc_pct // 10).astype(int), 9) + 1
 rows = []
@@ -1165,8 +1185,8 @@ footnote(fig, f"A: GSS 2016-22 (the only years with the interviewer's 1-5 looks 
 save(fig, "motivation_looks_ses_height")
 
 # =============================================================== 2. paying for sex
-prof, inc = read("paid_sex_profile.csv"), read("paid_sex_by_income.csv")
-fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.6), gridspec_kw=dict(width_ratios=[1.1, 1], wspace=0.5))
+prof, inc, pp = read("paid_sex_profile.csv"), read("paid_sex_by_income.csv"), read("paid_sex_partners.csv")
+fig, (ax, axm, ax2) = plt.subplots(1, 3, figsize=(18.5, 5.6), gridspec_kw=dict(width_ratios=[1.15, 0.55, 1], wspace=0.42))
 
 d = prof.iloc[::-1].reset_index(drop=True)
 y = np.arange(len(d))
@@ -1184,6 +1204,18 @@ ax.set_xlim(-0.55, 1.15)
 ax.set_xlabel("buyers minus everyone else, in standard deviations")
 panel_title(ax, "A", "What sets buyers apart: partner count, not status")
 
+x = np.arange(2)
+axm.bar(x, pp.mean_capped100, width=0.6, color=[RED, MUTE])
+errbars(axm, x, pp.mean_capped100, pp.lo, pp.hi)
+for xi, r_ in zip(x, pp.itertuples()):
+    axm.text(xi, r_.hi + 0.8, f"{r_.mean_capped100:.0f}", ha="center", fontsize=13, fontweight="bold", color=INK)
+    axm.text(xi, 1.0, f"median {r_.median:.0f}\nn={r_.n:,}", ha="center", fontsize=8.5,
+             color="white" if xi == 0 else INK2)
+axm.set_xticks(x, ["has paid\nfor sex", "has not"], fontsize=9.5)
+axm.set_ylim(0, 33); axm.set_ylabel("lifetime female partners (mean)")
+ratio = pp.mean_capped100.iloc[0] / pp.mean_capped100.iloc[1]
+panel_title(axm, "B", f"{ratio:.1f}x the partners")
+
 dec = inc[inc.decile > 0]
 allm = float(inc.loc[inc.decile == 0, "share_paid"].iloc[0])
 ax2.bar(dec.decile, dec.share_paid, width=0.68, color=NAVY)
@@ -1196,12 +1228,12 @@ ax2.set_xticks(range(1, 11)); ax2.set_xlim(0.4, 11.6)
 ax2.yaxis.set_major_formatter(pct); ax2.set_ylim(0, 0.2); ax2.set_yticks([0, .05, .1, .15, .2])
 ax2.set_xlabel("own income decile within survey year (1 = poorest)")
 ax2.set_ylabel("have ever paid for sex")
-panel_title(ax2, "B", "Who pays, by income: basically flat")
+panel_title(ax2, "C", "Who pays, by income: basically flat")
 
 header(fig, "Men who pay for sex aren't richer; they just have far more partners",
        f"Men 25-60 who have ever paid for sex ({allm:.1%}) against those who have not, GSS 1991-2022", y=0.92)
 footnote(fig, "Survey-weighted, bootstrap 95% intervals. A: differences in means divided by the pooled SD so measures "
-              "are comparable; partners capped at 100 (buyers 27 vs 11).\n'Looks, SES-adjusted' removes age, income "
+              "are comparable. A, B: partners capped at 100 (uncapped means 45 vs 12;\nmedians shown in B). 'Looks, SES-adjusted' removes age, income "
               "rank, prestige rank, degree and year first. Height was asked only in 2022, so its bar rests on 20 buyers.",
          y=0.0)
 save(fig, "paid_sex_profile")
