@@ -4888,8 +4888,8 @@ COH_COL = {&quot;born 1930-44&quot;: &quot;#c9c7c1&quot;, &quot;born 1945-59&quo
            &quot;born 1975-89&quot;: NAVY}
 INC_COL = {&quot;bottom third&quot;: &quot;#8a8984&quot;, &quot;middle third&quot;: pb.NAVY_RAMP[0], &quot;top third&quot;: NAVY}
 AGES = [&quot;25-34&quot;, &quot;35-44&quot;, &quot;45-54&quot;, &quot;55-64&quot;]
-for ax, split, colmap, letter, title in [(axes[1], &quot;cohort&quot;, COH_COL, &quot;B&quot;, &quot;It rises with age within each generation&quot;),
-                                         (axes[2], &quot;income&quot;, INC_COL, &quot;C&quot;, &quot;...and within each income third&quot;)]:
+for ax, split, colmap, letter, title in [(axes[1], &quot;cohort&quot;, COH_COL, &quot;B&quot;, &quot;Within the younger generations it climbs with age&quot;),
+                                         (axes[2], &quot;income&quot;, INC_COL, &quot;C&quot;, &quot;...and in every income third, through the 40s&quot;)]:
     for grp, colr in colmap.items():
         d = ac[(ac.split == split) &amp; (ac.group == grp)].copy()
         d[&quot;x&quot;] = d.age_band.map({a: i for i, a in enumerate(AGES)})
@@ -4903,7 +4903,7 @@ for ax, split, colmap, letter, title in [(axes[1], &quot;cohort&quot;, COH_COL, 
     ax.set_xlabel(&quot;age&quot;); ax.set_ylabel(&quot;ever cheated while married&quot;)
     panel_title(ax, letter, title)
 
-header(fig, &quot;Most cheating husbands gain a single partner, yet cheating rises with age in every generation and income&quot;,
+header(fig, &quot;Most cheating husbands gain a single partner, and cheating climbs with age at every income&quot;,
        &quot;How outside partners are spread across married men who had one last year (A); share of ever-married men who &quot;
        &quot;have ever cheated, by age (B, C)&quot;, y=0.92)
 footnote(fig, f&quot;GSS, men, survey-weighted. A: currently married men 25-60, 1988-2022; outside partners = partners in &quot;
@@ -4911,8 +4911,8 @@ footnote(fig, f&quot;GSS, men, survey-weighted. A: currently married men 25-60, 
               f&quot;{int(op_df.n['share_cheaters_exactly_one'])} men with an outside partner); divorce: ever-married men 25-70, 1991-2022.\nB, C: ever-married men 25-64, &quot;
               &quot;1991-2022 (shaded: 95% intervals; cells under 60 men dropped); income thirds ranked within survey year. &quot;
               &quot;'Ever cheated' is undated, so it also rises simply\nwith more years married; the cohort and income splits &quot;
-              &quot;rule out generation and earnings, not that. Within cohorts, older generations sit higher: cheating has &quot;
-              &quot;fallen over time.&quot;, y=0.0)
+              &quot;rule out generation and earnings, not that. The two older generations are flat with age but sit higher: &quot;
+              &quot;cheating has fallen over time.&quot;, y=0.0)
 save(fig, &quot;cheating_men&quot;)
 
 # =============================================================== 11. women's cheating as mate switching
@@ -4949,12 +4949,12 @@ for xi, v, hi in zip(x, d.began_before_end, d.hi):
     ax.text(xi, hi + 0.012, f&quot;{v:.0%}&quot;, ha=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK)
 ax.set_xticks(x, [&quot;women&quot;, &quot;men&quot;], fontsize=10); ax.set_ylim(0, 0.5); ax.yaxis.set_major_formatter(pct)
 ax.set_ylabel(&quot;next relationship began before the marriage ended&quot;)
-panel_title(ax, &quot;B&quot;, &quot;A third of women's next man was already there&quot;)
+panel_title(ax, &quot;B&quot;, &quot;For a third of women, the next man was already there&quot;)
 
-pair_bars(axes[2], tr, &quot;new_spouse_ba&quot;, &quot;C&quot;, &quot;The next husband is a step up (for women)&quot;,
+pair_bars(axes[2], tr, &quot;new_spouse_ba&quot;, &quot;C&quot;, &quot;A modest step up in the next husband, women only&quot;,
           &quot;remarried: current spouse has a degree&quot;, 0.45)
 
-header(fig, &quot;Women's cheating looks like mate switching: the marriage ends, and the next man is lined up&quot;,
+header(fig, &quot;Women's cheating looks like mate switching: the marriage ends, and often the next man is already there&quot;,
        &quot;Divorce among people who have cheated vs not (A); next relationship already underway (B); the new spouse's &quot;
        &quot;education after a remarriage (C)&quot;, y=0.92)
 w_ov = ov.set_index([&quot;sex&quot;, &quot;subset&quot;]).began_before_end
