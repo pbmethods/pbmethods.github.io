@@ -1788,6 +1788,56 @@ footnote(fig, "A: partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal 
               "adjusted to the same age mix; shaded bands are 95% intervals.", y=0.0)
 save(fig, "wants_more")
 
+# --------------------------------------------------------------- 4b. panel A alone, annotated at every grid line
+fig, ax = plt.subplots(figsize=(11, 6.6))
+xs = np.linspace(1, 30.4, 400)
+wl = np.interp(xs, mt.per_month, mt.women_want_at_least)
+mm = np.interp(xs, mt.per_month, mt.men_want_at_most)
+ax.plot(xs, wl, color=NAVY, lw=2.8, zorder=3)
+ax.plot(xs, mm, color=GRAY, lw=2.8, zorder=3)
+GRIDX = [(52 / 12, "once a week"), (104 / 12, "twice a week"), (156 / 12, "3x a week"), (208 / 12, "4x a week"),
+         (30.4, "daily")]
+for i, (gx, lab) in enumerate(GRIDX):
+    w_ = float(np.interp(gx, mt.per_month, mt.women_want_at_least))
+    m_ = float(np.interp(gx, mt.per_month, mt.men_want_at_most))
+    red = i == 1
+    ax.plot([gx], [w_], "o", ms=10 if red else 7.5, color=RED if red else NAVY, mec=P["SURFACE"], mew=1.5, zorder=5)
+    ax.plot([gx], [m_], "o", ms=7.5, color=GRAY, mec=P["SURFACE"], mew=1.5, zorder=5)
+    ha, dx = ("right", -0.45) if gx > 29 else ("left", 0.45)
+    ax.text(gx + dx, w_ + 0.035, f"{w_:.0%}", color=INK, fontsize=12, fontweight="bold", ha=ha, va="bottom", zorder=6)
+    ax.text(gx + dx, w_ + 0.003, "of women want\nit at least this often" if i == 0 else "of women",
+            color=INK2, fontsize=8.8, ha=ha, va="top", zorder=6, linespacing=1.15)
+    ax.text(gx + dx, m_ - 0.035, f"{m_:.0%}", color=INK, fontsize=12, fontweight="bold", ha=ha, va="top", zorder=6)
+    ax.text(gx + dx, m_ - 0.095, "of men want it\nno more than this" if i == 0 else "of men",
+            color=INK2, fontsize=8.8, ha=ha, va="top", zorder=6, linespacing=1.15)
+# where the curves cross: the one frequency both sexes match equally well
+k = int(np.argmin(np.abs(wl - mm)))
+ax.plot([xs[k]], [wl[k]], "D", ms=6, color=INK, zorder=6)
+ax.annotate(f"They cross at about {xs[k] * 12 / 52:.1f}x a week:\nonly {wl[k]:.0%} of either sex is a match there",
+            xy=(xs[k], wl[k]), xytext=(1.6, 0.06), fontsize=9.5, fontweight="bold", color=INK,
+            arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+ax.text(1.4, float(np.interp(1.4, xs, wl)) + 0.02, "If he wants it this often, the share\nof women who want it "
+        "at least as often", color=NAVY, fontsize=9.5, fontweight="bold", ha="left", va="bottom")
+ax.text(1.4, 0.93, "If she wants it this often, the share of\nmen who'd want it no more than that",
+        color=INK2, fontsize=9.5, fontweight="bold", ha="left", va="top")
+ax.set_xticks([g for g, _ in GRIDX], [l.replace(" a ", "\na ") for _, l in GRIDX])
+ax.grid(axis="x", visible=True)
+ax.set_xlim(1, 31.4); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
+ax.set_xlabel("how often you'd ideally like sex")
+ax.set_ylabel("share of the other sex who'd be a match")
+he2 = float(np.interp(104 / 12, mt.per_month, mt.women_want_at_least))
+she1 = float(np.interp(52 / 12, mt.per_month, mt.men_want_at_most))
+header(fig, f"If he wants sex twice a week, only {he2:.0%} of women want it that often",
+       f"Who wants it as often as you do? A woman who wants it once a week suits {she1:.0%} of men. "
+       "Partnered adults 25-40, Britain (Natsal-3)", y=0.86)
+footnote(fig, "Partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal frequency is estimated per sex from "
+              "each person's actual count in the last 4 weeks plus whether they wanted sex more,\nless or about as "
+              "often (a lognormal fit; 'a bit more' capped at twice the actual count). Blue: if a man wants sex x "
+              "times a month, the share of women whose ideal is x or more.\nGray: if a woman wants it x times, the "
+              "share of men whose ideal is x or less. The cap moves the levels, not the gap between the sexes.",
+         y=0.0)
+save(fig, "wants_match")
+
 # =============================================================== 5. sex-life satisfaction
 sat = read("aella_satisfaction_digitised.csv")
 fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.2), gridspec_kw=dict(width_ratios=[1.45, 1], wspace=0.22))
