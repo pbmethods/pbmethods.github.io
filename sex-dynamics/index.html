@@ -3548,7 +3548,8 @@ save(fig, &quot;concentration&quot;)
 fr = read(&quot;sexfreq_top_vs_median.csv&quot;)
 ORDER = [&quot;Lifetime partners&quot;, &quot;Partners in the last year&quot;, &quot;Bachelor's degree+&quot;, &quot;Currently married&quot;,
          &quot;Income percentile&quot;, &quot;Job prestige percentile&quot;, &quot;Height (inches)&quot;, &quot;Looks rating (1-5)&quot;]
-fig, axes = plt.subplots(2, 4, figsize=(16.5, 8.4), gridspec_kw=dict(wspace=0.38, hspace=0.62))
+fig, axes = plt.subplots(2, 4, figsize=(16.5, 8.8), gridspec_kw=dict(wspace=0.38, hspace=0.5))
+fig.subplots_adjust(top=0.80)
 GRP = [(&quot;about once a week&quot;, GRAY, -0.14), (&quot;more than 3 times a week&quot;, NAVY, 0.14)]
 for ax, (i, trait) in zip(axes.flat, enumerate(ORDER)):
     d = fr[fr.trait == trait]
@@ -3572,11 +3573,11 @@ for ax, (i, trait) in zip(axes.flat, enumerate(ORDER)):
     n_top = int(d[d.group == GRP[1][0]].n.min())
     title = trait + (f&quot;  (2022 only, n={n_top})&quot; if &quot;inches&quot; in trait else f&quot;  (2016-22)&quot; if &quot;1-5&quot; in trait else &quot;&quot;)
     ax.set_title(f&quot;{chr(65 + i)}   {title}&quot;, loc=&quot;left&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, pad=8)
-fig.text(0.01, 0.865, &quot;●  about once a week (the median)&quot;, color=GRAY, fontsize=10.5, fontweight=&quot;bold&quot;)
-fig.text(0.25, 0.865, &quot;●  more than 3 times a week (top ~7%)&quot;, color=NAVY, fontsize=10.5, fontweight=&quot;bold&quot;)
+fig.text(0.01, 0.875, &quot;●  about once a week (the median)&quot;, color=GRAY, fontsize=10.5, fontweight=&quot;bold&quot;)
+fig.text(0.25, 0.875, &quot;●  more than 3 times a week (top ~7%)&quot;, color=NAVY, fontsize=10.5, fontweight=&quot;bold&quot;)
 header(fig, &quot;The people having the most sex aren't the elite: fewer degrees, less money, twice the partners&quot;,
        &quot;US adults 25-60 having sex more than 3 times a week, against those having it about once a week, &quot;
-       &quot;compared at the same age&quot;, y=0.88)
+       &quot;compared at the same age&quot;, y=0.89)
 footnote(fig, &quot;GSS 1989-2022, survey-weighted. 'More than 3 times a week' is the survey's top frequency band: 8% of men &quot;
               &quot;and 6% of women, so this is the top ~7%, not a finer top 3-5%. The top band is 4 years younger,\n&quot;
               &quot;so every value is regression-adjusted to the same age mix (lines: 95% intervals). Income and prestige &quot;

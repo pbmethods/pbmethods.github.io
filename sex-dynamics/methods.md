@@ -1670,7 +1670,8 @@ save(fig, "concentration")
 fr = read("sexfreq_top_vs_median.csv")
 ORDER = ["Lifetime partners", "Partners in the last year", "Bachelor's degree+", "Currently married",
          "Income percentile", "Job prestige percentile", "Height (inches)", "Looks rating (1-5)"]
-fig, axes = plt.subplots(2, 4, figsize=(16.5, 8.4), gridspec_kw=dict(wspace=0.38, hspace=0.62))
+fig, axes = plt.subplots(2, 4, figsize=(16.5, 8.8), gridspec_kw=dict(wspace=0.38, hspace=0.5))
+fig.subplots_adjust(top=0.80)
 GRP = [("about once a week", GRAY, -0.14), ("more than 3 times a week", NAVY, 0.14)]
 for ax, (i, trait) in zip(axes.flat, enumerate(ORDER)):
     d = fr[fr.trait == trait]
@@ -1694,11 +1695,11 @@ for ax, (i, trait) in zip(axes.flat, enumerate(ORDER)):
     n_top = int(d[d.group == GRP[1][0]].n.min())
     title = trait + (f"  (2022 only, n={n_top})" if "inches" in trait else f"  (2016-22)" if "1-5" in trait else "")
     ax.set_title(f"{chr(65 + i)}   {title}", loc="left", fontsize=10.5, fontweight="bold", color=INK, pad=8)
-fig.text(0.01, 0.865, "●  about once a week (the median)", color=GRAY, fontsize=10.5, fontweight="bold")
-fig.text(0.25, 0.865, "●  more than 3 times a week (top ~7%)", color=NAVY, fontsize=10.5, fontweight="bold")
+fig.text(0.01, 0.875, "●  about once a week (the median)", color=GRAY, fontsize=10.5, fontweight="bold")
+fig.text(0.25, 0.875, "●  more than 3 times a week (top ~7%)", color=NAVY, fontsize=10.5, fontweight="bold")
 header(fig, "The people having the most sex aren't the elite: fewer degrees, less money, twice the partners",
        "US adults 25-60 having sex more than 3 times a week, against those having it about once a week, "
-       "compared at the same age", y=0.88)
+       "compared at the same age", y=0.89)
 footnote(fig, "GSS 1989-2022, survey-weighted. 'More than 3 times a week' is the survey's top frequency band: 8% of men "
               "and 6% of women, so this is the top ~7%, not a finer top 3-5%. The top band is 4 years younger,\n"
               "so every value is regression-adjusted to the same age mix (lines: 95% intervals). Income and prestige "
