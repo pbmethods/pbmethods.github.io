@@ -32,6 +32,46 @@ li{margin:.2rem 0}
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
+<h3><code>sexfreq_data.py</code></h3>
+<pre><code class="language-text">Sex frequency extracts from the GSS (US) and Natsal-3 (Britain), for the married-vs-single and years-married charts.
+
+Run:  uv run --with pandas,pyarrow python notebooks/sexfreq/sexfreq_data.py
+Reads: notebooks/us_public_data/GSS_stata/gss7224_r3a.dta (GSS 1972-2024 cumulative, R3a)
+       notebooks/us_public_data/NATSAL/UKDA-7799-stata/stata/stata11/eul_natsal_2010_for_archive.dta (Natsal-3, 2010-12)
+Writes: gss_sexfreq.parquet, natsal_sexfreq.parquet (next to this script)
+
+GSS
+  sexfreq  past-year frequency in 7 bands (asked 1989-2024, self-completion). Mapped to times/year at the usual
+           midpoints 0, 2, 12, 30, 52, 130, 208: banded, so means are only as good as the midpoints, and the top
+           band (&quot;more than 3 times a week&quot;) is open-ended.
+  partners numwomen + nummen, partners since age 18 (asked 1989-2022, not 2024). 989 = &quot;989 or more&quot;; codes above
+           are missing. &quot;Body count&quot; here = all partners since 18, both sexes.
+  dur      years in the current marriage = age - agewed, kept only for the married who were never divorced/separated
+           (divorce == 2) or widowed (widowed == 2), so the first marriage is the current one. agewed was asked only
+           in 1988-94 and 2006, so dur exists for those years only; it is whole years and can be off by one.
+  conrinc  respondent's own income, constant 2000 $ (rescaled to 2024 $). Used as the income control because family
+           income (coninc) mechanically counts a spouse's pay, which would soak up part of the married effect.
+  w        wtssps (person post-stratification weight) scaled to mean 1 within each year.
+Natsal-3
+  sex4wks  occasions of heterosexual sex in the past 4 weeks: a count, not a band (995+ = missing).
+  dur      years married to the current spouse = interview year - year married, for &quot;married &amp; living with spouse&quot;
+           whose most recent live-in partner is the spouse: year cohabitation began if they were married at the start
+           (pp1ms == 1), otherwise the year they later married (pp1mar == 1, pp1ymar). Whole years, off by up to one.
+  frequent &quot;would you like to have sex more often, less often, or is it about right&quot;: 1-2 = wants more.
+  sffsatis &quot;I feel satisfied with my sex life&quot;: 1-2 agree, 4-5 disagree.
+  totlife  lifetime partners, both sexes (9995+ missing). income: household, 8 bands, top band 50,000+.
+  w        total_wt (core + boost samples).
+</code></pre>
+<h3><code>sexfreq_model.py</code></h3>
+<pre><code class="language-text">Regression helpers for the sex-frequency charts: weighted quintiles and regression-adjusted cell means.
+
+adjusted_means fits one weighted least-squares model per call,
+    y ~ cell dummies (group x quintile, no intercept) + controls
+with HC1 sandwich SEs, and reports each cell's mean standardized to the controls of the whole sample passed in
+(every person's controls, with the cell switched on), so all cells are compared at the same education, income, age
+and survey-year mix. Being linear, that standardized mean is b_cell + mean(controls) @ b_controls, and its SE comes
+straight from the coefficient covariance.
+</code></pre>
 <h3><code>master_post_data.py</code></h3>
 <pre><code class="language-text">Data for &quot;The master post of sexual and relationship dynamics&quot;: every number behind the post's reworked charts.
 
@@ -121,45 +161,48 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <th>mean_partners</th>
 <th>lo</th>
 <th>hi</th>
-<th>n_rating_1</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>1-2 below avg</td>
-<td>2</td>
-<td>79</td>
-<td>12.472</td>
-<td>8.522</td>
-<td>17.509</td>
+<td>1 (lowest)</td>
+<td>1</td>
 <td>19</td>
+<td>9.985</td>
+<td>5.316</td>
+<td>18.398</td>
 </tr>
 <tr>
-<td>3 average</td>
+<td>2</td>
+<td>2</td>
+<td>60</td>
+<td>13.213</td>
+<td>8.287</td>
+<td>20.331</td>
+</tr>
+<tr>
+<td>3</td>
 <td>3</td>
 <td>520</td>
 <td>11.431</td>
 <td>9.822</td>
 <td>13.086</td>
-<td>0</td>
 </tr>
 <tr>
-<td>4 above avg</td>
+<td>4</td>
 <td>4</td>
 <td>294</td>
 <td>14.499</td>
 <td>10.689</td>
 <td>19.172</td>
-<td>0</td>
 </tr>
 <tr>
-<td>5 very good</td>
+<td>5 (highest)</td>
 <td>5</td>
 <td>66</td>
 <td>16.112</td>
 <td>10.348</td>
 <td>23.359</td>
-<td>0</td>
 </tr>
 </tbody>
 </table>
@@ -617,173 +660,1051 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 </tr>
 </tbody>
 </table>
-<h3><code>natsal_want_more.csv</code></h3>
+<h3><code>bodycount_distribution.csv</code></h3>
 <table>
 <thead>
 <tr>
-<th>sex</th>
-<th>fifth</th>
-<th>per_month_lo</th>
-<th>per_month_hi</th>
-<th>per_month_median</th>
-<th>n</th>
-<th>want_more</th>
+<th>stat</th>
+<th>value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>men</td>
-<td>1</td>
-<td>0.000</td>
+<td>p10</td>
 <td>1.000</td>
-<td>1.000</td>
-<td>224</td>
-<td>0.770</td>
 </tr>
 <tr>
-<td>men</td>
-<td>2</td>
-<td>1.000</td>
-<td>3.000</td>
+<td>p20</td>
 <td>2.000</td>
-<td>210</td>
-<td>0.767</td>
 </tr>
 <tr>
-<td>men</td>
-<td>3</td>
+<td>p30</td>
 <td>3.000</td>
-<td>5.000</td>
-<td>4.000</td>
-<td>211</td>
-<td>0.713</td>
 </tr>
 <tr>
-<td>men</td>
-<td>4</td>
-<td>5.000</td>
-<td>8.000</td>
+<td>p40</td>
+<td>4.000</td>
+</tr>
+<tr>
+<td>p50</td>
 <td>6.000</td>
-<td>210</td>
-<td>0.666</td>
 </tr>
 <tr>
-<td>men</td>
-<td>5</td>
-<td>8.000</td>
-<td>100.000</td>
-<td>12.000</td>
-<td>242</td>
-<td>0.428</td>
-</tr>
-<tr>
-<td>men</td>
-<td>0</td>
-<td></td>
-<td></td>
-<td></td>
-<td>1097</td>
-<td>0.669</td>
-</tr>
-<tr>
-<td>women</td>
-<td>1</td>
-<td>0.000</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>348</td>
-<td>0.676</td>
-</tr>
-<tr>
-<td>women</td>
-<td>2</td>
-<td>1.000</td>
-<td>3.000</td>
-<td>2.000</td>
-<td>359</td>
-<td>0.596</td>
-</tr>
-<tr>
-<td>women</td>
-<td>3</td>
-<td>3.000</td>
-<td>4.000</td>
-<td>3.000</td>
-<td>348</td>
-<td>0.552</td>
-</tr>
-<tr>
-<td>women</td>
-<td>4</td>
-<td>4.000</td>
-<td>8.000</td>
-<td>6.000</td>
-<td>364</td>
-<td>0.481</td>
-</tr>
-<tr>
-<td>women</td>
-<td>5</td>
-<td>8.000</td>
-<td>45.000</td>
+<td>p60</td>
 <td>10.000</td>
-<td>378</td>
-<td>0.321</td>
 </tr>
 <tr>
-<td>women</td>
-<td>0</td>
-<td></td>
-<td></td>
-<td></td>
-<td>1797</td>
-<td>0.525</td>
+<td>p70</td>
+<td>12.000</td>
+</tr>
+<tr>
+<td>p80</td>
+<td>20.000</td>
+</tr>
+<tr>
+<td>p90</td>
+<td>40.000</td>
+</tr>
+<tr>
+<td>p95</td>
+<td>70.000</td>
+</tr>
+<tr>
+<td>mean_capped100</td>
+<td>14.587</td>
+</tr>
+<tr>
+<td>share_below_mean</td>
+<td>0.718</td>
+</tr>
+<tr>
+<td>fifth1_share</td>
+<td>0.011</td>
+</tr>
+<tr>
+<td>fifth1_mean</td>
+<td>0.828</td>
+</tr>
+<tr>
+<td>fifth2_share</td>
+<td>0.041</td>
+</tr>
+<tr>
+<td>fifth2_mean</td>
+<td>2.973</td>
+</tr>
+<tr>
+<td>fifth3_share</td>
+<td>0.084</td>
+</tr>
+<tr>
+<td>fifth3_mean</td>
+<td>6.162</td>
+</tr>
+<tr>
+<td>fifth4_share</td>
+<td>0.185</td>
+</tr>
+<tr>
+<td>fifth4_mean</td>
+<td>13.472</td>
+</tr>
+<tr>
+<td>fifth5_share</td>
+<td>0.679</td>
+</tr>
+<tr>
+<td>fifth5_mean</td>
+<td>49.499</td>
 </tr>
 </tbody>
 </table>
+<h3><code>bodycount_crosscuts.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>family</th>
+<th>n</th>
+<th>median</th>
+<th>p80</th>
+<th>p90</th>
+<th>mean_capped100</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All men 40-60</td>
+<td>all</td>
+<td>5435</td>
+<td>6.000</td>
+<td>20.000</td>
+<td>40.000</td>
+<td>14.587</td>
+</tr>
+<tr>
+<td>Bachelor's+</td>
+<td>status</td>
+<td>1811</td>
+<td>5.000</td>
+<td>19.872</td>
+<td>30.000</td>
+<td>12.380</td>
+</tr>
+<tr>
+<td>No degree</td>
+<td>status</td>
+<td>3617</td>
+<td>6.000</td>
+<td>20.000</td>
+<td>40.000</td>
+<td>15.531</td>
+</tr>
+<tr>
+<td>Income top third</td>
+<td>status</td>
+<td>1443</td>
+<td>6.000</td>
+<td>20.000</td>
+<td>30.000</td>
+<td>13.531</td>
+</tr>
+<tr>
+<td>Income bottom third</td>
+<td>status</td>
+<td>1445</td>
+<td>5.000</td>
+<td>20.000</td>
+<td>35.000</td>
+<td>14.541</td>
+</tr>
+<tr>
+<td>Married</td>
+<td>history</td>
+<td>3240</td>
+<td>5.000</td>
+<td>17.000</td>
+<td>30.000</td>
+<td>12.617</td>
+</tr>
+<tr>
+<td>Never married</td>
+<td>history</td>
+<td>802</td>
+<td>5.000</td>
+<td>20.000</td>
+<td>40.000</td>
+<td>14.306</td>
+</tr>
+<tr>
+<td>Divorced/separated</td>
+<td>history</td>
+<td>1286</td>
+<td>11.000</td>
+<td>30.000</td>
+<td>50.000</td>
+<td>22.177</td>
+</tr>
+<tr>
+<td>Never paid for sex</td>
+<td>appetite</td>
+<td>4171</td>
+<td>5.000</td>
+<td>15.000</td>
+<td>30.000</td>
+<td>11.749</td>
+</tr>
+<tr>
+<td>Has paid for sex</td>
+<td>appetite</td>
+<td>917</td>
+<td>15.000</td>
+<td>50.000</td>
+<td>100.000</td>
+<td>29.276</td>
+</tr>
+<tr>
+<td>No X-rated film, past yr</td>
+<td>appetite</td>
+<td>2364</td>
+<td>5.000</td>
+<td>20.000</td>
+<td>30.000</td>
+<td>12.379</td>
+</tr>
+<tr>
+<td>Saw X-rated film, past yr</td>
+<td>appetite</td>
+<td>1105</td>
+<td>10.000</td>
+<td>25.000</td>
+<td>50.000</td>
+<td>18.634</td>
+</tr>
+</tbody>
+</table>
+<h3><code>natsal_years_married.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>adj</th>
+<th>se</th>
+<th>lo</th>
+<th>hi</th>
+<th>raw</th>
+<th>n</th>
+<th>years_married</th>
+<th>sex</th>
+<th>outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5.898</td>
+<td>0.790</td>
+<td>4.349</td>
+<td>7.447</td>
+<td>6.550</td>
+<td>42.000</td>
+<td>0.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>5.438</td>
+<td>1.508</td>
+<td>2.483</td>
+<td>8.393</td>
+<td>6.030</td>
+<td>116.000</td>
+<td>1.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>5.546</td>
+<td>1.038</td>
+<td>3.512</td>
+<td>7.580</td>
+<td>6.114</td>
+<td>80.000</td>
+<td>2.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>4.542</td>
+<td>0.610</td>
+<td>3.345</td>
+<td>5.738</td>
+<td>5.085</td>
+<td>104.000</td>
+<td>3.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.246</td>
+<td>0.441</td>
+<td>2.382</td>
+<td>4.111</td>
+<td>3.705</td>
+<td>78.000</td>
+<td>4.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.553</td>
+<td>0.327</td>
+<td>2.913</td>
+<td>4.194</td>
+<td>3.999</td>
+<td>167.000</td>
+<td>5.500</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.792</td>
+<td>0.408</td>
+<td>2.993</td>
+<td>4.591</td>
+<td>4.085</td>
+<td>172.000</td>
+<td>8.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.196</td>
+<td>0.227</td>
+<td>2.752</td>
+<td>3.641</td>
+<td>3.376</td>
+<td>216.000</td>
+<td>12.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.661</td>
+<td>0.254</td>
+<td>3.162</td>
+<td>4.159</td>
+<td>3.694</td>
+<td>181.000</td>
+<td>17.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.228</td>
+<td>0.229</td>
+<td>2.779</td>
+<td>3.676</td>
+<td>3.005</td>
+<td>241.000</td>
+<td>24.500</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>2.649</td>
+<td>0.293</td>
+<td>2.074</td>
+<td>3.223</td>
+<td>1.945</td>
+<td>571.000</td>
+<td>35.000</td>
+<td>men</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>0.434</td>
+<td>0.088</td>
+<td>0.260</td>
+<td>0.607</td>
+<td>0.501</td>
+<td>42.000</td>
+<td>0.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.576</td>
+<td>0.053</td>
+<td>0.472</td>
+<td>0.680</td>
+<td>0.635</td>
+<td>114.000</td>
+<td>1.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.668</td>
+<td>0.059</td>
+<td>0.553</td>
+<td>0.783</td>
+<td>0.728</td>
+<td>76.000</td>
+<td>2.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.590</td>
+<td>0.058</td>
+<td>0.475</td>
+<td>0.704</td>
+<td>0.643</td>
+<td>102.000</td>
+<td>3.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.675</td>
+<td>0.060</td>
+<td>0.558</td>
+<td>0.791</td>
+<td>0.724</td>
+<td>78.000</td>
+<td>4.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.582</td>
+<td>0.042</td>
+<td>0.499</td>
+<td>0.666</td>
+<td>0.631</td>
+<td>166.000</td>
+<td>5.500</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.634</td>
+<td>0.041</td>
+<td>0.553</td>
+<td>0.715</td>
+<td>0.664</td>
+<td>165.000</td>
+<td>8.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.659</td>
+<td>0.035</td>
+<td>0.589</td>
+<td>0.728</td>
+<td>0.671</td>
+<td>206.000</td>
+<td>12.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.620</td>
+<td>0.040</td>
+<td>0.542</td>
+<td>0.697</td>
+<td>0.617</td>
+<td>165.000</td>
+<td>17.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.653</td>
+<td>0.035</td>
+<td>0.583</td>
+<td>0.722</td>
+<td>0.621</td>
+<td>219.000</td>
+<td>24.500</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.645</td>
+<td>0.035</td>
+<td>0.576</td>
+<td>0.714</td>
+<td>0.552</td>
+<td>417.000</td>
+<td>35.000</td>
+<td>men</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>5.460</td>
+<td>0.665</td>
+<td>4.158</td>
+<td>6.763</td>
+<td>6.844</td>
+<td>45.000</td>
+<td>0.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>4.418</td>
+<td>0.525</td>
+<td>3.389</td>
+<td>5.448</td>
+<td>5.646</td>
+<td>108.000</td>
+<td>1.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.462</td>
+<td>0.401</td>
+<td>2.676</td>
+<td>4.247</td>
+<td>4.502</td>
+<td>126.000</td>
+<td>2.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.588</td>
+<td>0.421</td>
+<td>2.763</td>
+<td>4.413</td>
+<td>4.586</td>
+<td>146.000</td>
+<td>3.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.700</td>
+<td>0.489</td>
+<td>2.741</td>
+<td>4.659</td>
+<td>4.613</td>
+<td>122.000</td>
+<td>4.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.014</td>
+<td>0.283</td>
+<td>2.460</td>
+<td>3.567</td>
+<td>3.850</td>
+<td>250.000</td>
+<td>5.500</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.402</td>
+<td>0.232</td>
+<td>2.947</td>
+<td>3.857</td>
+<td>4.092</td>
+<td>317.000</td>
+<td>8.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.235</td>
+<td>0.261</td>
+<td>2.723</td>
+<td>3.748</td>
+<td>3.561</td>
+<td>351.000</td>
+<td>12.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.566</td>
+<td>0.379</td>
+<td>2.823</td>
+<td>4.309</td>
+<td>3.557</td>
+<td>231.000</td>
+<td>17.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.645</td>
+<td>0.192</td>
+<td>3.269</td>
+<td>4.022</td>
+<td>3.204</td>
+<td>401.000</td>
+<td>24.500</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>3.177</td>
+<td>0.207</td>
+<td>2.770</td>
+<td>3.583</td>
+<td>1.609</td>
+<td>777.000</td>
+<td>35.000</td>
+<td>women</td>
+<td>sex_per_month</td>
+</tr>
+<tr>
+<td>0.561</td>
+<td>0.089</td>
+<td>0.387</td>
+<td>0.734</td>
+<td>0.573</td>
+<td>44.000</td>
+<td>0.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.531</td>
+<td>0.057</td>
+<td>0.420</td>
+<td>0.643</td>
+<td>0.540</td>
+<td>107.000</td>
+<td>1.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.566</td>
+<td>0.052</td>
+<td>0.464</td>
+<td>0.668</td>
+<td>0.574</td>
+<td>122.000</td>
+<td>2.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.520</td>
+<td>0.050</td>
+<td>0.422</td>
+<td>0.618</td>
+<td>0.528</td>
+<td>146.000</td>
+<td>3.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.503</td>
+<td>0.054</td>
+<td>0.396</td>
+<td>0.609</td>
+<td>0.508</td>
+<td>117.000</td>
+<td>4.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.547</td>
+<td>0.038</td>
+<td>0.473</td>
+<td>0.621</td>
+<td>0.553</td>
+<td>243.000</td>
+<td>5.500</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.481</td>
+<td>0.033</td>
+<td>0.416</td>
+<td>0.546</td>
+<td>0.485</td>
+<td>307.000</td>
+<td>8.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.459</td>
+<td>0.030</td>
+<td>0.401</td>
+<td>0.517</td>
+<td>0.461</td>
+<td>333.000</td>
+<td>12.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.421</td>
+<td>0.036</td>
+<td>0.352</td>
+<td>0.491</td>
+<td>0.419</td>
+<td>212.000</td>
+<td>17.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.402</td>
+<td>0.029</td>
+<td>0.345</td>
+<td>0.458</td>
+<td>0.394</td>
+<td>356.000</td>
+<td>24.500</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.320</td>
+<td>0.033</td>
+<td>0.254</td>
+<td>0.386</td>
+<td>0.306</td>
+<td>530.000</td>
+<td>35.000</td>
+<td>women</td>
+<td>want_more</td>
+</tr>
+<tr>
+<td>0.586</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>2207.000</td>
+<td></td>
+<td>single men</td>
+<td>want_more</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 1th row of 45 shown; full file: <a href="natsal_years_married.csv">natsal_years_married.csv</a>.</em></p>
 <h3><code>natsal_desire_matching.csv</code></h3>
 <table>
 <thead>
 <tr>
-<th>wants</th>
 <th>per_month</th>
-<th>men_at_least</th>
-<th>women_at_least</th>
+<th>women_want_at_least</th>
+<th>men_want_at_most</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>once a week</td>
-<td>4.333</td>
-<td>0.574</td>
-<td>0.457</td>
+<td>1.000</td>
+<td>0.876</td>
+<td>0.078</td>
 </tr>
 <tr>
-<td>twice a week</td>
-<td>8.667</td>
-<td>0.346</td>
-<td>0.240</td>
+<td>1.500</td>
+<td>0.790</td>
+<td>0.141</td>
 </tr>
 <tr>
-<td>3x a week</td>
+<td>2.000</td>
+<td>0.712</td>
+<td>0.202</td>
+</tr>
+<tr>
+<td>2.500</td>
+<td>0.643</td>
+<td>0.258</td>
+</tr>
+<tr>
+<td>3.000</td>
+<td>0.583</td>
+<td>0.310</td>
+</tr>
+<tr>
+<td>3.500</td>
+<td>0.531</td>
+<td>0.357</td>
+</tr>
+<tr>
+<td>4.000</td>
+<td>0.485</td>
+<td>0.400</td>
+</tr>
+<tr>
+<td>4.500</td>
+<td>0.444</td>
+<td>0.439</td>
+</tr>
+<tr>
+<td>5.000</td>
+<td>0.409</td>
+<td>0.474</td>
+</tr>
+<tr>
+<td>5.500</td>
+<td>0.377</td>
+<td>0.506</td>
+</tr>
+<tr>
+<td>6.000</td>
+<td>0.349</td>
+<td>0.535</td>
+</tr>
+<tr>
+<td>6.500</td>
+<td>0.324</td>
+<td>0.561</td>
+</tr>
+<tr>
+<td>7.000</td>
+<td>0.301</td>
+<td>0.586</td>
+</tr>
+<tr>
+<td>7.500</td>
+<td>0.281</td>
+<td>0.608</td>
+</tr>
+<tr>
+<td>8.000</td>
+<td>0.262</td>
+<td>0.629</td>
+</tr>
+<tr>
+<td>8.500</td>
+<td>0.245</td>
+<td>0.648</td>
+</tr>
+<tr>
+<td>9.000</td>
+<td>0.230</td>
+<td>0.666</td>
+</tr>
+<tr>
+<td>9.500</td>
+<td>0.216</td>
+<td>0.682</td>
+</tr>
+<tr>
+<td>10.000</td>
+<td>0.204</td>
+<td>0.697</td>
+</tr>
+<tr>
+<td>10.500</td>
+<td>0.192</td>
+<td>0.711</td>
+</tr>
+<tr>
+<td>11.000</td>
+<td>0.181</td>
+<td>0.725</td>
+</tr>
+<tr>
+<td>11.500</td>
+<td>0.171</td>
+<td>0.737</td>
+</tr>
+<tr>
+<td>12.000</td>
+<td>0.162</td>
+<td>0.748</td>
+</tr>
+<tr>
+<td>12.500</td>
+<td>0.154</td>
+<td>0.759</td>
+</tr>
+<tr>
 <td>13.000</td>
-<td>0.231</td>
 <td>0.146</td>
+<td>0.769</td>
 </tr>
 <tr>
-<td>4x a week</td>
-<td>17.333</td>
-<td>0.164</td>
-<td>0.096</td>
+<td>13.500</td>
+<td>0.138</td>
+<td>0.779</td>
 </tr>
 <tr>
-<td>daily</td>
-<td>30.400</td>
-<td>0.073</td>
-<td>0.037</td>
+<td>14.000</td>
+<td>0.132</td>
+<td>0.788</td>
+</tr>
+<tr>
+<td>14.500</td>
+<td>0.125</td>
+<td>0.796</td>
+</tr>
+<tr>
+<td>15.000</td>
+<td>0.119</td>
+<td>0.804</td>
+</tr>
+<tr>
+<td>15.500</td>
+<td>0.114</td>
+<td>0.812</td>
+</tr>
+<tr>
+<td>16.000</td>
+<td>0.109</td>
+<td>0.819</td>
+</tr>
+<tr>
+<td>16.500</td>
+<td>0.104</td>
+<td>0.826</td>
+</tr>
+<tr>
+<td>17.000</td>
+<td>0.099</td>
+<td>0.832</td>
+</tr>
+<tr>
+<td>17.500</td>
+<td>0.095</td>
+<td>0.838</td>
+</tr>
+<tr>
+<td>18.000</td>
+<td>0.091</td>
+<td>0.844</td>
+</tr>
+<tr>
+<td>18.500</td>
+<td>0.087</td>
+<td>0.849</td>
+</tr>
+<tr>
+<td>19.000</td>
+<td>0.083</td>
+<td>0.854</td>
+</tr>
+<tr>
+<td>19.500</td>
+<td>0.080</td>
+<td>0.859</td>
+</tr>
+<tr>
+<td>20.000</td>
+<td>0.077</td>
+<td>0.864</td>
+</tr>
+<tr>
+<td>20.500</td>
+<td>0.074</td>
+<td>0.869</td>
+</tr>
+<tr>
+<td>21.000</td>
+<td>0.071</td>
+<td>0.873</td>
+</tr>
+<tr>
+<td>21.500</td>
+<td>0.068</td>
+<td>0.877</td>
+</tr>
+<tr>
+<td>22.000</td>
+<td>0.066</td>
+<td>0.881</td>
+</tr>
+<tr>
+<td>22.500</td>
+<td>0.063</td>
+<td>0.884</td>
+</tr>
+<tr>
+<td>23.000</td>
+<td>0.061</td>
+<td>0.888</td>
+</tr>
+<tr>
+<td>23.500</td>
+<td>0.059</td>
+<td>0.891</td>
+</tr>
+<tr>
+<td>24.000</td>
+<td>0.057</td>
+<td>0.895</td>
+</tr>
+<tr>
+<td>24.500</td>
+<td>0.055</td>
+<td>0.898</td>
+</tr>
+<tr>
+<td>25.000</td>
+<td>0.053</td>
+<td>0.901</td>
+</tr>
+<tr>
+<td>25.500</td>
+<td>0.051</td>
+<td>0.904</td>
+</tr>
+<tr>
+<td>26.000</td>
+<td>0.049</td>
+<td>0.906</td>
+</tr>
+<tr>
+<td>26.500</td>
+<td>0.047</td>
+<td>0.909</td>
+</tr>
+<tr>
+<td>27.000</td>
+<td>0.046</td>
+<td>0.912</td>
+</tr>
+<tr>
+<td>27.500</td>
+<td>0.044</td>
+<td>0.914</td>
+</tr>
+<tr>
+<td>28.000</td>
+<td>0.043</td>
+<td>0.916</td>
+</tr>
+<tr>
+<td>28.500</td>
+<td>0.042</td>
+<td>0.919</td>
+</tr>
+<tr>
+<td>29.000</td>
+<td>0.040</td>
+<td>0.921</td>
+</tr>
+<tr>
+<td>29.500</td>
+<td>0.039</td>
+<td>0.923</td>
+</tr>
+<tr>
+<td>30.000</td>
+<td>0.038</td>
+<td>0.925</td>
 </tr>
 </tbody>
 </table>
+<p><em>Every 2th row of 117 shown; full file: <a href="natsal_desire_matching.csv">natsal_desire_matching.csv</a>.</em></p>
 <h3><code>aella_sex_porn_digitised.csv</code></h3>
 <table>
 <thead>
@@ -951,6 +1872,184 @@ indicative. Its patterns (sex falling with relationship length, porn rising) agr
 surveys. Her sex line is per respondent, not per couple.</p>
 <h2>Code</h2>
 <p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>sexfreq_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Sex frequency extracts from the GSS (US) and Natsal-3 (Britain), for the married-vs-single and years-married charts.
+
+Run:  uv run --with pandas,pyarrow python notebooks/sexfreq/sexfreq_data.py
+Reads: notebooks/us_public_data/GSS_stata/gss7224_r3a.dta (GSS 1972-2024 cumulative, R3a)
+       notebooks/us_public_data/NATSAL/UKDA-7799-stata/stata/stata11/eul_natsal_2010_for_archive.dta (Natsal-3, 2010-12)
+Writes: gss_sexfreq.parquet, natsal_sexfreq.parquet (next to this script)
+
+GSS
+  sexfreq  past-year frequency in 7 bands (asked 1989-2024, self-completion). Mapped to times/year at the usual
+           midpoints 0, 2, 12, 30, 52, 130, 208: banded, so means are only as good as the midpoints, and the top
+           band (&quot;more than 3 times a week&quot;) is open-ended.
+  partners numwomen + nummen, partners since age 18 (asked 1989-2022, not 2024). 989 = &quot;989 or more&quot;; codes above
+           are missing. &quot;Body count&quot; here = all partners since 18, both sexes.
+  dur      years in the current marriage = age - agewed, kept only for the married who were never divorced/separated
+           (divorce == 2) or widowed (widowed == 2), so the first marriage is the current one. agewed was asked only
+           in 1988-94 and 2006, so dur exists for those years only; it is whole years and can be off by one.
+  conrinc  respondent's own income, constant 2000 $ (rescaled to 2024 $). Used as the income control because family
+           income (coninc) mechanically counts a spouse's pay, which would soak up part of the married effect.
+  w        wtssps (person post-stratification weight) scaled to mean 1 within each year.
+Natsal-3
+  sex4wks  occasions of heterosexual sex in the past 4 weeks: a count, not a band (995+ = missing).
+  dur      years married to the current spouse = interview year - year married, for &quot;married &amp; living with spouse&quot;
+           whose most recent live-in partner is the spouse: year cohabitation began if they were married at the start
+           (pp1ms == 1), otherwise the year they later married (pp1mar == 1, pp1ymar). Whole years, off by up to one.
+  frequent &quot;would you like to have sex more often, less often, or is it about right&quot;: 1-2 = wants more.
+  sffsatis &quot;I feel satisfied with my sex life&quot;: 1-2 agree, 4-5 disagree.
+  totlife  lifetime partners, both sexes (9995+ missing). income: household, 8 bands, top band 50,000+.
+  w        total_wt (core + boost samples).
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+GSS = DATA / &quot;GSS_stata&quot; / &quot;gss7224_r3a.dta&quot;
+NATSAL = DATA / &quot;NATSAL&quot; / &quot;UKDA-7799-stata&quot; / &quot;stata&quot; / &quot;stata11&quot; / &quot;eul_natsal_2010_for_archive.dta&quot;
+CPI_2000_TO_2024 = 313.689 / 172.2
+TIMES_PER_YEAR = {0: 0, 1: 2, 2: 12, 3: 30, 4: 52, 5: 130, 6: 208}
+
+
+def gss():
+    cols = [&quot;year&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;marital&quot;, &quot;sexfreq&quot;, &quot;numwomen&quot;, &quot;nummen&quot;, &quot;agewed&quot;, &quot;divorce&quot;, &quot;widowed&quot;,
+            &quot;degree&quot;, &quot;conrinc&quot;, &quot;coninc&quot;, &quot;wtssps&quot;, &quot;hapmar&quot;, &quot;sexornt&quot;]
+    d = pd.read_stata(GSS, columns=cols, convert_categoricals=False)
+    d = d[(d.year &gt;= 1989) &amp; d.sexfreq.isin(TIMES_PER_YEAR) &amp; d.age.between(18, 89) &amp; d.wtssps.notna()
+          &amp; d.marital.isin([1, 2, 3, 4, 5])].copy()
+    d[&quot;female&quot;] = (d.sex == 2).astype(int)
+    d[&quot;times&quot;] = d.sexfreq.map(TIMES_PER_YEAR).astype(float)
+    d[&quot;weekly&quot;] = (d.sexfreq &gt;= 4).astype(float)
+    d[&quot;sexless&quot;] = (d.sexfreq == 0).astype(float)
+    for c in (&quot;numwomen&quot;, &quot;nummen&quot;):
+        d.loc[d[c] &gt; 989, c] = np.nan
+    d[&quot;partners&quot;] = d.numwomen + d.nummen
+    d[&quot;inc_own&quot;] = d.conrinc * CPI_2000_TO_2024
+    d[&quot;inc_fam&quot;] = d.coninc * CPI_2000_TO_2024
+    first = (d.marital == 1) &amp; (d.divorce == 2) &amp; (d.widowed == 2)
+    d[&quot;dur&quot;] = np.where(first &amp; d.agewed.between(12, 80), d.age - d.agewed, np.nan)
+    d.loc[d.dur &lt; 0, &quot;dur&quot;] = np.nan
+    d[&quot;w&quot;] = d.wtssps / d.groupby(&quot;year&quot;).wtssps.transform(&quot;mean&quot;)
+    keep = [&quot;year&quot;, &quot;age&quot;, &quot;female&quot;, &quot;marital&quot;, &quot;sexfreq&quot;, &quot;times&quot;, &quot;weekly&quot;, &quot;sexless&quot;, &quot;numwomen&quot;, &quot;nummen&quot;,
+            &quot;partners&quot;, &quot;degree&quot;, &quot;inc_own&quot;, &quot;inc_fam&quot;, &quot;agewed&quot;, &quot;divorce&quot;, &quot;widowed&quot;, &quot;dur&quot;, &quot;hapmar&quot;, &quot;sexornt&quot;, &quot;w&quot;]
+    return d[keep].reset_index(drop=True)
+
+
+def natsal():
+    cols = [&quot;rsex&quot;, &quot;dage&quot;, &quot;dateyoi&quot;, &quot;marstat&quot;, &quot;partnerhh&quot;, &quot;pp1ms&quot;, &quot;pp1mar&quot;, &quot;pp1ystrt&quot;, &quot;pp1ymar&quot;, &quot;sex4wks&quot;,
+            &quot;frequent&quot;, &quot;sffsatis&quot;, &quot;sfrint&quot;, &quot;relsat&quot;, &quot;totlife&quot;, &quot;hetlife&quot;, &quot;educ3&quot;, &quot;income&quot;, &quot;total_wt&quot;]
+    d = pd.read_stata(NATSAL, columns=cols, convert_categoricals=False)
+    d = d[(d.total_wt &gt; 0) &amp; (d.sex4wks &lt; 995)].copy()
+    d[&quot;female&quot;] = (d.rsex == 2).astype(int)
+    d[&quot;age&quot;] = d.dage
+    d[&quot;sex4wks&quot;] = d.sex4wks.astype(float)
+    for c in (&quot;totlife&quot;, &quot;hetlife&quot;):
+        d[c] = d[c].where(d[c] &lt; 9995).astype(float)
+    for c in (&quot;frequent&quot;, &quot;sffsatis&quot;, &quot;sfrint&quot;, &quot;relsat&quot;):
+        d[c] = d[c].where(d[c].between(1, 7)).astype(float)
+    d[&quot;educ3&quot;] = d.educ3.where(d.educ3.between(1, 5))
+    d[&quot;income&quot;] = d.income.where(d.income.between(1, 8))
+    married = d.marstat == 2
+    yr = np.where((d.pp1ms == 1) &amp; d.pp1ystrt.between(1930, 2012), d.pp1ystrt,
+                  np.where((d.pp1mar == 1) &amp; d.pp1ymar.between(1930, 2012), d.pp1ymar, np.nan))
+    d[&quot;year_married&quot;] = np.where(married, yr, np.nan)
+    d[&quot;dur&quot;] = d.dateyoi - d.year_married
+    d.loc[d.dur &lt; 0, &quot;dur&quot;] = np.nan
+    d[&quot;w&quot;] = d.total_wt / d.total_wt.mean()
+    keep = [&quot;age&quot;, &quot;female&quot;, &quot;dateyoi&quot;, &quot;marstat&quot;, &quot;partnerhh&quot;, &quot;year_married&quot;, &quot;dur&quot;, &quot;sex4wks&quot;, &quot;frequent&quot;,
+            &quot;sffsatis&quot;, &quot;sfrint&quot;, &quot;relsat&quot;, &quot;totlife&quot;, &quot;hetlife&quot;, &quot;educ3&quot;, &quot;income&quot;, &quot;w&quot;]
+    return d[keep].reset_index(drop=True)
+
+
+def main():
+    g = gss()
+    g.to_parquet(HERE / &quot;gss_sexfreq.parquet&quot;, index=False)
+    print(f&quot;GSS {g.year.min()}-{g.year.max()}: {len(g):,} rows; partners known {g.partners.notna().sum():,}; &quot;
+          f&quot;married with duration {g.dur.notna().sum():,} (years {sorted(g[g.dur.notna()].year.unique())})&quot;)
+    n = natsal()
+    n.to_parquet(HERE / &quot;natsal_sexfreq.parquet&quot;, index=False)
+    print(f&quot;Natsal-3: {len(n):,} rows; married {(n.marstat == 2).sum():,}, with duration {n.dur.notna().sum():,}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>sexfreq_model.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Regression helpers for the sex-frequency charts: weighted quintiles and regression-adjusted cell means.
+
+adjusted_means fits one weighted least-squares model per call,
+    y ~ cell dummies (group x quintile, no intercept) + controls
+with HC1 sandwich SEs, and reports each cell's mean standardized to the controls of the whole sample passed in
+(every person's controls, with the cell switched on), so all cells are compared at the same education, income, age
+and survey-year mix. Being linear, that standardized mean is b_cell + mean(controls) @ b_controls, and its SE comes
+straight from the coefficient covariance.
+&quot;&quot;&quot;
+import numpy as np
+import pandas as pd
+
+
+def wls_robust(y, X, w):
+    &quot;&quot;&quot;WLS with HC1 sandwich covariance. Returns coef, cov.&quot;&quot;&quot;
+    sw = np.sqrt(w)
+    Xw, yw = X * sw[:, None], y * sw
+    XtX_inv = np.linalg.pinv(Xw.T @ Xw)
+    b = XtX_inv @ Xw.T @ yw
+    e = yw - Xw @ b
+    meat = (Xw * e[:, None]).T @ (Xw * e[:, None])
+    n, k = X.shape
+    return b, XtX_inv @ meat @ XtX_inv * n / (n - k)
+
+
+def weighted_quintile(x, w):
+    &quot;&quot;&quot;Weighted quintile 1..5 of x; tied values share the quintile of their tie group's weighted midpoint.&quot;&quot;&quot;
+    x, w = pd.Series(x), pd.Series(w, index=x.index)
+    order = x.sort_values().index
+    cw = w[order].cumsum() / w.sum()
+    mid = cw - w[order] / w.sum() / 2
+    tie_mid = mid.groupby(x[order]).transform(&quot;mean&quot;)
+    return np.clip((tie_mid * 5).astype(int) + 1, 1, 5).reindex(x.index)
+
+
+def dummies(s, prefix, drop_first=True):
+    return pd.get_dummies(s.astype(&quot;category&quot;), prefix=prefix, drop_first=drop_first, dtype=float)
+
+
+def adjusted_means(d, y, cell, controls):
+    &quot;&quot;&quot;Regression-adjusted mean of y for each value of `cell`, standardized to d's control mix.
+
+    controls: DataFrame of control columns (already dummied), indexed like d.
+    Returns a DataFrame indexed by cell value: adj, se, lo, hi (95%), raw (weighted), n.
+    &quot;&quot;&quot;
+    C = dummies(d[cell], &quot;c&quot;, drop_first=False)
+    X = pd.concat([C, controls], axis=1)
+    b, V = wls_robust(d[y].to_numpy(float), X.to_numpy(float), d.w.to_numpy(float))
+    k = C.shape[1]
+    cbar = controls.to_numpy(float).mean(axis=0)
+    rows = {}
+    for j, name in enumerate(C.columns):
+        g = np.zeros(X.shape[1])
+        g[j] = 1.0
+        g[k:] = cbar
+        m, se = g @ b, np.sqrt(g @ V @ g)
+        lev = C[name] == 1
+        rows[name[2:]] = dict(adj=m, se=se, lo=m - 1.96 * se, hi=m + 1.96 * se,
+                              raw=np.average(d.loc[lev, y], weights=d.loc[lev, &quot;w&quot;]), n=int(lev.sum()))
+    out = pd.DataFrame(rows).T
+    out.attrs[&quot;coef&quot;], out.attrs[&quot;cov&quot;], out.attrs[&quot;cols&quot;] = b, V, list(X.columns)
+    return out
+
+
+def contrast(res, a, b_):
+    &quot;&quot;&quot;Difference adj[a] - adj[b_] with its SE (cells are from one model, so use the joint covariance).&quot;&quot;&quot;
+    cols, b, V = res.attrs[&quot;cols&quot;], res.attrs[&quot;coef&quot;], res.attrs[&quot;cov&quot;]
+    g = np.zeros(len(b))
+    g[cols.index(f&quot;c_{a}&quot;)], g[cols.index(f&quot;c_{b_}&quot;)] = 1.0, -1.0
+    return g @ b, np.sqrt(g @ V @ g)
+</code></pre>
 <h3><code>master_post_data.py</code></h3>
 <pre><code class="language-python">&quot;&quot;&quot;Data for &quot;The master post of sexual and relationship dynamics&quot;: every number behind the post's reworked charts.
 
@@ -1007,6 +2106,7 @@ charts by pixel measurement against their axis gridlines, accurate to about +/-0
   12+ years (n = 3,720).
 &quot;&quot;&quot;
 import re
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -1048,14 +2148,12 @@ men = g[g.sex.eq(1) &amp; g.numwomen.between(0, 989)].copy()
 men[&quot;bc&quot;] = men.numwomen.clip(upper=100)
 
 lk = men[men.rlooks.between(1, 5)].copy()
-lk[&quot;looks&quot;] = lk.rlooks.clip(lower=2).astype(int)          # pool 1 with 2
-LOOKS_LAB = {2: &quot;1-2\nbelow avg&quot;, 3: &quot;3\naverage&quot;, 4: &quot;4\nabove avg&quot;, 5: &quot;5\nvery good&quot;}
+LOOKS_LAB = {1: &quot;1 (lowest)&quot;, 2: &quot;2&quot;, 3: &quot;3&quot;, 4: &quot;4&quot;, 5: &quot;5 (highest)&quot;}
 rows = []
 for k, lab in LOOKS_LAB.items():
-    s = lk[lk.looks == k]
+    s = lk[lk.rlooks == k]
     lo, hi = boot_ci(s.bc, s.w)
-    rows.append({&quot;looks&quot;: lab.replace(&quot;\n&quot;, &quot; &quot;), &quot;code&quot;: k, &quot;n&quot;: len(s), &quot;mean_partners&quot;: wmean(s.bc, s.w),
-                 &quot;lo&quot;: lo, &quot;hi&quot;: hi, &quot;n_rating_1&quot;: int((s.rlooks == 1).sum())})
+    rows.append({&quot;looks&quot;: lab, &quot;code&quot;: k, &quot;n&quot;: len(s), &quot;mean_partners&quot;: wmean(s.bc, s.w), &quot;lo&quot;: lo, &quot;hi&quot;: hi})
 LOOKS = pd.DataFrame(rows)
 LOOKS.to_csv(HERE / &quot;looks_partners.csv&quot;, index=False)
 print(&quot;looks:\n&quot;, LOOKS.round(2).to_string(index=False))
@@ -1132,52 +2230,49 @@ for d_ in range(1, 11):
 rows.append({&quot;decile&quot;: 0, &quot;share_paid&quot;: PAID_SHARE, &quot;lo&quot;: np.nan, &quot;hi&quot;: np.nan, &quot;n&quot;: len(p)})   # 0 = all men
 pd.DataFrame(rows).to_csv(HERE / &quot;paid_sex_by_income.csv&quot;, index=False)
 
-# ---------------------------------------------------------------- Natsal: duration curves
-nat = pd.read_stata(NAT, columns=[&quot;rsex&quot;, &quot;dage&quot;, &quot;sex4wks&quot;, &quot;frequent&quot;, &quot;total_wt&quot;, &quot;partnerhh&quot;, &quot;rafsmr&quot;],
+# ---------------------------------------------------------------- Natsal: by years married (reuses sexfreq/)
+sys.path.insert(0, str(HERE.parent / &quot;sexfreq&quot;))
+from sexfreq_model import adjusted_means  # noqa: E402
+
+NATSAL_BINS = [-1, 0, 1, 2, 3, 4, 6, 9, 14, 19, 29, 80]
+NATSAL_X = [0, 1, 2, 3, 4, 5.5, 8, 12, 17, 24.5, 35]
+ns_ = pd.read_parquet(HERE.parent / &quot;sexfreq&quot; / &quot;natsal_sexfreq.parquet&quot;)
+mar = ns_[ns_.dur.notna()].copy()
+
+
+def by_years_married(d, y):
+    d = d.copy()
+    d[&quot;db&quot;] = pd.cut(d.dur, NATSAL_BINS, labels=False)
+    ctrl = pd.DataFrame({&quot;a&quot;: d.age - 40, &quot;a2&quot;: (d.age - 40) ** 2 / 100}, index=d.index)
+    r = adjusted_means(d, y, &quot;db&quot;, ctrl)
+    r.index = r.index.astype(int)
+    r = pd.DataFrame(r.to_dict()).sort_index()
+    r[&quot;years_married&quot;] = [NATSAL_X[i] for i in r.index]
+    return r
+
+
+rows = []
+for f, sx in [(0, &quot;men&quot;), (1, &quot;women&quot;)]:
+    d = mar[mar.female == f].assign(pm=lambda x: x.sex4wks)
+    rows.append(by_years_married(d[d.pm.notna()], &quot;pm&quot;).assign(sex=sx, outcome=&quot;sex_per_month&quot;))
+    d = mar[(mar.female == f) &amp; mar.frequent.notna()].assign(more=lambda x: (x.frequent &lt;= 2).astype(float))
+    rows.append(by_years_married(d, &quot;more&quot;).assign(sex=sx, outcome=&quot;want_more&quot;))
+single = ns_[(ns_.female == 0) &amp; (ns_.partnerhh == 0) &amp; ns_.marstat.isin([1, 4, 5, 6]) &amp; ns_.frequent.notna()]
+YM = pd.concat(rows)
+YM = pd.concat([YM, pd.DataFrame([{&quot;sex&quot;: &quot;single men&quot;, &quot;outcome&quot;: &quot;want_more&quot;,
+                                    &quot;adj&quot;: np.average(single.frequent &lt;= 2, weights=single.w), &quot;n&quot;: len(single)}])])
+YM.to_csv(HERE / &quot;natsal_years_married.csv&quot;, index=False)
+print(f&quot;Natsal married with a known marriage year: n = {len(mar):,}&quot;)
+print(YM[[&quot;sex&quot;, &quot;outcome&quot;, &quot;years_married&quot;, &quot;adj&quot;, &quot;lo&quot;, &quot;hi&quot;, &quot;n&quot;]].round(2).to_string(index=False))
+
+# ---------------------------------------------------------------- Natsal: desired frequency (partnered 25-40)
+nat = pd.read_stata(NAT, columns=[&quot;rsex&quot;, &quot;dage&quot;, &quot;sex4wks&quot;, &quot;frequent&quot;, &quot;total_wt&quot;, &quot;partnerhh&quot;],
                     convert_categoricals=False)
 nat = nat[(nat.sex4wks &lt; 900) &amp; nat.frequent.between(1, 5) &amp; (nat.total_wt &gt; 0)].copy()
 nat[&quot;male&quot;] = nat.rsex.eq(1); nat[&quot;w&quot;] = nat.total_wt; nat[&quot;A&quot;] = nat.sex4wks.astype(float)
-
-nd = nat[nat.partnerhh.eq(1) &amp; nat.rafsmr.between(10, 80)].copy()
-nd[&quot;dur&quot;] = nd.dage - nd.rafsmr
-nd = nd[nd.dur.between(0, 45)]
-
-
-def design(age, dur):
-    age = np.asarray(age, float); dur = np.asarray(dur, float)
-    return np.column_stack([np.ones(len(age)), age - 35, (age - 35) ** 2 / 100, np.log1p(dur), np.minimum(dur, 5),
-                            np.clip(dur - 5, 0, None) / 10])
-
-
-GRID = np.linspace(0, 17, 69)        # a 35-year-old cannot have been with someone (since 18) for longer
-rows = {&quot;years&quot;: GRID}
-for male, sx in [(True, &quot;men&quot;), (False, &quot;women&quot;)]:
-    s = nd[nd.male == male]
-    for y, lab, fam in [(s.sex4wks, &quot;per_month&quot;, sm.families.Poisson()),
-                        (s.frequent.le(2).astype(float), &quot;want_more&quot;, sm.families.Binomial())]:
-        f = sm.GLM(np.asarray(y, float), design(s.dage, s.dur), family=fam, freq_weights=s.w.to_numpy()).fit()
-        eta = design(np.full(len(GRID), 35.0), GRID) @ f.params
-        rows[f&quot;{sx}_{lab}&quot;] = np.exp(eta) if lab == &quot;per_month&quot; else 1 / (1 + np.exp(-eta))
-DUR = pd.DataFrame(rows)
-DUR.to_csv(HERE / &quot;natsal_duration.csv&quot;, index=False)
-print(f&quot;Natsal couples with a datable start: n = {len(nd):,}&quot;)
-print(DUR.iloc[[0, 4, 20, 40, 68]].round(2).to_string(index=False))
-
-# ---------------------------------------------------------------- Natsal: wanting more (partnered 25-40)
 nb = nat[nat.dage.between(25, 40) &amp; nat.partnerhh.eq(1)]
-rows = []
-for male, sx in [(True, &quot;men&quot;), (False, &quot;women&quot;)]:
-    s = nb[nb.male == male].sort_values(&quot;A&quot;).copy()
-    s[&quot;cum&quot;] = (np.cumsum(s.w) - 0.5 * s.w) / s.w.sum()
-    s[&quot;fifth&quot;] = np.minimum((s.cum * 5).astype(int), 4)
-    for q, d in s.groupby(&quot;fifth&quot;):
-        rows.append({&quot;sex&quot;: sx, &quot;fifth&quot;: q + 1, &quot;per_month_lo&quot;: d.A.min(), &quot;per_month_hi&quot;: d.A.max(),
-                     &quot;per_month_median&quot;: float(np.median(d.A)), &quot;n&quot;: len(d),
-                     &quot;want_more&quot;: wmean(d.frequent.le(2), d.w)})
-    rows.append({&quot;sex&quot;: sx, &quot;fifth&quot;: 0, &quot;n&quot;: len(s), &quot;want_more&quot;: wmean(s.frequent.le(2), s.w)})    # 0 = all
-WANT = pd.DataFrame(rows)
-WANT.to_csv(HERE / &quot;natsal_want_more.csv&quot;, index=False)
-print(WANT.round(2).to_string(index=False))
+WANT_ALL = {sx: wmean(nb[nb.male == (sx == &quot;men&quot;)].frequent.le(2), nb[nb.male == (sx == &quot;men&quot;)].w)
+            for sx in (&quot;men&quot;, &quot;women&quot;)}
 
 
 def fit_desired(s, k=2.0):
@@ -1195,15 +2290,62 @@ def fit_desired(s, k=2.0):
 
 
 FIT = {sx: fit_desired(nb[nb.male == (sx == &quot;men&quot;)]) for sx in (&quot;men&quot;, &quot;women&quot;)}
-rows = []
-for lab, x in [(&quot;once a week&quot;, 52 / 12), (&quot;twice a week&quot;, 104 / 12), (&quot;3x a week&quot;, 156 / 12),
-               (&quot;4x a week&quot;, 208 / 12), (&quot;daily&quot;, 30.4)]:
-    rows.append({&quot;wants&quot;: lab, &quot;per_month&quot;: x,
-                 **{f&quot;{sx}_at_least&quot;: float(norm.sf((np.log(x) - mu) / sg)) for sx, (mu, sg) in FIT.items()}})
-MATCH = pd.DataFrame(rows)
+xs = np.round(np.arange(1, 30.01, 0.25), 2)
+(mu_m, sg_m), (mu_w, sg_w) = FIT[&quot;men&quot;], FIT[&quot;women&quot;]
+MATCH = pd.DataFrame({
+    &quot;per_month&quot;: xs,
+    &quot;women_want_at_least&quot;: norm.sf((np.log(xs) - mu_w) / sg_w),    # he wants x: women who want x or more
+    &quot;men_want_at_most&quot;: norm.cdf((np.log(xs) - mu_m) / sg_m),      # she wants x: men who want x or less
+})
 MATCH.to_csv(HERE / &quot;natsal_desire_matching.csv&quot;, index=False)
-print({sx: f&quot;median wanted {np.exp(mu):.1f}/mo&quot; for sx, (mu, sg) in FIT.items()})
-print(MATCH.round(3).to_string(index=False))
+print({sx: f&quot;median wanted {np.exp(mu):.1f}/mo&quot; for sx, (mu, sg) in FIT.items()}, WANT_ALL)
+print(MATCH[MATCH.per_month.isin([2, 4.25, 4.5, 8.75, 13, 17.25, 30])].round(3).to_string(index=False))
+
+# ---------------------------------------------------------------- GSS: men's lifetime partner distribution (40-60)
+bcg = read_gss([&quot;year&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;numwomen&quot;, &quot;marital&quot;, &quot;degree&quot;, &quot;conrinc&quot;, &quot;evpaidsx&quot;, &quot;xmovie&quot;, &quot;wtssps&quot;])
+bcg = bcg[bcg.sex.eq(1) &amp; bcg.age.between(40, 60) &amp; bcg.numwomen.between(0, 989)].copy()
+bcg[&quot;w&quot;] = bcg.wtssps.fillna(1.0)
+bcg[&quot;inc&quot;] = bcg.groupby(&quot;year&quot;).conrinc.rank(pct=True)
+
+
+def wq(x, w, q):
+    o = np.argsort(np.asarray(x, float)); x_, w_ = np.asarray(x, float)[o], np.asarray(w, float)[o]
+    return float(np.interp(q, (np.cumsum(w_) - 0.5 * w_) / w_.sum(), x_))
+
+
+PCTS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95]
+dist = [{&quot;stat&quot;: f&quot;p{q}&quot;, &quot;value&quot;: wq(bcg.numwomen, bcg.w, q / 100)} for q in PCTS]
+dist.append({&quot;stat&quot;: &quot;mean_capped100&quot;, &quot;value&quot;: wmean(bcg.numwomen.clip(upper=100), bcg.w)})
+dist.append({&quot;stat&quot;: &quot;share_below_mean&quot;, &quot;value&quot;: wmean(bcg.numwomen &lt; wmean(bcg.numwomen.clip(upper=100), bcg.w), bcg.w)})
+# fifths of men ranked by count (ties split by position), and each fifth's share of all partners (capped at 100)
+o = bcg.sort_values(&quot;numwomen&quot;)
+cum = (np.cumsum(o.w) - 0.5 * o.w) / o.w.sum()
+o[&quot;fifth&quot;] = np.minimum((cum * 5).astype(int), 4) + 1
+tot = (o.numwomen.clip(upper=100) * o.w).sum()
+for q, d in o.groupby(&quot;fifth&quot;):
+    dist.append({&quot;stat&quot;: f&quot;fifth{q}_share&quot;, &quot;value&quot;: float((d.numwomen.clip(upper=100) * d.w).sum() / tot)})
+    dist.append({&quot;stat&quot;: f&quot;fifth{q}_mean&quot;, &quot;value&quot;: wmean(d.numwomen.clip(upper=100), d.w)})
+DIST = pd.DataFrame(dist)
+DIST.to_csv(HERE / &quot;bodycount_distribution.csv&quot;, index=False)
+print(f&quot;men 40-60 with a partner count: n = {len(bcg):,}&quot;)
+print(DIST.round(2).to_string(index=False))
+
+CUTS = [(&quot;All men 40-60&quot;, bcg.index == bcg.index, &quot;all&quot;),
+        (&quot;Bachelor's+&quot;, bcg.degree.ge(3), &quot;status&quot;), (&quot;No degree&quot;, bcg.degree.between(0, 2), &quot;status&quot;),
+        (&quot;Income top third&quot;, bcg.inc.gt(2 / 3), &quot;status&quot;), (&quot;Income bottom third&quot;, bcg.inc.lt(1 / 3), &quot;status&quot;),
+        (&quot;Married&quot;, bcg.marital.eq(1), &quot;history&quot;), (&quot;Never married&quot;, bcg.marital.eq(5), &quot;history&quot;),
+        (&quot;Divorced/separated&quot;, bcg.marital.isin([3, 4]), &quot;history&quot;),
+        (&quot;Never paid for sex&quot;, bcg.evpaidsx.eq(2), &quot;appetite&quot;), (&quot;Has paid for sex&quot;, bcg.evpaidsx.eq(1), &quot;appetite&quot;),
+        (&quot;No X-rated film, past yr&quot;, bcg.xmovie.eq(2), &quot;appetite&quot;), (&quot;Saw X-rated film, past yr&quot;, bcg.xmovie.eq(1), &quot;appetite&quot;)]
+rows = []
+for lab, mask, grp in CUTS:
+    d = bcg[mask]
+    rows.append({&quot;group&quot;: lab, &quot;family&quot;: grp, &quot;n&quot;: len(d), &quot;median&quot;: wq(d.numwomen, d.w, .5),
+                 &quot;p80&quot;: wq(d.numwomen, d.w, .8), &quot;p90&quot;: wq(d.numwomen, d.w, .9),
+                 &quot;mean_capped100&quot;: wmean(d.numwomen.clip(upper=100), d.w)})
+CUT = pd.DataFrame(rows)
+CUT.to_csv(HERE / &quot;bodycount_crosscuts.csv&quot;, index=False)
+print(CUT.round(1).to_string(index=False))
 
 # ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
 NSFG = DATA / &quot;nsfg_2011_2017&quot;
@@ -1308,6 +2450,7 @@ OUT_WM.mkdir(parents=True, exist_ok=True); OUT_RAW.mkdir(parents=True, exist_ok=
 
 P = pb.apply()
 INK, INK2, MUTED, NAVY, RED, MUTE, GRAY = P[&quot;INK&quot;], P[&quot;INK2&quot;], P[&quot;MUTED&quot;], P[&quot;NAVY&quot;], P[&quot;RED&quot;], P[&quot;MUTE&quot;], pb.GRAYS[0]
+GRID_C = P[&quot;GRID&quot;]
 pct = plt.FuncFormatter(lambda v, _: f&quot;{v:.0%}&quot;)
 ppt = plt.FuncFormatter(lambda v, _: f&quot;{v:.0f}%&quot;)
 read = lambda name: pd.read_csv(HERE / name)
@@ -1343,7 +2486,7 @@ def save(fig, name):
 
 # =============================================================== 1. looks, SES, height
 looks, ses, ht = read(&quot;looks_partners.csv&quot;), read(&quot;ses_partners.csv&quot;), read(&quot;nsfg_height_sexless.csv&quot;)
-fig, axes = plt.subplots(1, 3, figsize=(16, 5.4), gridspec_kw=dict(width_ratios=[0.8, 1.25, 1.35], wspace=0.24))
+fig, axes = plt.subplots(1, 3, figsize=(16, 5.4), gridspec_kw=dict(width_ratios=[1.0, 1.25, 1.35], wspace=0.24))
 
 ax = axes[0]
 x = np.arange(len(looks))
@@ -1351,10 +2494,10 @@ ax.bar(x, looks.mean_partners, width=0.62, color=NAVY)
 errbars(ax, x, looks.mean_partners, looks.lo, looks.hi)
 for xi, v, hi, n in zip(x, looks.mean_partners, looks.hi, looks.n):
     ax.text(xi, hi + 0.6, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
-    ax.text(xi, 0.6, f&quot;n={n}&quot;, ha=&quot;center&quot;, fontsize=7.5, color=&quot;white&quot;)
-ax.set_xticks(x, [&quot;1-2\nbelow avg&quot;, &quot;3\naverage&quot;, &quot;4\nabove avg&quot;, &quot;5\nvery good&quot;], fontsize=9)
+    ax.text(xi, 0.6, f&quot;n={n}&quot;, ha=&quot;center&quot;, fontsize=7, color=&quot;white&quot;)
+ax.set_xticks(x, [&quot;1\nlowest&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5\nhighest&quot;], fontsize=9)
 ax.set_ylim(0, 27); ax.set_ylabel(&quot;lifetime female partners (mean)&quot;)
-ax.set_xlabel(&quot;interviewer's looks rating&quot;)
+ax.set_xlabel(&quot;interviewer's looks rating, 1-5&quot;)
 panel_title(ax, &quot;A&quot;, &quot;Looks&quot;)
 
 ax = axes[1]
@@ -1391,7 +2534,7 @@ header(fig, &quot;Looks, money and height barely move men's sex lives&quot;,
        &quot;Lifetime partners by looks (A) and by income and prestige (B), men 25-60; share of young men with no sex &quot;
        &quot;in the past year, by height (C)&quot;, y=0.92)
 footnote(fig, &quot;A, B: GSS, men 25-60, survey-weighted means, partners capped at 100, bootstrap 95% intervals. A: 2016-22, the only &quot;
-              &quot;years with the interviewer's 1-5 looks rating (1 and 2 pooled; only 19 men got a 1). B: 1989-2022.\n&quot;
+              &quot;years with the interviewer's 1-5 looks rating. B: 1989-2022.\n&quot;
               &quot;B: income and occupational prestige each split into thirds within survey year; 'top both' = top third &quot;
               &quot;on both. College = bachelor's or more.\n&quot;
               f&quot;C: NSFG 2011-17, heterosexual non-Hispanic white men 18-29 (n = {int(ht.loc[ht.inches == 0, 'n'].iloc[0]):,}), &quot;
@@ -1441,102 +2584,107 @@ footnote(fig, &quot;Survey-weighted, bootstrap 95% intervals. A: differences in 
          y=0.0)
 save(fig, &quot;paid_sex_profile&quot;)
 
-# =============================================================== 3. sex and porn after marriage
-dur, ae = read(&quot;natsal_duration.csv&quot;), read(&quot;aella_sex_porn_digitised.csv&quot;)
-fig, axes = plt.subplots(1, 3, figsize=(17, 5.4), gridspec_kw=dict(wspace=0.28))
+# =============================================================== 3. married sex falls, porn rises
+ym, ae = read(&quot;natsal_years_married.csv&quot;), read(&quot;aella_sex_porn_digitised.csv&quot;)
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.4), gridspec_kw=dict(wspace=0.22))
+XT = ([0, 5, 10, 15, 20, 25, 30, 35], [&quot;0&quot;, &quot;5&quot;, &quot;10&quot;, &quot;15&quot;, &quot;20&quot;, &quot;25&quot;, &quot;30&quot;, &quot;30+&quot;])
 
-ax = axes[0]
-ax.plot(dur.years, dur.men_per_month, color=NAVY, lw=2.6)
-ax.plot(dur.years, dur.women_per_month, color=GRAY, lw=2.6)
-ax.axvspan(0, 5, color=pb.NAVY_RAMP[0], alpha=0.12, lw=0)
-ax.text(2.5, 0.5, &quot;first 5 years&quot;, ha=&quot;center&quot;, fontsize=8.5, color=INK2)
-for col, colr, lab, dy in [(&quot;men_per_month&quot;, NAVY, &quot;men&quot;, 0.25), (&quot;women_per_month&quot;, GRAY, &quot;women&quot;, -0.45)]:
-    ax.text(17.3, dur[col].iloc[-1] + dy, f&quot;{lab} {dur[col].iloc[-1]:.1f}&quot;, fontsize=9.5, color=INK, fontweight=&quot;bold&quot;,
-            va=&quot;center&quot;)
-ax.text(0.3, dur.men_per_month.iloc[0] + 0.3, f&quot;{dur.men_per_month.iloc[0]:.1f}&quot;, fontsize=9.5, fontweight=&quot;bold&quot;)
-ax.set_xlim(0, 21); ax.set_ylim(0, 8)
-ax.set_xlabel(&quot;years with this partner&quot;); ax.set_ylabel(&quot;times per month, at age 35&quot;)
-panel_title(ax, &quot;A&quot;, &quot;Sex falls by a quarter in five years&quot;)
 
-ax = axes[1]
-ax.plot(dur.years, dur.men_want_more, color=NAVY, lw=2.6)
-ax.plot(dur.years, dur.women_want_more, color=GRAY, lw=2.6)
-ax.axvspan(0, 5, color=pb.NAVY_RAMP[0], alpha=0.12, lw=0)
-for col, lab in [(&quot;men_want_more&quot;, &quot;men&quot;), (&quot;women_want_more&quot;, &quot;women&quot;)]:
-    ax.text(17.3, dur[col].iloc[-1], f&quot;{lab} {dur[col].iloc[-1]:.0%}&quot;, fontsize=9.5, color=INK, fontweight=&quot;bold&quot;,
-            va=&quot;center&quot;)
-    ax.text(-0.2, dur[col].iloc[0], f&quot;{dur[col].iloc[0]:.0%}&quot;, fontsize=9, color=INK2, ha=&quot;right&quot;, va=&quot;center&quot;)
-ax.yaxis.set_major_formatter(pct); ax.set_ylim(0.3, 0.8); ax.set_xlim(-1.6, 21)
-ax.set_xlabel(&quot;years with this partner&quot;); ax.set_ylabel(&quot;want sex more often, at age 35&quot;)
-panel_title(ax, &quot;B&quot;, &quot;...and men's wish for more ratchets up&quot;)
+def ym_line(ax, outcome, sex, colr, lw=2.4):
+    d = ym[(ym.outcome == outcome) &amp; (ym.sex == sex)].sort_values(&quot;years_married&quot;)
+    ax.fill_between(d.years_married, d.lo, d.hi, color=colr, alpha=0.13, lw=0)
+    ax.plot(d.years_married, d.adj, color=colr, lw=lw, marker=&quot;o&quot;, ms=4.5, zorder=3)
+    return d.set_index(&quot;years_married&quot;).adj
 
-ax = axes[2]
+
+m = ym_line(ax, &quot;sex_per_month&quot;, &quot;men&quot;, NAVY)
+w = ym_line(ax, &quot;sex_per_month&quot;, &quot;women&quot;, GRAY, lw=2.0)
+ax.annotate(f&quot;Men, year 0: {m.loc[0]:.1f}/month&quot;, xy=(0, m.loc[0]), xytext=(3.5, 8.3), fontsize=9.5,
+            fontweight=&quot;bold&quot;, color=INK, arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8))
+ax.annotate(f&quot;Years 5-6: {m.loc[5.5]:.1f}/month,\n{m.loc[5.5] / m.loc[0]:.0%} of year 0&quot;, xy=(5.5, m.loc[5.5]),
+            xytext=(10, 6.6), fontsize=9.5, fontweight=&quot;bold&quot;, color=INK,
+            arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8))
+ax.text(36.5, m.iloc[-1] - 0.35, &quot;men&quot;, color=NAVY, fontsize=10, fontweight=&quot;bold&quot;, ha=&quot;right&quot;, va=&quot;top&quot;)
+ax.text(36.5, w.iloc[-1] + 0.3, &quot;women&quot;, color=INK2, fontsize=10, fontweight=&quot;bold&quot;, ha=&quot;right&quot;, va=&quot;bottom&quot;)
+ax.set_xticks(*XT); ax.set_xlim(-0.8, 37); ax.set_ylim(0, 10)
+ax.set_xlabel(&quot;years married&quot;); ax.set_ylabel(&quot;times a month (age-adjusted)&quot;)
+panel_title(ax, &quot;A&quot;, &quot;Married sex falls 40% by year five, then levels off&quot;)
+
 x = np.arange(len(ae))
-ax.plot(x, ae.porn_per_month_men, color=RED, lw=2.6, marker=&quot;o&quot;, ms=4.5)
-ax.plot(x, ae.sex_per_month, color=NAVY, lw=2.6, marker=&quot;o&quot;, ms=4.5)
-ax.plot(x, ae.porn_per_month_women, color=GRAY, lw=2.2, marker=&quot;o&quot;, ms=4)
-ax.text(10.25, ae.porn_per_month_men.iloc[-1], &quot;his porn&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
-ax.text(10.25, ae.sex_per_month.iloc[-1] + 0.5, &quot;sex&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
-ax.text(10.25, ae.porn_per_month_women.iloc[-1] - 0.5, &quot;her porn&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;,
-        va=&quot;center&quot;)
-ax.set_xticks(x, ae.years_together, fontsize=8.5, rotation=45, ha=&quot;right&quot;, rotation_mode=&quot;anchor&quot;)
-ax.set_xlim(-0.4, 11.6); ax.set_ylim(0, 16)
-ax.set_xlabel(&quot;years together&quot;); ax.set_ylabel(&quot;times per month&quot;)
-panel_title(ax, &quot;C&quot;, &quot;As sex fades, his porn rises&quot;)
+ax2.plot(x, ae.porn_per_month_men, color=RED, lw=2.6, marker=&quot;o&quot;, ms=4.5)
+ax2.plot(x, ae.sex_per_month, color=NAVY, lw=2.6, marker=&quot;o&quot;, ms=4.5)
+ax2.plot(x, ae.porn_per_month_women, color=GRAY, lw=2.2, marker=&quot;o&quot;, ms=4)
+ax2.text(10.25, ae.porn_per_month_men.iloc[-1], &quot;his porn&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+ax2.text(10.25, ae.sex_per_month.iloc[-1] + 0.5, &quot;sex&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+ax2.text(10.25, ae.porn_per_month_women.iloc[-1] - 0.5, &quot;her porn&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;,
+         va=&quot;center&quot;)
+ax2.set_xticks(x, ae.years_together, fontsize=8.5, rotation=45, ha=&quot;right&quot;, rotation_mode=&quot;anchor&quot;)
+ax2.set_xlim(-0.4, 11.8); ax2.set_ylim(0, 16)
+ax2.set_xlabel(&quot;years together&quot;); ax2.set_ylabel(&quot;times a month&quot;)
+panel_title(ax2, &quot;B&quot;, &quot;As sex fades, his porn use climbs&quot;)
 
-header(fig, &quot;After the honeymoon: less sex, more wanting, more porn&quot;,
-       &quot;Monthly sex and the wish for more by years with a partner, at a fixed age of 35 (A, B); sex and porn by &quot;
-       &quot;relationship length (C)&quot;, y=0.92)
-footnote(fig, &quot;A, B: Natsal-3 (Britain 2010-12), people living with a partner (n = 5,899), weighted. Poisson (A) and &quot;
-              &quot;logistic (B) fits with age and duration as separate terms, drawn at age 35,\nso they show years together &quot;
-              &quot;rather than ageing; they stop at 17 years because a 35-year-old cannot have been with someone longer.\n&quot;
-              &quot;C: redrawn from Aella's relationships survey ('Monogamous men in long-term relationships aren't doin too &quot;
-              &quot;hot', aella.substack.com, 2023); values read off her chart.&quot;, y=0.0)
+header(fig, &quot;As married sex falls, men's porn use rises&quot;,
+       &quot;Sex per month by years married, Britain (A); sex and porn per month by relationship length, Aella's &quot;
+       &quot;relationships survey (B)&quot;, y=0.92)
+footnote(fig, f&quot;A: Natsal-3 (Britain 2010-12), married respondents with a known year of marriage (n = &quot;
+              f&quot;{int(ym[(ym.outcome == 'sex_per_month')].n.sum()):,}), weighted; occasions in the last 4 weeks, each &quot;
+              &quot;duration bin adjusted to the same age mix,\nso the line shows years married rather than ageing; shaded &quot;
+              &quot;bands are 95% intervals. B: redrawn from Aella ('Monogamous men in long-term relationships aren't doin &quot;
+              &quot;too hot',\naella.substack.com, 2023); values read off her chart. A different sample from A, so compare &quot;
+              &quot;shapes, not levels.&quot;, y=0.0)
 save(fig, &quot;married_sex_porn&quot;)
 
 # =============================================================== 4. wanting more
-want, match = read(&quot;natsal_want_more.csv&quot;), read(&quot;natsal_desire_matching.csv&quot;)
-fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.4), gridspec_kw=dict(width_ratios=[1.15, 1], wspace=0.3))
+mt = read(&quot;natsal_desire_matching.csv&quot;)
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(15, 5.8), gridspec_kw=dict(width_ratios=[1.2, 1], wspace=0.2))
 
-x = np.arange(5)
-for i, (sx, colr) in enumerate([(&quot;men&quot;, NAVY), (&quot;women&quot;, GRAY)]):
-    d = want[(want.sex == sx) &amp; (want.fifth &gt; 0)].sort_values(&quot;fifth&quot;)
-    xs = x + (i - 0.5) * 0.38
-    ax.bar(xs, d.want_more, width=0.36, color=colr)
-    for xi, v, med in zip(xs, d.want_more, d.per_month_median):
-        ax.text(xi, v + 0.015, f&quot;{v:.0%}&quot;, ha=&quot;center&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
-        ax.text(xi, 0.025, f&quot;{med:.0f}/mo&quot;, ha=&quot;center&quot;, fontsize=7.2, color=&quot;white&quot;, fontweight=&quot;bold&quot;)
-allm = float(want.loc[(want.sex == &quot;men&quot;) &amp; (want.fifth == 0), &quot;want_more&quot;].iloc[0])
-allw = float(want.loc[(want.sex == &quot;women&quot;) &amp; (want.fifth == 0), &quot;want_more&quot;].iloc[0])
-ax.text(4.55, 0.93, f&quot;■ men  (all: {allm:.0%})&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
-ax.text(4.55, 0.86, f&quot;■ women  (all: {allw:.0%})&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
-ax.set_xticks(x, [&quot;least sex\n(bottom fifth)&quot;, &quot;2nd&quot;, &quot;middle&quot;, &quot;4th&quot;, &quot;most sex\n(top fifth)&quot;], fontsize=9)
-ax.yaxis.set_major_formatter(pct); ax.set_ylim(0, 1)
-ax.set_ylabel(&quot;would like sex more often&quot;)
-ax.set_xlabel(&quot;how much sex they are already having (fifths, within each sex; median inside the bar)&quot;)
-panel_title(ax, &quot;A&quot;, &quot;Most want more, even when they're getting plenty&quot;)
+ax.plot(mt.per_month, mt.women_want_at_least, color=NAVY, lw=2.8)
+ax.plot(mt.per_month, mt.men_want_at_most, color=GRAY, lw=2.8)
+he = mt.iloc[(mt.per_month - 104 / 12).abs().argmin()]
+she = mt.iloc[(mt.per_month - 52 / 12).abs().argmin()]
+ax.plot([he.per_month], [he.women_want_at_least], &quot;o&quot;, ms=10, color=RED, mec=P[&quot;SURFACE&quot;], mew=1.6, zorder=5)
+ax.plot([she.per_month], [she.men_want_at_most], &quot;o&quot;, ms=9, color=INK, mec=P[&quot;SURFACE&quot;], mew=1.6, zorder=5)
+ax.annotate(f&quot;He wants it twice a week:\nonly {he.women_want_at_least:.0%} of women want it that often&quot;,
+            xy=(he.per_month, he.women_want_at_least), xytext=(12.5, 0.36), fontsize=9.5, fontweight=&quot;bold&quot;,
+            color=INK, arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8))
+ax.annotate(f&quot;She wants it once a week:\n{she.men_want_at_most:.0%} of men would be happy with that little&quot;,
+            xy=(she.per_month, she.men_want_at_most), xytext=(9.5, 0.86), fontsize=9.5, fontweight=&quot;bold&quot;,
+            color=INK, arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8))
+ax.text(29.6, mt.women_want_at_least.iloc[-1] + 0.03, &quot;women who want sex\nat least this often&quot;,
+        color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;, va=&quot;bottom&quot;)
+ax.text(29.6, mt.men_want_at_most.iloc[-1] - 0.03, &quot;men who want sex\nno more than this&quot;, color=INK2, fontsize=9.5,
+        fontweight=&quot;bold&quot;, ha=&quot;right&quot;, va=&quot;top&quot;)
+ax.set_xticks([52 / 12, 104 / 12, 156 / 12, 208 / 12, 30.4], [&quot;once\na week&quot;, &quot;twice\na week&quot;, &quot;3x\na week&quot;,
+                                                              &quot;4x\na week&quot;, &quot;daily&quot;])
+ax.grid(axis=&quot;x&quot;, visible=True)
+ax.set_xlim(1, 31); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
+ax.set_xlabel(&quot;how often you'd ideally like sex&quot;)
+ax.set_ylabel(&quot;share of the other sex who'd be a match&quot;)
+panel_title(ax, &quot;A&quot;, &quot;The more he wants, the fewer women match; the less she wants, the more men don't&quot;)
 
-y = np.arange(len(match))[::-1]
-ax2.barh(y + 0.19, match.women_at_least, height=0.36, color=NAVY)
-ax2.barh(y - 0.19, match.men_at_least, height=0.36, color=GRAY)
-for yi, vw, vm in zip(y, match.women_at_least, match.men_at_least):
-    ax2.text(vw + 0.01, yi + 0.19, f&quot;{vw:.0%}&quot;, va=&quot;center&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
-    ax2.text(vm + 0.01, yi - 0.19, f&quot;{vm:.0%}&quot;, va=&quot;center&quot;, fontsize=9, color=INK2)
-ax2.set_yticks(y, [f&quot;{w}&quot; for w in match.wants], fontsize=10)
-ax2.grid(axis=&quot;y&quot;, visible=False); ax2.grid(axis=&quot;x&quot;, visible=True)
-ax2.xaxis.set_major_formatter(pct); ax2.set_xlim(0, 0.7)
-ax2.text(0.69, y[-1] + 0.75, &quot;■ women&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
-ax2.text(0.69, y[-1] + 0.35, &quot;■ men&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
-ax2.set_xlabel(&quot;share who want sex at least this often&quot;)
-panel_title(ax2, &quot;B&quot;, &quot;If you want it this often, who else does?&quot;)
+m = ym_line(ax2, &quot;want_more&quot;, &quot;men&quot;, NAVY)
+w = ym_line(ax2, &quot;want_more&quot;, &quot;women&quot;, GRAY, lw=2.0)
+single = float(ym.loc[ym.sex == &quot;single men&quot;, &quot;adj&quot;].iloc[0])
+ax2.axhline(single, color=MUTED, lw=1.0, ls=(0, (1, 2)))
+ax2.text(36.5, single + 0.02, f&quot;single men: {single:.0%}&quot;, color=MUTED, fontsize=9.5, ha=&quot;right&quot;, va=&quot;bottom&quot;)
+ax2.plot([5.5], [m.loc[5.5]], &quot;o&quot;, ms=9, color=RED, mec=P[&quot;SURFACE&quot;], mew=1.5, zorder=5)
+ax2.annotate(f&quot;Men, years 5-6: {m.loc[5.5]:.0%}&quot;, xy=(5.5, m.loc[5.5]), xytext=(7.5, 0.88), fontsize=9.5,
+             fontweight=&quot;bold&quot;, color=INK, arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8))
+ax2.text(36.5, m.iloc[-1] - 0.03, &quot;men&quot;, color=NAVY, fontsize=10, fontweight=&quot;bold&quot;, ha=&quot;right&quot;, va=&quot;top&quot;)
+ax2.text(36.5, w.iloc[-1] - 0.03, &quot;women&quot;, color=INK2, fontsize=10, fontweight=&quot;bold&quot;, ha=&quot;right&quot;, va=&quot;top&quot;)
+ax2.set_xticks(*XT); ax2.set_xlim(-0.8, 37); ax2.set_ylim(0, 1); ax2.yaxis.set_major_formatter(pct)
+ax2.set_xlabel(&quot;years married&quot;); ax2.set_ylabel(&quot;would like sex more often&quot;)
+panel_title(ax2, &quot;B&quot;, &quot;Wants sex more often, by years married&quot;)
 
-header(fig, &quot;Two-thirds of partnered men want more sex than they get&quot;,
-       &quot;Partnered men and women aged 25-40: who wants more (A), and how many people want at least a given &quot;
-       &quot;frequency (B)&quot;, y=0.92)
-footnote(fig, &quot;Natsal-3 (Britain 2010-12), living with a partner, 25-40 (men n = 1,097, women n = 1,797), weighted. &quot;
-              &quot;A: 'would like sex much or a bit more often', by fifths of occasions in the last 4 weeks.\n&quot;
-              &quot;B: desired frequency fitted per sex from each person's actual count plus whether they wanted more, the &quot;
-              &quot;same or less ('a bit more' capped at 2x actual), as a lognormal.&quot;, y=0.0)
+header(fig, &quot;Men want more sex than their partners, and marriage widens the gap&quot;,
+       &quot;How many of the other sex want sex as often as you do (A); share wanting more sex by years married (B). &quot;
+       &quot;Britain, Natsal-3&quot;, y=0.92)
+footnote(fig, &quot;A: partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal frequency is estimated per sex from &quot;
+              &quot;each person's actual count in the last 4 weeks plus whether they wanted sex more, less or about as &quot;
+              &quot;often\n(a lognormal fit; 'a bit more' capped at twice the actual count). Blue: if a man wants sex x times &quot;
+              &quot;a month, the share of women whose ideal is x or more. Gray: if a woman wants it x times, the share of &quot;
+              &quot;men\nwhose ideal is x or less. B: married respondents with a known year of marriage, weighted, each bin &quot;
+              &quot;adjusted to the same age mix; shaded bands are 95% intervals.&quot;, y=0.0)
 save(fig, &quot;wants_more&quot;)
 
 # =============================================================== 5. sex-life satisfaction
@@ -1572,5 +2720,70 @@ footnote(fig, &quot;Redrawn from Aella's relationships survey (n = 3,720 men; 'M
               &quot;Her sample is mostly her own followers, who skew liberal and sexually open, so treat levels as indicative.&quot;,
          y=-0.02)
 save(fig, &quot;sex_satisfaction&quot;)
+
+# =============================================================== 6. men's lifetime partner distribution
+dist = read(&quot;bodycount_distribution.csv&quot;).set_index(&quot;stat&quot;).value
+cut = read(&quot;bodycount_crosscuts.csv&quot;)
+fig, axes = plt.subplots(1, 3, figsize=(17.5, 5.8), gridspec_kw=dict(width_ratios=[1.15, 0.85, 1.25], wspace=0.32))
+
+ax = axes[0]
+qs = [10, 20, 30, 40, 50, 60, 70, 80, 90, 95]
+vals = [dist[f&quot;p{q}&quot;] for q in qs]
+x = np.arange(len(qs))
+ax.bar(x, vals, width=0.68, color=NAVY)
+for xi, v in zip(x, vals):
+    ax.text(xi, v + 1.2, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK)
+mean = dist[&quot;mean_capped100&quot;]
+ax.axhline(mean, color=RED, lw=1.6, ls=(0, (4, 3)))
+ax.text(-0.4, mean + 1.5, f&quot;mean {mean:.0f}: more than {dist['share_below_mean']:.0%} of men have had fewer&quot;,
+        color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;left&quot;, va=&quot;bottom&quot;)
+ax.set_xticks(x, [f&quot;{q}th&quot; if q != 50 else &quot;median&quot; for q in qs], fontsize=9)
+ax.set_ylim(0, 80); ax.set_ylabel(&quot;lifetime female partners&quot;)
+ax.set_xlabel(&quot;percentile of men&quot;)
+panel_title(ax, &quot;A&quot;, &quot;The median man: 6. The 90th percentile: 40&quot;)
+
+ax = axes[1]
+x = np.arange(5)
+shares = [dist[f&quot;fifth{q}_share&quot;] for q in range(1, 6)]
+means = [dist[f&quot;fifth{q}_mean&quot;] for q in range(1, 6)]
+ax.bar(x, shares, width=0.66, color=[MUTE] * 4 + [RED])
+for xi, s_, m_ in zip(x, shares, means):
+    ax.text(xi, s_ + 0.015, f&quot;{s_:.0%}&quot;, ha=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK)
+    ax.text(xi, s_ + 0.06, f&quot;avg {m_:.0f}&quot;, ha=&quot;center&quot;, fontsize=8.5, color=INK2)
+ax.set_xticks(x, [&quot;bottom\nfifth&quot;, &quot;2nd&quot;, &quot;middle&quot;, &quot;4th&quot;, &quot;top\nfifth&quot;], fontsize=9)
+ax.yaxis.set_major_formatter(pct); ax.set_ylim(0, 0.85)
+ax.set_ylabel(&quot;share of all partners men report&quot;)
+panel_title(ax, &quot;B&quot;, &quot;The top fifth: two-thirds of the total&quot;)
+
+ax = axes[2]
+c = cut.iloc[::-1].reset_index(drop=True)
+y = np.arange(len(c)) * 1.0
+gaps = {&quot;history&quot;: 0.5, &quot;status&quot;: 1.0, &quot;all&quot;: 1.5}      # extra space above each family
+for fam, extra in gaps.items():
+    y[(c.family == fam).to_numpy()] += extra
+y += np.where(c.family == &quot;status&quot;, 0, 0)
+for yi, row in zip(y, c.itertuples()):
+    hot = row.group in (&quot;Has paid for sex&quot;, &quot;Saw X-rated film, past yr&quot;)
+    ax.plot([row.median, row.p90], [yi, yi], color=GRID_C, lw=2.2, zorder=1)
+    ax.plot(row.median, yi, &quot;o&quot;, ms=8, color=GRAY, zorder=3)
+    ax.plot(row.p90, yi, &quot;o&quot;, ms=9, color=RED if hot else NAVY, zorder=3)
+    ax.text(row.p90 + 3, yi, f&quot;{row.p90:.0f}&quot;, va=&quot;center&quot;, fontsize=9, fontweight=&quot;bold&quot;, color=INK)
+    ax.text(row.median - 2.5, yi, f&quot;{row.median:.0f}&quot;, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5, color=INK2)
+ax.set_yticks(y, [f&quot;{g}  (n={n:,})&quot; for g, n in zip(c.group, c.n)], fontsize=9)
+ax.grid(axis=&quot;y&quot;, visible=False); ax.grid(axis=&quot;x&quot;, visible=True)
+ax.set_xlim(-6, 112); ax.set_xlabel(&quot;lifetime female partners&quot;)
+ax.text(5, y.max() + 1.0, &quot;● median&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;)
+ax.text(32, y.max() + 1.0, &quot;● 90th percentile&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;)
+ax.set_ylim(-0.7, y.max() + 1.6)
+panel_title(ax, &quot;C&quot;, &quot;Groups differ at the top, not in the middle&quot;)
+
+header(fig, &quot;The typical man has had six partners; the top fifth average fifty&quot;,
+       &quot;Lifetime female partners, US men aged 40-60: percentiles (A), each fifth's share of the total (B), and &quot;
+       &quot;the middle vs the top across groups (C)&quot;, y=0.92)
+footnote(fig, &quot;GSS 1989-2022, men 40-60 (n = 5,435; older, so counts are close to lifetime), survey-weighted. Partner &quot;
+              &quot;counts are self-reported; the mean and B cap answers at 100 so a few very large ones don't dominate.\n&quot;
+              &quot;B ranks men by count and splits them into fifths. C: X-rated film = saw one in the past year; income &quot;
+              &quot;thirds are ranked within survey year. Groups overlap and are not adjusted for each other.&quot;, y=0.0)
+save(fig, &quot;bodycount_distribution&quot;)
 </code></pre>
 </main></body></html>

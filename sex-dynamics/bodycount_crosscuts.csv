@@ -1,0 +1,13 @@
+group,family,n,median,p80,p90,mean_capped100
+All men 40-60,all,5435,6.0,20.0,40.0,14.587238522597165
+Bachelor's+,status,1811,5.0,19.871718934128598,30.0,12.380313841509903
+No degree,status,3617,6.0,20.0,40.0,15.530624130112304
+Income top third,status,1443,6.0,20.0,30.0,13.530624450661797
+Income bottom third,status,1445,5.0,20.0,35.0,14.541303087389103
+Married,history,3240,5.0,17.0,30.0,12.61745999992113
+Never married,history,802,5.0,20.0,40.0,14.306494840515205
+Divorced/separated,history,1286,11.0,30.0,50.0,22.177405377752216
+Never paid for sex,appetite,4171,5.0,15.0,30.0,11.749315511449959
+Has paid for sex,appetite,917,15.0,50.0,100.0,29.27580969571315
+"No X-rated film, past yr",appetite,2364,5.0,20.0,30.0,12.379102542735618
+"Saw X-rated film, past yr",appetite,1105,10.0,25.0,50.0,18.63435002034092
