@@ -83,9 +83,10 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
 **Sources computed here.**
 
 * **GSS 1972-2024 cumulative file** (`gss7224_r2.dta`), survey-weighted with `wtssps` (missing weight = 1).
-  - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness 1-5 at the end of the
-    interview. Men aged 25-60, lifetime female partners since 18 (`numwomen`, 0-989), winsorised at 100.
-    All five ratings are shown; only 19 men got a 1 and 66 a 5, so those means are imprecise.
+  - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness
+    1-5 at the end of the interview. Single men (never married, divorced or separated) aged 20-60, mean lifetime
+    female partners since 18 (`numwomen`, 0-989) *uncapped*, as in the post's original chart. The CSV also keeps
+    each rating's median, largest answer, and mean without that largest answer.
   - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
     sex and cut into thirds. &quot;Bottom both&quot; = bottom third on both; &quot;bottom either&quot; = bottom third on one; &quot;high
     both&quot; = top third on both; &quot;high either&quot; = top third on one (and not bottom on the other); the rest are
@@ -169,48 +170,66 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <th>mean_partners</th>
 <th>lo</th>
 <th>hi</th>
+<th>median</th>
+<th>largest_answer</th>
+<th>mean_without_largest</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1 (lowest)</td>
 <td>1</td>
-<td>19</td>
-<td>9.985</td>
-<td>5.316</td>
-<td>18.398</td>
+<td>17</td>
+<td>9.471</td>
+<td>4.558</td>
+<td>16.627</td>
+<td>11.000</td>
+<td>50.000</td>
+<td>8.368</td>
 </tr>
 <tr>
 <td>2</td>
 <td>2</td>
-<td>60</td>
-<td>13.213</td>
-<td>8.287</td>
-<td>20.331</td>
+<td>37</td>
+<td>23.491</td>
+<td>8.563</td>
+<td>47.514</td>
+<td>6.000</td>
+<td>500.000</td>
+<td>16.471</td>
 </tr>
 <tr>
 <td>3</td>
 <td>3</td>
-<td>520</td>
-<td>11.431</td>
-<td>9.822</td>
-<td>13.086</td>
+<td>343</td>
+<td>12.669</td>
+<td>10.214</td>
+<td>15.692</td>
+<td>5.000</td>
+<td>200.000</td>
+<td>12.174</td>
 </tr>
 <tr>
 <td>4</td>
 <td>4</td>
-<td>294</td>
-<td>14.499</td>
-<td>10.689</td>
-<td>19.172</td>
+<td>190</td>
+<td>13.222</td>
+<td>9.887</td>
+<td>17.473</td>
+<td>6.500</td>
+<td>200.000</td>
+<td>12.191</td>
 </tr>
 <tr>
 <td>5 (highest)</td>
 <td>5</td>
-<td>66</td>
-<td>16.112</td>
-<td>10.348</td>
-<td>23.359</td>
+<td>44</td>
+<td>12.988</td>
+<td>6.984</td>
+<td>21.840</td>
+<td>5.500</td>
+<td>200.000</td>
+<td>9.309</td>
 </tr>
 </tbody>
 </table>
@@ -2071,9 +2090,10 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
 **Sources computed here.**
 
 * **GSS 1972-2024 cumulative file** (`gss7224_r2.dta`), survey-weighted with `wtssps` (missing weight = 1).
-  - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness 1-5 at the end of the
-    interview. Men aged 25-60, lifetime female partners since 18 (`numwomen`, 0-989), winsorised at 100.
-    All five ratings are shown; only 19 men got a 1 and 66 a 5, so those means are imprecise.
+  - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness
+    1-5 at the end of the interview. Single men (never married, divorced or separated) aged 20-60, mean lifetime
+    female partners since 18 (`numwomen`, 0-989) *uncapped*, as in the post's original chart. The CSV also keeps
+    each rating's median, largest answer, and mean without that largest answer.
   - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
     sex and cut into thirds. &quot;Bottom both&quot; = bottom third on both; &quot;bottom either&quot; = bottom third on one; &quot;high
     both&quot; = top third on both; &quot;high either&quot; = top third on one (and not bottom on the other); the rest are
@@ -2163,13 +2183,20 @@ g[&quot;pres_pct&quot;] = g.groupby([&quot;year&quot;, &quot;sex&quot;]).prestg1
 men = g[g.sex.eq(1) &amp; g.numwomen.between(0, 989)].copy()
 men[&quot;bc&quot;] = men.numwomen.clip(upper=100)
 
-lk = men[men.rlooks.between(1, 5)].copy()
+# single men (never married, divorced, separated) 20-60, UNCAPPED partner counts, as in the post's original chart
+lk = read_gss([&quot;year&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;numwomen&quot;, &quot;rlooks&quot;, &quot;marital&quot;, &quot;wtssps&quot;])
+lk = lk[lk.sex.eq(1) &amp; lk.age.between(20, 60) &amp; lk.marital.isin([3, 4, 5]) &amp; lk.rlooks.between(1, 5)
+        &amp; lk.numwomen.between(0, 989)].copy()
+lk[&quot;w&quot;] = lk.wtssps.fillna(1.0)
 LOOKS_LAB = {1: &quot;1 (lowest)&quot;, 2: &quot;2&quot;, 3: &quot;3&quot;, 4: &quot;4&quot;, 5: &quot;5 (highest)&quot;}
 rows = []
 for k, lab in LOOKS_LAB.items():
-    s = lk[lk.rlooks == k]
-    lo, hi = boot_ci(s.bc, s.w)
-    rows.append({&quot;looks&quot;: lab, &quot;code&quot;: k, &quot;n&quot;: len(s), &quot;mean_partners&quot;: wmean(s.bc, s.w), &quot;lo&quot;: lo, &quot;hi&quot;: hi})
+    s_ = lk[lk.rlooks == k]
+    lo, hi = boot_ci(s_.numwomen, s_.w)
+    top = s_.numwomen.idxmax()
+    rows.append({&quot;looks&quot;: lab, &quot;code&quot;: k, &quot;n&quot;: len(s_), &quot;mean_partners&quot;: wmean(s_.numwomen, s_.w), &quot;lo&quot;: lo, &quot;hi&quot;: hi,
+                 &quot;median&quot;: float(s_.numwomen.median()), &quot;largest_answer&quot;: float(s_.numwomen.max()),
+                 &quot;mean_without_largest&quot;: wmean(s_.numwomen.drop(top), s_.w.drop(top))})
 LOOKS = pd.DataFrame(rows)
 LOOKS.to_csv(HERE / &quot;looks_partners.csv&quot;, index=False)
 print(&quot;looks:\n&quot;, LOOKS.round(2).to_string(index=False))
@@ -2514,9 +2541,9 @@ for xi, v, hi, n in zip(x, looks.mean_partners, looks.hi, looks.n):
     ax.text(xi, hi + 0.6, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
     ax.text(xi, 0.6, f&quot;n={n}&quot;, ha=&quot;center&quot;, fontsize=7, color=&quot;white&quot;)
 ax.set_xticks(x, [&quot;1\nlowest&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5\nhighest&quot;], fontsize=9)
-ax.set_ylim(0, 27); ax.set_ylabel(&quot;lifetime female partners (mean)&quot;)
+ax.set_ylim(0, max(27, looks.hi.max() * 1.12)); ax.set_ylabel(&quot;lifetime female partners (mean)&quot;)
 ax.set_xlabel(&quot;interviewer's looks rating, 1-5&quot;)
-panel_title(ax, &quot;A&quot;, &quot;Looks&quot;)
+panel_title(ax, &quot;A&quot;, &quot;Looks (single men)&quot;)
 
 ax = axes[1]
 rungs = [&quot;bottom both&quot;, &quot;bottom either&quot;, &quot;middle&quot;, &quot;high either&quot;, &quot;high both&quot;]
@@ -2531,7 +2558,7 @@ for i, (coll, colr, lab) in enumerate([(True, NAVY, &quot;college grads&quot;), 
     ax.text(-0.45, 24.5 - 2.0 * i, &quot;■ &quot; + lab, fontsize=9.5, color=colr, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
 ax.set_xticks(x, [&quot;bottom\nboth&quot;, &quot;bottom\neither&quot;, &quot;middle&quot;, &quot;top\neither&quot;, &quot;top\nboth&quot;], fontsize=9)
 ax.set_xlabel(&quot;income x occupational prestige (thirds, within year)&quot;)
-ax.set_ylim(0, 27)
+ax.set_ylim(0, 27); ax.set_ylabel(&quot;lifetime female partners (mean)&quot;)
 panel_title(ax, &quot;B&quot;, &quot;Income and job prestige&quot;)
 
 ax = axes[2]
@@ -2549,11 +2576,13 @@ ax.set_ylabel(&quot;no sex in the past year&quot;); ax.set_xlabel(&quot;height, 
 panel_title(ax, &quot;C&quot;, &quot;Height&quot;)
 
 header(fig, &quot;Looks, money and height barely move men's sex lives&quot;,
-       &quot;Lifetime partners by looks (A) and by income and prestige (B), men 25-60; share of young men with no sex &quot;
-       &quot;in the past year, by height (C)&quot;, y=0.92)
-footnote(fig, &quot;A, B: GSS, men 25-60, survey-weighted means, partners capped at 100, bootstrap 95% intervals. A: 2016-22, the only &quot;
-              &quot;years with the interviewer's 1-5 looks rating. B: 1989-2022.\n&quot;
-              &quot;B: income and occupational prestige each split into thirds within survey year; 'top both' = top third &quot;
+       &quot;Lifetime partners by looks, single men 20-60 (A), and by income and prestige, men 25-60 (B); share of young &quot;
+       &quot;men with no sex in the past year, by height (C)&quot;, y=0.92)
+footnote(fig, f&quot;A: GSS 2016-22 (the only years with the interviewer's 1-5 looks rating), never-married, divorced or separated men 20-60, &quot;
+              f&quot;uncapped means; rating 2 rests on {int(looks.n[1])} men, one of whom reported {looks.largest_answer[1]:.0f} &quot;
+              f&quot;partners (without him: {looks.mean_without_largest[1]:.0f}).\nB: GSS 1989-2022, men 25-60, partners capped &quot;
+              &quot;at 100. A, B: survey-weighted, bootstrap 95% intervals. &quot;
+              &quot;Income and occupational prestige each split into thirds within survey year; 'top both' = top third &quot;
               &quot;on both. College = bachelor's or more.\n&quot;
               f&quot;C: NSFG 2011-17, heterosexual non-Hispanic white men 18-29 (n = {int(ht.loc[ht.inches == 0, 'n'].iloc[0]):,}), &quot;
               &quot;weighted. Replicates NuancePill's analysis (nuancepill.substack.com); virginity by height is just as flat.&quot;,
