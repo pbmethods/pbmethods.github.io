@@ -131,6 +131,18 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   times a month for single BA+ men) and is age-adjusted within itself. Points resting on fewer than 20 top-band
   men are not drawn.
 
+* **Cheating** (GSS `evstray`, ever had sex with someone other than one's spouse while married; undated, so every
+  cut is an association). Men's outside partners last year: currently married men 25-60, `partners` (scored as
+  above) minus one for the spouse; share of men with any, share with exactly one, and how the outside partners are
+  spread across them. Ever divorced (currently divorced or separated, or married with a prior divorce) among
+  ever-married people 25-70 who cheated vs did not. Ever cheated by age band within birth cohorts (1930-44,
+  1945-59, 1960-74, 1975-89) and within own-income thirds (ranked within year), ever-married men 25-64; cells
+  under 60 men are dropped. `evstray` is "ever", so it also rises with years of marriage. Mate switching:
+  among remarried people after a divorce, whether the current spouse has a bachelor's degree (`speduc` >= 16),
+  cheaters vs not; and Natsal-3, for people whose last marriage ended, whether the current relationship began
+  before it ended (years since first sex with the current partner vs years since the marriage stopped, against
+  a 2011 fieldwork midpoint), overall and by whether unfaithfulness was cited (the checklist doesn't say whose).
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -524,6 +536,73 @@ _Every 1th row of 45 shown; full file: [natsal_years_married.csv](natsal_years_m
 
 _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desire_matching.csv)._
 
+### `cheating_outside_partners.csv`
+
+| stat | value | n |
+|---|---|---|
+| share_married_men_with_outside_partner | 0.042 | 6326 |
+| share_cheaters_exactly_one | 0.537 | 269 |
+| partners_held_by_one_partner_cheaters | 0.215 | 269 |
+| partners_held_by_top20 | 0.551 | 269 |
+| partners_held_by_top10 | 0.374 | 269 |
+
+### `cheating_divorce.csv`
+
+| sex | group | ever_divorced | lo | hi | n |
+|---|---|---|---|---|---|
+| women | cheated | 0.694 | 0.670 | 0.719 | 1819 |
+| women | faithful | 0.372 | 0.361 | 0.383 | 10220 |
+| men | cheated | 0.596 | 0.572 | 0.621 | 2052 |
+| men | faithful | 0.331 | 0.318 | 0.343 | 7009 |
+
+### `cheating_by_age.csv`
+
+| split | group | age_band | ever_cheated | lo | hi | n |
+|---|---|---|---|---|---|---|
+| cohort | born 1930-44 | 45-54 | 0.285 | 0.220 | 0.344 | 241 |
+| cohort | born 1930-44 | 55-64 | 0.295 | 0.259 | 0.333 | 683 |
+| cohort | born 1945-59 | 35-44 | 0.225 | 0.198 | 0.256 | 915 |
+| cohort | born 1945-59 | 45-54 | 0.250 | 0.226 | 0.278 | 1242 |
+| cohort | born 1945-59 | 55-64 | 0.225 | 0.193 | 0.254 | 969 |
+| cohort | born 1960-74 | 25-34 | 0.140 | 0.116 | 0.167 | 869 |
+| cohort | born 1960-74 | 35-44 | 0.177 | 0.151 | 0.201 | 1084 |
+| cohort | born 1960-74 | 45-54 | 0.181 | 0.151 | 0.215 | 735 |
+| cohort | born 1960-74 | 55-64 | 0.237 | 0.176 | 0.302 | 233 |
+| cohort | born 1975-89 | 25-34 | 0.127 | 0.095 | 0.162 | 525 |
+| cohort | born 1975-89 | 35-44 | 0.151 | 0.110 | 0.190 | 429 |
+| income | bottom third | 25-34 | 0.158 | 0.127 | 0.190 | 595 |
+| income | bottom third | 35-44 | 0.223 | 0.184 | 0.262 | 630 |
+| income | bottom third | 45-54 | 0.261 | 0.220 | 0.305 | 551 |
+| income | bottom third | 55-64 | 0.218 | 0.179 | 0.259 | 429 |
+| income | middle third | 25-34 | 0.119 | 0.090 | 0.153 | 488 |
+| income | middle third | 35-44 | 0.190 | 0.161 | 0.224 | 739 |
+| income | middle third | 45-54 | 0.212 | 0.177 | 0.251 | 595 |
+| income | middle third | 55-64 | 0.269 | 0.218 | 0.321 | 375 |
+| income | top third | 25-34 | 0.093 | 0.054 | 0.135 | 231 |
+| income | top third | 35-44 | 0.165 | 0.138 | 0.192 | 745 |
+| income | top third | 45-54 | 0.239 | 0.207 | 0.273 | 732 |
+| income | top third | 55-64 | 0.239 | 0.197 | 0.278 | 515 |
+
+### `natsal_next_began_before_end.csv`
+
+| sex | subset | began_before_end | lo | hi | n |
+|---|---|---|---|---|---|
+| women | all ended marriages | 0.337 | 0.292 | 0.374 | 697 |
+| women | ended by unfaithfulness | 0.244 | 0.182 | 0.312 | 208 |
+| women | ended for other reasons | 0.374 | 0.325 | 0.424 | 489 |
+| men | all ended marriages | 0.267 | 0.214 | 0.314 | 371 |
+| men | ended by unfaithfulness | 0.215 | 0.132 | 0.310 | 101 |
+| men | ended for other reasons | 0.287 | 0.230 | 0.348 | 270 |
+
+### `mate_switch_trading_up.csv`
+
+| sex | group | new_spouse_ba | lo | hi | n |
+|---|---|---|---|---|---|
+| women | cheated | 0.284 | 0.225 | 0.337 | 334 |
+| women | faithful | 0.231 | 0.208 | 0.254 | 1515 |
+| men | cheated | 0.262 | 0.219 | 0.306 | 438 |
+| men | faithful | 0.243 | 0.217 | 0.271 | 1190 |
+
 ### `aella_sex_porn_digitised.csv`
 
 | years_together | sex_per_month | porn_per_month_men | porn_per_month_women | source |
@@ -842,6 +921,18 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   sample of the Chadopoly post. Each segment uses its own median band (once a week for the first two, two or three
   times a month for single BA+ men) and is age-adjusted within itself. Points resting on fewer than 20 top-band
   men are not drawn.
+
+* **Cheating** (GSS `evstray`, ever had sex with someone other than one's spouse while married; undated, so every
+  cut is an association). Men's outside partners last year: currently married men 25-60, `partners` (scored as
+  above) minus one for the spouse; share of men with any, share with exactly one, and how the outside partners are
+  spread across them. Ever divorced (currently divorced or separated, or married with a prior divorce) among
+  ever-married people 25-70 who cheated vs did not. Ever cheated by age band within birth cohorts (1930-44,
+  1945-59, 1960-74, 1975-89) and within own-income thirds (ranked within year), ever-married men 25-64; cells
+  under 60 men are dropped. `evstray` is "ever", so it also rises with years of marriage. Mate switching:
+  among remarried people after a divorce, whether the current spouse has a bachelor's degree (`speduc` >= 16),
+  cheaters vs not; and Natsal-3, for people whose last marriage ended, whether the current relationship began
+  before it ended (years since first sex with the current partner vs years since the marriage stopped, against
+  a 2011 fieldwork midpoint), overall and by whether unfaithfulness was cited (the checklist doesn't say whose).
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -1244,6 +1335,94 @@ SEG = pd.DataFrame(rows)
 SEG.to_csv(HERE / "sexfreq_segments_men.csv", index=False)
 print(SEG.pivot_table(index="trait", columns=["segment", "group"], values="value").round(2).to_string())
 print(SEG.pivot_table(index="trait", columns=["segment", "group"], values="n").to_string())
+
+# ---------------------------------------------------------------- cheating (GSS EVSTRAY, PARTNERS) and mate switching
+ch = read_gss(["year", "age", "sex", "evstray", "marital", "divorce", "partners", "conrinc", "cohort", "speduc",
+               "wtssps"])
+ch["w"] = ch.wtssps.fillna(1.0)
+# A (men): outside partners last year among currently married men 25-60 (partners last year minus the spouse)
+mm = ch[ch.sex.eq(1) & ch.marital.eq(1) & ch.age.between(25, 60) & ch.partners.between(0, 7)].copy()
+mm["outside"] = (mm.partners.map(PART_MID) - 1).clip(lower=0)
+chs = mm[mm.outside > 0].sort_values("outside", ascending=False)
+cw_ = np.cumsum(chs.w) / chs.w.sum(); vol_ = np.cumsum(chs.outside * chs.w) / (chs.outside * chs.w).sum()
+one = chs.outside.eq(1)
+OUT_ROWS = [{"stat": "share_married_men_with_outside_partner", "value": wmean(mm.outside > 0, mm.w), "n": len(mm)},
+            {"stat": "share_cheaters_exactly_one", "value": wmean(one, chs.w), "n": len(chs)},
+            {"stat": "partners_held_by_one_partner_cheaters", "value": float((one * chs.outside * chs.w).sum() /
+                                                                             (chs.outside * chs.w).sum()), "n": len(chs)},
+            {"stat": "partners_held_by_top20", "value": float(np.interp(0.20, cw_, vol_)), "n": len(chs)},
+            {"stat": "partners_held_by_top10", "value": float(np.interp(0.10, cw_, vol_)), "n": len(chs)}]
+# divorce link, both sexes (ever-married 25-70, as in the libido notebook's mate-switching tests)
+em = ch[ch.evstray.isin([1, 2]) & ch.age.between(25, 70) & ch.marital.isin([1, 2, 3, 4])].copy()
+em["stray"] = em.evstray.eq(1)
+em["ever_div"] = em.marital.isin([3, 4]) | em.divorce.eq(1)
+DIV_ROWS = []
+for sx_code, sx in [(2, "women"), (1, "men")]:
+    for st, grp in [(True, "cheated"), (False, "faithful")]:
+        d = em[(em.sex == sx_code) & (em.stray == st)]
+        lo, hi = boot_ci(d.ever_div, d.w)
+        DIV_ROWS.append({"sex": sx, "group": grp, "ever_divorced": wmean(d.ever_div, d.w), "lo": lo, "hi": hi,
+                         "n": len(d)})
+pd.DataFrame(OUT_ROWS).to_csv(HERE / "cheating_outside_partners.csv", index=False)
+pd.DataFrame(DIV_ROWS).to_csv(HERE / "cheating_divorce.csv", index=False)
+print(pd.DataFrame(OUT_ROWS).round(3).to_string(index=False)); print(pd.DataFrame(DIV_ROWS).round(3).to_string(index=False))
+
+# B, C (men): ever cheated by age band, within birth cohorts and within own-income thirds (ever-married men 25-64)
+mn = ch[ch.sex.eq(1) & ch.evstray.isin([1, 2]) & ch.marital.isin([1, 2, 3, 4]) & ch.age.between(25, 64)].copy()
+mn["stray"] = mn.evstray.eq(1).astype(float)
+mn["ageband"] = pd.cut(mn.age, [24, 34, 44, 54, 64], labels=["25-34", "35-44", "45-54", "55-64"])
+mn["coh"] = pd.cut(mn.cohort, [1929, 1944, 1959, 1974, 1989], labels=["born 1930-44", "born 1945-59",
+                                                                        "born 1960-74", "born 1975-89"])
+mn["inc3"] = pd.cut(mn.groupby("year").conrinc.rank(pct=True), [0, 1 / 3, 2 / 3, 1.0],
+                    labels=["bottom third", "middle third", "top third"])
+rows = []
+for kind, col in [("cohort", "coh"), ("income", "inc3")]:
+    for (grp, ab), d in mn.dropna(subset=[col]).groupby([col, "ageband"], observed=True):
+        if len(d) < 60:
+            continue
+        lo, hi = boot_ci(d.stray, d.w)
+        rows.append({"split": kind, "group": grp, "age_band": ab, "ever_cheated": wmean(d.stray, d.w), "lo": lo,
+                     "hi": hi, "n": len(d)})
+AGE_CH = pd.DataFrame(rows)
+AGE_CH.to_csv(HERE / "cheating_by_age.csv", index=False)
+print(AGE_CH.pivot_table(index=["split", "group"], columns="age_band", values="ever_cheated", observed=True).round(3))
+
+# women's mate switching, C: the CURRENT husband of remarried women (and wives of remarried men) has a BA+
+rm = em[em.marital.eq(1) & em.ever_div].copy()
+rm["spba"] = rm.speduc.where(rm.speduc.between(0, 20)).ge(16).where(rm.speduc.between(0, 20))
+rows = []
+for sx_code, sx in [(2, "women"), (1, "men")]:
+    for st, grp in [(True, "cheated"), (False, "faithful")]:
+        d = rm[(rm.sex == sx_code) & (rm.stray == st) & rm.spba.notna()]
+        lo, hi = boot_ci(d.spba.astype(float), d.w)
+        rows.append({"sex": sx, "group": grp, "new_spouse_ba": wmean(d.spba.astype(float), d.w), "lo": lo, "hi": hi,
+                     "n": len(d)})
+TRADE = pd.DataFrame(rows)
+TRADE.to_csv(HERE / "mate_switch_trading_up.csv", index=False)
+print(TRADE.round(3).to_string(index=False))
+
+# women's mate switching, B: Natsal -- the current relationship began before the last marriage ended
+nlow = {c.lower(): c for c in pd.read_stata(NAT, chunksize=5).read(1).columns}
+use = [nlow[c] for c in ["pp1why1", "pp1why7", "pp1ystop", "rafsmr", "dage", "rsex", "total_wt", "pp1ms", "pp1mar"]]
+nb14 = pd.read_stata(NAT, columns=use, convert_categoricals=False)
+nb14.columns = [c.lower() for c in nb14.columns]
+nb14 = nb14[(nb14.total_wt > 0) & nb14.pp1why1.eq(0) & (nb14.pp1ms.eq(1) | nb14.pp1mar.eq(1))].copy()
+nb14["yrs_since_stop"] = 2011.0 - nb14.pp1ystop.where(nb14.pp1ystop.between(1950, 2012))
+nb14["yrs_since_start"] = nb14.dage - nb14.rafsmr.where(nb14.rafsmr.between(10, 80))
+nb14 = nb14[nb14.yrs_since_stop.between(0, 30) & nb14.yrs_since_start.between(0, 30)]
+nb14["overlap"] = (nb14.yrs_since_start - nb14.yrs_since_stop).gt(0).astype(float)
+rows = []
+for sx_code, sx in [(2, "women"), (1, "men")]:
+    for lab, m_ in [("all ended marriages", nb14.rsex == sx_code),
+                    ("ended by unfaithfulness", (nb14.rsex == sx_code) & nb14.pp1why7.eq(1)),
+                    ("ended for other reasons", (nb14.rsex == sx_code) & nb14.pp1why7.ne(1))]:
+        d = nb14[m_]
+        lo, hi = boot_ci(d.overlap, d.total_wt)
+        rows.append({"sex": sx, "subset": lab, "began_before_end": wmean(d.overlap, d.total_wt), "lo": lo, "hi": hi,
+                     "n": len(d)})
+OVL = pd.DataFrame(rows)
+OVL.to_csv(HERE / "natsal_next_began_before_end.csv", index=False)
+print(OVL.round(3).to_string(index=False))
 
 # ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
 NSFG = DATA / "nsfg_2011_2017"
@@ -1872,4 +2051,123 @@ footnote(fig, "GSS 1989-2022, men, survey-weighted, regression-adjusted to each 
               f"are not drawn where fewer than {MIN_N} top-band men have them. Single BA+ men's looks point the "
               "same way (4.1 vs 3.0 of 5), but on 4 men.", y=0.02)
 save(fig, "most_sex_by_segment")
+
+# =============================================================== 10. men's cheating: volume, age x cohort, age x income
+op = read("cheating_outside_partners.csv").set_index("stat").value
+dv = read("cheating_divorce.csv")
+ac = read("cheating_by_age.csv")
+
+
+def stacked_flow(ax, left, right, cols, left_labels, right_notes, left_title, right_title):
+    X0, X1, W = 0.0, 1.6, 0.42
+    t0 = t1 = 1.0
+    for h0, h1, colr, ll, rn in zip(left, right, cols, left_labels, right_notes):
+        b0, b1 = t0 - h0, t1 - h1
+        ax.add_patch(Polygon([(X0 + W, t0), (X1, t1), (X1, b1), (X0 + W, b0)], closed=True, color=colr, alpha=0.16,
+                             lw=0))
+        ax.bar(X0 + W / 2, h0, bottom=b0, width=W, color=colr, edgecolor=P["SURFACE"], lw=1.2)
+        ax.bar(X1 + W / 2, h1, bottom=b1, width=W, color=colr, edgecolor=P["SURFACE"], lw=1.2)
+        ax.text(X0 - 0.05, (t0 + b0) / 2, ll, ha="right", va="center", fontsize=9.5, color=INK)
+        ax.text(X1 + W / 2, (t1 + b1) / 2, f"{h1:.0%}", ha="center", va="center", fontsize=12, fontweight="bold",
+                color="white" if colr != MUTE else INK)
+        ax.text(X1 + W + 0.07, (t1 + b1) / 2, rn, ha="left", va="center", fontsize=9, color=INK2)
+        t0, t1 = b0, b1
+    ax.set_xticks([X0 + W / 2, X1 + W / 2], [left_title, right_title], fontsize=9.5)
+    ax.set_xlim(-1.25, 3.3); ax.set_ylim(0, 1); ax.set_yticks([]); ax.grid(False)
+
+
+fig, axes = plt.subplots(1, 3, figsize=(18.5, 6.4), gridspec_kw=dict(width_ratios=[1.25, 1, 1], wspace=0.3))
+one, top20 = op["share_cheaters_exactly_one"], 0.20
+held_one, held_top = op["partners_held_by_one_partner_cheaters"], op["partners_held_by_top20"]
+stacked_flow(axes[0], [top20, 1 - top20 - one, one], [held_top, 1 - held_top - held_one, held_one], [RED, NAVY, MUTE],
+             ["top 20%\n(the serial\ncheaters)", "the rest", f"exactly one\noutside partner\n({one:.0%})"],
+             ["", "", ""], "share of\ncheating husbands", "share of all\noutside partners")
+dm = dv[dv.sex == "men"].set_index("group").ever_divorced
+axes[0].text(1.6 + 0.42 + 0.07, 0.5, f"Cheaters' marriages\nend twice as often:\n{dm['cheated']:.0%} of cheating men\n"
+             f"have divorced vs\n{dm['faithful']:.0%} of faithful men", fontsize=9.5, color=INK, fontweight="bold",
+             va="center")
+panel_title(axes[0], "A", "Half of cheating husbands have one outside partner")
+
+COH_COL = {"born 1930-44": "#c9c7c1", "born 1945-59": "#8a8984", "born 1960-74": pb.NAVY_RAMP[1],
+           "born 1975-89": NAVY}
+INC_COL = {"bottom third": "#8a8984", "middle third": pb.NAVY_RAMP[0], "top third": NAVY}
+AGES = ["25-34", "35-44", "45-54", "55-64"]
+for ax, split, colmap, letter, title in [(axes[1], "cohort", COH_COL, "B", "It rises with age within each generation"),
+                                         (axes[2], "income", INC_COL, "C", "...and within each income third")]:
+    for grp, colr in colmap.items():
+        d = ac[(ac.split == split) & (ac.group == grp)].copy()
+        d["x"] = d.age_band.map({a: i for i, a in enumerate(AGES)})
+        d = d.sort_values("x")
+        ax.fill_between(d.x, d.lo, d.hi, color=colr, alpha=0.12, lw=0)
+        ax.plot(d.x, d.ever_cheated, color=colr, lw=2.6, marker="o", ms=6)
+        ax.text(d.x.iloc[-1] + 0.1, d.ever_cheated.iloc[-1], grp, fontsize=9, fontweight="bold", va="center",
+                color=INK if colr in (NAVY, pb.NAVY_RAMP[1]) else INK2)
+    ax.set_xticks(range(4), AGES); ax.set_xlim(-0.3, 4.4)
+    ax.set_ylim(0, 0.4); ax.yaxis.set_major_formatter(pct)
+    ax.set_xlabel("age"); ax.set_ylabel("ever cheated while married")
+    panel_title(ax, letter, title)
+
+header(fig, "Most cheating husbands gain a single partner, yet cheating rises with age in every generation and income",
+       "How outside partners are spread across married men who had one last year (A); share of ever-married men who "
+       "have ever cheated, by age (B, C)", y=0.92)
+footnote(fig, f"GSS, men, survey-weighted. A: currently married men 25-60, 1988-2022; outside partners = partners in "
+              f"the last year minus the wife ({op['share_married_men_with_outside_partner']:.1%} had any; n = "
+              f"{int(op.n.iloc[1])}); divorce: ever-married men 25-70, 1991-2022.\nB, C: ever-married men 25-64, "
+              "1991-2022 (shaded: 95% intervals; cells under 60 men dropped); income thirds ranked within survey year. "
+              "'Ever cheated' is undated, so it also rises simply\nwith more years married; the cohort and income splits "
+              "rule out generation and earnings, not that. Within cohorts, older generations sit higher: cheating has "
+              "fallen over time.", y=0.0)
+save(fig, "cheating_men")
+
+# =============================================================== 11. women's cheating as mate switching
+ov = read("natsal_next_began_before_end.csv")
+tr = read("mate_switch_trading_up.csv")
+fig, axes = plt.subplots(1, 3, figsize=(16.5, 5.8), gridspec_kw=dict(wspace=0.3))
+
+
+def pair_bars(ax, df, val, letter, title, ylab, ymax):
+    x = np.arange(2)
+    for i, (grp, dx) in enumerate([("cheated", -0.2), ("faithful", 0.2)]):
+        d = df[df.group == grp].set_index("sex").loc[["women", "men"]]
+        cols = [RED if (grp == "cheated") else MUTE, NAVY if grp == "cheated" else MUTE]
+        ax.bar(x + dx, d[val], width=0.38, color=cols)
+        errbars(ax, x + dx, d[val], d.lo, d.hi)
+        for xi, v, hi in zip(x + dx, d[val], d.hi):
+            ax.text(xi, hi + ymax * 0.02, f"{v:.0%}", ha="center", fontsize=10.5, fontweight="bold", color=INK)
+        for xi in x + dx:
+            ax.text(xi, ymax * 0.02, grp, ha="center", fontsize=8, rotation=90, va="bottom",
+                    color="white" if grp == "cheated" else INK2)
+    ax.set_xticks(x, ["women", "men"], fontsize=10)
+    ax.set_ylim(0, ymax); ax.yaxis.set_major_formatter(pct); ax.set_ylabel(ylab)
+    panel_title(ax, letter, title)
+
+
+pair_bars(axes[0], dv, "ever_divorced", "A", "Cheating goes with the marriage ending", "ever divorced", 0.85)
+
+ax = axes[1]
+x = np.arange(2)
+d = ov[ov.subset == "all ended marriages"].set_index("sex").loc[["women", "men"]]
+ax.bar(x, d.began_before_end, width=0.5, color=[RED, NAVY])
+errbars(ax, x, d.began_before_end, d.lo, d.hi)
+for xi, v, hi in zip(x, d.began_before_end, d.hi):
+    ax.text(xi, hi + 0.012, f"{v:.0%}", ha="center", fontsize=11, fontweight="bold", color=INK)
+ax.set_xticks(x, ["women", "men"], fontsize=10); ax.set_ylim(0, 0.5); ax.yaxis.set_major_formatter(pct)
+ax.set_ylabel("next relationship began before the marriage ended")
+panel_title(ax, "B", "A third of women's next man was already there")
+
+pair_bars(axes[2], tr, "new_spouse_ba", "C", "The next husband is a step up (for women)",
+          "remarried: current spouse has a degree", 0.45)
+
+header(fig, "Women's cheating looks like mate switching: the marriage ends, and the next man is lined up",
+       "Divorce among people who have cheated vs not (A); next relationship already underway (B); the new spouse's "
+       "education after a remarriage (C)", y=0.92)
+w_ov = ov.set_index(["sex", "subset"]).began_before_end
+footnote(fig, "A, C: GSS 1991-2022, ever-married people 25-70, survey-weighted, bootstrap 95% intervals; cheating "
+              "(EVSTRAY) is undated, so these are associations, not sequences. C compares the current spouse of people "
+              "remarried after a\ndivorce; the women's gap (28% vs 23%) has overlapping intervals. B: Natsal-3 (Britain "
+              f"2010-12), people whose last marriage ended (n = {int(d.n.sum()):,}), year-level timing. Where "
+              f"unfaithfulness was cited, women's overlap was {w_ov[('women', 'ended by unfaithfulness')]:.0%}\n"
+              f"against {w_ov[('women', 'ended for other reasons')]:.0%} otherwise; the checklist doesn't say whose "
+              "unfaithfulness it was, so it is usually the husband's when a woman cites it.", y=0.0)
+save(fig, "cheating_women_switching")
 ```
