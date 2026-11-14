@@ -78,7 +78,7 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
 * **GSS 1972-2024 cumulative file** (`gss7224_r2.dta`), survey-weighted with `wtssps` (missing weight = 1).
   - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness 1-5 at the end of the
     interview. Men aged 25-60, lifetime female partners since 18 (`numwomen`, 0-989), winsorised at 100.
-    Ratings 1 and 2 are pooled ("1-2, below average") because rating 1 has too few men to stand alone.
+    All five ratings are shown; only 19 men got a 1 and 66 a 5, so those means are imprecise.
   - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
     sex and cut into thirds. "Bottom both" = bottom third on both; "bottom either" = bottom third on one; "high
     both" = top third on both; "high either" = top third on one (and not bottom on the other); the rest are
@@ -88,19 +88,24 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     degree, income and prestige rank, interviewer looks (raw and SES-adjusted: residual after regressing on age,
     age^2, income rank, prestige rank, degree and year), height (`rheight`, 2022 only), lifetime partners
     (capped 100) and marital status.
+  - *Partner distribution* (men 40-60, so counts are close to lifetime): weighted percentiles of `numwomen`
+    (uncapped), the mean capped at 100, and men ranked by count and split into fifths, each fifth's share of all
+    reported partners (capped at 100). Cross-cuts give the median and 90th percentile by degree, own-income third
+    (within year), marital status, ever paid for sex (`evpaidsx`) and saw an X-rated film in the past year
+    (`xmovie`); groups overlap and are not adjusted for each other.
   - Intervals are percentile bootstraps of the weighted mean (800 draws; 600 for the standardised differences).
 
 * **Natsal-3** (Britain 2010-12, `eul_natsal_2010_for_archive.dta`), weighted with `total_wt`.
-  - *Duration*: respondents living with a partner (`partnerhh` = 1); duration = age - age at first sex with
-    the current partner (`rafsmr`). Occasions of sex in the last 4 weeks (`sex4wks`, a count) are fitted with a
-    Poisson GLM, and "would like sex more often" (`frequent` = much or a bit more) with a logistic GLM. Both use
-    age (centred at 35, quadratic) and duration (log1p, a linear term to 5 years, and a slope after 5) as
-    separate terms, and are drawn at age 35, so the curves show years together rather than ageing.
-  - *Wanting more*: partnered (`partnerhh` = 1) men and women aged 25-40. Share wanting more, by fifths of
-    achieved frequency within sex. Desired monthly frequency is fitted per sex as an interval-censored lognormal
-    (achieved count plus direction of the wish; "a bit more" is capped at twice the achieved count), and the
-    matching table gives, for a stated desired frequency, the share of each sex whose desired frequency is at
-    least that high.
+  - *Years married*: reuses `sexfreq/natsal_sexfreq.parquet` (built by `sexfreq/sexfreq_data.py`): married
+    respondents with a known year of marriage (`pp1ystrt`/`pp1ymar`). Occasions of sex in the last 4 weeks
+    (`sex4wks`) and "would like sex more often" (`frequent` = much or a bit more) by years-married bin, each bin
+    regression-adjusted to the same age mix (`sexfreq_model.adjusted_means`: WLS on bin dummies + age + age^2,
+    HC1 intervals), so the lines show years married rather than ageing. Single men (not living with a partner,
+    never married/divorced/separated/widowed) give the reference share wanting more.
+  - *Desired frequency*: partnered (`partnerhh` = 1) men and women aged 25-40. Ideal monthly frequency is fitted
+    per sex as an interval-censored lognormal from each person's achieved count plus the direction of their wish
+    ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
+    ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
 * **NSFG 2011-13, 2013-15, 2015-17 male files** (CDC public-use, `nsfg_2011_2017/`), pooled with each cycle's
   final weight divided by 3. Heterosexual (`ORIENT`/`ORIENT_A`/`ORIENT_B` = 1) non-Hispanic white (`HISPRACE2` = 2)
@@ -129,20 +134,22 @@ Charts for "The master post of sexual and relationship dynamics" (Performative B
 
     uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/master_post/master_post_charts.py
 
-Draws the post's five reworked figures from the CSVs that `master_post_data.py` writes (run that first), saves
+Draws the post's six reworked figures from the CSVs that `master_post_data.py` writes (run that first), saves
 the unwatermarked PNGs to ~/Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Sex/ and the watermarked
 `_wm.png` copies to ~/Desktop/Recent Projects/Substack Notes/Sex/ (house watermark, style 7; this also rebuilds
 the methods page pbmethods.github.io/sex-dynamics, unless PB_NO_PUSH=1).
 
-1. `motivation_looks_ses_height` -- men's lifetime partners by interviewer-rated looks and by income x prestige
-   rung (GSS), and the share of young men sexless in the past year by height (NSFG 2011-17).
+1. `motivation_looks_ses_height` -- men's lifetime partners by interviewer-rated looks (1-5) and by income x
+   prestige rung (GSS), and the share of young men sexless in the past year by height (NSFG 2011-17).
 2. `paid_sex_profile` -- how men who have paid for sex differ from those who have not (standardised
    differences), and the share who have paid by income decile (GSS).
-3. `married_sex_porn` -- monthly sex and wanting more by years together at a fixed age of 35 (Natsal-3), and sex
-   versus porn by relationship length (Aella's relationships survey, digitised).
-4. `wants_more` -- who wants more sex by how much they already have, and how many people of the other sex want
-   at least a given frequency (Natsal-3).
-5. `sex_satisfaction` -- long-partnered men's agreement with "I'm satisfied with my sex life", in full and
+3. `bodycount_distribution` -- percentiles of men's lifetime partners, each fifth's share of the total, and the
+   median vs 90th percentile across groups (GSS, men 40-60).
+4. `married_sex_porn` -- sex per month by years married (Natsal-3, age-adjusted), and sex vs porn by relationship
+   length (Aella's relationships survey, digitised).
+5. `wants_more` -- how many of the other sex want sex at least / at most as often as you (Natsal-3 desired
+   frequency), and the share wanting more sex by years married.
+6. `sex_satisfaction` -- long-partnered men's agreement with "I'm satisfied with my sex life", in full and
    grouped (Aella's relationships survey, digitised).
 
 Every number and method is in `master_post_data.py`'s docstring; caveats are in CAVEATS.md.
@@ -417,7 +424,7 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 
 ## Caveats
 
-**Everything here is cross-sectional.** The duration curves compare different couples at different durations
+**Everything here is cross-sectional.** The years-married lines compare different couples at different durations
 rather than following the same couples, so couples who split early drop out of the later years. The looks, SES
 and height panels compare different men at the same moment, and say nothing about what would happen if one man's
 looks, income or height changed.
@@ -428,7 +435,7 @@ carry a reporting bias. Comparisons *within* men (by looks, rung or height) are 
 bias doesn't itself vary by looks, rung or height.
 
 **Looks is one stranger's rating.** The GSS interviewer rates attractiveness after an hour-long interview, only
-in 2016, 2018 and 2022. Only 66 men got a 5 and 79 a 1 or 2, so the extreme bars have wide intervals.
+in 2016, 2018 and 2022. Only 19 men got a 1, 60 a 2 and 66 a 5, so those bars have wide intervals.
 
 **Height in the paid-sex profile rests on 20 buyers** (GSS asked height only in 2022). Read it as a curiosity.
 The height panel in the first chart uses NSFG instead, with about 2,200 young men.
@@ -436,13 +443,17 @@ The height panel in the first chart uses NSFG instead, with about 2,200 young me
 **The NSFG height panel is narrow by design.** It follows NuancePill's sample: heterosexual non-Hispanic white
 men aged 18-29. Older men, other groups, and outcomes beyond past-year sexlessness and virginity aren't covered.
 
-**Britain vs the US.** The duration and wanting-more charts use Natsal-3 (Britain, 2010-12), because it is the
+**Britain vs the US.** The years-married and wanting-more charts use Natsal-3 (Britain, 2010-12), because it is the
 only large probability survey that asks both how often people have sex, as a count, and whether they want more.
 Its achieved frequencies are close to the GSS's, but it is still a different country and a decade old.
 
 **"Wanting more" is a direction, not an amount.** Natsal asks whether people would like sex more or less often,
 not how much more. The desired-frequency fit in the wanting-more chart caps "a bit more" at twice the achieved
-count. The cap moves the levels in panel B, but not the gap between the sexes.
+count. The cap moves the levels in panel A, but not the gap between the sexes.
+
+**Partner counts are a skewed, self-reported distribution.** The median and percentiles use raw answers; means and
+shares cap answers at 100, which trims a handful of very large reports (uncapped, the mean is higher). Year-0
+married estimates rest on about 40 people per sex.
 
 **The porn and satisfaction charts are Aella's data, redrawn.** We don't have her microdata. Values were read
 off her published charts by pixel measurement, to within about 0.2 points. Her relationships survey is a
@@ -652,7 +663,7 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
 * **GSS 1972-2024 cumulative file** (`gss7224_r2.dta`), survey-weighted with `wtssps` (missing weight = 1).
   - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness 1-5 at the end of the
     interview. Men aged 25-60, lifetime female partners since 18 (`numwomen`, 0-989), winsorised at 100.
-    Ratings 1 and 2 are pooled ("1-2, below average") because rating 1 has too few men to stand alone.
+    All five ratings are shown; only 19 men got a 1 and 66 a 5, so those means are imprecise.
   - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
     sex and cut into thirds. "Bottom both" = bottom third on both; "bottom either" = bottom third on one; "high
     both" = top third on both; "high either" = top third on one (and not bottom on the other); the rest are
@@ -662,19 +673,24 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     degree, income and prestige rank, interviewer looks (raw and SES-adjusted: residual after regressing on age,
     age^2, income rank, prestige rank, degree and year), height (`rheight`, 2022 only), lifetime partners
     (capped 100) and marital status.
+  - *Partner distribution* (men 40-60, so counts are close to lifetime): weighted percentiles of `numwomen`
+    (uncapped), the mean capped at 100, and men ranked by count and split into fifths, each fifth's share of all
+    reported partners (capped at 100). Cross-cuts give the median and 90th percentile by degree, own-income third
+    (within year), marital status, ever paid for sex (`evpaidsx`) and saw an X-rated film in the past year
+    (`xmovie`); groups overlap and are not adjusted for each other.
   - Intervals are percentile bootstraps of the weighted mean (800 draws; 600 for the standardised differences).
 
 * **Natsal-3** (Britain 2010-12, `eul_natsal_2010_for_archive.dta`), weighted with `total_wt`.
-  - *Duration*: respondents living with a partner (`partnerhh` = 1); duration = age - age at first sex with
-    the current partner (`rafsmr`). Occasions of sex in the last 4 weeks (`sex4wks`, a count) are fitted with a
-    Poisson GLM, and "would like sex more often" (`frequent` = much or a bit more) with a logistic GLM. Both use
-    age (centred at 35, quadratic) and duration (log1p, a linear term to 5 years, and a slope after 5) as
-    separate terms, and are drawn at age 35, so the curves show years together rather than ageing.
-  - *Wanting more*: partnered (`partnerhh` = 1) men and women aged 25-40. Share wanting more, by fifths of
-    achieved frequency within sex. Desired monthly frequency is fitted per sex as an interval-censored lognormal
-    (achieved count plus direction of the wish; "a bit more" is capped at twice the achieved count), and the
-    matching table gives, for a stated desired frequency, the share of each sex whose desired frequency is at
-    least that high.
+  - *Years married*: reuses `sexfreq/natsal_sexfreq.parquet` (built by `sexfreq/sexfreq_data.py`): married
+    respondents with a known year of marriage (`pp1ystrt`/`pp1ymar`). Occasions of sex in the last 4 weeks
+    (`sex4wks`) and "would like sex more often" (`frequent` = much or a bit more) by years-married bin, each bin
+    regression-adjusted to the same age mix (`sexfreq_model.adjusted_means`: WLS on bin dummies + age + age^2,
+    HC1 intervals), so the lines show years married rather than ageing. Single men (not living with a partner,
+    never married/divorced/separated/widowed) give the reference share wanting more.
+  - *Desired frequency*: partnered (`partnerhh` = 1) men and women aged 25-40. Ideal monthly frequency is fitted
+    per sex as an interval-censored lognormal from each person's achieved count plus the direction of their wish
+    ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
+    ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
 * **NSFG 2011-13, 2013-15, 2015-17 male files** (CDC public-use, `nsfg_2011_2017/`), pooled with each cycle's
   final weight divided by 3. Heterosexual (`ORIENT`/`ORIENT_A`/`ORIENT_B` = 1) non-Hispanic white (`HISPRACE2` = 2)
@@ -1006,20 +1022,22 @@ print("digitised CSVs written")
 
     uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/master_post/master_post_charts.py
 
-Draws the post's five reworked figures from the CSVs that `master_post_data.py` writes (run that first), saves
+Draws the post's six reworked figures from the CSVs that `master_post_data.py` writes (run that first), saves
 the unwatermarked PNGs to ~/Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Sex/ and the watermarked
 `_wm.png` copies to ~/Desktop/Recent Projects/Substack Notes/Sex/ (house watermark, style 7; this also rebuilds
 the methods page pbmethods.github.io/sex-dynamics, unless PB_NO_PUSH=1).
 
-1. `motivation_looks_ses_height` -- men's lifetime partners by interviewer-rated looks and by income x prestige
-   rung (GSS), and the share of young men sexless in the past year by height (NSFG 2011-17).
+1. `motivation_looks_ses_height` -- men's lifetime partners by interviewer-rated looks (1-5) and by income x
+   prestige rung (GSS), and the share of young men sexless in the past year by height (NSFG 2011-17).
 2. `paid_sex_profile` -- how men who have paid for sex differ from those who have not (standardised
    differences), and the share who have paid by income decile (GSS).
-3. `married_sex_porn` -- monthly sex and wanting more by years together at a fixed age of 35 (Natsal-3), and sex
-   versus porn by relationship length (Aella's relationships survey, digitised).
-4. `wants_more` -- who wants more sex by how much they already have, and how many people of the other sex want
-   at least a given frequency (Natsal-3).
-5. `sex_satisfaction` -- long-partnered men's agreement with "I'm satisfied with my sex life", in full and
+3. `bodycount_distribution` -- percentiles of men's lifetime partners, each fifth's share of the total, and the
+   median vs 90th percentile across groups (GSS, men 40-60).
+4. `married_sex_porn` -- sex per month by years married (Natsal-3, age-adjusted), and sex vs porn by relationship
+   length (Aella's relationships survey, digitised).
+5. `wants_more` -- how many of the other sex want sex at least / at most as often as you (Natsal-3 desired
+   frequency), and the share wanting more sex by years married.
+6. `sex_satisfaction` -- long-partnered men's agreement with "I'm satisfied with my sex life", in full and
    grouped (Aella's relationships survey, digitised).
 
 Every number and method is in `master_post_data.py`'s docstring; caveats are in CAVEATS.md.
