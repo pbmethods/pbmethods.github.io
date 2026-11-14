@@ -1700,32 +1700,42 @@ def ym_line(ax, outcome, sex, colr, lw=2.4):
     return d.set_index("years_married").adj
 
 
-m = ym_line(ax, "sex_per_month", "men", NAVY)
-w = ym_line(ax, "sex_per_month", "women", GRAY, lw=2.0)
-ax.annotate(f"Men, year 0: {m.loc[0]:.1f}/month", xy=(0, m.loc[0]), xytext=(3.5, 8.3), fontsize=9.5,
-            fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-ax.annotate(f"Years 5-6: {m.loc[5.5]:.1f}/month,\n{m.loc[5.5] / m.loc[0]:.0%} of year 0", xy=(5.5, m.loc[5.5]),
-            xytext=(10, 6.6), fontsize=9.5, fontweight="bold", color=INK,
-            arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-ax.text(36.5, m.iloc[-1] - 0.35, "men", color=NAVY, fontsize=10, fontweight="bold", ha="right", va="top")
-ax.text(36.5, w.iloc[-1] + 0.3, "women", color=INK2, fontsize=10, fontweight="bold", ha="right", va="bottom")
-ax.set_xticks(*XT); ax.set_xlim(-0.8, 37); ax.set_ylim(0, 10)
-ax.set_xlabel("years married"); ax.set_ylabel("times a month (age-adjusted)")
-panel_title(ax, "A", "Married sex falls 40% by year five, then levels off")
+def panel_sex_by_years(ax):
+    m = ym_line(ax, "sex_per_month", "men", NAVY)
+    w = ym_line(ax, "sex_per_month", "women", GRAY, lw=2.0)
+    ax.annotate(f"Men, year 0: {m.loc[0]:.1f}/month", xy=(0, m.loc[0]), xytext=(3.5, 8.3), fontsize=9.5,
+                fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+    ax.annotate(f"Years 5-6: {m.loc[5.5]:.1f}/month,\n{m.loc[5.5] / m.loc[0]:.0%} of year 0", xy=(5.5, m.loc[5.5]),
+                xytext=(10, 6.6), fontsize=9.5, fontweight="bold", color=INK,
+                arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+    ax.text(36.5, m.iloc[-1] - 0.35, "men", color=NAVY, fontsize=10, fontweight="bold", ha="right", va="top")
+    ax.text(36.5, w.iloc[-1] + 0.3, "women", color=INK2, fontsize=10, fontweight="bold", ha="right", va="bottom")
+    ax.set_xticks(*XT); ax.set_xlim(-0.8, 37); ax.set_ylim(0, 10)
+    ax.set_xlabel("years married"); ax.set_ylabel("times a month (age-adjusted)")
+    panel_title(ax, "A", "Married sex falls 40% by year five, then levels off")
 
-x = np.arange(len(ae))
-ax2.plot(x, ae.porn_per_month_men, color=RED, lw=2.6, marker="o", ms=4.5)
-ax2.plot(x, ae.sex_per_month, color=NAVY, lw=2.6, marker="o", ms=4.5)
-ax2.plot(x, ae.porn_per_month_women, color=GRAY, lw=2.2, marker="o", ms=4)
-ax2.text(10.25, ae.porn_per_month_men.iloc[-1], "his porn", color=INK, fontsize=9.5, fontweight="bold", va="center")
-ax2.text(10.25, ae.sex_per_month.iloc[-1] + 0.5, "sex", color=INK, fontsize=9.5, fontweight="bold", va="center")
-ax2.text(10.25, ae.porn_per_month_women.iloc[-1] - 0.5, "her porn", color=INK, fontsize=9.5, fontweight="bold",
-         va="center")
-ax2.set_xticks(x, ae.years_together, fontsize=8.5, rotation=45, ha="right", rotation_mode="anchor")
-ax2.set_xlim(-0.4, 11.8); ax2.set_ylim(0, 16)
-ax2.set_xlabel("years together"); ax2.set_ylabel("times a month")
-panel_title(ax2, "B", "As sex fades, his porn use climbs")
 
+
+panel_sex_by_years(ax)
+
+
+def panel_porn(ax):
+    x = np.arange(len(ae))
+    ax.plot(x, ae.porn_per_month_men, color=RED, lw=2.6, marker="o", ms=4.5)
+    ax.plot(x, ae.sex_per_month, color=NAVY, lw=2.6, marker="o", ms=4.5)
+    ax.plot(x, ae.porn_per_month_women, color=GRAY, lw=2.2, marker="o", ms=4)
+    ax.text(10.25, ae.porn_per_month_men.iloc[-1], "his porn", color=INK, fontsize=9.5, fontweight="bold", va="center")
+    ax.text(10.25, ae.sex_per_month.iloc[-1] + 0.5, "sex", color=INK, fontsize=9.5, fontweight="bold", va="center")
+    ax.text(10.25, ae.porn_per_month_women.iloc[-1] - 0.5, "her porn", color=INK, fontsize=9.5, fontweight="bold",
+             va="center")
+    ax.set_xticks(x, ae.years_together, fontsize=8.5, rotation=45, ha="right", rotation_mode="anchor")
+    ax.set_xlim(-0.4, 11.8); ax.set_ylim(0, 16)
+    ax.set_xlabel("years together"); ax.set_ylabel("times a month")
+    panel_title(ax, "B", "As sex fades, his porn use climbs")
+
+
+
+panel_porn(ax2)
 header(fig, "As married sex falls, men's porn use rises",
        "Sex per month by years married, Britain (A); sex and porn per month by relationship length, Aella's "
        "relationships survey (B)", y=0.92)
@@ -1743,8 +1753,8 @@ fig, (ax, ax2) = plt.subplots(1, 2, figsize=(15, 5.8), gridspec_kw=dict(width_ra
 
 ax.plot(mt.per_month, mt.women_want_at_least, color=NAVY, lw=2.8)
 ax.plot(mt.per_month, mt.men_want_at_most, color=GRAY, lw=2.8)
-he = mt.iloc[(mt.per_month - 104 / 12).abs().argmin()]
-she = mt.iloc[(mt.per_month - 52 / 12).abs().argmin()]
+he = pd.Series({"per_month": 104 / 12, "women_want_at_least": np.interp(104 / 12, mt.per_month, mt.women_want_at_least)})
+she = pd.Series({"per_month": 52 / 12, "men_want_at_most": np.interp(52 / 12, mt.per_month, mt.men_want_at_most)})
 ax.plot([he.per_month], [he.women_want_at_least], "o", ms=10, color=RED, mec=P["SURFACE"], mew=1.6, zorder=5)
 ax.plot([she.per_month], [she.men_want_at_most], "o", ms=9, color=INK, mec=P["SURFACE"], mew=1.6, zorder=5)
 ax.annotate(f"He wants it twice a week:\nonly {he.women_want_at_least:.0%} of women want it that often",
@@ -1765,20 +1775,24 @@ ax.set_xlabel("how often you'd ideally like sex")
 ax.set_ylabel("share of the other sex who'd be a match")
 panel_title(ax, "A", "Who wants it as often as you do?")
 
-m = ym_line(ax2, "want_more", "men", NAVY)
-w = ym_line(ax2, "want_more", "women", GRAY, lw=2.0)
-single = float(ym.loc[ym.sex == "single men", "adj"].iloc[0])
-ax2.axhline(single, color=MUTED, lw=1.0, ls=(0, (1, 2)))
-ax2.text(36.5, single - 0.035, f"single men: {single:.0%}", color=MUTED, fontsize=9.5, ha="right", va="top")
-ax2.plot([5.5], [m.loc[5.5]], "o", ms=9, color=RED, mec=P["SURFACE"], mew=1.5, zorder=5)
-ax2.annotate(f"Men, years 5-6: {m.loc[5.5]:.0%}", xy=(5.5, m.loc[5.5]), xytext=(7.5, 0.88), fontsize=9.5,
-             fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-ax2.text(36.5, m.iloc[-1] + 0.03, "men", color=NAVY, fontsize=10, fontweight="bold", ha="right", va="bottom")
-ax2.text(36.5, w.iloc[-1] - 0.03, "women", color=INK2, fontsize=10, fontweight="bold", ha="right", va="top")
-ax2.set_xticks(*XT); ax2.set_xlim(-0.8, 37); ax2.set_ylim(0, 1); ax2.yaxis.set_major_formatter(pct)
-ax2.set_xlabel("years married"); ax2.set_ylabel("would like sex more often")
-panel_title(ax2, "B", "Wants sex more often, by years married")
+def panel_want_more(ax):
+    m = ym_line(ax, "want_more", "men", NAVY)
+    w = ym_line(ax, "want_more", "women", GRAY, lw=2.0)
+    single = float(ym.loc[ym.sex == "single men", "adj"].iloc[0])
+    ax.axhline(single, color=MUTED, lw=1.0, ls=(0, (1, 2)))
+    ax.text(36.5, single - 0.035, f"single men: {single:.0%}", color=MUTED, fontsize=9.5, ha="right", va="top")
+    ax.plot([5.5], [m.loc[5.5]], "o", ms=9, color=RED, mec=P["SURFACE"], mew=1.5, zorder=5)
+    ax.annotate(f"Men, years 5-6: {m.loc[5.5]:.0%}", xy=(5.5, m.loc[5.5]), xytext=(7.5, 0.88), fontsize=9.5,
+                 fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+    ax.text(36.5, m.iloc[-1] + 0.03, "men", color=NAVY, fontsize=10, fontweight="bold", ha="right", va="bottom")
+    ax.text(36.5, w.iloc[-1] - 0.03, "women", color=INK2, fontsize=10, fontweight="bold", ha="right", va="top")
+    ax.set_xticks(*XT); ax.set_xlim(-0.8, 37); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
+    ax.set_xlabel("years married"); ax.set_ylabel("would like sex more often")
+    panel_title(ax, "B", "Wants sex more often, by years married")
 
+
+
+panel_want_more(ax2)
 header(fig, "Men want more sex than their partners, and marriage widens the gap",
        "How many of the other sex want sex as often as you do (A); share wanting more sex by years married (B). "
        "Britain, Natsal-3", y=0.92)
@@ -1805,23 +1819,22 @@ for i, (gx, lab) in enumerate(GRIDX):
     red = i == 1
     ax.plot([gx], [w_], "o", ms=10 if red else 7.5, color=RED if red else NAVY, mec=P["SURFACE"], mew=1.5, zorder=5)
     ax.plot([gx], [m_], "o", ms=7.5, color=GRAY, mec=P["SURFACE"], mew=1.5, zorder=5)
-    ha, dx = ("right", -0.45) if gx > 29 else ("left", 0.45)
-    ax.text(gx + dx, w_ + 0.035, f"{w_:.0%}", color=INK, fontsize=12, fontweight="bold", ha=ha, va="bottom", zorder=6)
-    ax.text(gx + dx, w_ + 0.003, "of women want\nit at least this often" if i == 0 else "of women",
-            color=INK2, fontsize=8.8, ha=ha, va="top", zorder=6, linespacing=1.15)
-    ax.text(gx + dx, m_ - 0.035, f"{m_:.0%}", color=INK, fontsize=12, fontweight="bold", ha=ha, va="top", zorder=6)
-    ax.text(gx + dx, m_ - 0.095, "of men want it\nno more than this" if i == 0 else "of men",
-            color=INK2, fontsize=8.8, ha=ha, va="top", zorder=6, linespacing=1.15)
-# where the curves cross: the one frequency both sexes match equally well
-k = int(np.argmin(np.abs(wl - mm)))
-ax.plot([xs[k]], [wl[k]], "D", ms=6, color=INK, zorder=6)
-ax.annotate(f"They cross at about {xs[k] * 12 / 52:.1f}x a week:\nonly {wl[k]:.0%} of either sex is a match there",
-            xy=(xs[k], wl[k]), xytext=(1.6, 0.06), fontsize=9.5, fontweight="bold", color=INK,
-            arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-ax.text(1.4, float(np.interp(1.4, xs, wl)) + 0.02, "If he wants it this often, the share\nof women who want it "
-        "at least as often", color=NAVY, fontsize=9.5, fontweight="bold", ha="left", va="bottom")
-ax.text(1.4, 0.93, "If she wants it this often, the share of\nmen who'd want it no more than that",
-        color=INK2, fontsize=9.5, fontweight="bold", ha="left", va="top")
+    if i == 0:  # the curves cross here, so one label in the gap to the right
+        ax.annotate(f"Once a week: {w_:.0%} of women want it at least\nthis often, {m_:.0%} of men no more than this. "
+                    "The\ncurves cross here: the best-matched frequency", xy=(gx + 0.25, (w_ + m_) / 2),
+                    xytext=(5.9, 0.445), fontsize=9.3, fontweight="bold", color=INK, va="center", linespacing=1.3,
+                    arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+        continue
+    last = gx > 29
+    ha, dx = ("right", -0.4) if last else ("left", 0.4)
+    ax.text(gx + dx, w_ + 0.03, f"{w_:.0%} of women", color=RED if red else NAVY, fontsize=11, fontweight="bold",
+            ha=ha, va="bottom", zorder=6)
+    ax.text(gx + dx, m_ + 0.03 if last else m_ - 0.03, f"{m_:.0%} of men", color=INK2, fontsize=11,
+            fontweight="bold", ha=ha, va="bottom" if last else "top", zorder=6)
+ax.text(2.0, 0.885, "Blue: if he wants it this often, the share\nof women who want it at least as often",
+        color=NAVY, fontsize=9.8, fontweight="bold", ha="left", va="top")
+ax.text(29.8, 0.70, "Gray: if she wants it this often, the share\nof men who'd want it no more than that",
+        color=INK2, fontsize=9.8, fontweight="bold", ha="right", va="top")
 ax.set_xticks([g for g, _ in GRIDX], [l.replace(" a ", "\na ") for _, l in GRIDX])
 ax.grid(axis="x", visible=True)
 ax.set_xlim(1, 31.4); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
@@ -1839,6 +1852,23 @@ footnote(fig, "Partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal fre
               "share of men whose ideal is x or less. The cap moves the levels, not the gap between the sexes.",
          y=0.0)
 save(fig, "wants_match")
+
+# --------------------------------------------------------------- 4c. sex falls, porn rises, men still want more
+fig, axs = plt.subplots(1, 3, figsize=(19, 5.6), gridspec_kw=dict(wspace=0.22))
+panel_sex_by_years(axs[0]); panel_porn(axs[1]); panel_want_more(axs[2])
+for a_, l_ in zip(axs, "ABC"):
+    t = a_.get_title(loc="left"); a_.set_title(""); panel_title(a_, l_, t.split("   ", 1)[1])
+header(fig, "In marriage, sex falls, his porn use climbs, and most men keep wanting more",
+       "Sex per month by years married, Britain (A); sex and porn per month by relationship length, Aella's survey "
+       "(B); share who'd like sex more often by years married, Britain (C)", y=0.92)
+footnote(fig, f"A and C: Natsal-3 (Britain 2010-12), married respondents with a known year of marriage (n = "
+              f"{int(ym[(ym.outcome == 'sex_per_month')].n.sum()):,}), weighted; each duration bin adjusted to the same "
+              "age mix, so the lines show years married rather than ageing; shaded bands are 95% intervals.\nA: occasions "
+              "in the last 4 weeks. C: would like sex 'much' or 'a bit' more often, asked of those who had sex in the past "
+              "year; single men for comparison. B: redrawn from Aella ('Monogamous men in long-term\nrelationships aren't "
+              "doin too hot', aella.substack.com, 2023); values read off her chart. A different sample from A and C, so "
+              "compare shapes, not levels.", y=0.0)
+save(fig, "married_sex_porn_want")
 
 # =============================================================== 5. sex-life satisfaction
 sat = read("aella_satisfaction_digitised.csv")
