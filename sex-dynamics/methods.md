@@ -2053,7 +2053,8 @@ footnote(fig, "GSS 1989-2022, men, survey-weighted, regression-adjusted to each 
 save(fig, "most_sex_by_segment")
 
 # =============================================================== 10. men's cheating: volume, age x cohort, age x income
-op = read("cheating_outside_partners.csv").set_index("stat").value
+op_df = read("cheating_outside_partners.csv").set_index("stat")
+op = op_df.value
 dv = read("cheating_divorce.csv")
 ac = read("cheating_by_age.csv")
 
@@ -2112,7 +2113,7 @@ header(fig, "Most cheating husbands gain a single partner, yet cheating rises wi
        "have ever cheated, by age (B, C)", y=0.92)
 footnote(fig, f"GSS, men, survey-weighted. A: currently married men 25-60, 1988-2022; outside partners = partners in "
               f"the last year minus the wife ({op['share_married_men_with_outside_partner']:.1%} had any; n = "
-              f"{int(op.n.iloc[1])}); divorce: ever-married men 25-70, 1991-2022.\nB, C: ever-married men 25-64, "
+              f"{int(op_df.n['share_cheaters_exactly_one'])} men with an outside partner); divorce: ever-married men 25-70, 1991-2022.\nB, C: ever-married men 25-64, "
               "1991-2022 (shaded: 95% intervals; cells under 60 men dropped); income thirds ranked within survey year. "
               "'Ever cheated' is undated, so it also rises simply\nwith more years married; the cohort and income splits "
               "rule out generation and earnings, not that. Within cohorts, older generations sit higher: cheating has "
