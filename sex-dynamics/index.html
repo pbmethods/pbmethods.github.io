@@ -2867,9 +2867,9 @@ ax.set_yticks(y, [t if &quot;Looks&quot; not in t else f&quot;{t} (n={n_})&quot;
 ax.grid(axis=&quot;y&quot;, visible=False); ax.grid(axis=&quot;x&quot;, visible=True)
 ax.xaxis.set_major_formatter(pct); ax.set_xlim(0, 0.88)
 ax.set_xlabel(&quot;share of men with this trait&quot;)
-ax.text(0.0, len(c) - 0.35, &quot;● median men (4-10 partners)&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;)
-ax.text(0.47, len(c) - 0.35, &quot;● top 10% (40+)&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;)
-ax.set_ylim(-0.7, len(c) + 0.2)
+ax.text(0.0, len(c) + 0.15, &quot;● median men (4-10 partners)&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;)
+ax.text(0.0, len(c) - 0.45, &quot;● top 10% (40+)&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;)
+ax.set_ylim(-0.7, len(c) + 0.7)
 panel_title(ax, &quot;C&quot;, &quot;Who the top 10% are: cheaters and buyers, not elites&quot;)
 
 header(fig, &quot;The typical man has had six partners; the top fifth average fifty&quot;,
