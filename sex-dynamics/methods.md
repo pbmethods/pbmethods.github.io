@@ -2158,7 +2158,7 @@ for xi, v, hi in zip(x, d.began_before_end, d.hi):
     ax.text(xi, hi + 0.012, f"{v:.0%}", ha="center", fontsize=11, fontweight="bold", color=INK)
 ax.set_xticks(x, ["women", "men"], fontsize=10); ax.set_ylim(0, 0.5); ax.yaxis.set_major_formatter(pct)
 ax.set_ylabel("next relationship began before the marriage ended")
-panel_title(ax, "B", "For a third of women, the next man was already there")
+panel_title(ax, "B", "A third of the time, he was already there")
 
 pair_bars(axes[2], tr, "new_spouse_ba", "C", "A modest step up in the next husband, women only",
           "remarried: current spouse has a degree", 0.45)
