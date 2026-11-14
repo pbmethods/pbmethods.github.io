@@ -123,6 +123,12 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   against 41 for the median band, so every comparison is regression-adjusted to the same age mix (WLS on band +
   age + age^2, `sexfreq_model.adjusted_means`, HC1 95% intervals); the CSV keeps the raw means too.
 
+* **Who has the most sex, men by segment**: the same comparison for men only in three segments: all men 25-60,
+  BA+ men 25-60, and single (never married, divorced or separated) BA+ men 20-35, the "on the market" college
+  sample of the Chadopoly post. Each segment uses its own median band (once a week for the first two, two or three
+  times a month for single BA+ men) and is age-adjusted within itself. Points resting on fewer than 20 top-band
+  men are not drawn.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -344,6 +350,59 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 | women | more than 3 times a week | Lifetime partners | life | mean | 7.861 | 6.110 | 9.611 | 7.755 | 721 | 0.062 |
 | women | about once a week | Partners in the last year | ly | mean | 1.130 | 1.101 | 1.159 | 1.122 | 2460 | 0.062 |
 | women | more than 3 times a week | Partners in the last year | ly | mean | 1.351 | 1.231 | 1.470 | 1.368 | 786 | 0.062 |
+
+### `sexfreq_segments_men.csv`
+
+| segment | group | band | band_share | trait | kind | value | lo | hi | raw | n |
+|---|---|---|---|---|---|---|---|---|---|---|
+| All men 25-60 | median band | 4 | 0.214 | Height (inches) | mean | 69.859 | 67.925 | 71.792 | 70.019 | 37 |
+| All men 25-60 | top band | 6 | 0.081 | Height (inches) | mean | 70.761 | 69.331 | 72.191 | 70.287 | 21 |
+| All men 25-60 | median band | 4 | 0.214 | Looks rating (1-5) | mean | 3.282 | 3.133 | 3.430 | 3.281 | 161 |
+| All men 25-60 | top band | 6 | 0.081 | Looks rating (1-5) | mean | 3.400 | 3.220 | 3.580 | 3.418 | 72 |
+| All men 25-60 | median band | 4 | 0.214 | Bachelor's degree+ | share | 0.326 | 0.304 | 0.348 | 0.326 | 2252 |
+| All men 25-60 | top band | 6 | 0.081 | Bachelor's degree+ | share | 0.194 | 0.162 | 0.226 | 0.192 | 848 |
+| All men 25-60 | median band | 4 | 0.214 | Currently married | share | 0.725 | 0.705 | 0.746 | 0.733 | 2254 |
+| All men 25-60 | top band | 6 | 0.081 | Currently married | share | 0.558 | 0.520 | 0.596 | 0.512 | 848 |
+| All men 25-60 | median band | 4 | 0.214 | Income percentile | mean | 56.594 | 55.275 | 57.913 | 57.006 | 1942 |
+| All men 25-60 | top band | 6 | 0.081 | Income percentile | mean | 48.433 | 46.214 | 50.651 | 45.967 | 708 |
+| All men 25-60 | median band | 4 | 0.214 | Job prestige percentile | mean | 51.632 | 50.280 | 52.983 | 51.684 | 2239 |
+| All men 25-60 | top band | 6 | 0.081 | Job prestige percentile | mean | 46.857 | 44.459 | 49.256 | 46.242 | 838 |
+| All men 25-60 | median band | 4 | 0.214 | Lifetime partners | mean | 13.018 | 11.896 | 14.139 | 13.244 | 2034 |
+| All men 25-60 | top band | 6 | 0.081 | Lifetime partners | mean | 28.764 | 24.336 | 33.192 | 27.813 | 752 |
+| All men 25-60 | median band | 4 | 0.214 | Partners in the last year | mean | 1.411 | 1.335 | 1.487 | 1.391 | 2205 |
+| All men 25-60 | top band | 6 | 0.081 | Partners in the last year | mean | 1.807 | 1.592 | 2.022 | 1.904 | 826 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Height (inches) | mean | 69.520 | 67.401 | 71.639 | 69.672 | 20 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Height (inches) | mean | 71.073 | 67.284 | 74.861 | 71.272 | 3 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Looks rating (1-5) | mean | 3.465 | 3.291 | 3.639 | 3.462 | 59 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Looks rating (1-5) | mean | 3.666 | 3.344 | 3.988 | 3.650 | 15 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Bachelor's degree+ | share | 1.000 | 1.000 | 1.000 | 1.000 | 787 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Bachelor's degree+ | share | 1.000 | 1.000 | 1.000 | 1.000 | 176 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Currently married | share | 0.793 | 0.763 | 0.824 | 0.801 | 787 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Currently married | share | 0.619 | 0.535 | 0.703 | 0.547 | 176 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Income percentile | mean | 68.301 | 66.272 | 70.331 | 68.995 | 693 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Income percentile | mean | 65.374 | 60.160 | 70.588 | 60.652 | 155 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Job prestige percentile | mean | 68.885 | 66.837 | 70.932 | 69.011 | 782 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Job prestige percentile | mean | 68.385 | 64.006 | 72.763 | 67.879 | 174 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Lifetime partners | mean | 11.479 | 9.707 | 13.250 | 11.722 | 725 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Lifetime partners | mean | 28.779 | 18.341 | 39.216 | 27.990 | 163 |
+| BA+ men 25-60 | median band | 4 | 0.235 | Partners in the last year | mean | 1.355 | 1.192 | 1.519 | 1.339 | 770 |
+| BA+ men 25-60 | top band | 6 | 0.053 | Partners in the last year | mean | 1.703 | 1.369 | 2.037 | 1.803 | 174 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Height (inches) | mean | 71.214 | 70.601 | 71.827 | 71.844 | 5 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Height (inches) | mean | 76.655 | 74.203 | 79.107 | 75.000 | 1 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Looks rating (1-5) | mean | 2.974 | 2.273 | 3.674 | 2.922 | 8 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Looks rating (1-5) | mean | 4.135 | 3.448 | 4.821 | 4.200 | 4 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Bachelor's degree+ | share | 1.000 | 1.000 | 1.000 | 1.000 | 142 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Bachelor's degree+ | share | 1.000 | 1.000 | 1.000 | 1.000 | 57 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Income percentile | mean | 48.423 | 43.016 | 53.831 | 48.609 | 122 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Income percentile | mean | 49.027 | 38.333 | 59.722 | 46.492 | 48 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Job prestige percentile | mean | 60.416 | 54.775 | 66.057 | 60.261 | 136 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Job prestige percentile | mean | 69.033 | 61.634 | 76.431 | 69.741 | 56 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Lifetime partners | mean | 10.456 | 7.654 | 13.258 | 10.023 | 127 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Lifetime partners | mean | 19.180 | 13.082 | 25.279 | 18.413 | 55 |
+| Single BA+ men 20-35 | median band | 3 | 0.175 | Partners in the last year | mean | 2.481 | 1.923 | 3.039 | 2.523 | 139 |
+| Single BA+ men 20-35 | top band | 6 | 0.087 | Partners in the last year | mean | 2.395 | 1.675 | 3.114 | 2.579 | 56 |
+
+_Every 1th row of 46 shown; full file: [sexfreq_segments_men.csv](sexfreq_segments_men.csv)._
 
 ### `natsal_years_married.csv`
 
@@ -776,6 +835,12 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   against 41 for the median band, so every comparison is regression-adjusted to the same age mix (WLS on band +
   age + age^2, `sexfreq_model.adjusted_means`, HC1 95% intervals); the CSV keeps the raw means too.
 
+* **Who has the most sex, men by segment**: the same comparison for men only in three segments: all men 25-60,
+  BA+ men 25-60, and single (never married, divorced or separated) BA+ men 20-35, the "on the market" college
+  sample of the Chadopoly post. Each segment uses its own median band (once a week for the first two, two or three
+  times a month for single BA+ men) and is age-adjusted within itself. Points resting on fewer than 20 top-band
+  men are not drawn.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -1141,6 +1206,42 @@ FREQ["top_band_share"] = FREQ.sex.map(share_top)
 FREQ.to_csv(HERE / "sexfreq_top_vs_median.csv", index=False)
 print(share_top)
 print(FREQ.pivot_table(index="trait", columns=["sex", "group"], values="value").round(2).to_string())
+
+# ---------------------------------------------------------------- same comparison, men: all vs BA+ vs single BA+
+fm = read_gss(["year", "age", "sex", "sexfreq", "rheight", "rlooks", "degree", "marital", "conrinc", "prestg10",
+               "numwomen", "partners", "wtssps"])
+fm = fm[fm.sex.eq(1) & fm.sexfreq.between(0, 6)].copy()
+fm["w"] = fm.wtssps.fillna(1.0)
+fm["inc_pct"] = fm.groupby("year").conrinc.rank(pct=True) * 100
+fm["pres_pct"] = fm.groupby("year").prestg10.rank(pct=True) * 100
+fm["lifetime"] = fm.numwomen.where(fm.numwomen.between(0, 989)).clip(upper=CAP)
+fm["last_year"] = fm.partners.map(PART_MID)
+SEGMENTS = [("All men 25-60", fm.age.between(25, 60)),
+            ("BA+ men 25-60", fm.age.between(25, 60) & fm.degree.ge(3)),
+            ("Single BA+ men 20-35", fm.age.between(20, 35) & fm.degree.ge(3) & fm.marital.isin([3, 4, 5]))]
+rows = []
+for seg, mask in SEGMENTS:
+    base = fm[mask]
+    shares = base.groupby("sexfreq").w.sum() / base.w.sum()
+    mid_band = int(shares.cumsum()[shares.cumsum() >= 0.5].index[0])          # each segment's own median band
+    two = base[base.sexfreq.isin([mid_band, TOP_BAND])]
+    for lab, key, f, kind in FQ_TRAITS:
+        if key == "married" and seg.startswith("Single"):
+            continue
+        d = two.assign(y=f(two)).dropna(subset=["y"]).copy()
+        d["y"] = d.y.astype(float)
+        ctrl = pd.DataFrame({"a": d.age - 30, "a2": (d.age - 30) ** 2 / 100}, index=d.index)
+        r = adjusted_means(d, "y", "sexfreq", ctrl)
+        for band, grp in [(mid_band, "median band"), (TOP_BAND, "top band")]:
+            key_ = next(k for k in r.index if float(k) == band)
+            rr = r.loc[key_]
+            rows.append({"segment": seg, "group": grp, "band": band, "band_share": float(shares.get(band, 0)),
+                         "trait": lab, "kind": kind, "value": float(rr.adj), "lo": float(rr.lo), "hi": float(rr.hi),
+                         "raw": float(rr.raw), "n": int(rr.n)})
+SEG = pd.DataFrame(rows)
+SEG.to_csv(HERE / "sexfreq_segments_men.csv", index=False)
+print(SEG.pivot_table(index="trait", columns=["segment", "group"], values="value").round(2).to_string())
+print(SEG.pivot_table(index="trait", columns=["segment", "group"], values="n").to_string())
 
 # ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
 NSFG = DATA / "nsfg_2011_2017"
@@ -1707,4 +1808,66 @@ footnote(fig, "GSS 1989-2022, survey-weighted. 'More than 3 times a week' is the
               "partners score\nthe 5-10, 11-20 and 21-100 bands at 7.5, 15.5 and 60.5. Height was asked only in "
               "2022 and looks only in 2016-22, so those two rest on small samples.", y=0.02)
 save(fig, "most_sex_profile")
+
+# =============================================================== 9. men by segment: all vs BA+ vs single BA+
+sg = read("sexfreq_segments_men.csv")
+SEGS = ["All men 25-60", "BA+ men 25-60", "Single BA+ men 20-35"]
+ORDER9 = ["Lifetime partners", "Partners in the last year", "Income percentile", "Job prestige percentile",
+          "Currently married", "Height (inches)", "Looks rating (1-5)"]
+MIN_N = 20
+fig, axes = plt.subplots(2, 4, figsize=(17.5, 9.0), gridspec_kw=dict(wspace=0.36, hspace=0.62))
+fig.subplots_adjust(top=0.80)
+for ax, (i, trait) in zip(axes.flat, enumerate(ORDER9)):
+    d = sg[sg.trait == trait]
+    kind = d.kind.iloc[0]
+    fmt = (lambda v: f"{v:.0%}") if kind == "share" else (
+        lambda v: f"{v:.1f}" if ("inches" in trait or "1-5" in trait or v < 10) else f"{v:.0f}")
+    shown = d[d.segment.isin([s_ for s_ in SEGS if (d[(d.segment == s_) & (d.group == "top band")].n >= MIN_N).any()])]
+    for j, seg in enumerate(SEGS):
+        dd = d[d.segment == seg]
+        if dd.empty:
+            ax.text(j, 0.5, "n/a\n(all single)", transform=ax.get_xaxis_transform(), ha="center", va="center",
+                    fontsize=8.5, color=MUTED)
+            continue
+        n_top = int(dd[dd.group == "top band"].n.iloc[0])
+        if n_top < MIN_N:
+            ax.text(j, 0.5, f"too few\n({n_top} top-band\nmen)", transform=ax.get_xaxis_transform(), ha="center",
+                    va="center", fontsize=8.5, color=MUTED)
+            continue
+        for grp, colr, dx in [("median band", GRAY, -0.15), ("top band", NAVY, 0.15)]:
+            r_ = dd[dd.group == grp].iloc[0]
+            ax.plot([j + dx, j + dx], [r_.lo, r_.hi], color=colr, lw=1.6, alpha=0.6)
+            ax.plot(j + dx, r_.value, "o", ms=8.5, color=colr, zorder=3)
+            ax.text(j + dx + (0.09 if dx > 0 else -0.09), r_.value, fmt(r_.value), va="center",
+                    ha="left" if dx > 0 else "right", fontsize=8.5, fontweight="bold" if dx > 0 else "normal",
+                    color=INK if dx > 0 else INK2)
+    ax.set_xticks(range(3), ["All men\n25-60", "BA+ men\n25-60", "Single BA+\nmen 20-35"], fontsize=8.8)
+    ax.set_xlim(-0.6, 2.6)
+    if kind == "share":
+        ax.yaxis.set_major_formatter(pct)
+    if len(shown):
+        lo, hi = shown.lo.min(), shown.hi.max(); pad = (hi - lo) * 0.2
+        ax.set_ylim(lo - pad if "inches" in trait or "1-5" in trait else max(0, lo - pad), hi + pad)
+    ax.set_title(f"{chr(65 + i)}   {trait}", loc="left", fontsize=10.5, fontweight="bold", color=INK, pad=8)
+last = axes.flat[-1]
+last.axis("off")
+mb = sg.drop_duplicates(["segment", "group"]).set_index(["segment", "group"])
+lines = ["Comparison bands (each segment's own):"]
+LAB = {4: "about once a week", 3: "2-3 times a month", 6: "more than 3 times a week"}
+for seg in SEGS:
+    m_, t_ = mb.loc[(seg, "median band")], mb.loc[(seg, "top band")]
+    lines.append(f"{seg}: median = {LAB[int(m_.band)]};\n   top = {LAB[int(t_.band)]} ({t_.band_share:.0%} of men)")
+last.text(0.0, 0.95, "\n".join(lines), fontsize=9, color=INK2, va="top", ha="left", linespacing=1.5,
+          transform=last.transAxes)
+fig.text(0.01, 0.875, "●  median band", color=GRAY, fontsize=10.5, fontweight="bold")
+fig.text(0.12, 0.875, "●  top band (more than 3 times a week)", color=NAVY, fontsize=10.5, fontweight="bold")
+header(fig, "Among single college men, the ones having the most sex aren't worse off; in the general population they are",
+       "Men having sex more than 3 times a week vs their segment's median, compared at the same age: all men, "
+       "college graduates, and single college graduates 20-35", y=0.89)
+footnote(fig, "GSS 1989-2022, men, survey-weighted, regression-adjusted to each segment's age mix (lines: 95% "
+              "intervals). Single = never married, divorced or separated. Income and prestige are percentiles "
+              "within year among men.\nLifetime partners capped at 300. Height (2022 only) and looks (2016-22) "
+              f"are not drawn where fewer than {MIN_N} top-band men have them. Single BA+ men's raw looks point the "
+              "same way (4.1 vs 3.0 of 5), but on 4 men.", y=0.02)
+save(fig, "most_sex_by_segment")
 ```
