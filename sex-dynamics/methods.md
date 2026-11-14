@@ -91,9 +91,11 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     (capped 100) and marital status.
   - *Partner distribution* (men 40-60, so counts are close to lifetime): weighted percentiles of `numwomen`
     (uncapped), the mean capped at 100, and men ranked by count and split into fifths, each fifth's share of all
-    reported partners (capped at 100). Cross-cuts give the median and 90th percentile by degree, own-income third
-    (within year), marital status, ever paid for sex (`evpaidsx`) and saw an X-rated film in the past year
-    (`xmovie`); groups overlap and are not adjusted for each other.
+    reported partners (capped at 100). The trait profile compares men in the middle of the distribution (40th-60th
+    percentile, 4-10 partners) with the top 10% (40+): share with a bachelor's degree, top-third own income (within
+    year), monthly church attendance (`attend`), currently married, ever divorced (`divorce`), interviewer looks
+    4-5 (2016-22 only), an X-rated film in the past year (`xmovie`), ever cheated while married (`evstray`) and
+    ever paid for sex (`evpaidsx`). Each rate uses the men who answered that question.
   - Intervals are percentile bootstraps of the weighted mean (800 draws; 600 for the standardised differences).
 
 * **Natsal-3** (Britain 2010-12, `eul_natsal_2010_for_archive.dta`), weighted with `total_wt`.
@@ -267,20 +269,17 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 
 ### `bodycount_crosscuts.csv`
 
-| group | family | n | median | p80 | p90 | mean_capped100 |
+| trait | family | median_men | n_median_men | top_decile | n_top_decile | ratio |
 |---|---|---|---|---|---|---|
-| All men 40-60 | all | 5435 | 6.000 | 20.000 | 40.000 | 14.587 |
-| Bachelor's+ | status | 1811 | 5.000 | 19.872 | 30.000 | 12.380 |
-| No degree | status | 3617 | 6.000 | 20.000 | 40.000 | 15.531 |
-| Income top third | status | 1443 | 6.000 | 20.000 | 30.000 | 13.531 |
-| Income bottom third | status | 1445 | 5.000 | 20.000 | 35.000 | 14.541 |
-| Married | history | 3240 | 5.000 | 17.000 | 30.000 | 12.617 |
-| Never married | history | 802 | 5.000 | 20.000 | 40.000 | 14.306 |
-| Divorced/separated | history | 1286 | 11.000 | 30.000 | 50.000 | 22.177 |
-| Never paid for sex | appetite | 4171 | 5.000 | 15.000 | 30.000 | 11.749 |
-| Has paid for sex | appetite | 917 | 15.000 | 50.000 | 100.000 | 29.276 |
-| No X-rated film, past yr | appetite | 2364 | 5.000 | 20.000 | 30.000 | 12.379 |
-| Saw X-rated film, past yr | appetite | 1105 | 10.000 | 25.000 | 50.000 | 18.634 |
+| Bachelor's degree+ | status | 0.318 | 1853 | 0.241 | 573 | 0.757 |
+| Income top third | status | 0.356 | 1515 | 0.301 | 443 | 0.844 |
+| Attends church monthly+ | status | 0.366 | 1841 | 0.301 | 570 | 0.823 |
+| Currently married | history | 0.698 | 1853 | 0.558 | 575 | 0.800 |
+| Ever divorced | history | 0.467 | 1547 | 0.707 | 461 | 1.516 |
+| Looks rated 4-5 of 5 | status | 0.282 | 204 | 0.404 | 50 | 1.431 |
+| Saw X-rated film, past yr | appetite | 0.296 | 1164 | 0.454 | 384 | 1.533 |
+| Cheated while married | appetite | 0.232 | 1511 | 0.458 | 453 | 1.971 |
+| Ever paid for sex | appetite | 0.138 | 1736 | 0.431 | 538 | 3.111 |
 
 ### `natsal_years_married.csv`
 
@@ -684,9 +683,11 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     (capped 100) and marital status.
   - *Partner distribution* (men 40-60, so counts are close to lifetime): weighted percentiles of `numwomen`
     (uncapped), the mean capped at 100, and men ranked by count and split into fifths, each fifth's share of all
-    reported partners (capped at 100). Cross-cuts give the median and 90th percentile by degree, own-income third
-    (within year), marital status, ever paid for sex (`evpaidsx`) and saw an X-rated film in the past year
-    (`xmovie`); groups overlap and are not adjusted for each other.
+    reported partners (capped at 100). The trait profile compares men in the middle of the distribution (40th-60th
+    percentile, 4-10 partners) with the top 10% (40+): share with a bachelor's degree, top-third own income (within
+    year), monthly church attendance (`attend`), currently married, ever divorced (`divorce`), interviewer looks
+    4-5 (2016-22 only), an X-rated film in the past year (`xmovie`), ever cheated while married (`evstray`) and
+    ever paid for sex (`evpaidsx`). Each rate uses the men who answered that question.
   - Intervals are percentile bootstraps of the weighted mean (800 draws; 600 for the standardised differences).
 
 * **Natsal-3** (Britain 2010-12, `eul_natsal_2010_for_archive.dta`), weighted with `total_wt`.
@@ -937,7 +938,8 @@ print({sx: f"median wanted {np.exp(mu):.1f}/mo" for sx, (mu, sg) in FIT.items()}
 print(MATCH[MATCH.per_month.isin([2, 4.25, 4.5, 8.75, 13, 17.25, 30])].round(3).to_string(index=False))
 
 # ---------------------------------------------------------------- GSS: men's lifetime partner distribution (40-60)
-bcg = read_gss(["year", "age", "sex", "numwomen", "marital", "degree", "conrinc", "evpaidsx", "xmovie", "wtssps"])
+bcg = read_gss(["year", "age", "sex", "numwomen", "marital", "divorce", "degree", "conrinc", "evpaidsx", "xmovie",
+                "evstray", "attend", "rlooks", "wtssps"])
 bcg = bcg[bcg.sex.eq(1) & bcg.age.between(40, 60) & bcg.numwomen.between(0, 989)].copy()
 bcg["w"] = bcg.wtssps.fillna(1.0)
 bcg["inc"] = bcg.groupby("year").conrinc.rank(pct=True)
@@ -965,20 +967,31 @@ DIST.to_csv(HERE / "bodycount_distribution.csv", index=False)
 print(f"men 40-60 with a partner count: n = {len(bcg):,}")
 print(DIST.round(2).to_string(index=False))
 
-CUTS = [("All men 40-60", bcg.index == bcg.index, "all"),
-        ("Bachelor's+", bcg.degree.ge(3), "status"), ("No degree", bcg.degree.between(0, 2), "status"),
-        ("Income top third", bcg.inc.gt(2 / 3), "status"), ("Income bottom third", bcg.inc.lt(1 / 3), "status"),
-        ("Married", bcg.marital.eq(1), "history"), ("Never married", bcg.marital.eq(5), "history"),
-        ("Divorced/separated", bcg.marital.isin([3, 4]), "history"),
-        ("Never paid for sex", bcg.evpaidsx.eq(2), "appetite"), ("Has paid for sex", bcg.evpaidsx.eq(1), "appetite"),
-        ("No X-rated film, past yr", bcg.xmovie.eq(2), "appetite"), ("Saw X-rated film, past yr", bcg.xmovie.eq(1), "appetite")]
+# who the top-decile men are: trait rates among median men (40th-60th percentile of partners) vs the top 10%
+P40, P60, P90 = (wq(bcg.numwomen, bcg.w, q) for q in (.4, .6, .9))
+mid, top = bcg[bcg.numwomen.between(P40, P60)], bcg[bcg.numwomen >= P90]
+TRAITS = [
+    ("Bachelor's degree+", "status", lambda d: d.degree.ge(3).where(d.degree.between(0, 4))),
+    ("Income top third", "status", lambda d: (d.inc > 2 / 3).where(d.inc.notna())),
+    ("Attends church monthly+", "status", lambda d: d.attend.ge(4).where(d.attend.between(0, 8))),
+    ("Currently married", "history", lambda d: d.marital.eq(1).where(d.marital.between(1, 5))),
+    ("Ever divorced", "history", lambda d: (d.divorce.eq(1) | d.marital.eq(3)).where(d.divorce.isin([1, 2]) | d.marital.eq(3))),
+    ("Looks rated 4-5 of 5", "status", lambda d: d.rlooks.ge(4).where(d.rlooks.between(1, 5))),
+    ("Saw X-rated film, past yr", "appetite", lambda d: d.xmovie.eq(1).where(d.xmovie.isin([1, 2]))),
+    ("Cheated while married", "appetite", lambda d: d.evstray.eq(1).where(d.evstray.isin([1, 2]))),
+    ("Ever paid for sex", "appetite", lambda d: d.evpaidsx.eq(1).where(d.evpaidsx.isin([1, 2]))),
+]
 rows = []
-for lab, mask, grp in CUTS:
-    d = bcg[mask]
-    rows.append({"group": lab, "family": grp, "n": len(d), "median": wq(d.numwomen, d.w, .5),
-                 "p80": wq(d.numwomen, d.w, .8), "p90": wq(d.numwomen, d.w, .9),
-                 "mean_capped100": wmean(d.numwomen.clip(upper=100), d.w)})
+for lab, fam, f in TRAITS:
+    r = {"trait": lab, "family": fam}
+    for grp, d in [("median_men", mid), ("top_decile", top)]:
+        v = f(d); m_ = v.notna()
+        r[grp] = wmean(v[m_].astype(float), d.w[m_]); r[f"n_{grp}"] = int(m_.sum())
+    r["ratio"] = r["top_decile"] / r["median_men"]
+    rows.append(r)
 CUT = pd.DataFrame(rows)
+print(f"median band {P40:.0f}-{P60:.0f} partners (n = {len(mid):,}), top decile {P90:.0f}+ (n = {len(top):,})")
+print(CUT.round(2).to_string(index=False))
 CUT.to_csv(HERE / "bodycount_crosscuts.csv", index=False)
 print(CUT.round(1).to_string(index=False))
 
@@ -1412,32 +1425,31 @@ panel_title(ax, "B", "The top fifth: two-thirds of the total")
 
 ax = axes[2]
 c = cut.iloc[::-1].reset_index(drop=True)
-y = np.arange(len(c)) * 1.0
-gaps = {"history": 0.5, "status": 1.0, "all": 1.5}      # extra space above each family
-for fam, extra in gaps.items():
-    y[(c.family == fam).to_numpy()] += extra
-y += np.where(c.family == "status", 0, 0)
-for yi, row in zip(y, c.itertuples()):
-    hot = row.group in ("Has paid for sex", "Saw X-rated film, past yr")
-    ax.plot([row.median, row.p90], [yi, yi], color=GRID_C, lw=2.2, zorder=1)
-    ax.plot(row.median, yi, "o", ms=8, color=GRAY, zorder=3)
-    ax.plot(row.p90, yi, "o", ms=9, color=RED if hot else NAVY, zorder=3)
-    ax.text(row.p90 + 3, yi, f"{row.p90:.0f}", va="center", fontsize=9, fontweight="bold", color=INK)
-    ax.text(row.median - 2.5, yi, f"{row.median:.0f}", va="center", ha="right", fontsize=8.5, color=INK2)
-ax.set_yticks(y, [f"{g}  (n={n:,})" for g, n in zip(c.group, c.n)], fontsize=9)
+y = np.arange(len(c))
+for yi, r_ in zip(y, c.itertuples()):
+    hot = r_.family == "appetite"
+    col = RED if hot else NAVY
+    ax.plot([r_.median_men, r_.top_decile], [yi, yi], color=GRID_C, lw=2.6, zorder=1)
+    ax.plot(r_.median_men, yi, "o", ms=8, color=GRAY, zorder=3)
+    ax.plot(r_.top_decile, yi, "o", ms=9.5, color=col, zorder=3)
+    lo_, hi_ = sorted([r_.median_men, r_.top_decile])
+    ax.text(hi_ + 0.025, yi, f"{r_.ratio:.1f}x", va="center", fontsize=9, fontweight="bold",
+            color=RED if hot else INK)
+ax.set_yticks(y, [t if "Looks" not in t else f"{t} (n={n_})" for t, n_ in zip(c.trait, c.n_top_decile)], fontsize=9.5)
 ax.grid(axis="y", visible=False); ax.grid(axis="x", visible=True)
-ax.set_xlim(-6, 112); ax.set_xlabel("lifetime female partners")
-ax.text(5, y.max() + 1.0, "● median", color=GRAY, fontsize=9.5, fontweight="bold")
-ax.text(32, y.max() + 1.0, "● 90th percentile", color=NAVY, fontsize=9.5, fontweight="bold")
-ax.set_ylim(-0.7, y.max() + 1.6)
-panel_title(ax, "C", "Groups differ at the top, not in the middle")
+ax.xaxis.set_major_formatter(pct); ax.set_xlim(0, 0.88)
+ax.set_xlabel("share of men with this trait")
+ax.text(0.0, len(c) - 0.35, "● median men (4-10 partners)", color=GRAY, fontsize=9.5, fontweight="bold")
+ax.text(0.47, len(c) - 0.35, "● top 10% (40+)", color=NAVY, fontsize=9.5, fontweight="bold")
+ax.set_ylim(-0.7, len(c) + 0.2)
+panel_title(ax, "C", "Who the top 10% are: cheaters and buyers, not elites")
 
 header(fig, "The typical man has had six partners; the top fifth average fifty",
        "Lifetime female partners, US men aged 40-60: percentiles (A), each fifth's share of the total (B), and "
-       "the middle vs the top across groups (C)", y=0.92)
+       "how the top 10% differ from the typical man (C)", y=0.92)
 footnote(fig, "GSS 1989-2022, men 40-60 (n = 5,435; older, so counts are close to lifetime), survey-weighted. Partner "
               "counts are self-reported; the mean and B cap answers at 100 so a few very large ones don't dominate.\n"
-              "B ranks men by count and splits them into fifths. C: X-rated film = saw one in the past year; income "
-              "thirds are ranked within survey year. Groups overlap and are not adjusted for each other.", y=0.0)
+              "B ranks men by count and splits them into fifths. C: each trait's rate among men at the 40th-60th percentile "
+              "(4-10 partners) vs the top 10% (40+); ratios are top / median. Looks were rated only in 2016-22.", y=0.0)
 save(fig, "bodycount_distribution")
 ```
