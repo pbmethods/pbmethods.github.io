@@ -1,0 +1,1576 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-14.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p><img alt="chart 3" src="chart3.png" /></p>
+<p><img alt="chart 4" src="chart4.png" /></p>
+<p><img alt="chart 5" src="chart5.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>master_post_data.py</code></h3>
+<pre><code class="language-text">Data for &quot;The master post of sexual and relationship dynamics&quot;: every number behind the post's reworked charts.
+
+    uv run --with pandas,pyarrow,numpy,scipy,statsmodels python notebooks/master_post/master_post_data.py
+
+Writes small CSVs next to this script; `master_post_charts.py` draws them. Run from the repo root.
+
+**Sources computed here.**
+
+* **GSS 1972-2024 cumulative file** (`gss7224_r2.dta`), survey-weighted with `wtssps` (missing weight = 1).
+  - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness 1-5 at the end of the
+    interview. Men aged 25-60, lifetime female partners since 18 (`numwomen`, 0-989), winsorised at 100.
+    Ratings 1 and 2 are pooled (&quot;1-2, below average&quot;) because rating 1 has too few men to stand alone.
+  - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
+    sex and cut into thirds. &quot;Bottom both&quot; = bottom third on both; &quot;bottom either&quot; = bottom third on one; &quot;high
+    both&quot; = top third on both; &quot;high either&quot; = top third on one (and not bottom on the other); the rest are
+    &quot;middle&quot;. Split by bachelor's degree or more (`degree` &gt;= 3). Men 25-60, partners winsorised at 100.
+  - *Paying for sex* (`evpaidsx`, men 25-60, 1991-2022): share who have ever paid, by own-income decile ranked
+    within survey year; and standardised differences (buyers minus non-buyers, divided by the pooled SD) on
+    degree, income and prestige rank, interviewer looks (raw and SES-adjusted: residual after regressing on age,
+    age^2, income rank, prestige rank, degree and year), height (`rheight`, 2022 only), lifetime partners
+    (capped 100) and marital status.
+  - Intervals are percentile bootstraps of the weighted mean (800 draws; 600 for the standardised differences).
+
+* **Natsal-3** (Britain 2010-12, `eul_natsal_2010_for_archive.dta`), weighted with `total_wt`.
+  - *Duration*: respondents living with a partner (`partnerhh` = 1); duration = age - age at first sex with
+    the current partner (`rafsmr`). Occasions of sex in the last 4 weeks (`sex4wks`, a count) are fitted with a
+    Poisson GLM, and &quot;would like sex more often&quot; (`frequent` = much or a bit more) with a logistic GLM. Both use
+    age (centred at 35, quadratic) and duration (log1p, a linear term to 5 years, and a slope after 5) as
+    separate terms, and are drawn at age 35, so the curves show years together rather than ageing.
+  - *Wanting more*: partnered (`partnerhh` = 1) men and women aged 25-40. Share wanting more, by fifths of
+    achieved frequency within sex. Desired monthly frequency is fitted per sex as an interval-censored lognormal
+    (achieved count plus direction of the wish; &quot;a bit more&quot; is capped at twice the achieved count), and the
+    matching table gives, for a stated desired frequency, the share of each sex whose desired frequency is at
+    least that high.
+
+* **NSFG 2011-13, 2013-15, 2015-17 male files** (CDC public-use, `nsfg_2011_2017/`), pooled with each cycle's
+  final weight divided by 3. Heterosexual (`ORIENT`/`ORIENT_A`/`ORIENT_B` = 1) non-Hispanic white (`HISPRACE2` = 2)
+  men aged 18-29 with a self-reported height (`INCHES`): share with no opposite-sex partner in the past 12 months
+  (`PARTS1YR` = 0, which includes virgins) and share who never had intercourse (`HADSEX` = 2), by height in
+  inches (65 and under, 76 and over pooled). Replicates NuancePill, &quot;The Bumble height filter graph and height's
+  effect on male celibacy&quot; (https://nuancepill.substack.com/p/the-bumble-height-filter-graph-and-heights-effect-on-male-celibacy),
+  whose idea and sample definition this follows; our n is 2,191 against their 2,623 (they likely used a looser
+  orientation filter), and the pattern is the same: flat across heights.
+
+**Sources digitised, not recomputed** (we do not have the microdata; values read off the author's published
+charts by pixel measurement against their axis gridlines, accurate to about +/-0.2 points):
+
+* **Sex and porn by relationship length, and sex-life satisfaction**: Aella, &quot;Monogamous men in long-term
+  relationships aren't doin too hot&quot; (Knowingless, 14 Mar 2023,
+  https://aella.substack.com/p/monogamous-men-in-long-term-relationships). Her relationships survey (~25,000
+  respondents, mostly her own followers). Monthly sex and porn occasions by relationship length in years; and
+  agreement with &quot;I'm satisfied with my sex life&quot; (-3 to +3) for straight, non-poly men in relationships of
+  12+ years (n = 3,720).
+</code></pre>
+<h3><code>master_post_charts.py</code></h3>
+<pre><code class="language-text">Charts for &quot;The master post of sexual and relationship dynamics&quot; (Performative Bafflement).
+
+    uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/master_post/master_post_charts.py
+
+Draws the post's five reworked figures from the CSVs that `master_post_data.py` writes (run that first), saves
+the unwatermarked PNGs to ~/Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Sex/ and the watermarked
+`_wm.png` copies to ~/Desktop/Recent Projects/Substack Notes/Sex/ (house watermark, style 7; this also rebuilds
+the methods page pbmethods.github.io/sex-dynamics, unless PB_NO_PUSH=1).
+
+1. `motivation_looks_ses_height` -- men's lifetime partners by interviewer-rated looks and by income x prestige
+   rung (GSS), and the share of young men sexless in the past year by height (NSFG 2011-17).
+2. `paid_sex_profile` -- how men who have paid for sex differ from those who have not (standardised
+   differences), and the share who have paid by income decile (GSS).
+3. `married_sex_porn` -- monthly sex and wanting more by years together at a fixed age of 35 (Natsal-3), and sex
+   versus porn by relationship length (Aella's relationships survey, digitised).
+4. `wants_more` -- who wants more sex by how much they already have, and how many people of the other sex want
+   at least a given frequency (Natsal-3).
+5. `sex_satisfaction` -- long-partnered men's agreement with &quot;I'm satisfied with my sex life&quot;, in full and
+   grouped (Aella's relationships survey, digitised).
+
+Every number and method is in `master_post_data.py`'s docstring; caveats are in CAVEATS.md.
+</code></pre>
+<h2>Results</h2>
+<h3><code>looks_partners.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>looks</th>
+<th>code</th>
+<th>n</th>
+<th>mean_partners</th>
+<th>lo</th>
+<th>hi</th>
+<th>n_rating_1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1-2 below avg</td>
+<td>2</td>
+<td>79</td>
+<td>12.472</td>
+<td>8.522</td>
+<td>17.509</td>
+<td>19</td>
+</tr>
+<tr>
+<td>3 average</td>
+<td>3</td>
+<td>520</td>
+<td>11.431</td>
+<td>9.822</td>
+<td>13.086</td>
+<td>0</td>
+</tr>
+<tr>
+<td>4 above avg</td>
+<td>4</td>
+<td>294</td>
+<td>14.499</td>
+<td>10.689</td>
+<td>19.172</td>
+<td>0</td>
+</tr>
+<tr>
+<td>5 very good</td>
+<td>5</td>
+<td>66</td>
+<td>16.112</td>
+<td>10.348</td>
+<td>23.359</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3><code>ses_partners.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>college</th>
+<th>rung</th>
+<th>n</th>
+<th>mean_partners</th>
+<th>lo</th>
+<th>hi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>True</td>
+<td>bottom both</td>
+<td>117</td>
+<td>7.832</td>
+<td>5.758</td>
+<td>10.386</td>
+</tr>
+<tr>
+<td>True</td>
+<td>bottom either</td>
+<td>538</td>
+<td>11.505</td>
+<td>9.814</td>
+<td>13.204</td>
+</tr>
+<tr>
+<td>True</td>
+<td>middle</td>
+<td>246</td>
+<td>13.567</td>
+<td>9.555</td>
+<td>18.003</td>
+</tr>
+<tr>
+<td>True</td>
+<td>high either</td>
+<td>897</td>
+<td>10.826</td>
+<td>9.580</td>
+<td>12.134</td>
+</tr>
+<tr>
+<td>True</td>
+<td>high both</td>
+<td>1127</td>
+<td>10.796</td>
+<td>9.717</td>
+<td>11.845</td>
+</tr>
+<tr>
+<td>False</td>
+<td>bottom both</td>
+<td>1166</td>
+<td>11.699</td>
+<td>10.546</td>
+<td>12.887</td>
+</tr>
+<tr>
+<td>False</td>
+<td>bottom either</td>
+<td>2113</td>
+<td>14.743</td>
+<td>13.717</td>
+<td>16.000</td>
+</tr>
+<tr>
+<td>False</td>
+<td>middle</td>
+<td>848</td>
+<td>13.823</td>
+<td>12.364</td>
+<td>15.460</td>
+</tr>
+<tr>
+<td>False</td>
+<td>high either</td>
+<td>960</td>
+<td>14.147</td>
+<td>12.668</td>
+<td>15.842</td>
+</tr>
+<tr>
+<td>False</td>
+<td>high both</td>
+<td>468</td>
+<td>14.685</td>
+<td>12.670</td>
+<td>16.906</td>
+</tr>
+</tbody>
+</table>
+<h3><code>nsfg_height_sexless.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>inches</th>
+<th>height</th>
+<th>n</th>
+<th>pct_sexless</th>
+<th>sexless_lo</th>
+<th>sexless_hi</th>
+<th>pct_virgin</th>
+<th>virgin_lo</th>
+<th>virgin_hi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>65</td>
+<td>≤5'5</td>
+<td>84</td>
+<td>19.784</td>
+<td>11.389</td>
+<td>30.964</td>
+<td>13.279</td>
+<td>6.006</td>
+<td>23.063</td>
+</tr>
+<tr>
+<td>66</td>
+<td>5'6</td>
+<td>85</td>
+<td>18.834</td>
+<td>9.987</td>
+<td>30.306</td>
+<td>10.252</td>
+<td>3.777</td>
+<td>19.422</td>
+</tr>
+<tr>
+<td>67</td>
+<td>5'7</td>
+<td>128</td>
+<td>19.424</td>
+<td>9.742</td>
+<td>29.720</td>
+<td>8.665</td>
+<td>3.298</td>
+<td>15.490</td>
+</tr>
+<tr>
+<td>68</td>
+<td>5'8</td>
+<td>156</td>
+<td>17.768</td>
+<td>11.787</td>
+<td>24.975</td>
+<td>11.373</td>
+<td>6.542</td>
+<td>16.552</td>
+</tr>
+<tr>
+<td>69</td>
+<td>5'9</td>
+<td>243</td>
+<td>18.689</td>
+<td>12.457</td>
+<td>25.013</td>
+<td>12.218</td>
+<td>7.427</td>
+<td>17.982</td>
+</tr>
+<tr>
+<td>70</td>
+<td>5'10</td>
+<td>246</td>
+<td>23.989</td>
+<td>17.602</td>
+<td>31.367</td>
+<td>12.073</td>
+<td>7.579</td>
+<td>16.772</td>
+</tr>
+<tr>
+<td>71</td>
+<td>5'11</td>
+<td>149</td>
+<td>22.972</td>
+<td>14.143</td>
+<td>33.242</td>
+<td>16.064</td>
+<td>7.954</td>
+<td>26.273</td>
+</tr>
+<tr>
+<td>72</td>
+<td>6'0</td>
+<td>456</td>
+<td>20.428</td>
+<td>15.597</td>
+<td>25.390</td>
+<td>13.707</td>
+<td>9.160</td>
+<td>18.375</td>
+</tr>
+<tr>
+<td>73</td>
+<td>6'1</td>
+<td>214</td>
+<td>18.882</td>
+<td>11.822</td>
+<td>26.654</td>
+<td>8.229</td>
+<td>2.757</td>
+<td>15.074</td>
+</tr>
+<tr>
+<td>74</td>
+<td>6'2</td>
+<td>198</td>
+<td>24.391</td>
+<td>15.691</td>
+<td>33.259</td>
+<td>11.472</td>
+<td>6.457</td>
+<td>17.221</td>
+</tr>
+<tr>
+<td>75</td>
+<td>6'3</td>
+<td>113</td>
+<td>17.670</td>
+<td>9.862</td>
+<td>27.101</td>
+<td>8.702</td>
+<td>3.664</td>
+<td>16.423</td>
+</tr>
+<tr>
+<td>76</td>
+<td>≥6'4</td>
+<td>119</td>
+<td>19.540</td>
+<td>12.003</td>
+<td>27.872</td>
+<td>14.674</td>
+<td>7.803</td>
+<td>21.966</td>
+</tr>
+<tr>
+<td>0</td>
+<td>all</td>
+<td>2191</td>
+<td>20.525</td>
+<td></td>
+<td></td>
+<td>11.988</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3><code>paid_sex_profile.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>measure</th>
+<th>buyers</th>
+<th>non_buyers</th>
+<th>d</th>
+<th>d_lo</th>
+<th>d_hi</th>
+<th>n_buyers</th>
+<th>n_others</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lifetime partners</td>
+<td>27.476</td>
+<td>11.174</td>
+<td>0.675</td>
+<td>0.597</td>
+<td>0.757</td>
+<td>1393</td>
+<td>8063</td>
+</tr>
+<tr>
+<td>Height</td>
+<td>71.557</td>
+<td>70.254</td>
+<td>0.392</td>
+<td>-0.143</td>
+<td>1.069</td>
+<td>20</td>
+<td>234</td>
+</tr>
+<tr>
+<td>Looks, SES-adjusted</td>
+<td>0.015</td>
+<td>-0.002</td>
+<td>0.023</td>
+<td>-0.237</td>
+<td>0.278</td>
+<td>92</td>
+<td>686</td>
+</tr>
+<tr>
+<td>Looks (interviewer)</td>
+<td>3.301</td>
+<td>3.338</td>
+<td>-0.047</td>
+<td>-0.284</td>
+<td>0.180</td>
+<td>117</td>
+<td>896</td>
+</tr>
+<tr>
+<td>Income rank</td>
+<td>49.794</td>
+<td>49.586</td>
+<td>0.007</td>
+<td>-0.064</td>
+<td>0.079</td>
+<td>1201</td>
+<td>7210</td>
+</tr>
+<tr>
+<td>Prestige rank</td>
+<td>47.074</td>
+<td>49.154</td>
+<td>-0.073</td>
+<td>-0.132</td>
+<td>-0.001</td>
+<td>1473</td>
+<td>8628</td>
+</tr>
+<tr>
+<td>Has a BA+</td>
+<td>0.239</td>
+<td>0.303</td>
+<td>-0.140</td>
+<td>-0.199</td>
+<td>-0.076</td>
+<td>1493</td>
+<td>8729</td>
+</tr>
+<tr>
+<td>Ever married</td>
+<td>0.727</td>
+<td>0.756</td>
+<td>-0.065</td>
+<td>-0.125</td>
+<td>-0.009</td>
+<td>1495</td>
+<td>8733</td>
+</tr>
+<tr>
+<td>Currently married</td>
+<td>0.499</td>
+<td>0.614</td>
+<td>-0.234</td>
+<td>-0.303</td>
+<td>-0.168</td>
+<td>1495</td>
+<td>8733</td>
+</tr>
+</tbody>
+</table>
+<h3><code>paid_sex_by_income.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>decile</th>
+<th>share_paid</th>
+<th>lo</th>
+<th>hi</th>
+<th>n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0.141</td>
+<td>0.117</td>
+<td>0.167</td>
+<td>839</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0.139</td>
+<td>0.115</td>
+<td>0.167</td>
+<td>817</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0.127</td>
+<td>0.103</td>
+<td>0.156</td>
+<td>791</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0.101</td>
+<td>0.080</td>
+<td>0.123</td>
+<td>864</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0.135</td>
+<td>0.110</td>
+<td>0.161</td>
+<td>829</td>
+</tr>
+<tr>
+<td>6</td>
+<td>0.150</td>
+<td>0.119</td>
+<td>0.176</td>
+<td>834</td>
+</tr>
+<tr>
+<td>7</td>
+<td>0.141</td>
+<td>0.118</td>
+<td>0.165</td>
+<td>891</td>
+</tr>
+<tr>
+<td>8</td>
+<td>0.125</td>
+<td>0.101</td>
+<td>0.148</td>
+<td>830</td>
+</tr>
+<tr>
+<td>9</td>
+<td>0.147</td>
+<td>0.120</td>
+<td>0.176</td>
+<td>884</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0.126</td>
+<td>0.100</td>
+<td>0.153</td>
+<td>832</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0.135</td>
+<td></td>
+<td></td>
+<td>10231</td>
+</tr>
+</tbody>
+</table>
+<h3><code>natsal_want_more.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>sex</th>
+<th>fifth</th>
+<th>per_month_lo</th>
+<th>per_month_hi</th>
+<th>per_month_median</th>
+<th>n</th>
+<th>want_more</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>men</td>
+<td>1</td>
+<td>0.000</td>
+<td>1.000</td>
+<td>1.000</td>
+<td>224</td>
+<td>0.770</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2</td>
+<td>1.000</td>
+<td>3.000</td>
+<td>2.000</td>
+<td>210</td>
+<td>0.767</td>
+</tr>
+<tr>
+<td>men</td>
+<td>3</td>
+<td>3.000</td>
+<td>5.000</td>
+<td>4.000</td>
+<td>211</td>
+<td>0.713</td>
+</tr>
+<tr>
+<td>men</td>
+<td>4</td>
+<td>5.000</td>
+<td>8.000</td>
+<td>6.000</td>
+<td>210</td>
+<td>0.666</td>
+</tr>
+<tr>
+<td>men</td>
+<td>5</td>
+<td>8.000</td>
+<td>100.000</td>
+<td>12.000</td>
+<td>242</td>
+<td>0.428</td>
+</tr>
+<tr>
+<td>men</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1097</td>
+<td>0.669</td>
+</tr>
+<tr>
+<td>women</td>
+<td>1</td>
+<td>0.000</td>
+<td>1.000</td>
+<td>0.000</td>
+<td>348</td>
+<td>0.676</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2</td>
+<td>1.000</td>
+<td>3.000</td>
+<td>2.000</td>
+<td>359</td>
+<td>0.596</td>
+</tr>
+<tr>
+<td>women</td>
+<td>3</td>
+<td>3.000</td>
+<td>4.000</td>
+<td>3.000</td>
+<td>348</td>
+<td>0.552</td>
+</tr>
+<tr>
+<td>women</td>
+<td>4</td>
+<td>4.000</td>
+<td>8.000</td>
+<td>6.000</td>
+<td>364</td>
+<td>0.481</td>
+</tr>
+<tr>
+<td>women</td>
+<td>5</td>
+<td>8.000</td>
+<td>45.000</td>
+<td>10.000</td>
+<td>378</td>
+<td>0.321</td>
+</tr>
+<tr>
+<td>women</td>
+<td>0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1797</td>
+<td>0.525</td>
+</tr>
+</tbody>
+</table>
+<h3><code>natsal_desire_matching.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>wants</th>
+<th>per_month</th>
+<th>men_at_least</th>
+<th>women_at_least</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>once a week</td>
+<td>4.333</td>
+<td>0.574</td>
+<td>0.457</td>
+</tr>
+<tr>
+<td>twice a week</td>
+<td>8.667</td>
+<td>0.346</td>
+<td>0.240</td>
+</tr>
+<tr>
+<td>3x a week</td>
+<td>13.000</td>
+<td>0.231</td>
+<td>0.146</td>
+</tr>
+<tr>
+<td>4x a week</td>
+<td>17.333</td>
+<td>0.164</td>
+<td>0.096</td>
+</tr>
+<tr>
+<td>daily</td>
+<td>30.400</td>
+<td>0.073</td>
+<td>0.037</td>
+</tr>
+</tbody>
+</table>
+<h3><code>aella_sex_porn_digitised.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>years_together</th>
+<th>sex_per_month</th>
+<th>porn_per_month_men</th>
+<th>porn_per_month_women</th>
+<th>source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-1</td>
+<td>12.150</td>
+<td>10.800</td>
+<td>3.560</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>1-2</td>
+<td>8.790</td>
+<td>11.710</td>
+<td>2.910</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>2-4</td>
+<td>6.890</td>
+<td>12.720</td>
+<td>3.240</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>4-6</td>
+<td>5.430</td>
+<td>13.840</td>
+<td>3.280</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>6-8</td>
+<td>4.750</td>
+<td>14.580</td>
+<td>2.570</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>8-10</td>
+<td>4.410</td>
+<td>13.600</td>
+<td>2.680</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>10-12</td>
+<td>4.410</td>
+<td>13.840</td>
+<td>2.240</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>12-14</td>
+<td>4.160</td>
+<td>13.760</td>
+<td>2.510</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>14-16</td>
+<td>4.320</td>
+<td>13.540</td>
+<td>2.680</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>16-22</td>
+<td>3.870</td>
+<td>13.340</td>
+<td>2.670</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+<tr>
+<td>22+</td>
+<td>4.160</td>
+<td>12.290</td>
+<td>1.690</td>
+<td>Aella relationships survey, Knowingless 2023-03-14 (digitised)</td>
+</tr>
+</tbody>
+</table>
+<h3><code>aella_satisfaction_digitised.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>agreement</th>
+<th>pct</th>
+<th>source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-3</td>
+<td>13.713</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+<tr>
+<td>-2</td>
+<td>21.786</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>17.914</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+<tr>
+<td>0</td>
+<td>6.018</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>13.852</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>20.609</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6.108</td>
+<td>Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h2>Caveats</h2>
+<p><strong>Everything here is cross-sectional.</strong> The duration curves compare different couples at different durations
+rather than following the same couples, so couples who split early drop out of the later years. The looks, SES
+and height panels compare different men at the same moment, and say nothing about what would happen if one man's
+looks, income or height changed.</p>
+<p><strong>Self-report.</strong> Partner counts, sex frequency, height and paying for sex are all self-reported. Men report about
+2.4 times as many opposite-sex partners as women do in the GSS, which cannot be literally true, so the levels
+carry a reporting bias. Comparisons <em>within</em> men (by looks, rung or height) are less exposed to it, as long as the
+bias doesn't itself vary by looks, rung or height.</p>
+<p><strong>Looks is one stranger's rating.</strong> The GSS interviewer rates attractiveness after an hour-long interview, only
+in 2016, 2018 and 2022. Only 66 men got a 5 and 79 a 1 or 2, so the extreme bars have wide intervals.</p>
+<p><strong>Height in the paid-sex profile rests on 20 buyers</strong> (GSS asked height only in 2022). Read it as a curiosity.
+The height panel in the first chart uses NSFG instead, with about 2,200 young men.</p>
+<p><strong>The NSFG height panel is narrow by design.</strong> It follows NuancePill's sample: heterosexual non-Hispanic white
+men aged 18-29. Older men, other groups, and outcomes beyond past-year sexlessness and virginity aren't covered.</p>
+<p><strong>Britain vs the US.</strong> The duration and wanting-more charts use Natsal-3 (Britain, 2010-12), because it is the
+only large probability survey that asks both how often people have sex, as a count, and whether they want more.
+Its achieved frequencies are close to the GSS's, but it is still a different country and a decade old.</p>
+<p><strong>"Wanting more" is a direction, not an amount.</strong> Natsal asks whether people would like sex more or less often,
+not how much more. The desired-frequency fit in the wanting-more chart caps "a bit more" at twice the achieved
+count. The cap moves the levels in panel B, but not the gap between the sexes.</p>
+<p><strong>The porn and satisfaction charts are Aella's data, redrawn.</strong> We don't have her microdata. Values were read
+off her published charts by pixel measurement, to within about 0.2 points. Her relationships survey is a
+convenience sample, mostly her own followers, who skew liberal and sexually open, so treat its levels as
+indicative. Its patterns (sex falling with relationship length, porn rising) agree with the probability
+surveys. Her sex line is per respondent, not per couple.</p>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>master_post_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Data for &quot;The master post of sexual and relationship dynamics&quot;: every number behind the post's reworked charts.
+
+    uv run --with pandas,pyarrow,numpy,scipy,statsmodels python notebooks/master_post/master_post_data.py
+
+Writes small CSVs next to this script; `master_post_charts.py` draws them. Run from the repo root.
+
+**Sources computed here.**
+
+* **GSS 1972-2024 cumulative file** (`gss7224_r2.dta`), survey-weighted with `wtssps` (missing weight = 1).
+  - *Looks* (`rlooks`, asked 2016, 2018 and 2022): the interviewer rates the respondent's physical attractiveness 1-5 at the end of the
+    interview. Men aged 25-60, lifetime female partners since 18 (`numwomen`, 0-989), winsorised at 100.
+    Ratings 1 and 2 are pooled (&quot;1-2, below average&quot;) because rating 1 has too few men to stand alone.
+  - *SES rungs*: own income (`conrinc`) and occupational prestige (`prestg10`), each ranked within survey year x
+    sex and cut into thirds. &quot;Bottom both&quot; = bottom third on both; &quot;bottom either&quot; = bottom third on one; &quot;high
+    both&quot; = top third on both; &quot;high either&quot; = top third on one (and not bottom on the other); the rest are
+    &quot;middle&quot;. Split by bachelor's degree or more (`degree` &gt;= 3). Men 25-60, partners winsorised at 100.
+  - *Paying for sex* (`evpaidsx`, men 25-60, 1991-2022): share who have ever paid, by own-income decile ranked
+    within survey year; and standardised differences (buyers minus non-buyers, divided by the pooled SD) on
+    degree, income and prestige rank, interviewer looks (raw and SES-adjusted: residual after regressing on age,
+    age^2, income rank, prestige rank, degree and year), height (`rheight`, 2022 only), lifetime partners
+    (capped 100) and marital status.
+  - Intervals are percentile bootstraps of the weighted mean (800 draws; 600 for the standardised differences).
+
+* **Natsal-3** (Britain 2010-12, `eul_natsal_2010_for_archive.dta`), weighted with `total_wt`.
+  - *Duration*: respondents living with a partner (`partnerhh` = 1); duration = age - age at first sex with
+    the current partner (`rafsmr`). Occasions of sex in the last 4 weeks (`sex4wks`, a count) are fitted with a
+    Poisson GLM, and &quot;would like sex more often&quot; (`frequent` = much or a bit more) with a logistic GLM. Both use
+    age (centred at 35, quadratic) and duration (log1p, a linear term to 5 years, and a slope after 5) as
+    separate terms, and are drawn at age 35, so the curves show years together rather than ageing.
+  - *Wanting more*: partnered (`partnerhh` = 1) men and women aged 25-40. Share wanting more, by fifths of
+    achieved frequency within sex. Desired monthly frequency is fitted per sex as an interval-censored lognormal
+    (achieved count plus direction of the wish; &quot;a bit more&quot; is capped at twice the achieved count), and the
+    matching table gives, for a stated desired frequency, the share of each sex whose desired frequency is at
+    least that high.
+
+* **NSFG 2011-13, 2013-15, 2015-17 male files** (CDC public-use, `nsfg_2011_2017/`), pooled with each cycle's
+  final weight divided by 3. Heterosexual (`ORIENT`/`ORIENT_A`/`ORIENT_B` = 1) non-Hispanic white (`HISPRACE2` = 2)
+  men aged 18-29 with a self-reported height (`INCHES`): share with no opposite-sex partner in the past 12 months
+  (`PARTS1YR` = 0, which includes virgins) and share who never had intercourse (`HADSEX` = 2), by height in
+  inches (65 and under, 76 and over pooled). Replicates NuancePill, &quot;The Bumble height filter graph and height's
+  effect on male celibacy&quot; (https://nuancepill.substack.com/p/the-bumble-height-filter-graph-and-heights-effect-on-male-celibacy),
+  whose idea and sample definition this follows; our n is 2,191 against their 2,623 (they likely used a looser
+  orientation filter), and the pattern is the same: flat across heights.
+
+**Sources digitised, not recomputed** (we do not have the microdata; values read off the author's published
+charts by pixel measurement against their axis gridlines, accurate to about +/-0.2 points):
+
+* **Sex and porn by relationship length, and sex-life satisfaction**: Aella, &quot;Monogamous men in long-term
+  relationships aren't doin too hot&quot; (Knowingless, 14 Mar 2023,
+  https://aella.substack.com/p/monogamous-men-in-long-term-relationships). Her relationships survey (~25,000
+  respondents, mostly her own followers). Monthly sex and porn occasions by relationship length in years; and
+  agreement with &quot;I'm satisfied with my sex life&quot; (-3 to +3) for straight, non-poly men in relationships of
+  12+ years (n = 3,720).
+&quot;&quot;&quot;
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from scipy.optimize import minimize
+from scipy.stats import norm
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+GSS = DATA / &quot;gss7224_r2.dta&quot;
+NAT = DATA / &quot;NATSAL&quot; / &quot;UKDA-7799-stata&quot; / &quot;stata&quot; / &quot;stata11&quot; / &quot;eul_natsal_2010_for_archive.dta&quot;
+
+
+def wmean(x, w):
+    x = np.asarray(x, float); w = np.asarray(w, float)
+    return float((x * w).sum() / w.sum())
+
+
+def boot_ci(x, w, n=800, seed=0):
+    x = np.asarray(x, float); w = np.asarray(w, float)
+    rng = np.random.default_rng(seed)
+    out = [wmean(x[i], w[i]) for i in (rng.integers(0, len(x), len(x)) for _ in range(n))]
+    return tuple(np.percentile(out, [2.5, 97.5]))
+
+
+def read_gss(cols):
+    return pd.concat(list(pd.read_stata(GSS, columns=cols, convert_categoricals=False, chunksize=20000)),
+                     ignore_index=True)
+
+
+# ---------------------------------------------------------------- GSS: looks and SES (men 25-60)
+g = read_gss([&quot;year&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;numwomen&quot;, &quot;rlooks&quot;, &quot;conrinc&quot;, &quot;prestg10&quot;, &quot;degree&quot;, &quot;wtssps&quot;])
+g = g[g.age.between(25, 60) &amp; g.sex.isin([1, 2])].copy()
+g[&quot;w&quot;] = g.wtssps.fillna(1.0)
+g[&quot;inc_pct&quot;] = g.groupby([&quot;year&quot;, &quot;sex&quot;]).conrinc.rank(pct=True) * 100
+g[&quot;pres_pct&quot;] = g.groupby([&quot;year&quot;, &quot;sex&quot;]).prestg10.rank(pct=True) * 100
+men = g[g.sex.eq(1) &amp; g.numwomen.between(0, 989)].copy()
+men[&quot;bc&quot;] = men.numwomen.clip(upper=100)
+
+lk = men[men.rlooks.between(1, 5)].copy()
+lk[&quot;looks&quot;] = lk.rlooks.clip(lower=2).astype(int)          # pool 1 with 2
+LOOKS_LAB = {2: &quot;1-2\nbelow avg&quot;, 3: &quot;3\naverage&quot;, 4: &quot;4\nabove avg&quot;, 5: &quot;5\nvery good&quot;}
+rows = []
+for k, lab in LOOKS_LAB.items():
+    s = lk[lk.looks == k]
+    lo, hi = boot_ci(s.bc, s.w)
+    rows.append({&quot;looks&quot;: lab.replace(&quot;\n&quot;, &quot; &quot;), &quot;code&quot;: k, &quot;n&quot;: len(s), &quot;mean_partners&quot;: wmean(s.bc, s.w),
+                 &quot;lo&quot;: lo, &quot;hi&quot;: hi, &quot;n_rating_1&quot;: int((s.rlooks == 1).sum())})
+LOOKS = pd.DataFrame(rows)
+LOOKS.to_csv(HERE / &quot;looks_partners.csv&quot;, index=False)
+print(&quot;looks:\n&quot;, LOOKS.round(2).to_string(index=False))
+
+bk = men[men.inc_pct.notna() &amp; men.pres_pct.notna() &amp; men.degree.between(0, 4)].copy()
+bk[&quot;college&quot;] = bk.degree.ge(3)
+lo_i, hi_i = bk.inc_pct.lt(100 / 3), bk.inc_pct.gt(200 / 3)
+lo_p, hi_p = bk.pres_pct.lt(100 / 3), bk.pres_pct.gt(200 / 3)
+RUNGS = [&quot;bottom both&quot;, &quot;bottom either&quot;, &quot;middle&quot;, &quot;high either&quot;, &quot;high both&quot;]
+bk[&quot;rung&quot;] = np.select([lo_i &amp; lo_p, hi_i &amp; hi_p, lo_i | lo_p, hi_i | hi_p], [RUNGS[0], RUNGS[4], RUNGS[1], RUNGS[3]],
+                       default=&quot;middle&quot;)
+rows = []
+for coll in (True, False):
+    for r in RUNGS:
+        s = bk[(bk.college == coll) &amp; (bk.rung == r)]
+        lo, hi = boot_ci(s.bc, s.w)
+        rows.append({&quot;college&quot;: coll, &quot;rung&quot;: r, &quot;n&quot;: len(s), &quot;mean_partners&quot;: wmean(s.bc, s.w), &quot;lo&quot;: lo, &quot;hi&quot;: hi})
+SES = pd.DataFrame(rows)
+SES.to_csv(HERE / &quot;ses_partners.csv&quot;, index=False)
+print(&quot;SES rungs (men):\n&quot;, SES.round(2).to_string(index=False))
+
+# ---------------------------------------------------------------- GSS: paying for sex (men 25-60)
+p = read_gss([&quot;year&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;evpaidsx&quot;, &quot;rlooks&quot;, &quot;rheight&quot;, &quot;numwomen&quot;, &quot;degree&quot;, &quot;conrinc&quot;, &quot;prestg10&quot;,
+              &quot;marital&quot;, &quot;wtssps&quot;])
+p = p[p.sex.eq(1) &amp; p.age.between(25, 60) &amp; p.evpaidsx.isin([1, 2])].copy()
+p[&quot;w&quot;] = p.wtssps.fillna(1.0)
+p[&quot;paid&quot;] = p.evpaidsx.eq(1)
+p[&quot;inc_pct&quot;] = p.groupby(&quot;year&quot;).conrinc.rank(pct=True) * 100
+p[&quot;pres_pct&quot;] = p.groupby(&quot;year&quot;).prestg10.rank(pct=True) * 100
+p[&quot;ba&quot;] = p.degree.where(p.degree.between(0, 4)).ge(3)
+p.loc[~p.degree.between(0, 4), &quot;ba&quot;] = np.nan
+p[&quot;bc100&quot;] = p.numwomen.where(p.numwomen.between(0, 989)).clip(upper=100)
+mar = p.marital.where(p.marital.between(1, 5))
+p[&quot;evermar&quot;] = mar.ne(5).where(mar.notna())
+p[&quot;curmar&quot;] = mar.eq(1).where(mar.notna())
+p[&quot;looks&quot;] = p.rlooks.where(p.rlooks.between(1, 5))
+p[&quot;height&quot;] = p.rheight.where(p.rheight.between(48, 90))
+PAID_SHARE = wmean(p.paid, p.w)
+
+lkp = p[p.looks.notna() &amp; p.inc_pct.notna() &amp; p.pres_pct.notna() &amp; p.ba.notna()].copy()
+X = np.column_stack([np.ones(len(lkp)), (lkp.age - 42) / 10, ((lkp.age - 42) / 10) ** 2, lkp.inc_pct / 100,
+                     lkp.pres_pct / 100, lkp.ba.astype(float), (lkp.year - 2019) / 10])
+lkp[&quot;looks_resid&quot;] = lkp.looks - sm.WLS(lkp.looks.astype(float), X, weights=lkp.w).fit().predict(X)
+
+MEASURES = [(&quot;Lifetime partners&quot;, &quot;bc100&quot;), (&quot;Height&quot;, &quot;height&quot;), (&quot;Looks, SES-adjusted&quot;, &quot;looks_resid&quot;),
+            (&quot;Looks (interviewer)&quot;, &quot;looks&quot;), (&quot;Income rank&quot;, &quot;inc_pct&quot;), (&quot;Prestige rank&quot;, &quot;pres_pct&quot;),
+            (&quot;Has a BA+&quot;, &quot;ba&quot;), (&quot;Ever married&quot;, &quot;evermar&quot;), (&quot;Currently married&quot;, &quot;curmar&quot;)]
+rows = []
+for lab, col in MEASURES:
+    src = lkp if col == &quot;looks_resid&quot; else p
+    d = src[src[col].notna()]
+    a, b = d[d.paid], d[~d.paid]
+    pooled = np.sqrt((np.var(a[col].astype(float)) + np.var(b[col].astype(float))) / 2)
+    diff = wmean(a[col], a.w) - wmean(b[col], b.w)
+    rng = np.random.default_rng(0); boots = []
+    for _ in range(600):
+        ia, ib = rng.integers(0, len(a), len(a)), rng.integers(0, len(b), len(b))
+        boots.append(wmean(a[col].iloc[ia], a.w.iloc[ia]) - wmean(b[col].iloc[ib], b.w.iloc[ib]))
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    rows.append({&quot;measure&quot;: lab, &quot;buyers&quot;: wmean(a[col], a.w), &quot;non_buyers&quot;: wmean(b[col], b.w), &quot;d&quot;: diff / pooled,
+                 &quot;d_lo&quot;: lo / pooled, &quot;d_hi&quot;: hi / pooled, &quot;n_buyers&quot;: len(a), &quot;n_others&quot;: len(b)})
+PAIDP = pd.DataFrame(rows)
+PAIDP.to_csv(HERE / &quot;paid_sex_profile.csv&quot;, index=False)
+print(f&quot;ever paid for sex: {PAID_SHARE:.1%} of men 25-60 (n = {len(p):,})&quot;)
+print(PAIDP.round(2).to_string(index=False))
+
+inc = p[p.inc_pct.notna()].copy()
+inc[&quot;dec&quot;] = np.minimum((inc.inc_pct // 10).astype(int), 9) + 1
+rows = []
+for d_ in range(1, 11):
+    s = inc[inc.dec == d_]
+    lo, hi = boot_ci(s.paid, s.w)
+    rows.append({&quot;decile&quot;: d_, &quot;share_paid&quot;: wmean(s.paid, s.w), &quot;lo&quot;: lo, &quot;hi&quot;: hi, &quot;n&quot;: len(s)})
+rows.append({&quot;decile&quot;: 0, &quot;share_paid&quot;: PAID_SHARE, &quot;lo&quot;: np.nan, &quot;hi&quot;: np.nan, &quot;n&quot;: len(p)})   # 0 = all men
+pd.DataFrame(rows).to_csv(HERE / &quot;paid_sex_by_income.csv&quot;, index=False)
+
+# ---------------------------------------------------------------- Natsal: duration curves
+nat = pd.read_stata(NAT, columns=[&quot;rsex&quot;, &quot;dage&quot;, &quot;sex4wks&quot;, &quot;frequent&quot;, &quot;total_wt&quot;, &quot;partnerhh&quot;, &quot;rafsmr&quot;],
+                    convert_categoricals=False)
+nat = nat[(nat.sex4wks &lt; 900) &amp; nat.frequent.between(1, 5) &amp; (nat.total_wt &gt; 0)].copy()
+nat[&quot;male&quot;] = nat.rsex.eq(1); nat[&quot;w&quot;] = nat.total_wt; nat[&quot;A&quot;] = nat.sex4wks.astype(float)
+
+nd = nat[nat.partnerhh.eq(1) &amp; nat.rafsmr.between(10, 80)].copy()
+nd[&quot;dur&quot;] = nd.dage - nd.rafsmr
+nd = nd[nd.dur.between(0, 45)]
+
+
+def design(age, dur):
+    age = np.asarray(age, float); dur = np.asarray(dur, float)
+    return np.column_stack([np.ones(len(age)), age - 35, (age - 35) ** 2 / 100, np.log1p(dur), np.minimum(dur, 5),
+                            np.clip(dur - 5, 0, None) / 10])
+
+
+GRID = np.linspace(0, 17, 69)        # a 35-year-old cannot have been with someone (since 18) for longer
+rows = {&quot;years&quot;: GRID}
+for male, sx in [(True, &quot;men&quot;), (False, &quot;women&quot;)]:
+    s = nd[nd.male == male]
+    for y, lab, fam in [(s.sex4wks, &quot;per_month&quot;, sm.families.Poisson()),
+                        (s.frequent.le(2).astype(float), &quot;want_more&quot;, sm.families.Binomial())]:
+        f = sm.GLM(np.asarray(y, float), design(s.dage, s.dur), family=fam, freq_weights=s.w.to_numpy()).fit()
+        eta = design(np.full(len(GRID), 35.0), GRID) @ f.params
+        rows[f&quot;{sx}_{lab}&quot;] = np.exp(eta) if lab == &quot;per_month&quot; else 1 / (1 + np.exp(-eta))
+DUR = pd.DataFrame(rows)
+DUR.to_csv(HERE / &quot;natsal_duration.csv&quot;, index=False)
+print(f&quot;Natsal couples with a datable start: n = {len(nd):,}&quot;)
+print(DUR.iloc[[0, 4, 20, 40, 68]].round(2).to_string(index=False))
+
+# ---------------------------------------------------------------- Natsal: wanting more (partnered 25-40)
+nb = nat[nat.dage.between(25, 40) &amp; nat.partnerhh.eq(1)]
+rows = []
+for male, sx in [(True, &quot;men&quot;), (False, &quot;women&quot;)]:
+    s = nb[nb.male == male].sort_values(&quot;A&quot;).copy()
+    s[&quot;cum&quot;] = (np.cumsum(s.w) - 0.5 * s.w) / s.w.sum()
+    s[&quot;fifth&quot;] = np.minimum((s.cum * 5).astype(int), 4)
+    for q, d in s.groupby(&quot;fifth&quot;):
+        rows.append({&quot;sex&quot;: sx, &quot;fifth&quot;: q + 1, &quot;per_month_lo&quot;: d.A.min(), &quot;per_month_hi&quot;: d.A.max(),
+                     &quot;per_month_median&quot;: float(np.median(d.A)), &quot;n&quot;: len(d),
+                     &quot;want_more&quot;: wmean(d.frequent.le(2), d.w)})
+    rows.append({&quot;sex&quot;: sx, &quot;fifth&quot;: 0, &quot;n&quot;: len(s), &quot;want_more&quot;: wmean(s.frequent.le(2), s.w)})    # 0 = all
+WANT = pd.DataFrame(rows)
+WANT.to_csv(HERE / &quot;natsal_want_more.csv&quot;, index=False)
+print(WANT.round(2).to_string(index=False))
+
+
+def fit_desired(s, k=2.0):
+    A = np.clip(s.A.to_numpy(float), 0.25, None); w = s.w.to_numpy(); f = s.frequent.to_numpy()
+    lo = np.where(f == 1, k * A, np.where(f == 2, A, np.where(f == 3, A * 0.999, np.where(f == 4, A / 2, 1e-6))))
+    hi = np.where(f == 1, np.inf, np.where(f == 2, k * A, np.where(f == 3, A * 1.001, np.where(f == 4, A, A / 2))))
+
+    def nll(par):
+        mu, ls = par[0], np.exp(par[1])
+        pr = norm.cdf((np.log(hi) - mu) / ls) - norm.cdf((np.log(lo) - mu) / ls)
+        return -float((w * np.log(np.clip(pr, 1e-12, None))).sum())
+
+    r = minimize(nll, [1.5, 0.0], method=&quot;Nelder-Mead&quot;, options=dict(maxiter=9000, xatol=1e-7, fatol=1e-7))
+    return float(r.x[0]), float(np.exp(r.x[1]))
+
+
+FIT = {sx: fit_desired(nb[nb.male == (sx == &quot;men&quot;)]) for sx in (&quot;men&quot;, &quot;women&quot;)}
+rows = []
+for lab, x in [(&quot;once a week&quot;, 52 / 12), (&quot;twice a week&quot;, 104 / 12), (&quot;3x a week&quot;, 156 / 12),
+               (&quot;4x a week&quot;, 208 / 12), (&quot;daily&quot;, 30.4)]:
+    rows.append({&quot;wants&quot;: lab, &quot;per_month&quot;: x,
+                 **{f&quot;{sx}_at_least&quot;: float(norm.sf((np.log(x) - mu) / sg)) for sx, (mu, sg) in FIT.items()}})
+MATCH = pd.DataFrame(rows)
+MATCH.to_csv(HERE / &quot;natsal_desire_matching.csv&quot;, index=False)
+print({sx: f&quot;median wanted {np.exp(mu):.1f}/mo&quot; for sx, (mu, sg) in FIT.items()})
+print(MATCH.round(3).to_string(index=False))
+
+# ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
+NSFG = DATA / &quot;nsfg_2011_2017&quot;
+NEED = [&quot;AGE_R&quot;, &quot;HISPRACE2&quot;, &quot;HADSEX&quot;, &quot;PARTS1YR&quot;, &quot;ORIENT&quot;, &quot;ORIENT_A&quot;, &quot;ORIENT_B&quot;, &quot;INCHES&quot;]
+
+
+RE_COL = re.compile(r&quot;\s*_column\((\d+)\)\s+\w+\s+(\w+)\s+%(\d+)[a-z]&quot;)   # start, name, width
+
+
+def read_nsfg(cycle):
+    &quot;&quot;&quot;Read the needed fixed-width columns of an NSFG male file using its Stata .dct layout.&quot;&quot;&quot;
+    spec = {}
+    for line in (NSFG / f&quot;{cycle}_MaleSetup.dct&quot;).read_text(errors=&quot;ignore&quot;).splitlines():
+        m = RE_COL.match(line)
+        if m:
+            spec[m.group(2)] = (int(m.group(1)) - 1, int(m.group(1)) - 1 + int(m.group(3)))
+    names = [c for c in NEED + [f&quot;WGT{cycle}&quot;] if c in spec]
+    df = pd.read_fwf(NSFG / f&quot;{cycle}_MaleData.dat&quot;, colspecs=[spec[c] for c in names], names=names, header=None)
+    df[&quot;w&quot;] = df.pop(f&quot;WGT{cycle}&quot;) / 3            # three pooled cycles
+    df[&quot;cycle&quot;] = cycle
+    return df
+
+
+ns = pd.concat([read_nsfg(c) for c in (&quot;2011_2013&quot;, &quot;2013_2015&quot;, &quot;2015_2017&quot;)], ignore_index=True)
+orient = ns.ORIENT.fillna(ns.get(&quot;ORIENT_A&quot;)).fillna(ns.get(&quot;ORIENT_B&quot;))
+ns = ns[ns.AGE_R.between(18, 29) &amp; ns.HISPRACE2.eq(2) &amp; orient.eq(1) &amp; ns.INCHES.between(48, 90)
+        &amp; ns.PARTS1YR.between(0, 50)].copy()
+ns[&quot;sexless&quot;] = ns.PARTS1YR.eq(0)
+ns[&quot;virgin&quot;] = ns.HADSEX.eq(2)
+ns[&quot;hbin&quot;] = ns.INCHES.clip(65, 76).astype(int)
+HLAB = {65: &quot;≤5'5&quot;, 66: &quot;5'6&quot;, 67: &quot;5'7&quot;, 68: &quot;5'8&quot;, 69: &quot;5'9&quot;, 70: &quot;5'10&quot;, 71: &quot;5'11&quot;, 72: &quot;6'0&quot;, 73: &quot;6'1&quot;,
+        74: &quot;6'2&quot;, 75: &quot;6'3&quot;, 76: &quot;≥6'4&quot;}
+rows = []
+for h, lab in HLAB.items():
+    s = ns[ns.hbin == h]
+    r = {&quot;inches&quot;: h, &quot;height&quot;: lab, &quot;n&quot;: len(s)}
+    for col in (&quot;sexless&quot;, &quot;virgin&quot;):
+        lo, hi = boot_ci(s[col], s.w)
+        r.update({f&quot;pct_{col}&quot;: 100 * wmean(s[col], s.w), f&quot;{col}_lo&quot;: 100 * lo, f&quot;{col}_hi&quot;: 100 * hi})
+    rows.append(r)
+rows.append({&quot;inches&quot;: 0, &quot;height&quot;: &quot;all&quot;, &quot;n&quot;: len(ns), &quot;pct_sexless&quot;: 100 * wmean(ns.sexless, ns.w),
+             &quot;pct_virgin&quot;: 100 * wmean(ns.virgin, ns.w)})
+HT = pd.DataFrame(rows)
+HT.to_csv(HERE / &quot;nsfg_height_sexless.csv&quot;, index=False)
+print(f&quot;NSFG 2011-17 het. NH white men 18-29 with height: n = {len(ns):,}&quot;)
+print(HT.round(1).to_string(index=False))
+
+# ---------------------------------------------------------------- digitised external series
+pd.DataFrame({
+    &quot;years_together&quot;: [&quot;0-1&quot;, &quot;1-2&quot;, &quot;2-4&quot;, &quot;4-6&quot;, &quot;6-8&quot;, &quot;8-10&quot;, &quot;10-12&quot;, &quot;12-14&quot;, &quot;14-16&quot;, &quot;16-22&quot;, &quot;22+&quot;],
+    &quot;sex_per_month&quot;: [12.15, 8.79, 6.89, 5.43, 4.75, 4.41, 4.41, 4.16, 4.32, 3.87, 4.16],
+    &quot;porn_per_month_men&quot;: [10.80, 11.71, 12.72, 13.84, 14.58, 13.60, 13.84, 13.76, 13.54, 13.34, 12.29],
+    &quot;porn_per_month_women&quot;: [3.56, 2.91, 3.24, 3.28, 2.57, 2.68, 2.24, 2.51, 2.68, 2.67, 1.69],
+}).assign(source=&quot;Aella relationships survey, Knowingless 2023-03-14 (digitised)&quot;).to_csv(
+    HERE / &quot;aella_sex_porn_digitised.csv&quot;, index=False)
+
+sat = np.array([13.74, 21.83, 17.95, 6.03, 13.88, 20.65, 6.12])
+pd.DataFrame({&quot;agreement&quot;: [-3, -2, -1, 0, 1, 2, 3], &quot;pct&quot;: sat / sat.sum() * 100}).assign(
+    source=&quot;Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)&quot;).to_csv(
+    HERE / &quot;aella_satisfaction_digitised.csv&quot;, index=False)
+print(&quot;digitised CSVs written&quot;)
+</code></pre>
+<h3><code>master_post_charts.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Charts for &quot;The master post of sexual and relationship dynamics&quot; (Performative Bafflement).
+
+    uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/master_post/master_post_charts.py
+
+Draws the post's five reworked figures from the CSVs that `master_post_data.py` writes (run that first), saves
+the unwatermarked PNGs to ~/Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Sex/ and the watermarked
+`_wm.png` copies to ~/Desktop/Recent Projects/Substack Notes/Sex/ (house watermark, style 7; this also rebuilds
+the methods page pbmethods.github.io/sex-dynamics, unless PB_NO_PUSH=1).
+
+1. `motivation_looks_ses_height` -- men's lifetime partners by interviewer-rated looks and by income x prestige
+   rung (GSS), and the share of young men sexless in the past year by height (NSFG 2011-17).
+2. `paid_sex_profile` -- how men who have paid for sex differ from those who have not (standardised
+   differences), and the share who have paid by income decile (GSS).
+3. `married_sex_porn` -- monthly sex and wanting more by years together at a fixed age of 35 (Natsal-3), and sex
+   versus porn by relationship length (Aella's relationships survey, digitised).
+4. `wants_more` -- who wants more sex by how much they already have, and how many people of the other sex want
+   at least a given frequency (Natsal-3).
+5. `sex_satisfaction` -- long-partnered men's agreement with &quot;I'm satisfied with my sex life&quot;, in full and
+   grouped (Aella's relationships survey, digitised).
+
+Every number and method is in `master_post_data.py`'s docstring; caveats are in CAVEATS.md.
+&quot;&quot;&quot;
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+OUT_WM, OUT_RAW = NOTES / &quot;Sex&quot;, NOTES / &quot;Unwatermarked graphs&quot; / &quot;Sex&quot;
+OUT_WM.mkdir(parents=True, exist_ok=True); OUT_RAW.mkdir(parents=True, exist_ok=True)
+
+P = pb.apply()
+INK, INK2, MUTED, NAVY, RED, MUTE, GRAY = P[&quot;INK&quot;], P[&quot;INK2&quot;], P[&quot;MUTED&quot;], P[&quot;NAVY&quot;], P[&quot;RED&quot;], P[&quot;MUTE&quot;], pb.GRAYS[0]
+pct = plt.FuncFormatter(lambda v, _: f&quot;{v:.0%}&quot;)
+ppt = plt.FuncFormatter(lambda v, _: f&quot;{v:.0f}%&quot;)
+read = lambda name: pd.read_csv(HERE / name)
+
+
+def header(fig, title, subtitle, y=1.0):
+    fig.text(0.01, y + 0.075, title, fontsize=17, fontweight=&quot;bold&quot;, color=INK, ha=&quot;left&quot;, va=&quot;bottom&quot;)
+    fig.text(0.01, y + 0.035, subtitle, fontsize=11, color=INK2, ha=&quot;left&quot;, va=&quot;bottom&quot;)
+
+
+def panel_title(ax, letter, text):
+    ax.set_title(f&quot;{letter}   {text}&quot;, loc=&quot;left&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK, pad=12)
+
+
+def footnote(fig, text, y=-0.04):
+    fig.text(0.01, y, text, fontsize=8.2, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.45)
+
+
+def errbars(ax, x, v, lo, hi, color=INK2):
+    ax.errorbar(x, v, yerr=[np.asarray(v) - np.asarray(lo), np.asarray(hi) - np.asarray(v)], fmt=&quot;none&quot;,
+                ecolor=color, elinewidth=0.9, capsize=2.5, zorder=3)
+
+
+def save(fig, name):
+    raw = OUT_RAW / f&quot;{name}.png&quot;
+    fig.savefig(raw, dpi=200, bbox_inches=&quot;tight&quot;, pad_inches=0.25)
+    plt.close(fig)
+    wm = OUT_WM / f&quot;{name}_wm.png&quot;
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)],
+                   check=True, env=os.environ.copy())
+    print(&quot;wrote&quot;, wm)
+
+
+# =============================================================== 1. looks, SES, height
+looks, ses, ht = read(&quot;looks_partners.csv&quot;), read(&quot;ses_partners.csv&quot;), read(&quot;nsfg_height_sexless.csv&quot;)
+fig, axes = plt.subplots(1, 3, figsize=(16, 5.4), gridspec_kw=dict(width_ratios=[0.8, 1.25, 1.35], wspace=0.24))
+
+ax = axes[0]
+x = np.arange(len(looks))
+ax.bar(x, looks.mean_partners, width=0.62, color=NAVY)
+errbars(ax, x, looks.mean_partners, looks.lo, looks.hi)
+for xi, v, hi, n in zip(x, looks.mean_partners, looks.hi, looks.n):
+    ax.text(xi, hi + 0.6, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
+    ax.text(xi, 0.6, f&quot;n={n}&quot;, ha=&quot;center&quot;, fontsize=7.5, color=&quot;white&quot;)
+ax.set_xticks(x, [&quot;1-2\nbelow avg&quot;, &quot;3\naverage&quot;, &quot;4\nabove avg&quot;, &quot;5\nvery good&quot;], fontsize=9)
+ax.set_ylim(0, 27); ax.set_ylabel(&quot;lifetime female partners (mean)&quot;)
+ax.set_xlabel(&quot;interviewer's looks rating&quot;)
+panel_title(ax, &quot;A&quot;, &quot;Looks&quot;)
+
+ax = axes[1]
+rungs = [&quot;bottom both&quot;, &quot;bottom either&quot;, &quot;middle&quot;, &quot;high either&quot;, &quot;high both&quot;]
+x = np.arange(len(rungs))
+for i, (coll, colr, lab) in enumerate([(True, NAVY, &quot;college grads&quot;), (False, GRAY, &quot;no degree&quot;)]):
+    d = ses[ses.college == coll].set_index(&quot;rung&quot;).loc[rungs]
+    xs = x + (i - 0.5) * 0.38
+    ax.bar(xs, d.mean_partners, width=0.36, color=colr)
+    errbars(ax, xs, d.mean_partners, d.lo, d.hi)
+    for xi, v, hi in zip(xs, d.mean_partners, d.hi):
+        ax.text(xi, hi + 0.6, f&quot;{v:.0f}&quot;, ha=&quot;center&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
+    ax.text(-0.45, 24.5 - 2.0 * i, &quot;■ &quot; + lab, fontsize=9.5, color=colr, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
+ax.set_xticks(x, [&quot;bottom\nboth&quot;, &quot;bottom\neither&quot;, &quot;middle&quot;, &quot;top\neither&quot;, &quot;top\nboth&quot;], fontsize=9)
+ax.set_xlabel(&quot;income x occupational prestige (thirds, within year)&quot;)
+ax.set_ylim(0, 27)
+panel_title(ax, &quot;B&quot;, &quot;Income and job prestige&quot;)
+
+ax = axes[2]
+x = np.arange(12)
+h = ht[ht.inches &gt; 0]
+ax.bar(x, h.pct_sexless, width=0.68, color=NAVY)
+errbars(ax, x, h.pct_sexless, h.sexless_lo, h.sexless_hi)
+avg = float(ht.loc[ht.inches == 0, &quot;pct_sexless&quot;].iloc[0])
+ax.axhline(avg, color=INK, lw=1, ls=(0, (4, 3)))
+ax.text(11.55, avg, f&quot;all\nheights\n{avg:.0f}%&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=9, color=INK, fontweight=&quot;bold&quot;)
+ax.set_xlim(-0.6, 12.9)
+ax.set_xticks(x, h.height, fontsize=8.5)
+ax.yaxis.set_major_formatter(ppt); ax.set_ylim(0, 36)
+ax.set_ylabel(&quot;no sex in the past year&quot;); ax.set_xlabel(&quot;height, men 18-29&quot;)
+panel_title(ax, &quot;C&quot;, &quot;Height&quot;)
+
+header(fig, &quot;Looks, money and height barely move men's sex lives&quot;,
+       &quot;Lifetime partners by looks (A) and by income and prestige (B), men 25-60; share of young men with no sex &quot;
+       &quot;in the past year, by height (C)&quot;, y=0.92)
+footnote(fig, &quot;A, B: GSS, men 25-60, survey-weighted means, partners capped at 100, bootstrap 95% intervals. A: 2016-22, the only &quot;
+              &quot;years with the interviewer's 1-5 looks rating (1 and 2 pooled; only 19 men got a 1). B: 1989-2022.\n&quot;
+              &quot;B: income and occupational prestige each split into thirds within survey year; 'top both' = top third &quot;
+              &quot;on both. College = bachelor's or more.\n&quot;
+              f&quot;C: NSFG 2011-17, heterosexual non-Hispanic white men 18-29 (n = {int(ht.loc[ht.inches == 0, 'n'].iloc[0]):,}), &quot;
+              &quot;weighted. Replicates NuancePill's analysis (nuancepill.substack.com); virginity by height is just as flat.&quot;,
+         y=0.0)
+save(fig, &quot;motivation_looks_ses_height&quot;)
+
+# =============================================================== 2. paying for sex
+prof, inc = read(&quot;paid_sex_profile.csv&quot;), read(&quot;paid_sex_by_income.csv&quot;)
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.6), gridspec_kw=dict(width_ratios=[1.1, 1], wspace=0.5))
+
+d = prof.iloc[::-1].reset_index(drop=True)
+y = np.arange(len(d))
+cols = [RED if m == &quot;Lifetime partners&quot; else MUTE for m in d.measure]
+ax.barh(y, d.d, color=cols, height=0.62)
+ax.errorbar(d.d, y, xerr=[d.d - d.d_lo, d.d_hi - d.d], fmt=&quot;none&quot;, ecolor=INK2, elinewidth=0.9, capsize=2.5)
+for yi, v, hi, lo in zip(y, d.d, d.d_hi, d.d_lo):
+    xt = hi + 0.04 if v &gt;= 0 else lo - 0.04
+    ax.text(xt, yi, f&quot;{v:+.2f}&quot;, va=&quot;center&quot;, ha=&quot;left&quot; if v &gt;= 0 else &quot;right&quot;, fontsize=9, fontweight=&quot;bold&quot;, color=INK)
+labels = [f&quot;{m}  (n={nb:,})&quot; if m != &quot;Height&quot; else &quot;Height  (n=20, 2022 only)&quot; for m, nb in zip(d.measure, d.n_buyers)]
+ax.set_yticks(y, labels, fontsize=9.5)
+ax.axvline(0, color=INK, lw=0.9)
+ax.grid(axis=&quot;y&quot;, visible=False); ax.grid(axis=&quot;x&quot;, visible=True)
+ax.set_xlim(-0.55, 1.15)
+ax.set_xlabel(&quot;buyers minus everyone else, in standard deviations&quot;)
+panel_title(ax, &quot;A&quot;, &quot;What sets buyers apart: partner count, not status&quot;)
+
+dec = inc[inc.decile &gt; 0]
+allm = float(inc.loc[inc.decile == 0, &quot;share_paid&quot;].iloc[0])
+ax2.bar(dec.decile, dec.share_paid, width=0.68, color=NAVY)
+errbars(ax2, dec.decile, dec.share_paid, dec.lo, dec.hi)
+ax2.axhline(allm, color=INK, lw=1, ls=(0, (4, 3)))
+ax2.text(10.45, allm + 0.004, f&quot;all men\n{allm:.0%}&quot;, fontsize=9, color=INK, fontweight=&quot;bold&quot;, va=&quot;bottom&quot;)
+for xi, v in zip(dec.decile, dec.share_paid):
+    ax2.text(xi, 0.006, f&quot;{v:.0%}&quot;, ha=&quot;center&quot;, fontsize=8.5, color=&quot;white&quot;, fontweight=&quot;bold&quot;)
+ax2.set_xticks(range(1, 11)); ax2.set_xlim(0.4, 11.6)
+ax2.yaxis.set_major_formatter(pct); ax2.set_ylim(0, 0.2); ax2.set_yticks([0, .05, .1, .15, .2])
+ax2.set_xlabel(&quot;own income decile within survey year (1 = poorest)&quot;)
+ax2.set_ylabel(&quot;have ever paid for sex&quot;)
+panel_title(ax2, &quot;B&quot;, &quot;Who pays, by income: basically flat&quot;)
+
+header(fig, &quot;Men who pay for sex aren't richer; they just have far more partners&quot;,
+       f&quot;Men 25-60 who have ever paid for sex ({allm:.1%}) against those who have not, GSS 1991-2022&quot;, y=0.92)
+footnote(fig, &quot;Survey-weighted, bootstrap 95% intervals. A: differences in means divided by the pooled SD so measures &quot;
+              &quot;are comparable; partners capped at 100 (buyers 27 vs 11).\n'Looks, SES-adjusted' removes age, income &quot;
+              &quot;rank, prestige rank, degree and year first. Height was asked only in 2022, so its bar rests on 20 buyers.&quot;,
+         y=0.0)
+save(fig, &quot;paid_sex_profile&quot;)
+
+# =============================================================== 3. sex and porn after marriage
+dur, ae = read(&quot;natsal_duration.csv&quot;), read(&quot;aella_sex_porn_digitised.csv&quot;)
+fig, axes = plt.subplots(1, 3, figsize=(17, 5.4), gridspec_kw=dict(wspace=0.28))
+
+ax = axes[0]
+ax.plot(dur.years, dur.men_per_month, color=NAVY, lw=2.6)
+ax.plot(dur.years, dur.women_per_month, color=GRAY, lw=2.6)
+ax.axvspan(0, 5, color=pb.NAVY_RAMP[0], alpha=0.12, lw=0)
+ax.text(2.5, 0.5, &quot;first 5 years&quot;, ha=&quot;center&quot;, fontsize=8.5, color=INK2)
+for col, colr, lab, dy in [(&quot;men_per_month&quot;, NAVY, &quot;men&quot;, 0.25), (&quot;women_per_month&quot;, GRAY, &quot;women&quot;, -0.45)]:
+    ax.text(17.3, dur[col].iloc[-1] + dy, f&quot;{lab} {dur[col].iloc[-1]:.1f}&quot;, fontsize=9.5, color=INK, fontweight=&quot;bold&quot;,
+            va=&quot;center&quot;)
+ax.text(0.3, dur.men_per_month.iloc[0] + 0.3, f&quot;{dur.men_per_month.iloc[0]:.1f}&quot;, fontsize=9.5, fontweight=&quot;bold&quot;)
+ax.set_xlim(0, 21); ax.set_ylim(0, 8)
+ax.set_xlabel(&quot;years with this partner&quot;); ax.set_ylabel(&quot;times per month, at age 35&quot;)
+panel_title(ax, &quot;A&quot;, &quot;Sex falls by a quarter in five years&quot;)
+
+ax = axes[1]
+ax.plot(dur.years, dur.men_want_more, color=NAVY, lw=2.6)
+ax.plot(dur.years, dur.women_want_more, color=GRAY, lw=2.6)
+ax.axvspan(0, 5, color=pb.NAVY_RAMP[0], alpha=0.12, lw=0)
+for col, lab in [(&quot;men_want_more&quot;, &quot;men&quot;), (&quot;women_want_more&quot;, &quot;women&quot;)]:
+    ax.text(17.3, dur[col].iloc[-1], f&quot;{lab} {dur[col].iloc[-1]:.0%}&quot;, fontsize=9.5, color=INK, fontweight=&quot;bold&quot;,
+            va=&quot;center&quot;)
+    ax.text(-0.2, dur[col].iloc[0], f&quot;{dur[col].iloc[0]:.0%}&quot;, fontsize=9, color=INK2, ha=&quot;right&quot;, va=&quot;center&quot;)
+ax.yaxis.set_major_formatter(pct); ax.set_ylim(0.3, 0.8); ax.set_xlim(-1.6, 21)
+ax.set_xlabel(&quot;years with this partner&quot;); ax.set_ylabel(&quot;want sex more often, at age 35&quot;)
+panel_title(ax, &quot;B&quot;, &quot;...and men's wish for more ratchets up&quot;)
+
+ax = axes[2]
+x = np.arange(len(ae))
+ax.plot(x, ae.porn_per_month_men, color=RED, lw=2.6, marker=&quot;o&quot;, ms=4.5)
+ax.plot(x, ae.sex_per_month, color=NAVY, lw=2.6, marker=&quot;o&quot;, ms=4.5)
+ax.plot(x, ae.porn_per_month_women, color=GRAY, lw=2.2, marker=&quot;o&quot;, ms=4)
+ax.text(10.25, ae.porn_per_month_men.iloc[-1], &quot;his porn&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+ax.text(10.25, ae.sex_per_month.iloc[-1] + 0.5, &quot;sex&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+ax.text(10.25, ae.porn_per_month_women.iloc[-1] - 0.5, &quot;her porn&quot;, color=INK, fontsize=9.5, fontweight=&quot;bold&quot;,
+        va=&quot;center&quot;)
+ax.set_xticks(x, ae.years_together, fontsize=8.5, rotation=45, ha=&quot;right&quot;, rotation_mode=&quot;anchor&quot;)
+ax.set_xlim(-0.4, 11.6); ax.set_ylim(0, 16)
+ax.set_xlabel(&quot;years together&quot;); ax.set_ylabel(&quot;times per month&quot;)
+panel_title(ax, &quot;C&quot;, &quot;As sex fades, his porn rises&quot;)
+
+header(fig, &quot;After the honeymoon: less sex, more wanting, more porn&quot;,
+       &quot;Monthly sex and the wish for more by years with a partner, at a fixed age of 35 (A, B); sex and porn by &quot;
+       &quot;relationship length (C)&quot;, y=0.92)
+footnote(fig, &quot;A, B: Natsal-3 (Britain 2010-12), people living with a partner (n = 5,899), weighted. Poisson (A) and &quot;
+              &quot;logistic (B) fits with age and duration as separate terms, drawn at age 35,\nso they show years together &quot;
+              &quot;rather than ageing; they stop at 17 years because a 35-year-old cannot have been with someone longer.\n&quot;
+              &quot;C: redrawn from Aella's relationships survey ('Monogamous men in long-term relationships aren't doin too &quot;
+              &quot;hot', aella.substack.com, 2023); values read off her chart.&quot;, y=0.0)
+save(fig, &quot;married_sex_porn&quot;)
+
+# =============================================================== 4. wanting more
+want, match = read(&quot;natsal_want_more.csv&quot;), read(&quot;natsal_desire_matching.csv&quot;)
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.4), gridspec_kw=dict(width_ratios=[1.15, 1], wspace=0.3))
+
+x = np.arange(5)
+for i, (sx, colr) in enumerate([(&quot;men&quot;, NAVY), (&quot;women&quot;, GRAY)]):
+    d = want[(want.sex == sx) &amp; (want.fifth &gt; 0)].sort_values(&quot;fifth&quot;)
+    xs = x + (i - 0.5) * 0.38
+    ax.bar(xs, d.want_more, width=0.36, color=colr)
+    for xi, v, med in zip(xs, d.want_more, d.per_month_median):
+        ax.text(xi, v + 0.015, f&quot;{v:.0%}&quot;, ha=&quot;center&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
+        ax.text(xi, 0.025, f&quot;{med:.0f}/mo&quot;, ha=&quot;center&quot;, fontsize=7.2, color=&quot;white&quot;, fontweight=&quot;bold&quot;)
+allm = float(want.loc[(want.sex == &quot;men&quot;) &amp; (want.fifth == 0), &quot;want_more&quot;].iloc[0])
+allw = float(want.loc[(want.sex == &quot;women&quot;) &amp; (want.fifth == 0), &quot;want_more&quot;].iloc[0])
+ax.text(4.55, 0.93, f&quot;■ men  (all: {allm:.0%})&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
+ax.text(4.55, 0.86, f&quot;■ women  (all: {allw:.0%})&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
+ax.set_xticks(x, [&quot;least sex\n(bottom fifth)&quot;, &quot;2nd&quot;, &quot;middle&quot;, &quot;4th&quot;, &quot;most sex\n(top fifth)&quot;], fontsize=9)
+ax.yaxis.set_major_formatter(pct); ax.set_ylim(0, 1)
+ax.set_ylabel(&quot;would like sex more often&quot;)
+ax.set_xlabel(&quot;how much sex they are already having (fifths, within each sex; median inside the bar)&quot;)
+panel_title(ax, &quot;A&quot;, &quot;Most want more, even when they're getting plenty&quot;)
+
+y = np.arange(len(match))[::-1]
+ax2.barh(y + 0.19, match.women_at_least, height=0.36, color=NAVY)
+ax2.barh(y - 0.19, match.men_at_least, height=0.36, color=GRAY)
+for yi, vw, vm in zip(y, match.women_at_least, match.men_at_least):
+    ax2.text(vw + 0.01, yi + 0.19, f&quot;{vw:.0%}&quot;, va=&quot;center&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
+    ax2.text(vm + 0.01, yi - 0.19, f&quot;{vm:.0%}&quot;, va=&quot;center&quot;, fontsize=9, color=INK2)
+ax2.set_yticks(y, [f&quot;{w}&quot; for w in match.wants], fontsize=10)
+ax2.grid(axis=&quot;y&quot;, visible=False); ax2.grid(axis=&quot;x&quot;, visible=True)
+ax2.xaxis.set_major_formatter(pct); ax2.set_xlim(0, 0.7)
+ax2.text(0.69, y[-1] + 0.75, &quot;■ women&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
+ax2.text(0.69, y[-1] + 0.35, &quot;■ men&quot;, color=GRAY, fontsize=9.5, fontweight=&quot;bold&quot;, ha=&quot;right&quot;)
+ax2.set_xlabel(&quot;share who want sex at least this often&quot;)
+panel_title(ax2, &quot;B&quot;, &quot;If you want it this often, who else does?&quot;)
+
+header(fig, &quot;Two-thirds of partnered men want more sex than they get&quot;,
+       &quot;Partnered men and women aged 25-40: who wants more (A), and how many people want at least a given &quot;
+       &quot;frequency (B)&quot;, y=0.92)
+footnote(fig, &quot;Natsal-3 (Britain 2010-12), living with a partner, 25-40 (men n = 1,097, women n = 1,797), weighted. &quot;
+              &quot;A: 'would like sex much or a bit more often', by fifths of occasions in the last 4 weeks.\n&quot;
+              &quot;B: desired frequency fitted per sex from each person's actual count plus whether they wanted more, the &quot;
+              &quot;same or less ('a bit more' capped at 2x actual), as a lognormal.&quot;, y=0.0)
+save(fig, &quot;wants_more&quot;)
+
+# =============================================================== 5. sex-life satisfaction
+sat = read(&quot;aella_satisfaction_digitised.csv&quot;)
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.2), gridspec_kw=dict(width_ratios=[1.45, 1], wspace=0.22))
+
+DIV = [&quot;#d7261e&quot;, &quot;#e8796f&quot;, &quot;#f2b8b0&quot;, &quot;#e7e5e0&quot;, &quot;#8fa9cf&quot;, &quot;#4a6ea3&quot;, &quot;#1f3a68&quot;]
+x = np.arange(7)
+ax.bar(x, sat.pct, width=0.72, color=DIV)
+for xi, v in zip(x, sat.pct):
+    ax.text(xi, v + 0.5, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
+ax.set_xticks(x, [&quot;-3\nstrongly\ndisagree&quot;, &quot;-2&quot;, &quot;-1&quot;, &quot;0\nneutral&quot;, &quot;+1&quot;, &quot;+2&quot;, &quot;+3\nstrongly\nagree&quot;],
+              fontsize=9.5)
+ax.yaxis.set_major_formatter(ppt); ax.set_ylim(0, 25)
+ax.set_ylabel(&quot;share of men&quot;)
+panel_title(ax, &quot;A&quot;, &quot;“I'm satisfied with my sex life”&quot;)
+
+groups = [(&quot;Neutral or\ndissatisfied\n(0 and under)&quot;, sat.pct[sat.agreement &lt;= 0].sum(), RED),
+          (&quot;Satisfied\n(+1 or +2;\n5-6 of 7)&quot;, sat.pct[sat.agreement.isin([1, 2])].sum(), MUTE),
+          (&quot;Fully satisfied\n(+3; 7 of 7)&quot;, sat.pct[sat.agreement == 3].sum(), MUTE)]
+x = np.arange(3)
+ax2.bar(x, [g[1] for g in groups], width=0.62, color=[g[2] for g in groups])
+for xi, (_, v, _) in zip(x, groups):
+    ax2.text(xi, v + 1, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;, color=INK)
+ax2.set_xticks(x, [g[0] for g in groups], fontsize=9.5)
+ax2.yaxis.set_major_formatter(ppt); ax2.set_ylim(0, 70)
+panel_title(ax2, &quot;B&quot;, &quot;Grouped&quot;)
+
+header(fig, &quot;Six in ten long-partnered men are neutral or unhappy about their sex life&quot;,
+       &quot;Straight, monogamous men in relationships of 12+ years, agreement on a -3 to +3 scale&quot;, y=0.92)
+footnote(fig, &quot;Redrawn from Aella's relationships survey (n = 3,720 men; 'Monogamous men in long-term relationships &quot;
+              &quot;aren't doin too hot', aella.substack.com, 2023). Values read off her chart, to within about 0.2 points.\n&quot;
+              &quot;Her sample is mostly her own followers, who skew liberal and sexually open, so treat levels as indicative.&quot;,
+         y=-0.02)
+save(fig, &quot;sex_satisfaction&quot;)
+</code></pre>
+</main></body></html>

@@ -2,6 +2,7 @@
 
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
+- [The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more](sex-dynamics/) (2026-11-14)
 - [Obese, sedentary, bad diet, smoking: all-cause death-rate multipliers at ages 40+](lifestyle-risk/) (2026-11-11)
 - [US spam calls vs the world, and what share of your calls are spam](spam-calls/) (2026-11-11)
 - [The US–UK life expectancy gap: what drives it, and what four big interventions could buy back](us-uk-gap/) (2026-11-11)
