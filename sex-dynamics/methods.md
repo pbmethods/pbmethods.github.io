@@ -110,6 +110,11 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
+* **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
+  capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
+  valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
+  median. Every person's own report counts, so a couple's sex is counted once for each partner.
+
 * **NSFG 2011-13, 2013-15, 2015-17 male files** (CDC public-use, `nsfg_2011_2017/`), pooled with each cycle's
   final weight divided by 3. Heterosexual (`ORIENT`/`ORIENT_A`/`ORIENT_B` = 1) non-Hispanic white (`HISPRACE2` = 2)
   men aged 18-29 with a self-reported height (`INCHES`): share with no opposite-sex partner in the past 12 months
@@ -280,6 +285,15 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 | Saw X-rated film, past yr | appetite | 0.296 | 1164 | 0.454 | 384 | 1.533 |
 | Cheated while married | appetite | 0.232 | 1511 | 0.458 | 453 | 1.971 |
 | Ever paid for sex | appetite | 0.138 | 1736 | 0.431 | 538 | 3.111 |
+
+### `concentration.csv`
+
+| top | share_volume | mean_top | threshold | median_all | mean_all | measure | sample | n |
+|---|---|---|---|---|---|---|---|---|
+| 0.050 | 0.414 | 137.668 | 70.000 | 6.000 | 16.621 | lifetime female partners | GSS men 40-60 | 5435 |
+| 0.100 | 0.560 | 93.131 | 40.000 | 6.000 | 16.621 | lifetime female partners | GSS men 40-60 | 5435 |
+| 0.030 | 0.195 | 22.581 | 15.000 | 2.000 | 3.476 | sex in the last 4 weeks | Natsal-3 everyone 16-74 | 13653 |
+| 0.100 | 0.427 | 14.864 | 10.000 | 2.000 | 3.476 | sex in the last 4 weeks | Natsal-3 everyone 16-74 | 13653 |
 
 ### `natsal_years_married.csv`
 
@@ -703,6 +717,11 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
+* **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
+  capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
+  valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
+  median. Every person's own report counts, so a couple's sex is counted once for each partner.
+
 * **NSFG 2011-13, 2013-15, 2015-17 male files** (CDC public-use, `nsfg_2011_2017/`), pooled with each cycle's
   final weight divided by 3. Heterosexual (`ORIENT`/`ORIENT_A`/`ORIENT_B` = 1) non-Hispanic white (`HISPRACE2` = 2)
   men aged 18-29 with a self-reported height (`INCHES`): share with no opposite-sex partner in the past 12 months
@@ -996,6 +1015,32 @@ print(f"median band {P40:.0f}-{P60:.0f} partners (n = {len(mid):,}), top decile 
 print(CUT.round(2).to_string(index=False))
 CUT.to_csv(HERE / "bodycount_crosscuts.csv", index=False)
 print(CUT.round(1).to_string(index=False))
+
+# ---------------------------------------------------------------- concentration: partners (GSS) and sex (Natsal)
+def concentration(x, w, tops):
+    """Share of all volume held by the top p of people, their mean, and the overall median."""
+    x = np.asarray(x, float); w = np.asarray(w, float)
+    o = np.argsort(-x); xs, ws = x[o], w[o]
+    cw, vol = np.cumsum(ws) / ws.sum(), np.cumsum(xs * ws) / (xs * ws).sum()
+    oo = np.argsort(x)
+    med = float(np.interp(0.5, (np.cumsum(w[oo]) - 0.5 * w[oo]) / w.sum(), x[oo]))
+    rows = []
+    for p_ in tops:
+        m_ = cw <= p_
+        rows.append({"top": p_, "share_volume": float(np.interp(p_, cw, vol)), "mean_top": wmean(xs[m_], ws[m_]),
+                     "threshold": float(xs[m_].min()), "median_all": med, "mean_all": wmean(x, w)})
+    return rows
+
+
+rows = [dict(r, measure="lifetime female partners", sample="GSS men 40-60", n=len(bcg))
+        for r in concentration(bcg.numwomen.clip(upper=CAP), bcg.w, (0.05, 0.10))]
+nall = pd.read_stata(NAT, columns=["sex4wks", "total_wt"], convert_categoricals=False)
+nall = nall[(nall.sex4wks < 900) & (nall.total_wt > 0)]
+rows += [dict(r, measure="sex in the last 4 weeks", sample="Natsal-3 everyone 16-74", n=len(nall))
+         for r in concentration(nall.sex4wks, nall.total_wt, (0.03, 0.10))]
+CONC = pd.DataFrame(rows)
+CONC.to_csv(HERE / "concentration.csv", index=False)
+print(CONC.round(3).to_string(index=False))
 
 # ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
 NSFG = DATA / "nsfg_2011_2017"
@@ -1454,4 +1499,70 @@ footnote(fig, "GSS 1989-2022, men 40-60 (n = 5,435; older, so counts are close t
               "B ranks men by count and splits them into fifths. C: each trait's rate among men at the 40th-60th percentile "
               "(4-10 partners) vs the top 10% (40+); ratios are top / median. Looks were rated only in 2016-22.", y=0.0)
 save(fig, "bodycount_distribution")
+
+# =============================================================== 7. concentration: partners and sex
+from matplotlib.patches import Polygon  # noqa: E402
+
+conc = read("concentration.csv")
+fig, axes = plt.subplots(1, 2, figsize=(15, 6.6), gridspec_kw=dict(wspace=0.12))
+
+
+def flow(ax, d, unit, vol_label, people_label):
+    small, big = d.iloc[0], d.iloc[1]
+    ps, pb = small.top, big.top
+    vs, vb = small.share_volume, big.share_volume
+    people = [ps, pb - ps, 1 - pb]
+    vols = [vs, vb - vs, 1 - vb]
+    cols = [RED, NAVY, MUTE]
+    X0, X1, W = 0.0, 1.6, 0.42
+    top0 = top1 = 1.0
+    for h0, h1, colr in zip(people, vols, cols):
+        b0, b1 = top0 - h0, top1 - h1
+        ax.add_patch(Polygon([(X0 + W, top0), (X1, top1), (X1, b1), (X0 + W, b0)], closed=True, color=colr,
+                             alpha=0.16, lw=0))
+        ax.bar(X0 + W / 2, h0, bottom=b0, width=W, color=colr, edgecolor=P["SURFACE"], lw=1.2)
+        ax.bar(X1 + W / 2, h1, bottom=b1, width=W, color=colr, edgecolor=P["SURFACE"], lw=1.2)
+        top0, top1 = b0, b1
+    # people labels (left)
+    mult_s, mult_b = small.mean_top / small.median_all, big.mean_top / big.median_all
+    ax.text(X0 - 0.05, 1 - ps / 2, f"top {ps:.0%}", ha="right", va="center", fontsize=10.5, fontweight="bold", color=INK)
+    ax.text(X0 - 0.05, 1 - ps - (pb - ps) / 2, f"next {pb - ps:.0%}", ha="right", va="center", fontsize=10,
+            color=INK2)
+    ax.text(X0 - 0.05, (1 - pb) / 2, f"other {1 - pb:.0%}", ha="right", va="center", fontsize=10, color=INK2)
+    # volume labels (inside + right)
+    ax.text(X1 + W / 2, 1 - vs / 2, f"{vs:.0%}", ha="center", va="center", fontsize=15, fontweight="bold",
+            color="white")
+    ax.text(X1 + W / 2, 1 - vs - (vb - vs) / 2, f"{vb - vs:.0%}", ha="center", va="center", fontsize=12,
+            fontweight="bold", color="white")
+    ax.text(X1 + W / 2, (1 - vb) / 2, f"{1 - vb:.0%}", ha="center", va="center", fontsize=12, fontweight="bold",
+            color=INK)
+    ax.text(X1 + W + 0.08, 1 - vs / 2,
+            f"top {ps:.0%}: {vs:.0%} of all {unit}\navg {small.mean_top:.0f} = {mult_s:.0f}x the median ({small.median_all:.0f})",
+            ha="left", va="center", fontsize=9.5, fontweight="bold", color=INK)
+    ax.text(X1 + W + 0.08, 1 - vs - (vb - vs) / 2,
+            f"top {pb:.0%} together: {vb:.0%}\navg {big.mean_top:.0f} = {mult_b:.0f}x the median",
+            ha="left", va="center", fontsize=9.5, color=INK)
+    ax.set_xticks([X0 + W / 2, X1 + W / 2], [people_label, vol_label], fontsize=10)
+    ax.set_xlim(-0.75, 3.75); ax.set_ylim(0, 1.0)
+    ax.set_yticks([]); ax.grid(False)
+
+
+flow(axes[0], conc[conc.measure == "lifetime female partners"].sort_values("top"), "partners",
+     "share of all\nfemale partners", "share of\nmen")
+panel_title(axes[0], "A", "Lifetime partners: the top 10% of men report over half")
+flow(axes[1], conc[conc.measure == "sex in the last 4 weeks"].sort_values("top"), "sex",
+     "share of all sex\nhad last month", "share of\npeople")
+panel_title(axes[1], "B", "Sex last month: the top 10% have over 40% of it")
+
+header(fig, "A small minority accounts for a big share of the sex",
+       "Men ranked by lifetime female partners, US (A); everyone ranked by how often they had sex in the last 4 weeks, "
+       "Britain (B)", y=0.92)
+nA = int(conc[conc.measure == "lifetime female partners"].n.iloc[0])
+nB = int(conc[conc.measure == "sex in the last 4 weeks"].n.iloc[0])
+footnote(fig, f"A: GSS 1989-2022, men 40-60 (n = {nA:,}), survey-weighted, partner counts capped at 300 (uncapped, "
+              "the top 10% and 5% hold 57% and 43%). B: Natsal-3 (Britain 2010-12), all respondents 16-74\n"
+              f"(n = {nB:,}), weighted; occasions of sex in the last 4 weeks. Each person's own report counts, so a "
+              "couple's sex appears once for each partner; men and women give nearly the same shares.",
+         y=0.0)
+save(fig, "concentration")
 ```
