@@ -112,6 +112,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
+* **Who has the most sex** (GSS 1989-2022, ages 25-60): the "more than 3 times a week" band of `sexfreq` (about
+  7% of adults; GSS can't separate a finer top 3-5%) against the "about once a week" band, which holds the median.
+  By sex: mean height (`rheight`, 2022 only), interviewer looks (`rlooks`, 2016-22), share with a bachelor's
+  degree, share currently married, own-income and occupational-prestige percentile (within year and sex),
+  lifetime opposite-sex partners (capped at 300) and partners in the last year (`partners`; the 5-10, 11-20 and
+  21-100 bands scored 7.5, 15.5 and 60.5; "1+, number unknown" dropped). The top band averages 36.5 years old
+  against 41 for the median band, so every comparison is regression-adjusted to the same age mix (WLS on band +
+  age + age^2, `sexfreq_model.adjusted_means`, HC1 95% intervals); the CSV keeps the raw means too.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -296,6 +305,43 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 | 0.100 | 0.560 | 93.131 | 40.000 | 6.000 | 16.621 | lifetime female partners | GSS men 40-60 | 5435 |
 | 0.030 | 0.195 | 22.581 | 15.000 | 2.000 | 3.476 | sex in the last 4 weeks | Natsal-3 everyone 16-74 | 13653 |
 | 0.100 | 0.427 | 14.864 | 10.000 | 2.000 | 3.476 | sex in the last 4 weeks | Natsal-3 everyone 16-74 | 13653 |
+
+### `sexfreq_top_vs_median.csv`
+
+| sex | group | trait | key | kind | value | lo | hi | raw | n | top_band_share |
+|---|---|---|---|---|---|---|---|---|---|---|
+| men | about once a week | Height (inches) | rheight | mean | 69.859 | 67.925 | 71.792 | 70.019 | 37 | 0.081 |
+| men | more than 3 times a week | Height (inches) | rheight | mean | 70.761 | 69.331 | 72.191 | 70.287 | 21 | 0.081 |
+| men | about once a week | Looks rating (1-5) | rlooks | mean | 3.282 | 3.133 | 3.430 | 3.281 | 161 | 0.081 |
+| men | more than 3 times a week | Looks rating (1-5) | rlooks | mean | 3.400 | 3.220 | 3.580 | 3.418 | 72 | 0.081 |
+| men | about once a week | Bachelor's degree+ | ba | share | 0.326 | 0.304 | 0.348 | 0.326 | 2252 | 0.081 |
+| men | more than 3 times a week | Bachelor's degree+ | ba | share | 0.194 | 0.162 | 0.226 | 0.192 | 848 | 0.081 |
+| men | about once a week | Currently married | married | share | 0.725 | 0.705 | 0.746 | 0.733 | 2254 | 0.081 |
+| men | more than 3 times a week | Currently married | married | share | 0.558 | 0.520 | 0.596 | 0.512 | 848 | 0.081 |
+| men | about once a week | Income percentile | inc | mean | 53.059 | 51.661 | 54.456 | 53.514 | 1942 | 0.081 |
+| men | more than 3 times a week | Income percentile | inc | mean | 44.485 | 42.154 | 46.815 | 41.819 | 708 | 0.081 |
+| men | about once a week | Job prestige percentile | pres | mean | 50.739 | 49.374 | 52.105 | 50.798 | 2239 | 0.081 |
+| men | more than 3 times a week | Job prestige percentile | pres | mean | 45.995 | 43.556 | 48.433 | 45.366 | 838 | 0.081 |
+| men | about once a week | Lifetime partners | life | mean | 13.018 | 11.896 | 14.139 | 13.244 | 2034 | 0.081 |
+| men | more than 3 times a week | Lifetime partners | life | mean | 28.764 | 24.336 | 33.192 | 27.813 | 752 | 0.081 |
+| men | about once a week | Partners in the last year | ly | mean | 1.411 | 1.335 | 1.487 | 1.391 | 2205 | 0.081 |
+| men | more than 3 times a week | Partners in the last year | ly | mean | 1.807 | 1.592 | 2.022 | 1.904 | 826 | 0.081 |
+| women | about once a week | Height (inches) | rheight | mean | 64.671 | 63.589 | 65.754 | 65.368 | 51 | 0.062 |
+| women | more than 3 times a week | Height (inches) | rheight | mean | 66.392 | 63.340 | 69.444 | 65.927 | 21 | 0.062 |
+| women | about once a week | Looks rating (1-5) | rlooks | mean | 3.492 | 3.337 | 3.646 | 3.483 | 214 | 0.062 |
+| women | more than 3 times a week | Looks rating (1-5) | rlooks | mean | 3.469 | 3.249 | 3.688 | 3.482 | 72 | 0.062 |
+| women | about once a week | Bachelor's degree+ | ba | share | 0.331 | 0.310 | 0.352 | 0.331 | 2514 | 0.062 |
+| women | more than 3 times a week | Bachelor's degree+ | ba | share | 0.187 | 0.155 | 0.220 | 0.189 | 805 | 0.062 |
+| women | about once a week | Currently married | married | share | 0.741 | 0.723 | 0.759 | 0.752 | 2517 | 0.062 |
+| women | more than 3 times a week | Currently married | married | share | 0.579 | 0.540 | 0.618 | 0.554 | 806 | 0.062 |
+| women | about once a week | Income percentile | inc | mean | 49.543 | 48.001 | 51.084 | 49.970 | 1827 | 0.062 |
+| women | more than 3 times a week | Income percentile | inc | mean | 45.900 | 42.901 | 48.898 | 44.839 | 531 | 0.062 |
+| women | about once a week | Job prestige percentile | pres | mean | 51.808 | 50.504 | 53.112 | 51.928 | 2418 | 0.062 |
+| women | more than 3 times a week | Job prestige percentile | pres | mean | 43.829 | 41.269 | 46.388 | 43.551 | 757 | 0.062 |
+| women | about once a week | Lifetime partners | life | mean | 4.870 | 4.402 | 5.337 | 4.920 | 2306 | 0.062 |
+| women | more than 3 times a week | Lifetime partners | life | mean | 7.861 | 6.110 | 9.611 | 7.755 | 721 | 0.062 |
+| women | about once a week | Partners in the last year | ly | mean | 1.130 | 1.101 | 1.159 | 1.122 | 2460 | 0.062 |
+| women | more than 3 times a week | Partners in the last year | ly | mean | 1.351 | 1.231 | 1.470 | 1.368 | 786 | 0.062 |
 
 ### `natsal_years_married.csv`
 
@@ -719,6 +765,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
+* **Who has the most sex** (GSS 1989-2022, ages 25-60): the "more than 3 times a week" band of `sexfreq` (about
+  7% of adults; GSS can't separate a finer top 3-5%) against the "about once a week" band, which holds the median.
+  By sex: mean height (`rheight`, 2022 only), interviewer looks (`rlooks`, 2016-22), share with a bachelor's
+  degree, share currently married, own-income and occupational-prestige percentile (within year and sex),
+  lifetime opposite-sex partners (capped at 300) and partners in the last year (`partners`; the 5-10, 11-20 and
+  21-100 bands scored 7.5, 15.5 and 60.5; "1+, number unknown" dropped). The top band averages 36.5 years old
+  against 41 for the median band, so every comparison is regression-adjusted to the same age mix (WLS on band +
+  age + age^2, `sexfreq_model.adjusted_means`, HC1 95% intervals); the CSV keeps the raw means too.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -1043,6 +1098,47 @@ rows += [dict(r, measure="sex in the last 4 weeks", sample="Natsal-3 everyone 16
 CONC = pd.DataFrame(rows)
 CONC.to_csv(HERE / "concentration.csv", index=False)
 print(CONC.round(3).to_string(index=False))
+
+# ---------------------------------------------------------------- GSS: who has the most sex (25-60, 1989-2022)
+fq = read_gss(["year", "age", "sex", "sexfreq", "rheight", "rlooks", "degree", "marital", "conrinc", "prestg10",
+               "numwomen", "nummen", "partners", "wtssps"])
+fq = fq[fq.age.between(25, 60) & fq.sexfreq.between(0, 6) & fq.sex.isin([1, 2])].copy()
+fq["w"] = fq.wtssps.fillna(1.0)
+fq["inc_pct"] = fq.groupby(["year", "sex"]).conrinc.rank(pct=True) * 100
+fq["pres_pct"] = fq.groupby(["year", "sex"]).prestg10.rank(pct=True) * 100
+lifetime = np.where(fq.sex.eq(1), fq.numwomen, fq.nummen)        # opposite-sex partners since 18
+fq["lifetime"] = pd.Series(lifetime, index=fq.index).where(lambda x: x.between(0, 989)).clip(upper=CAP)
+PART_MID = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 7.5, 6: 15.5, 7: 60.5}   # PARTNERS bands: 5-10, 11-20, 21-100
+fq["last_year"] = fq.partners.map(PART_MID)
+TOP_BAND, MID_BAND = 6, 4          # "more than 3 times a week" (~7%) vs "about once a week" (the median band)
+FQ_TRAITS = [
+    ("Height (inches)", "rheight", lambda d: d.rheight.where(d.rheight.between(48, 90)), "mean"),
+    ("Looks rating (1-5)", "rlooks", lambda d: d.rlooks.where(d.rlooks.between(1, 5)), "mean"),
+    ("Bachelor's degree+", "ba", lambda d: d.degree.ge(3).where(d.degree.between(0, 4)), "share"),
+    ("Currently married", "married", lambda d: d.marital.eq(1).where(d.marital.between(1, 5)), "share"),
+    ("Income percentile", "inc", lambda d: d.inc_pct, "mean"),
+    ("Job prestige percentile", "pres", lambda d: d.pres_pct, "mean"),
+    ("Lifetime partners", "life", lambda d: d.lifetime, "mean"),
+    ("Partners in the last year", "ly", lambda d: d.last_year, "mean"),
+]
+rows = []
+for sx_code, sx in [(1, "men"), (2, "women")]:
+    base = fq[(fq.sex == sx_code) & fq.sexfreq.isin([MID_BAND, TOP_BAND])]
+    for lab, key, f, kind in FQ_TRAITS:
+        d = base.assign(y=f(base)).dropna(subset=["y"]).copy()
+        d["y"] = d.y.astype(float)
+        ctrl = pd.DataFrame({"a": d.age - 40, "a2": (d.age - 40) ** 2 / 100}, index=d.index)
+        r = adjusted_means(d, "y", "sexfreq", ctrl)      # both bands set to the same age mix
+        for band, grp in [(MID_BAND, "about once a week"), (TOP_BAND, "more than 3 times a week")]:
+            rr = r.loc[str(float(band))] if str(float(band)) in r.index else r.loc[str(band)]
+            rows.append({"sex": sx, "group": grp, "trait": lab, "key": key, "kind": kind, "value": float(rr.adj),
+                         "lo": float(rr.lo), "hi": float(rr.hi), "raw": float(rr.raw), "n": int(rr.n)})
+FREQ = pd.DataFrame(rows)
+share_top = {sx: wmean(fq[fq.sex == c].sexfreq.eq(TOP_BAND), fq[fq.sex == c].w) for c, sx in [(1, "men"), (2, "women")]}
+FREQ["top_band_share"] = FREQ.sex.map(share_top)
+FREQ.to_csv(HERE / "sexfreq_top_vs_median.csv", index=False)
+print(share_top)
+print(FREQ.pivot_table(index="trait", columns=["sex", "group"], values="value").round(2).to_string())
 
 # ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
 NSFG = DATA / "nsfg_2011_2017"
@@ -1567,4 +1663,45 @@ footnote(fig, f"A: GSS 1989-2022, men 40-60 (n = {nA:,}), survey-weighted, partn
               "couple's sex appears once for each partner; men and women give nearly the same shares.",
          y=0.0)
 save(fig, "concentration")
+
+# =============================================================== 8. who has the most sex: top band vs median band
+fr = read("sexfreq_top_vs_median.csv")
+ORDER = ["Lifetime partners", "Partners in the last year", "Bachelor's degree+", "Currently married",
+         "Income percentile", "Job prestige percentile", "Height (inches)", "Looks rating (1-5)"]
+fig, axes = plt.subplots(2, 4, figsize=(16.5, 8.4), gridspec_kw=dict(wspace=0.38, hspace=0.62))
+GRP = [("about once a week", GRAY, -0.14), ("more than 3 times a week", NAVY, 0.14)]
+for ax, (i, trait) in zip(axes.flat, enumerate(ORDER)):
+    d = fr[fr.trait == trait]
+    kind = d.kind.iloc[0]
+    fmt = (lambda v: f"{v:.0%}") if kind == "share" else (lambda v: f"{v:.1f}" if v < 10 or "inches" in trait
+                                                         or "1-5" in trait else f"{v:.0f}")
+    for j, sx in enumerate(["men", "women"]):
+        for grp, colr, dx in GRP:
+            r_ = d[(d.sex == sx) & (d.group == grp)].iloc[0]
+            ax.plot([j + dx, j + dx], [r_.lo, r_.hi], color=colr, lw=1.6, alpha=0.6)
+            ax.plot(j + dx, r_.value, "o", ms=9, color=colr, zorder=3)
+            ax.text(j + dx + (0.1 if dx > 0 else -0.1), r_.value, fmt(r_.value), va="center",
+                    ha="left" if dx > 0 else "right", fontsize=9, fontweight="bold" if dx > 0 else "normal",
+                    color=INK if dx > 0 else INK2)
+    ax.set_xticks([0, 1], ["men", "women"], fontsize=9.5)
+    ax.set_xlim(-0.65, 1.65)
+    if kind == "share":
+        ax.yaxis.set_major_formatter(pct)
+    lo, hi = d.lo.min(), d.hi.max(); pad = (hi - lo) * 0.18
+    ax.set_ylim(max(0, lo - pad) if kind != "mean" or "inches" not in trait else lo - pad, hi + pad)
+    n_top = int(d[d.group == GRP[1][0]].n.min())
+    title = trait + (f"  (2022 only, n={n_top})" if "inches" in trait else f"  (2016-22)" if "1-5" in trait else "")
+    ax.set_title(f"{chr(65 + i)}   {title}", loc="left", fontsize=10.5, fontweight="bold", color=INK, pad=8)
+fig.text(0.01, 0.865, "●  about once a week (the median)", color=GRAY, fontsize=10.5, fontweight="bold")
+fig.text(0.25, 0.865, "●  more than 3 times a week (top ~7%)", color=NAVY, fontsize=10.5, fontweight="bold")
+header(fig, "The people having the most sex aren't the elite: fewer degrees, less money, twice the partners",
+       "US adults 25-60 having sex more than 3 times a week, against those having it about once a week, "
+       "compared at the same age", y=0.88)
+footnote(fig, "GSS 1989-2022, survey-weighted. 'More than 3 times a week' is the survey's top frequency band: 8% of men "
+              "and 6% of women, so this is the top ~7%, not a finer top 3-5%. The top band is 4 years younger,\n"
+              "so every value is regression-adjusted to the same age mix (lines: 95% intervals). Income and prestige "
+              "are percentiles within year and sex. Lifetime partners are opposite-sex, capped at 300; last-year "
+              "partners score\nthe 5-10, 11-20 and 21-100 bands at 7.5, 15.5 and 60.5. Height was asked only in "
+              "2022 and looks only in 2016-22, so those two rest on small samples.", y=0.02)
+save(fig, "most_sex_profile")
 ```

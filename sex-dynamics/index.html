@@ -118,6 +118,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     (&quot;a bit more&quot; capped at twice the achieved count; &quot;much more&quot; above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
+* **Who has the most sex** (GSS 1989-2022, ages 25-60): the &quot;more than 3 times a week&quot; band of `sexfreq` (about
+  7% of adults; GSS can't separate a finer top 3-5%) against the &quot;about once a week&quot; band, which holds the median.
+  By sex: mean height (`rheight`, 2022 only), interviewer looks (`rlooks`, 2016-22), share with a bachelor's
+  degree, share currently married, own-income and occupational-prestige percentile (within year and sex),
+  lifetime opposite-sex partners (capped at 300) and partners in the last year (`partners`; the 5-10, 11-20 and
+  21-100 bands scored 7.5, 15.5 and 60.5; &quot;1+, number unknown&quot; dropped). The top band averages 36.5 years old
+  against 41 for the median band, so every comparison is regression-adjusted to the same age mix (WLS on band +
+  age + age^2, `sexfreq_model.adjusted_means`, HC1 95% intervals); the CSV keeps the raw means too.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -984,6 +993,442 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <td>sex in the last 4 weeks</td>
 <td>Natsal-3 everyone 16-74</td>
 <td>13653</td>
+</tr>
+</tbody>
+</table>
+<h3><code>sexfreq_top_vs_median.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>sex</th>
+<th>group</th>
+<th>trait</th>
+<th>key</th>
+<th>kind</th>
+<th>value</th>
+<th>lo</th>
+<th>hi</th>
+<th>raw</th>
+<th>n</th>
+<th>top_band_share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Height (inches)</td>
+<td>rheight</td>
+<td>mean</td>
+<td>69.859</td>
+<td>67.925</td>
+<td>71.792</td>
+<td>70.019</td>
+<td>37</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Height (inches)</td>
+<td>rheight</td>
+<td>mean</td>
+<td>70.761</td>
+<td>69.331</td>
+<td>72.191</td>
+<td>70.287</td>
+<td>21</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Looks rating (1-5)</td>
+<td>rlooks</td>
+<td>mean</td>
+<td>3.282</td>
+<td>3.133</td>
+<td>3.430</td>
+<td>3.281</td>
+<td>161</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Looks rating (1-5)</td>
+<td>rlooks</td>
+<td>mean</td>
+<td>3.400</td>
+<td>3.220</td>
+<td>3.580</td>
+<td>3.418</td>
+<td>72</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Bachelor's degree+</td>
+<td>ba</td>
+<td>share</td>
+<td>0.326</td>
+<td>0.304</td>
+<td>0.348</td>
+<td>0.326</td>
+<td>2252</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Bachelor's degree+</td>
+<td>ba</td>
+<td>share</td>
+<td>0.194</td>
+<td>0.162</td>
+<td>0.226</td>
+<td>0.192</td>
+<td>848</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Currently married</td>
+<td>married</td>
+<td>share</td>
+<td>0.725</td>
+<td>0.705</td>
+<td>0.746</td>
+<td>0.733</td>
+<td>2254</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Currently married</td>
+<td>married</td>
+<td>share</td>
+<td>0.558</td>
+<td>0.520</td>
+<td>0.596</td>
+<td>0.512</td>
+<td>848</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Income percentile</td>
+<td>inc</td>
+<td>mean</td>
+<td>53.059</td>
+<td>51.661</td>
+<td>54.456</td>
+<td>53.514</td>
+<td>1942</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Income percentile</td>
+<td>inc</td>
+<td>mean</td>
+<td>44.485</td>
+<td>42.154</td>
+<td>46.815</td>
+<td>41.819</td>
+<td>708</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Job prestige percentile</td>
+<td>pres</td>
+<td>mean</td>
+<td>50.739</td>
+<td>49.374</td>
+<td>52.105</td>
+<td>50.798</td>
+<td>2239</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Job prestige percentile</td>
+<td>pres</td>
+<td>mean</td>
+<td>45.995</td>
+<td>43.556</td>
+<td>48.433</td>
+<td>45.366</td>
+<td>838</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Lifetime partners</td>
+<td>life</td>
+<td>mean</td>
+<td>13.018</td>
+<td>11.896</td>
+<td>14.139</td>
+<td>13.244</td>
+<td>2034</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Lifetime partners</td>
+<td>life</td>
+<td>mean</td>
+<td>28.764</td>
+<td>24.336</td>
+<td>33.192</td>
+<td>27.813</td>
+<td>752</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>about once a week</td>
+<td>Partners in the last year</td>
+<td>ly</td>
+<td>mean</td>
+<td>1.411</td>
+<td>1.335</td>
+<td>1.487</td>
+<td>1.391</td>
+<td>2205</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>men</td>
+<td>more than 3 times a week</td>
+<td>Partners in the last year</td>
+<td>ly</td>
+<td>mean</td>
+<td>1.807</td>
+<td>1.592</td>
+<td>2.022</td>
+<td>1.904</td>
+<td>826</td>
+<td>0.081</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Height (inches)</td>
+<td>rheight</td>
+<td>mean</td>
+<td>64.671</td>
+<td>63.589</td>
+<td>65.754</td>
+<td>65.368</td>
+<td>51</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Height (inches)</td>
+<td>rheight</td>
+<td>mean</td>
+<td>66.392</td>
+<td>63.340</td>
+<td>69.444</td>
+<td>65.927</td>
+<td>21</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Looks rating (1-5)</td>
+<td>rlooks</td>
+<td>mean</td>
+<td>3.492</td>
+<td>3.337</td>
+<td>3.646</td>
+<td>3.483</td>
+<td>214</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Looks rating (1-5)</td>
+<td>rlooks</td>
+<td>mean</td>
+<td>3.469</td>
+<td>3.249</td>
+<td>3.688</td>
+<td>3.482</td>
+<td>72</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Bachelor's degree+</td>
+<td>ba</td>
+<td>share</td>
+<td>0.331</td>
+<td>0.310</td>
+<td>0.352</td>
+<td>0.331</td>
+<td>2514</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Bachelor's degree+</td>
+<td>ba</td>
+<td>share</td>
+<td>0.187</td>
+<td>0.155</td>
+<td>0.220</td>
+<td>0.189</td>
+<td>805</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Currently married</td>
+<td>married</td>
+<td>share</td>
+<td>0.741</td>
+<td>0.723</td>
+<td>0.759</td>
+<td>0.752</td>
+<td>2517</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Currently married</td>
+<td>married</td>
+<td>share</td>
+<td>0.579</td>
+<td>0.540</td>
+<td>0.618</td>
+<td>0.554</td>
+<td>806</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Income percentile</td>
+<td>inc</td>
+<td>mean</td>
+<td>49.543</td>
+<td>48.001</td>
+<td>51.084</td>
+<td>49.970</td>
+<td>1827</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Income percentile</td>
+<td>inc</td>
+<td>mean</td>
+<td>45.900</td>
+<td>42.901</td>
+<td>48.898</td>
+<td>44.839</td>
+<td>531</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Job prestige percentile</td>
+<td>pres</td>
+<td>mean</td>
+<td>51.808</td>
+<td>50.504</td>
+<td>53.112</td>
+<td>51.928</td>
+<td>2418</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Job prestige percentile</td>
+<td>pres</td>
+<td>mean</td>
+<td>43.829</td>
+<td>41.269</td>
+<td>46.388</td>
+<td>43.551</td>
+<td>757</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Lifetime partners</td>
+<td>life</td>
+<td>mean</td>
+<td>4.870</td>
+<td>4.402</td>
+<td>5.337</td>
+<td>4.920</td>
+<td>2306</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Lifetime partners</td>
+<td>life</td>
+<td>mean</td>
+<td>7.861</td>
+<td>6.110</td>
+<td>9.611</td>
+<td>7.755</td>
+<td>721</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>about once a week</td>
+<td>Partners in the last year</td>
+<td>ly</td>
+<td>mean</td>
+<td>1.130</td>
+<td>1.101</td>
+<td>1.159</td>
+<td>1.122</td>
+<td>2460</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>women</td>
+<td>more than 3 times a week</td>
+<td>Partners in the last year</td>
+<td>ly</td>
+<td>mean</td>
+<td>1.351</td>
+<td>1.231</td>
+<td>1.470</td>
+<td>1.368</td>
+<td>786</td>
+<td>0.062</td>
 </tr>
 </tbody>
 </table>
@@ -2202,6 +2647,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     (&quot;a bit more&quot; capped at twice the achieved count; &quot;much more&quot; above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
 
+* **Who has the most sex** (GSS 1989-2022, ages 25-60): the &quot;more than 3 times a week&quot; band of `sexfreq` (about
+  7% of adults; GSS can't separate a finer top 3-5%) against the &quot;about once a week&quot; band, which holds the median.
+  By sex: mean height (`rheight`, 2022 only), interviewer looks (`rlooks`, 2016-22), share with a bachelor's
+  degree, share currently married, own-income and occupational-prestige percentile (within year and sex),
+  lifetime opposite-sex partners (capped at 300) and partners in the last year (`partners`; the 5-10, 11-20 and
+  21-100 bands scored 7.5, 15.5 and 60.5; &quot;1+, number unknown&quot; dropped). The top band averages 36.5 years old
+  against 41 for the median band, so every comparison is regression-adjusted to the same age mix (WLS on band +
+  age + age^2, `sexfreq_model.adjusted_means`, HC1 95% intervals); the CSV keeps the raw means too.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -2526,6 +2980,47 @@ rows += [dict(r, measure=&quot;sex in the last 4 weeks&quot;, sample=&quot;Natsa
 CONC = pd.DataFrame(rows)
 CONC.to_csv(HERE / &quot;concentration.csv&quot;, index=False)
 print(CONC.round(3).to_string(index=False))
+
+# ---------------------------------------------------------------- GSS: who has the most sex (25-60, 1989-2022)
+fq = read_gss([&quot;year&quot;, &quot;age&quot;, &quot;sex&quot;, &quot;sexfreq&quot;, &quot;rheight&quot;, &quot;rlooks&quot;, &quot;degree&quot;, &quot;marital&quot;, &quot;conrinc&quot;, &quot;prestg10&quot;,
+               &quot;numwomen&quot;, &quot;nummen&quot;, &quot;partners&quot;, &quot;wtssps&quot;])
+fq = fq[fq.age.between(25, 60) &amp; fq.sexfreq.between(0, 6) &amp; fq.sex.isin([1, 2])].copy()
+fq[&quot;w&quot;] = fq.wtssps.fillna(1.0)
+fq[&quot;inc_pct&quot;] = fq.groupby([&quot;year&quot;, &quot;sex&quot;]).conrinc.rank(pct=True) * 100
+fq[&quot;pres_pct&quot;] = fq.groupby([&quot;year&quot;, &quot;sex&quot;]).prestg10.rank(pct=True) * 100
+lifetime = np.where(fq.sex.eq(1), fq.numwomen, fq.nummen)        # opposite-sex partners since 18
+fq[&quot;lifetime&quot;] = pd.Series(lifetime, index=fq.index).where(lambda x: x.between(0, 989)).clip(upper=CAP)
+PART_MID = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 7.5, 6: 15.5, 7: 60.5}   # PARTNERS bands: 5-10, 11-20, 21-100
+fq[&quot;last_year&quot;] = fq.partners.map(PART_MID)
+TOP_BAND, MID_BAND = 6, 4          # &quot;more than 3 times a week&quot; (~7%) vs &quot;about once a week&quot; (the median band)
+FQ_TRAITS = [
+    (&quot;Height (inches)&quot;, &quot;rheight&quot;, lambda d: d.rheight.where(d.rheight.between(48, 90)), &quot;mean&quot;),
+    (&quot;Looks rating (1-5)&quot;, &quot;rlooks&quot;, lambda d: d.rlooks.where(d.rlooks.between(1, 5)), &quot;mean&quot;),
+    (&quot;Bachelor's degree+&quot;, &quot;ba&quot;, lambda d: d.degree.ge(3).where(d.degree.between(0, 4)), &quot;share&quot;),
+    (&quot;Currently married&quot;, &quot;married&quot;, lambda d: d.marital.eq(1).where(d.marital.between(1, 5)), &quot;share&quot;),
+    (&quot;Income percentile&quot;, &quot;inc&quot;, lambda d: d.inc_pct, &quot;mean&quot;),
+    (&quot;Job prestige percentile&quot;, &quot;pres&quot;, lambda d: d.pres_pct, &quot;mean&quot;),
+    (&quot;Lifetime partners&quot;, &quot;life&quot;, lambda d: d.lifetime, &quot;mean&quot;),
+    (&quot;Partners in the last year&quot;, &quot;ly&quot;, lambda d: d.last_year, &quot;mean&quot;),
+]
+rows = []
+for sx_code, sx in [(1, &quot;men&quot;), (2, &quot;women&quot;)]:
+    base = fq[(fq.sex == sx_code) &amp; fq.sexfreq.isin([MID_BAND, TOP_BAND])]
+    for lab, key, f, kind in FQ_TRAITS:
+        d = base.assign(y=f(base)).dropna(subset=[&quot;y&quot;]).copy()
+        d[&quot;y&quot;] = d.y.astype(float)
+        ctrl = pd.DataFrame({&quot;a&quot;: d.age - 40, &quot;a2&quot;: (d.age - 40) ** 2 / 100}, index=d.index)
+        r = adjusted_means(d, &quot;y&quot;, &quot;sexfreq&quot;, ctrl)      # both bands set to the same age mix
+        for band, grp in [(MID_BAND, &quot;about once a week&quot;), (TOP_BAND, &quot;more than 3 times a week&quot;)]:
+            rr = r.loc[str(float(band))] if str(float(band)) in r.index else r.loc[str(band)]
+            rows.append({&quot;sex&quot;: sx, &quot;group&quot;: grp, &quot;trait&quot;: lab, &quot;key&quot;: key, &quot;kind&quot;: kind, &quot;value&quot;: float(rr.adj),
+                         &quot;lo&quot;: float(rr.lo), &quot;hi&quot;: float(rr.hi), &quot;raw&quot;: float(rr.raw), &quot;n&quot;: int(rr.n)})
+FREQ = pd.DataFrame(rows)
+share_top = {sx: wmean(fq[fq.sex == c].sexfreq.eq(TOP_BAND), fq[fq.sex == c].w) for c, sx in [(1, &quot;men&quot;), (2, &quot;women&quot;)]}
+FREQ[&quot;top_band_share&quot;] = FREQ.sex.map(share_top)
+FREQ.to_csv(HERE / &quot;sexfreq_top_vs_median.csv&quot;, index=False)
+print(share_top)
+print(FREQ.pivot_table(index=&quot;trait&quot;, columns=[&quot;sex&quot;, &quot;group&quot;], values=&quot;value&quot;).round(2).to_string())
 
 # ---------------------------------------------------------------- NSFG 2011-17: height (replicating NuancePill)
 NSFG = DATA / &quot;nsfg_2011_2017&quot;
@@ -3047,5 +3542,46 @@ footnote(fig, f&quot;A: GSS 1989-2022, men 40-60 (n = {nA:,}), survey-weighted, 
               &quot;couple's sex appears once for each partner; men and women give nearly the same shares.&quot;,
          y=0.0)
 save(fig, &quot;concentration&quot;)
+
+# =============================================================== 8. who has the most sex: top band vs median band
+fr = read(&quot;sexfreq_top_vs_median.csv&quot;)
+ORDER = [&quot;Lifetime partners&quot;, &quot;Partners in the last year&quot;, &quot;Bachelor's degree+&quot;, &quot;Currently married&quot;,
+         &quot;Income percentile&quot;, &quot;Job prestige percentile&quot;, &quot;Height (inches)&quot;, &quot;Looks rating (1-5)&quot;]
+fig, axes = plt.subplots(2, 4, figsize=(16.5, 8.4), gridspec_kw=dict(wspace=0.38, hspace=0.62))
+GRP = [(&quot;about once a week&quot;, GRAY, -0.14), (&quot;more than 3 times a week&quot;, NAVY, 0.14)]
+for ax, (i, trait) in zip(axes.flat, enumerate(ORDER)):
+    d = fr[fr.trait == trait]
+    kind = d.kind.iloc[0]
+    fmt = (lambda v: f&quot;{v:.0%}&quot;) if kind == &quot;share&quot; else (lambda v: f&quot;{v:.1f}&quot; if v &lt; 10 or &quot;inches&quot; in trait
+                                                         or &quot;1-5&quot; in trait else f&quot;{v:.0f}&quot;)
+    for j, sx in enumerate([&quot;men&quot;, &quot;women&quot;]):
+        for grp, colr, dx in GRP:
+            r_ = d[(d.sex == sx) &amp; (d.group == grp)].iloc[0]
+            ax.plot([j + dx, j + dx], [r_.lo, r_.hi], color=colr, lw=1.6, alpha=0.6)
+            ax.plot(j + dx, r_.value, &quot;o&quot;, ms=9, color=colr, zorder=3)
+            ax.text(j + dx + (0.1 if dx &gt; 0 else -0.1), r_.value, fmt(r_.value), va=&quot;center&quot;,
+                    ha=&quot;left&quot; if dx &gt; 0 else &quot;right&quot;, fontsize=9, fontweight=&quot;bold&quot; if dx &gt; 0 else &quot;normal&quot;,
+                    color=INK if dx &gt; 0 else INK2)
+    ax.set_xticks([0, 1], [&quot;men&quot;, &quot;women&quot;], fontsize=9.5)
+    ax.set_xlim(-0.65, 1.65)
+    if kind == &quot;share&quot;:
+        ax.yaxis.set_major_formatter(pct)
+    lo, hi = d.lo.min(), d.hi.max(); pad = (hi - lo) * 0.18
+    ax.set_ylim(max(0, lo - pad) if kind != &quot;mean&quot; or &quot;inches&quot; not in trait else lo - pad, hi + pad)
+    n_top = int(d[d.group == GRP[1][0]].n.min())
+    title = trait + (f&quot;  (2022 only, n={n_top})&quot; if &quot;inches&quot; in trait else f&quot;  (2016-22)&quot; if &quot;1-5&quot; in trait else &quot;&quot;)
+    ax.set_title(f&quot;{chr(65 + i)}   {title}&quot;, loc=&quot;left&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, pad=8)
+fig.text(0.01, 0.865, &quot;●  about once a week (the median)&quot;, color=GRAY, fontsize=10.5, fontweight=&quot;bold&quot;)
+fig.text(0.25, 0.865, &quot;●  more than 3 times a week (top ~7%)&quot;, color=NAVY, fontsize=10.5, fontweight=&quot;bold&quot;)
+header(fig, &quot;The people having the most sex aren't the elite: fewer degrees, less money, twice the partners&quot;,
+       &quot;US adults 25-60 having sex more than 3 times a week, against those having it about once a week, &quot;
+       &quot;compared at the same age&quot;, y=0.88)
+footnote(fig, &quot;GSS 1989-2022, survey-weighted. 'More than 3 times a week' is the survey's top frequency band: 8% of men &quot;
+              &quot;and 6% of women, so this is the top ~7%, not a finer top 3-5%. The top band is 4 years younger,\n&quot;
+              &quot;so every value is regression-adjusted to the same age mix (lines: 95% intervals). Income and prestige &quot;
+              &quot;are percentiles within year and sex. Lifetime partners are opposite-sex, capped at 300; last-year &quot;
+              &quot;partners score\nthe 5-10, 11-20 and 21-100 bands at 7.5, 15.5 and 60.5. Height was asked only in &quot;
+              &quot;2022 and looks only in 2016-22, so those two rest on small samples.&quot;, y=0.02)
+save(fig, &quot;most_sex_profile&quot;)
 </code></pre>
 </main></body></html>
