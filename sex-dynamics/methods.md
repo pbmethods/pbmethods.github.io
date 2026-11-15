@@ -34,6 +34,8 @@
 
 ![chart 16](chart16.png)
 
+![chart 17](chart17.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -751,6 +753,29 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 | men | obese OR, age-adjusted: nolgorg3m |  |  |  |  |  |  |  |  | 1.413 | 1.136 | 1.759 |
 | men | obese OR, age-adjusted: health |  |  |  |  |  |  |  |  | 1.376 | 1.155 | 1.641 |
 | men | obese OR, age-adjusted: depr |  |  |  |  |  |  |  |  | 1.236 | 0.941 | 1.624 |
+
+### `blair2014_duration.csv`
+
+| group | n | lt10 | m10_15 | m15_30 | m30_45 | m45_60 | h1_2 | h2plus | source |
+|---|---|---|---|---|---|---|---|---|---|
+| heterosexual women | 290 | 5.200 | 17.600 | 32.200 | 25.600 | 12.500 | 5.800 | 1.000 | Blair & Pukall 2014, Figure 4 (digitised) |
+| lesbian women | 215 | 0.500 | 2.700 | 15.700 | 34.400 | 24.200 | 20.000 | 2.300 | Blair & Pukall 2014, Figure 4 (digitised) |
+| gay men | 211 | 0.800 | 16.000 | 34.100 | 25.100 | 12.800 | 9.000 | 1.900 | Blair & Pukall 2014, Figure 4 (digitised) |
+| heterosexual men | 106 | 4.700 | 16.000 | 41.500 | 19.800 | 9.400 | 7.500 | 0.900 | Blair & Pukall 2014, Figure 4 (digitised) |
+
+### `sex_duration_studies.csv`
+
+| kind | label | lo | hi | note |
+|---|---|---|---|---|
+| ielt | Waldinger 2005: stopwatch, 500 couples, 5 countries (median) | 5.400 | 5.400 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| mf | Richters 2006, Australia: by number of activities (means) | 8.500 | 29.500 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| mf | IPG female sexuality survey: women with men | 10.000 | 30.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| mf | Miller & Byers 2004: long-term couples (mean) | 19.000 | 19.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| mf | Blair & Pukall 2014: women with men (median band) | 15.000 | 30.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| mf | Nagao 2014, Japanese women (median) | 30.000 | 30.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| ff | IPG female sexuality survey: women with women | 30.000 | 60.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| ff | Blair & Pukall 2014: women with women (median band) | 30.000 | 45.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
+| ff | Cohen & Byers 2014: women with women (mean) | 57.000 | 57.000 | Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; Blair medians from Figure 4; Waldinger from its abstract |
 
 ## Notes and caveats
 
@@ -1780,6 +1805,33 @@ for s, sx in [(2, "women"), (1, "men")]:  # obesity ORs, age-adjusted
                                                    OR=np.exp(rr.params.obese), lo=c_[0], hi=c_[1])])])
 BMIP.to_csv(HERE / "natsal_bmi_problems.csv", index=False)
 print(BMIP.round(3).to_string(index=False))
+
+# Sexual encounter duration (the duration chart): published values, not microdata.
+# Blair & Pukall (2014, Can J Hum Sex 23(2):123-136; n = 822 people in relationships, online, US/Canada), Figure 4:
+# "how long does your average sexual encounter with your partner last?", % of each group per band, digitised from the
+# printed bar chart (read to about +/-0.5 points; rows sum to 99.7-99.9).
+pd.DataFrame({
+    "group": ["heterosexual women", "lesbian women", "gay men", "heterosexual men"],
+    "n": [290, 215, 211, 106],
+    "lt10": [5.2, 0.5, 0.8, 4.7], "m10_15": [17.6, 2.7, 16.0, 16.0], "m15_30": [32.2, 15.7, 34.1, 41.5],
+    "m30_45": [25.6, 34.4, 25.1, 19.8], "m45_60": [12.5, 24.2, 12.8, 9.4], "h1_2": [5.8, 20.0, 9.0, 7.5],
+    "h2plus": [1.0, 2.3, 1.9, 0.9],
+}).assign(source="Blair & Pukall 2014, Figure 4 (digitised)").to_csv(HERE / "blair2014_duration.csv", index=False)
+# Point and range estimates from the literature, minutes. kind: ielt = penis-in-vagina time to ejaculation;
+# mf / ff = the whole encounter (foreplay, oral, intercourse) for man-woman and woman-woman couples.
+pd.DataFrame([
+    dict(kind="ielt", label="Waldinger 2005: stopwatch, 500 couples, 5 countries (median)", lo=5.4, hi=5.4),
+    dict(kind="mf", label="Richters 2006, Australia: by number of activities (means)", lo=8.5, hi=29.5),
+    dict(kind="mf", label="IPG female sexuality survey: women with men", lo=10, hi=30),
+    dict(kind="mf", label="Miller & Byers 2004: long-term couples (mean)", lo=19, hi=19),
+    dict(kind="mf", label="Blair & Pukall 2014: women with men (median band)", lo=15, hi=30),
+    dict(kind="mf", label="Nagao 2014, Japanese women (median)", lo=30, hi=30),
+    dict(kind="ff", label="IPG female sexuality survey: women with women", lo=30, hi=60),
+    dict(kind="ff", label="Blair & Pukall 2014: women with women (median band)", lo=30, hi=45),
+    dict(kind="ff", label="Cohen & Byers 2014: women with women (mean)", lo=57, hi=57),
+]).assign(note="Richters, IPG, Miller & Byers, Nagao and Cohen & Byers as reported in Blair & Pukall 2014's review; "
+               "Blair medians from Figure 4; Waldinger from its abstract").to_csv(
+    HERE / "sex_duration_studies.csv", index=False)
 ```
 
 ### `master_post_charts.py`
@@ -2698,7 +2750,7 @@ order = sorted(ends, key=ends.get, reverse=True); ypos, prev = {}, None
 for k in order:  # nudge end labels apart
     ypos[k] = prev = ends[k] if prev is None else min(ends[k], prev - 0.03)
 for k, l, c, ls in LINES:
-    bx.text(len(w) - 0.82, ypos[k], f"{l.split(chr(10))[0]} {ends[k]:.0%}" + ("\n" + l.split(chr(10))[1] if "\n" in l else ""),
+    bx.text(len(w) - 0.82, ypos[k], f"{l}: {ends[k]:.0%}",
             color=INK, fontsize=9.5, fontweight="bold", va="center", linespacing=1.15)
 bx.set_xticks(xb, list(w.index)); bx.set_xlabel("BMI")
 bx.set_xlim(-0.55, len(w) + 0.9); bx.set_ylim(0, 0.36); bx.yaxis.set_major_formatter(pct)
@@ -2720,4 +2772,76 @@ footnote(fig, "Source: Natsal-3 (UK probability sample, 2010-12), weighted. Orga
               "the past year, who are commoner at high BMI, so some of the heaviest women's problems go uncounted. In men, "
               f"obesity does raise orgasm trouble (OR {o('men', 'nolgorg3m'):.1f}).", y=0.0)
 save(fig, "orgasm_trouble_drivers")
+
+
+# =============================================================== 15. how long sex lasts, by couple type
+bd = read("blair2014_duration.csv")
+st = read("sex_duration_studies.csv")
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(16.5, 6.4), gridspec_kw=dict(width_ratios=[1, 1.05], wspace=0.62))
+BANDS = [("lt10", "<10 min", pb.GRAYS[2]), ("m10_15", "10-15", pb.GRAYS[1]), ("m15_30", "15-30", pb.GRAYS[0]),
+         ("m30_45", "30-45", "#8fa9cf"), ("m45_60", "45-60", "#4a6ea3"), ("h1_2", "1-2 h", NAVY),
+         ("h2plus", "2 h+", INK)]
+LABD = {"heterosexual women": "Women with men", "lesbian women": "Women with women", "gay men": "Men with men",
+        "heterosexual men": "Men with women"}
+y = np.arange(len(bd))[::-1]
+for yi, r in zip(y, bd.itertuples()):
+    left = 0
+    for col, _, c in BANDS:
+        v = getattr(r, col)
+        ax.barh(yi, v, left=left, height=0.62, color=c, edgecolor=P["SURFACE"], lw=0.8)
+        if v >= 7:
+            ax.text(left + v / 2, yi, f"{v:.0f}", ha="center", va="center", fontsize=9.5, color="white")
+        left += v
+    over30 = r.m30_45 + r.m45_60 + r.h1_2 + r.h2plus
+    ax.text(103, yi, f"{over30:.0f}%", va="center", fontsize=12, fontweight="bold",
+            color=RED if r.group == "lesbian women" else INK)
+ax.text(103, y[0] + 0.45, "30 min\nor more", fontsize=9, color=INK2, va="bottom", linespacing=1.15)
+ax.set_yticks(y, [f"{LABD[g]}\n(n = {n})" for g, n in zip(bd.group, bd.n)], fontsize=10.5)
+ax.set_xlim(0, 100); ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
+ax.grid(axis="y", visible=False)
+x0 = 0
+for col, lab, c in BANDS:
+    ax.text(x0, y[0] + 0.45, "■", color=c, fontsize=11, va="bottom")
+    ax.text(x0 + 3.2, y[0] + 0.46, lab, color=INK2, fontsize=9, va="bottom")
+    x0 += 13.6 if col != "lt10" else 16
+ax.set_ylim(-0.55, y[0] + 1.0)
+ax.set_xlabel("how long the average sexual encounter lasts (% of group)")
+panel_title(ax, "A", "Lesbian couples' encounters run longest")
+
+KC = {"ielt": (pb.GRAYS[1], "Intercourse only, penetration to ejaculation"),
+      "mf": (NAVY, "Whole encounter, man and woman"), "ff": (RED, "Whole encounter, woman and woman")}
+yy, ticks, labs = 0, [], []
+for kind in ["ff", "mf", "ielt"]:
+    g = st[st.kind.eq(kind)].iloc[::-1]
+    c, head = KC[kind]
+    for r in g.itertuples():
+        if r.lo == r.hi:
+            bx.plot(r.lo, yy, "o", color=c, ms=9, zorder=3)
+            txt = f"{r.lo:g}"
+        else:
+            bx.plot([r.lo, r.hi], [yy, yy], color=c, lw=7, solid_capstyle="butt", alpha=0.9)
+            txt = f"{r.lo:g}-{r.hi:g}"
+        bx.text(max(r.hi, r.lo) + 1.6, yy, txt, va="center", fontsize=9.5, fontweight="bold", color=INK)
+        ticks.append(yy); labs.append(r.label); yy += 1
+    bx.text(-0.5, yy - 0.1, head, fontsize=10, fontweight="bold", color=c if kind != "ielt" else INK2,
+            transform=bx.get_yaxis_transform(), ha="left")
+    yy += 1.1
+bx.set_yticks(ticks, labs, fontsize=9.3)
+bx.set_xlim(0, 68); bx.set_xticks([0, 10, 20, 30, 40, 50, 60])
+bx.set_ylim(-0.7, yy - 0.5); bx.grid(axis="y", visible=False)
+bx.set_xlabel("minutes")
+panel_title(bx, "B", "Every study agrees: about twice as long")
+
+header(fig, "Sex between women lasts about twice as long: 30-60 minutes, against 15-30 for a man and a woman",
+       "Length of the average sexual encounter by couple type (A), and the estimates across studies (B). Intercourse "
+       "itself, penetration to ejaculation, is about 5 minutes", y=0.93)
+footnote(fig, "Sources: A: Blair & Pukall (2014), Canadian Journal of Human Sexuality 23(2):123-136, online sample of "
+              "822 people in relationships (US and Canada), Figure 4, digitised (about +/-0.5 points). Groups by "
+              "relationship type.\nB: Waldinger et al. (2005), J Sex Med 2:492-497, stopwatch-timed intercourse, median "
+              "of 500 couples. Richters et al. (2006), IPG survey, Miller & Byers (2004), Nagao et al. (2014) and Cohen "
+              "& Byers (2014) as\nreported in Blair & Pukall's review; Blair & Pukall medians from A (the band holding "
+              "the 50th percentile). Whole-encounter times include kissing, foreplay and oral sex; self-reported "
+              "and rounded. Blair &\nPukall's women with women also had sex less often, and their sexual satisfaction "
+              "did not differ from other couples' (p = .91).", y=0.0)
+save(fig, "sex_duration")
 ```
