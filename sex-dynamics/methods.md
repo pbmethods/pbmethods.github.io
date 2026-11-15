@@ -1,6 +1,6 @@
 # The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more
 
-<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-14.</p>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-15.</p>
 
 ![chart 1](chart.png)
 
@@ -150,6 +150,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   cheaters vs not; and Natsal-3, for people whose last marriage ended, whether the current relationship began
   before it ended (years since first sex with the current partner vs years since the marriage stopped, against
   a 2011 fieldwork midpoint), overall and by whether unfaithfulness was cited (the checklist doesn't say whose).
+
+* **Who the top decile are** (the archetype chart): GSS 2010+, men 25-65 with a valid `numwomen`, marital status
+  and, if ever married, a yes/no `evstray` (n about 3,750). Top decile = weighted 90th percentile of lifetime female
+  partners (30+; heaping at 30 makes it about 12% of men). Archetypes: never married (`marital` = 5); cheater (ever
+  married, `evstray` = 1); serial monogamist (faithful, ever divorced: currently divorced or `divorce` = 1); reformed
+  rake (faithful, never divorced). Each archetype's share of the top decile vs of the other 90%, and its mean
+  partners (capped at 300) within the top decile with bootstrap 95% intervals. Medians are all 50 (round-number
+  heaping), so means are shown. Within-decile means compare men already selected on body count, so they don't
+  measure what cheating adds.
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -639,6 +648,15 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 | 2 | 20.609 | Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised) |
 | 3 | 6.108 | Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised) |
 
+### `top_decile_archetypes.csv`
+
+| archetype | n_top | share_top | n_rest | share_rest | mean_partners_top | lo | hi | cutoff | top_share_of_men |
+|---|---|---|---|---|---|---|---|---|---|
+| cheater | 138 | 0.272 | 361 | 0.108 | 72.529 | 62.159 | 84.245 | 30.000 | 0.123 |
+| never married | 163 | 0.310 | 991 | 0.278 | 62.946 | 55.758 | 71.794 | 30.000 | 0.123 |
+| faithful, divorced | 104 | 0.221 | 593 | 0.163 | 81.567 | 66.768 | 98.599 | 30.000 | 0.123 |
+| faithful, never divorced | 71 | 0.197 | 1325 | 0.452 | 69.484 | 52.719 | 91.815 | 30.000 | 0.123 |
+
 ## Notes and caveats
 
 ## Caveats
@@ -941,6 +959,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   cheaters vs not; and Natsal-3, for people whose last marriage ended, whether the current relationship began
   before it ended (years since first sex with the current partner vs years since the marriage stopped, against
   a 2011 fieldwork midpoint), overall and by whether unfaithfulness was cited (the checklist doesn't say whose).
+
+* **Who the top decile are** (the archetype chart): GSS 2010+, men 25-65 with a valid `numwomen`, marital status
+  and, if ever married, a yes/no `evstray` (n about 3,750). Top decile = weighted 90th percentile of lifetime female
+  partners (30+; heaping at 30 makes it about 12% of men). Archetypes: never married (`marital` = 5); cheater (ever
+  married, `evstray` = 1); serial monogamist (faithful, ever divorced: currently divorced or `divorce` = 1); reformed
+  rake (faithful, never divorced). Each archetype's share of the top decile vs of the other 90%, and its mean
+  partners (capped at 300) within the top decile with bootstrap 95% intervals. Medians are all 50 (round-number
+  heaping), so means are shown. Within-decile means compare men already selected on body count, so they don't
+  measure what cheating adds.
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -1477,6 +1504,29 @@ HT = pd.DataFrame(rows)
 HT.to_csv(HERE / "nsfg_height_sexless.csv", index=False)
 print(f"NSFG 2011-17 het. NH white men 18-29 with height: n = {len(ns):,}")
 print(HT.round(1).to_string(index=False))
+
+# ---------------------------------------------------------------- top-decile archetypes (GSS 2010+, men 25-65)
+ar = read_gss(["year", "age", "sex", "numwomen", "marital", "evstray", "divorce", "wtssps"])
+ar = ar[ar.sex.eq(1) & ar.year.ge(2010) & ar.age.between(25, 65) & ar.numwomen.between(0, 989)
+        & ar.marital.between(1, 5)].copy()
+ar["w"] = ar.wtssps.fillna(1.0); ar["nw"] = ar.numwomen.clip(upper=CAP)
+ar_div = ar.marital.eq(3) | ar.divorce.eq(1)
+ar["arch"] = np.select([ar.marital.eq(5), ar.evstray.eq(1), ar.evstray.eq(2) & ar_div, ar.evstray.eq(2) & ~ar_div],
+                       ["never married", "cheater", "faithful, divorced", "faithful, never divorced"], default="")
+ar = ar[ar.arch.ne("")]
+AR_CUT = wq(ar.nw, ar.w, 0.9)
+ar_top, ar_rest = ar[ar.nw >= AR_CUT], ar[ar.nw < AR_CUT]
+rows = []
+for a in ["cheater", "never married", "faithful, divorced", "faithful, never divorced"]:
+    s_, r_ = ar_top[ar_top.arch.eq(a)], ar_rest[ar_rest.arch.eq(a)]
+    lo, hi = boot_ci(s_.nw, s_.w)
+    rows.append(dict(archetype=a, n_top=len(s_), share_top=s_.w.sum() / ar_top.w.sum(), n_rest=len(r_),
+                     share_rest=r_.w.sum() / ar_rest.w.sum(), mean_partners_top=wmean(s_.nw, s_.w), lo=lo, hi=hi,
+                     cutoff=AR_CUT, top_share_of_men=ar_top.w.sum() / ar.w.sum()))
+AR = pd.DataFrame(rows)
+AR.to_csv(HERE / "top_decile_archetypes.csv", index=False)
+print(f"top-decile archetypes, GSS 2010+ men 25-65 (n = {len(ar):,}, cutoff {AR_CUT:.0f}+)")
+print(AR.round(3).to_string(index=False))
 
 # ---------------------------------------------------------------- digitised external series
 pd.DataFrame({
@@ -2259,4 +2309,50 @@ footnote(fig, "A, C: GSS 1991-2022, ever-married people 25-70, survey-weighted, 
               f"against {w_ov[('women', 'ended for other reasons')]:.0%} otherwise; the checklist doesn't say whose "
               "unfaithfulness it was, so it is usually the husband's when a woman cites it.", y=0.0)
 save(fig, "cheating_women_switching")
+
+# =============================================================== 12. who the top decile are (faithful or not)
+ar = read("top_decile_archetypes.csv")
+LAB = {"cheater": "Cheater\n(ever cheated\nwhile married)", "never married": "Never\nmarried",
+       "faithful, divorced": "Faithful,\nbut divorced", "faithful, never divorced": "Faithful,\nnever divorced"}
+cut, topsh = ar.cutoff.iloc[0], ar.top_share_of_men.iloc[0]
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(15, 5.8), gridspec_kw=dict(width_ratios=[1.25, 1], wspace=0.22))
+
+y = np.arange(len(ar))[::-1]
+for yi, r in zip(y, ar.itertuples()):
+    is_ch = r.archetype == "cheater"
+    ax.barh(yi + 0.19, r.share_top, height=0.36, color=RED if is_ch else NAVY)
+    ax.barh(yi - 0.19, r.share_rest, height=0.36, color=MUTE)
+    ax.text(r.share_top + 0.008, yi + 0.19, f"{r.share_top:.0%}", va="center", fontsize=10.5, fontweight="bold",
+            color=INK)
+    ax.text(r.share_rest + 0.008, yi - 0.19, f"{r.share_rest:.0%}", va="center", fontsize=9.5, color=INK2)
+ax.set_yticks(y, [LAB[a] for a in ar.archetype], fontsize=9.5)
+ax.set_xlim(0, 0.52); ax.xaxis.set_major_formatter(pct); ax.grid(axis="y", visible=False)
+ax.set_xlabel("share of the group")
+ch = ar.set_index("archetype").loc["cheater"]
+ax.text(0.30, y[0] + 0.32, f"top 10% by partners ({cut:.0f}+)", color=NAVY, fontsize=9.5, fontweight="bold")
+ax.text(0.30, y[0] + 0.0, "the other 90% of men", color=INK2, fontsize=9.5, fontweight="bold")
+panel_title(ax, "A", f"Cheaters are {ch.share_top / ch.share_rest:.1f}x over-represented; faithful husbands rare")
+
+x = np.arange(len(ar))
+cols = [RED if a == "cheater" else GRAY for a in ar.archetype]
+bx.bar(x, ar.mean_partners_top, width=0.62, color=cols)
+errbars(bx, x, ar.mean_partners_top, ar.lo, ar.hi)
+for xi, r in zip(x, ar.itertuples()):
+    bx.text(xi, r.hi + 3, f"{r.mean_partners_top:.0f}", ha="center", fontsize=10.5, fontweight="bold", color=INK)
+    bx.text(xi, 4, f"n={r.n_top}", ha="center", fontsize=8, color="white")
+bx.set_xticks(x, [LAB[a] for a in ar.archetype], fontsize=9)
+bx.set_ylim(0, max(120, ar.hi.max() * 1.15)); bx.set_ylabel("lifetime female partners (mean)")
+panel_title(bx, "B", "Within the top 10%, cheaters don't have more partners")
+
+header(fig, f"Among men with {cut:.0f}+ partners, cheaters and bachelors outnumber faithful husbands",
+       f"Men 25-65 in the top {topsh:.0%} by lifetime female partners, by marital and fidelity history (A), and their "
+       "average partner counts (B). US, GSS 2010-2024", y=0.92)
+footnote(fig, f"GSS 2010-2024, men 25-65 (n = {int(ar.n_top.sum() + ar.n_rest.sum()):,}), weighted. Top group = "
+              f"weighted 90th percentile of lifetime female partners ({cut:.0f}+; many men answer exactly {cut:.0f}, "
+              f"so it holds {topsh:.0%} of men). Cheater = ever had sex with someone\nother than his wife while "
+              "married. Divorced = currently divorced or ever divorced. Means cap answers at 300; bars show 95% "
+              "intervals. Medians are 50 in every group (answers heap at round numbers). B compares men\nalready "
+              "selected on partner count, so it does not measure what cheating adds. The pooled 1989-2024 mix is "
+              "similar (cheaters 32%, never married 27%).", y=0.0)
+save(fig, "top_decile_archetypes")
 ```
