@@ -28,6 +28,8 @@
 
 ![chart 13](chart13.png)
 
+![chart 14](chart14.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
