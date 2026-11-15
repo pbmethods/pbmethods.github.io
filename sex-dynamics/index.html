@@ -6335,16 +6335,15 @@ save(fig, &quot;top_decile_archetypes&quot;)
 
 
 # =============================================================== 13. orgasm by couple type (Frederick et al. 2018)
-# One panel: Frederick's distribution, with two independent surveys alongside, and the age/BMI check on lesbian women.
+# One panel: Frederick's distribution, with two independent surveys alongside.
 fo = read(&quot;frederick_orgasm.csv&quot;)
 ga = read(&quot;garcia2014_orgasm.csv&quot;).set_index(&quot;group&quot;)
 nt = read(&quot;natsal_orgasm_trouble.csv&quot;)
-nt_adj = nt[nt.group.str.startswith(&quot;logit same-sex partner, women&quot;)].set_index(&quot;group&quot;)
 nt = nt[nt.n.notna()].set_index(&quot;group&quot;)
 LABO = {&quot;heterosexual women&quot;: &quot;Women with men&quot;, &quot;lesbian women&quot;: &quot;Women with women&quot;, &quot;gay men&quot;: &quot;Men with men&quot;,
         &quot;heterosexual men&quot;: &quot;Men with women&quot;}
-fig, ax = plt.subplots(figsize=(14, 6.0))
-y = np.arange(len(fo))[::-1] * 1.25
+fig, ax = plt.subplots(figsize=(14, 5.6))
+y = np.arange(len(fo))[::-1] * 1.1
 SEG = [(&quot;never&quot;, &quot;never&quot;, pb.GRAYS[2]), (&quot;rarely&quot;, &quot;rarely&quot;, pb.GRAYS[1]), (&quot;half&quot;, &quot;half the time&quot;, pb.GRAYS[0]),
        (&quot;usually&quot;, &quot;usually&quot;, &quot;#8fa9cf&quot;), (&quot;always&quot;, &quot;always&quot;, NAVY)]
 C1, C2, C3 = 108, 126, 144
@@ -6364,10 +6363,6 @@ for yi, r in zip(y, fo.itertuples()):
             fontweight=&quot;bold&quot;, color=INK)
     ax.text(C3, yi, f&quot;{nt.loc[r.group, 'orgasm_trouble']:.0%}&quot;, va=&quot;center&quot;, ha=&quot;center&quot;, fontsize=11.5,
             fontweight=&quot;bold&quot;, color=INK)
-yl = y[list(fo.group).index(&quot;lesbian women&quot;)]
-ax.text(0.5, yl - 0.55, &quot;Corrected to straight women's age and BMI: still about 86%. Lesbian women are heavier, &quot;
-        &quot;but BMI doesn't\npredict women's orgasm trouble (Natsal-3), and in Frederick older women orgasm slightly more&quot;,
-        fontsize=8.8, color=INK2, va=&quot;center&quot;, linespacing=1.25)
 top = y[0] + 0.55
 for xc, lab in [(C1, &quot;usually or\nalways&quot;), (C2, &quot;% of the time,\nsingles&quot;), (C3, &quot;3+ months of\norgasm trouble&quot;)]:
     ax.text(xc, top, lab, fontsize=9, color=INK2, ha=&quot;center&quot;, va=&quot;bottom&quot;, linespacing=1.2)
@@ -6394,12 +6389,40 @@ footnote(fig, &quot;Sources: Frederick, St. John, Garcia &amp; Lloyd (2018), Arc
               &quot;Garcia,\nLloyd, Wallen &amp; Fisher (2014), J Sex Med 11:2645-52: mean % of the time 6,151 US singles orgasm &quot;
               &quot;with a familiar partner. Natsal-3 (UK probability sample, 2010-12):\nno orgasm or a long time to orgasm &quot;
               &quot;despite arousal for 3+ months in the past year, by sex of most recent partner (n = 124 women and 135 men &quot;
-              &quot;with a same-sex partner; lower is better). Correction:\nin Natsal-3, adding age and BMI changes women-&quot;
-              f&quot;with-women's advantage from {nt_adj.coef.iloc[0]:.2f} to {nt_adj.coef.iloc[2]:.2f} (log-odds); BMI's own &quot;
-              f&quot;effect is nil (p = {nt_adj.p_bmi.iloc[2]:.2f}). Frederick has no BMI, and its lesbian women are older, but age &quot;
-              &quot;barely matters\nfor women's orgasm there. Shares are of people, not encounters: 65% of heterosexual women &quot;
+              &quot;with a same-sex partner; lower is better).\nShares are of people, not encounters: 65% of heterosexual women &quot;
               &quot;usually or always orgasm. Groups by self-identified orientation (Natsal: partner's sex).&quot;, y=0.0)
 save(fig, &quot;orgasm_by_couple_type&quot;)
+
+# --------------------------------------------------------------- 13b. usually-or-always only: one outlier, one cluster
+fig, ax = plt.subplots(figsize=(10, 6.2))
+order = [&quot;heterosexual women&quot;, &quot;lesbian women&quot;, &quot;gay men&quot;, &quot;heterosexual men&quot;]
+fu = fo.set_index(&quot;group&quot;).loc[order]
+xs = [0, 1.6, 2.6, 3.6]
+cols = [RED, NAVY, NAVY, NAVY]
+ax.bar(xs, fu.usually_always_text, width=0.72, color=cols)
+for xi, v in zip(xs, fu.usually_always_text):
+    ax.text(xi, v + 1.5, f&quot;{v}%&quot;, ha=&quot;center&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=INK)
+ax.set_xticks(xs, [LABO[g].replace(&quot; with &quot;, &quot;\nwith &quot;) for g in order], fontsize=11)
+lo_, hi_ = fu.usually_always_text.iloc[1:].min(), fu.usually_always_text.max()
+yb = 107
+ax.plot([1.6 - 0.36, 3.6 + 0.36], [yb, yb], color=INK2, lw=1.2)
+for xe in [1.6 - 0.36, 3.6 + 0.36]:
+    ax.plot([xe, xe], [yb, yb - 2.5], color=INK2, lw=1.2)
+ax.text(2.6, yb + 1.8, f&quot;Everyone else: {lo_}-{hi_}%&quot;, ha=&quot;center&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=INK)
+ax.text(0, 74, f&quot;{lo_ - fu.usually_always_text.iloc[0]}-{hi_ - fu.usually_always_text.iloc[0]}\npoints\nlower&quot;,
+        ha=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK, linespacing=1.15)
+ax.set_ylim(0, 118); ax.set_yticks([0, 25, 50, 75, 100]); ax.yaxis.set_major_formatter(ppt)
+ax.set_xlim(-0.7, 4.3); ax.grid(axis=&quot;x&quot;, visible=False)
+ax.set_ylabel(&quot;usually or always orgasm when sexually intimate&quot;)
+header(fig, &quot;Women with men are the outlier: 65% usually orgasm, everyone else 86-95%&quot;,
+       &quot;Share who usually or always orgasm when sexually intimate (past month), by couple type. US adults 18-65 in &quot;
+       &quot;relationships&quot;, y=0.93)
+footnote(fig, &quot;Source: Frederick, St. John, Garcia &amp; Lloyd (2018), Archives of Sexual Behavior 47:273-288, online sample &quot;
+              &quot;of 52,588 US adults 18-65 in relationships (NBCNews.com),\nnot a probability survey; values as printed in &quot;
+              &quot;the text. Groups by self-identified orientation: 'women with men' are heterosexual women, and so on. &quot;
+              &quot;Shares are of\npeople, not of encounters. The same order holds in Garcia et al. (2014; US singles) and &quot;
+              &quot;Natsal-3 (UK probability sample).&quot;, y=0.0)
+save(fig, &quot;orgasm_usually_always&quot;)
 
 
 # =============================================================== 14. what drives women's orgasm trouble (Natsal-3)
