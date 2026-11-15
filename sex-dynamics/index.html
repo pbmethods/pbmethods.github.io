@@ -39,6 +39,7 @@ li{margin:.2rem 0}
 <p><img alt="chart 13" src="chart13.png" /></p>
 <p><img alt="chart 14" src="chart14.png" /></p>
 <p><img alt="chart 15" src="chart15.png" /></p>
+<p><img alt="chart 16" src="chart16.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -3855,6 +3856,431 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 </tr>
 </tbody>
 </table>
+<h3><code>natsal_orgasm_drivers.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>factor</th>
+<th>label</th>
+<th>OR</th>
+<th>lo</th>
+<th>hi</th>
+<th>p</th>
+<th>n</th>
+<th>prevalence</th>
+<th>rate_yes</th>
+<th>rate_no</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sfrlikes2</td>
+<td>Doesn't share partner's sexual likes</td>
+<td>2.073</td>
+<td>1.546</td>
+<td>2.781</td>
+<td>0.000</td>
+<td>4050</td>
+<td>0.073</td>
+<td>0.356</td>
+<td>0.151</td>
+</tr>
+<tr>
+<td>sfrpdf2</td>
+<td>Partner has sexual difficulties</td>
+<td>1.802</td>
+<td>1.451</td>
+<td>2.239</td>
+<td>0.000</td>
+<td>4050</td>
+<td>0.171</td>
+<td>0.254</td>
+<td>0.147</td>
+</tr>
+<tr>
+<td>sfrint2</td>
+<td>Different interest in sex from partner</td>
+<td>1.652</td>
+<td>1.353</td>
+<td>2.016</td>
+<td>0.000</td>
+<td>4050</td>
+<td>0.276</td>
+<td>0.253</td>
+<td>0.132</td>
+</tr>
+<tr>
+<td>sfrem2</td>
+<td>Not emotionally close during sex</td>
+<td>1.614</td>
+<td>1.013</td>
+<td>2.572</td>
+<td>0.044</td>
+<td>4050</td>
+<td>0.025</td>
+<td>0.374</td>
+<td>0.160</td>
+</tr>
+<tr>
+<td>health</td>
+<td>Health condition affects sex</td>
+<td>1.781</td>
+<td>1.450</td>
+<td>2.188</td>
+<td>0.000</td>
+<td>4050</td>
+<td>0.189</td>
+<td>0.275</td>
+<td>0.140</td>
+</tr>
+<tr>
+<td>depr</td>
+<td>Depression or antidepressants</td>
+<td>1.711</td>
+<td>1.327</td>
+<td>2.205</td>
+<td>0.000</td>
+<td>4050</td>
+<td>0.107</td>
+<td>0.285</td>
+<td>0.151</td>
+</tr>
+<tr>
+<td>diab</td>
+<td>Diabetes medication</td>
+<td>1.559</td>
+<td>0.851</td>
+<td>2.857</td>
+<td>0.150</td>
+<td>4050</td>
+<td>0.017</td>
+<td>0.280</td>
+<td>0.164</td>
+</tr>
+<tr>
+<td>viosuc2</td>
+<td>Ever had sex against her will</td>
+<td>1.411</td>
+<td>1.085</td>
+<td>1.835</td>
+<td>0.010</td>
+<td>4050</td>
+<td>0.100</td>
+<td>0.248</td>
+<td>0.157</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Less than happy in relationship</td>
+<td>0.928</td>
+<td>0.770</td>
+<td>1.118</td>
+<td>0.430</td>
+<td>4050</td>
+<td>0.385</td>
+<td>0.185</td>
+<td>0.154</td>
+</tr>
+<tr>
+<td>cohab</td>
+<td>Living together (vs dating)</td>
+<td>1.002</td>
+<td>0.770</td>
+<td>1.304</td>
+<td>0.987</td>
+<td>4050</td>
+<td>0.860</td>
+<td>0.164</td>
+<td>0.175</td>
+</tr>
+<tr>
+<td>obese</td>
+<td>Obese (BMI 30+)</td>
+<td>0.771</td>
+<td>0.609</td>
+<td>0.978</td>
+<td>0.032</td>
+<td>4050</td>
+<td>0.187</td>
+<td>0.158</td>
+<td>0.168</td>
+</tr>
+<tr>
+<td>age10</td>
+<td>10 years older</td>
+<td>0.924</td>
+<td>0.856</td>
+<td>0.998</td>
+<td>0.043</td>
+<td>4050</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3><code>natsal_bmi_problems.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>sex</th>
+<th>bmi_class</th>
+<th>n</th>
+<th>orgasm_trouble</th>
+<th>any_problem</th>
+<th>health</th>
+<th>depression</th>
+<th>diabetes</th>
+<th>erection</th>
+<th>active_25_64</th>
+<th>OR</th>
+<th>lo</th>
+<th>hi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>women</td>
+<td>under 18.5</td>
+<td>231.000</td>
+<td>0.199</td>
+<td>0.535</td>
+<td>0.194</td>
+<td>0.142</td>
+<td>0.015</td>
+<td>0.000</td>
+<td>0.778</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>women</td>
+<td>25-30</td>
+<td>1618.000</td>
+<td>0.157</td>
+<td>0.510</td>
+<td>0.168</td>
+<td>0.115</td>
+<td>0.023</td>
+<td>0.000</td>
+<td>0.813</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>women</td>
+<td>18.5-25</td>
+<td>3346.000</td>
+<td>0.175</td>
+<td>0.513</td>
+<td>0.172</td>
+<td>0.096</td>
+<td>0.004</td>
+<td>0.000</td>
+<td>0.854</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>women</td>
+<td>30-35</td>
+<td>687.000</td>
+<td>0.153</td>
+<td>0.570</td>
+<td>0.225</td>
+<td>0.189</td>
+<td>0.032</td>
+<td>0.000</td>
+<td>0.766</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>women</td>
+<td>35+</td>
+<td>368.000</td>
+<td>0.151</td>
+<td>0.471</td>
+<td>0.224</td>
+<td>0.235</td>
+<td>0.084</td>
+<td>0.000</td>
+<td>0.693</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>men</td>
+<td>18.5-25</td>
+<td>2153.000</td>
+<td>0.087</td>
+<td>0.403</td>
+<td>0.125</td>
+<td>0.052</td>
+<td>0.012</td>
+<td>0.110</td>
+<td>0.846</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>men</td>
+<td>25-30</td>
+<td>1686.000</td>
+<td>0.087</td>
+<td>0.407</td>
+<td>0.150</td>
+<td>0.056</td>
+<td>0.034</td>
+<td>0.135</td>
+<td>0.878</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>men</td>
+<td>30-35</td>
+<td>579.000</td>
+<td>0.108</td>
+<td>0.473</td>
+<td>0.182</td>
+<td>0.062</td>
+<td>0.068</td>
+<td>0.178</td>
+<td>0.833</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>men</td>
+<td>35+</td>
+<td>179.000</td>
+<td>0.140</td>
+<td>0.492</td>
+<td>0.271</td>
+<td>0.095</td>
+<td>0.143</td>
+<td>0.138</td>
+<td>0.702</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>men</td>
+<td>under 18.5</td>
+<td>78.000</td>
+<td>0.104</td>
+<td>0.365</td>
+<td>0.103</td>
+<td>0.051</td>
+<td>0.000</td>
+<td>0.041</td>
+<td>0.684</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>women</td>
+<td>obese OR, age-adjusted: nolgorg3m</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0.917</td>
+<td>0.757</td>
+<td>1.112</td>
+</tr>
+<tr>
+<td>women</td>
+<td>obese OR, age-adjusted: health</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1.346</td>
+<td>1.135</td>
+<td>1.594</td>
+</tr>
+<tr>
+<td>women</td>
+<td>obese OR, age-adjusted: depr</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>2.213</td>
+<td>1.840</td>
+<td>2.661</td>
+</tr>
+<tr>
+<td>men</td>
+<td>obese OR, age-adjusted: nolgorg3m</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1.413</td>
+<td>1.136</td>
+<td>1.759</td>
+</tr>
+<tr>
+<td>men</td>
+<td>obese OR, age-adjusted: health</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1.376</td>
+<td>1.155</td>
+<td>1.641</td>
+</tr>
+<tr>
+<td>men</td>
+<td>obese OR, age-adjusted: depr</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1.236</td>
+<td>0.941</td>
+<td>1.624</td>
+</tr>
+</tbody>
+</table>
 <h2>Notes and caveats</h2>
 <h2>Caveats</h2>
 <p><strong>Everything here is cross-sectional.</strong> The years-married lines compare different couples at different durations
@@ -4796,6 +5222,72 @@ print(NORG.round(3).to_string(index=False))
 pd.DataFrame({&quot;group&quot;: [&quot;heterosexual women&quot;, &quot;lesbian women&quot;, &quot;gay men&quot;, &quot;heterosexual men&quot;],
               &quot;pct_of_time&quot;: [61.6, 74.7, 84.7, 85.5]}).assign(
     source=&quot;Garcia et al. 2014, J Sex Med, abstract&quot;).to_csv(HERE / &quot;garcia2014_orgasm.csv&quot;, index=False)
+
+# What predicts women's orgasm trouble (Natsal-3), and why BMI doesn't. Women sexually active in the past year.
+# A: one weighted logit of nolgorg3m (no orgasm / slow to orgasm despite arousal, 3+ months in the past year) on all
+#    candidate drivers together, among women answering the partner items (in a relationship). Odds ratios with 95% CI.
+# B: by WHO BMI class, weighted shares with orgasm trouble, any 3+ month problem, a health condition affecting sex
+#    (hafsex), depression (diagnosed or on antidepressants), for women and for men.
+dv = pd.read_stata(NAT, columns=[&quot;rsex&quot;, &quot;dage&quot;, &quot;bodymass&quot;, &quot;bmiwho&quot;, &quot;total_wt&quot;, &quot;nolgorg3m&quot;, &quot;oneplus3m&quot;,
+                                 &quot;sfrint2&quot;, &quot;sfrem2&quot;, &quot;sfrlikes2&quot;, &quot;sfrpdf2&quot;, &quot;relsat2&quot;, &quot;medwchd3&quot;, &quot;drgdep&quot;,
+                                 &quot;hafsex&quot;, &quot;viosuc2&quot;, &quot;r1rel&quot;, &quot;drgdi&quot;, &quot;erect3m&quot;], convert_categoricals=False)
+dv = dv[dv.oneplus3m.isin([0, 1])].copy()
+dv[&quot;bmi&quot;] = dv.bodymass.where(dv.bodymass.between(14, 70))
+for c in [&quot;sfrint2&quot;, &quot;sfrem2&quot;, &quot;sfrlikes2&quot;, &quot;sfrpdf2&quot;, &quot;viosuc2&quot;, &quot;relsat2&quot;]:
+    dv[c] = dv[c].where(dv[c].isin([0, 1]))
+dv = dv.assign(unhappy=1 - dv.relsat2, depr=((dv.medwchd3 == 1) | (dv.drgdep == 1)).astype(int),
+               health=(dv.hafsex == 1).astype(int), cohab=(dv.r1rel == 1).astype(int),
+               diab=(dv.drgdi == 1).astype(int), obese=(dv.bmi &gt;= 30).astype(float).where(dv.bmi.notna()),
+               age10=(dv.dage - 40) / 10)
+DRV = {&quot;sfrlikes2&quot;: &quot;Doesn't share partner's sexual likes&quot;, &quot;sfrpdf2&quot;: &quot;Partner has sexual difficulties&quot;,
+       &quot;sfrint2&quot;: &quot;Different interest in sex from partner&quot;, &quot;sfrem2&quot;: &quot;Not emotionally close during sex&quot;,
+       &quot;health&quot;: &quot;Health condition affects sex&quot;, &quot;depr&quot;: &quot;Depression or antidepressants&quot;,
+       &quot;diab&quot;: &quot;Diabetes medication&quot;, &quot;viosuc2&quot;: &quot;Ever had sex against her will&quot;,
+       &quot;unhappy&quot;: &quot;Less than happy in relationship&quot;, &quot;cohab&quot;: &quot;Living together (vs dating)&quot;,
+       &quot;obese&quot;: &quot;Obese (BMI 30+)&quot;, &quot;age10&quot;: &quot;10 years older&quot;}
+zw = dv[(dv.rsex == 2) &amp; dv.nolgorg3m.isin([0, 1])].dropna(subset=[c for c in DRV if c != &quot;age10&quot;])
+r = smf.glm(&quot;nolgorg3m ~ &quot; + &quot; + &quot;.join(DRV) + &quot; + I(age10**2)&quot;, data=zw, family=sm.families.Binomial(),
+            freq_weights=zw.total_wt).fit()
+ci = np.exp(r.conf_int())
+drows = []
+for k, lab in DRV.items():
+    row = dict(factor=k, label=lab, OR=np.exp(r.params[k]), lo=ci.loc[k, 0], hi=ci.loc[k, 1], p=r.pvalues[k],
+               n=len(zw))
+    if k != &quot;age10&quot;:
+        row[&quot;prevalence&quot;] = np.average(zw[k], weights=zw.total_wt)
+        for v, nm in [(1, &quot;rate_yes&quot;), (0, &quot;rate_no&quot;)]:
+            g = zw[zw[k] == v]
+            row[nm] = np.average(g.nolgorg3m, weights=g.total_wt)
+    drows.append(row)
+pd.DataFrame(drows).to_csv(HERE / &quot;natsal_orgasm_drivers.csv&quot;, index=False)
+print(pd.DataFrame(drows).round(3).to_string(index=False))
+
+BCL = {1: &quot;under 18.5&quot;, 2: &quot;18.5-25&quot;, 3: &quot;25-30&quot;, 4: &quot;30-35&quot;, 5: &quot;35+&quot;, 6: &quot;35+&quot;}
+brows = []
+for s, sx in [(2, &quot;women&quot;), (1, &quot;men&quot;)]:
+    g0 = dv[(dv.rsex == s) &amp; dv.bmiwho.between(1, 6) &amp; dv.nolgorg3m.isin([0, 1])]
+    for b, g in g0.groupby(g0.bmiwho.map(BCL), sort=False):
+        brows.append(dict(sex=sx, bmi_class=b, n=len(g), **{k: np.average(g[v] == 1, weights=g.total_wt) for k, v in
+                     [(&quot;orgasm_trouble&quot;, &quot;nolgorg3m&quot;), (&quot;any_problem&quot;, &quot;oneplus3m&quot;), (&quot;health&quot;, &quot;health&quot;),
+                      (&quot;depression&quot;, &quot;depr&quot;), (&quot;diabetes&quot;, &quot;diab&quot;), (&quot;erection&quot;, &quot;erect3m&quot;)]}))
+BMIP = pd.DataFrame(brows)
+# selection: problem items are asked only of people sexually active in the past year; share of 25-64s who were, by BMI
+al = pd.read_stata(NAT, columns=[&quot;rsex&quot;, &quot;dage&quot;, &quot;bmiwho&quot;, &quot;oneplus3m&quot;, &quot;total_wt&quot;], convert_categoricals=False)
+al = al[al.bmiwho.between(1, 6) &amp; al.dage.between(25, 64)]
+act = (al.assign(sex=al.rsex.map({1: &quot;men&quot;, 2: &quot;women&quot;}), bmi_class=al.bmiwho.map(BCL))
+       .groupby([&quot;sex&quot;, &quot;bmi_class&quot;]).apply(lambda h: np.average(h.oneplus3m.isin([0, 1]), weights=h.total_wt))
+       .rename(&quot;active_25_64&quot;).reset_index())
+BMIP = BMIP.merge(act, on=[&quot;sex&quot;, &quot;bmi_class&quot;], how=&quot;left&quot;)
+for s, sx in [(2, &quot;women&quot;), (1, &quot;men&quot;)]:  # obesity ORs, age-adjusted
+    g = dv[(dv.rsex == s) &amp; dv.nolgorg3m.isin([0, 1]) &amp; dv.obese.notna()]
+    for y in [&quot;nolgorg3m&quot;, &quot;health&quot;, &quot;depr&quot;]:
+        rr = smf.glm(f&quot;{y} ~ obese + age10 + I(age10**2)&quot;, data=g, family=sm.families.Binomial(),
+                     freq_weights=g.total_wt).fit()
+        c_ = np.exp(rr.conf_int().loc[&quot;obese&quot;])
+        BMIP = pd.concat([BMIP, pd.DataFrame([dict(sex=sx, bmi_class=f&quot;obese OR, age-adjusted: {y}&quot;,
+                                                   OR=np.exp(rr.params.obese), lo=c_[0], hi=c_[1])])])
+BMIP.to_csv(HERE / &quot;natsal_bmi_problems.csv&quot;, index=False)
+print(BMIP.round(3).to_string(index=False))
 </code></pre>
 <h3><code>master_post_charts.py</code></h3>
 <pre><code class="language-python">&quot;&quot;&quot;Charts for &quot;The master post of sexual and relationship dynamics&quot; (Performative Bafflement).
@@ -5671,5 +6163,67 @@ footnote(fig, &quot;Sources: Frederick, St. John, Garcia &amp; Lloyd (2018), Arc
               &quot;barely matters\nfor women's orgasm there. Shares are of people, not encounters: 65% of heterosexual women &quot;
               &quot;usually or always orgasm. Groups by self-identified orientation (Natsal: partner's sex).&quot;, y=0.0)
 save(fig, &quot;orgasm_by_couple_type&quot;)
+
+
+# =============================================================== 14. what drives women's orgasm trouble (Natsal-3)
+dr = read(&quot;natsal_orgasm_drivers.csv&quot;).sort_values(&quot;OR&quot;)
+bp = read(&quot;natsal_bmi_problems.csv&quot;)
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(16, 6.4), gridspec_kw=dict(width_ratios=[1.25, 1], wspace=0.42))
+PARTNER = {&quot;sfrlikes2&quot;, &quot;sfrpdf2&quot;, &quot;sfrint2&quot;, &quot;sfrem2&quot;}
+HEALTH = {&quot;health&quot;, &quot;depr&quot;, &quot;diab&quot;}
+y = np.arange(len(dr))
+for yi, r in zip(y, dr.itertuples()):
+    c = RED if r.factor in PARTNER else (NAVY if r.factor in HEALTH else pb.GRAYS[0])
+    ax.plot([r.lo, r.hi], [yi, yi], color=c, lw=2, alpha=0.55, solid_capstyle=&quot;round&quot;)
+    ax.plot(r.OR, yi, &quot;o&quot;, color=c, ms=8.5, zorder=3)
+    ax.text(3.35, yi, f&quot;{r.OR:.1f}x&quot;, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
+ax.axvline(1, color=INK2, lw=1)
+lab = [f&quot;{r.label}&quot; + (&quot;&quot; if pd.isna(r.prevalence) else f&quot;  ({r.prevalence:.0%})&quot;) for r in dr.itertuples()]
+ax.set_yticks(y, lab, fontsize=10)
+ax.set_xscale(&quot;log&quot;); ax.set_xlim(0.5, 3.3)
+ax.set_xticks([0.5, 0.75, 1, 1.5, 2, 3], [&quot;0.5x&quot;, &quot;0.75x&quot;, &quot;1x&quot;, &quot;1.5x&quot;, &quot;2x&quot;, &quot;3x&quot;])
+ax.minorticks_off(); ax.grid(axis=&quot;y&quot;, visible=False)
+ax.set_xlabel(&quot;odds of orgasm trouble, all factors together (95% CI)&quot;)
+ax.text(0.52, len(dr) - 0.35, &quot;partner fit&quot;, color=RED, fontsize=10, fontweight=&quot;bold&quot;)
+ax.text(0.52, len(dr) - 0.95, &quot;health&quot;, color=NAVY, fontsize=10, fontweight=&quot;bold&quot;)
+ax.set_ylim(-0.6, len(dr) + 0.1)
+panel_title(ax, &quot;A&quot;, &quot;Partner fit and health predict it; weight and age don't&quot;)
+
+w = bp[(bp.sex == &quot;women&quot;) &amp; bp.n.notna()].set_index(&quot;bmi_class&quot;).loc[[&quot;under 18.5&quot;, &quot;18.5-25&quot;, &quot;25-30&quot;, &quot;30-35&quot;, &quot;35+&quot;]]
+xb = np.arange(len(w))
+LINES = [(&quot;health&quot;, &quot;Health condition\naffects sex&quot;, NAVY, &quot;-&quot;), (&quot;depression&quot;, &quot;Depression&quot;, pb.GRAYS[1], &quot;-&quot;),
+         (&quot;inactive&quot;, &quot;No sex in the past\nyear (ages 25-64)&quot;, pb.GRAYS[0], &quot;--&quot;),
+         (&quot;orgasm_trouble&quot;, &quot;Orgasm trouble\n(sexually active)&quot;, RED, &quot;-&quot;)]
+w = w.assign(inactive=1 - w.active_25_64)
+ends = {}
+for k, l, c, ls in LINES:
+    bx.plot(xb, w[k], color=c, lw=2.6 if k == &quot;orgasm_trouble&quot; else 2, ls=ls, marker=&quot;o&quot;, ms=5)
+    ends[k] = w[k].iloc[-1]
+order = sorted(ends, key=ends.get, reverse=True); ypos, prev = {}, None
+for k in order:  # nudge end labels apart
+    ypos[k] = prev = ends[k] if prev is None else min(ends[k], prev - 0.03)
+for k, l, c, ls in LINES:
+    bx.text(len(w) - 0.82, ypos[k], f&quot;{l.split(chr(10))[0]} {ends[k]:.0%}&quot; + (&quot;\n&quot; + l.split(chr(10))[1] if &quot;\n&quot; in l else &quot;&quot;),
+            color=INK, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;, linespacing=1.15)
+bx.set_xticks(xb, list(w.index)); bx.set_xlabel(&quot;BMI&quot;)
+bx.set_xlim(-0.55, len(w) + 0.9); bx.set_ylim(0, 0.36); bx.yaxis.set_major_formatter(pct)
+bx.set_ylabel(&quot;share of women&quot;)
+panel_title(bx, &quot;B&quot;, &quot;Heavier women are sicker, but drop out of sex&quot;)
+
+oo = bp[bp.bmi_class.str.startswith(&quot;obese OR&quot;, na=False)].set_index([&quot;sex&quot;, &quot;bmi_class&quot;])
+o = lambda s, y_: oo.loc[(s, f&quot;obese OR, age-adjusted: {y_}&quot;), &quot;OR&quot;]
+header(fig, &quot;Women's orgasm trouble tracks the partner and her health, not her weight&quot;,
+       &quot;UK women sexually active in the past year: what predicts 3+ months of no or slow orgasm (A), and how it, and &quot;
+       &quot;its health causes, vary with BMI (B)&quot;, y=0.93)
+footnote(fig, &quot;Source: Natsal-3 (UK probability sample, 2010-12), weighted. Orgasm trouble = no orgasm or a long time &quot;
+              &quot;to orgasm despite arousal for 3+ months in the past year (16% of sexually active women). A: one logistic\n&quot;
+              f&quot;model, all factors at once, women in a relationship (n = {int(dr.n.iloc[0]):,}); in brackets, the share of &quot;
+              &quot;women with each factor. Associations, not proven causes: trouble can itself make a woman feel mismatched or &quot;
+              &quot;less close.\nB: weighted shares by WHO BMI class. Obese women are more likely to have a health condition &quot;
+              f&quot;affecting sex (age-adjusted OR {o('women', 'health'):.2f}) and depression ({o('women', 'depr'):.1f}), yet &quot;
+              f&quot;no more orgasm trouble ({o('women', 'nolgorg3m'):.2f}). The problem\nquestions skip women with no sex in &quot;
+              &quot;the past year, who are commoner at high BMI, so some of the heaviest women's problems go uncounted. In men, &quot;
+              f&quot;obesity does raise orgasm trouble (OR {o('men', 'nolgorg3m'):.1f}).&quot;, y=0.0)
+save(fig, &quot;orgasm_trouble_drivers&quot;)
 </code></pre>
 </main></body></html>
