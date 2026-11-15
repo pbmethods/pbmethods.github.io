@@ -136,7 +136,7 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and Personality Science, 366 couples), 0 =
     random, -1 = worst. With one man per woman the median his/hers ratio is the same under every pairing; pairing
     only changes the spread around it. Reported: typical gap (exp of mean |log ratio|), mean absolute gap per month,
-    shares where he wants 2x+, she wants more, or they are within 2x, 2-3x or 3x+ apart either way. Monte Carlo, 2 million couples.
+    shares where he wants 2x+, she wants more, or his/hers is 0.8-1.2x (about matched), or they are within 2x, 2-3x or 3x+ apart either way. Monte Carlo, 2 million couples.
 
 * **Who has the most sex** (GSS 1989-2022, ages 25-60): the &quot;more than 3 times a week&quot; band of `sexfreq` (about
   7% of adults; GSS can't separate a finer top 3-5%) against the &quot;about once a week&quot; band, which holds the median.
@@ -2966,6 +2966,7 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <th>share_she_more</th>
 <th>share_3x_apart</th>
 <th>share_within_2x</th>
+<th>share_08_12</th>
 <th>share_2_to_3x</th>
 <th>sd_log_ratio</th>
 <th>mu_m</th>
@@ -2986,6 +2987,7 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <td>0.000</td>
 <td>1.000</td>
 <td>0.000</td>
+<td>0.000</td>
 <td>0.031</td>
 <td>1.688</td>
 <td>1.190</td>
@@ -3002,6 +3004,7 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <td>0.407</td>
 <td>0.469</td>
 <td>0.352</td>
+<td>0.106</td>
 <td>0.179</td>
 <td>1.477</td>
 <td>1.688</td>
@@ -3019,6 +3022,7 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <td>0.417</td>
 <td>0.517</td>
 <td>0.317</td>
+<td>0.095</td>
 <td>0.165</td>
 <td>1.661</td>
 <td>1.688</td>
@@ -3036,6 +3040,7 @@ Every number and method is in `master_post_data.py`'s docstring; caveats are in 
 <td>0.441</td>
 <td>0.644</td>
 <td>0.230</td>
+<td>0.068</td>
 <td>0.127</td>
 <td>2.349</td>
 <td>1.688</td>
@@ -4832,7 +4837,7 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and Personality Science, 366 couples), 0 =
     random, -1 = worst. With one man per woman the median his/hers ratio is the same under every pairing; pairing
     only changes the spread around it. Reported: typical gap (exp of mean |log ratio|), mean absolute gap per month,
-    shares where he wants 2x+, she wants more, or they are within 2x, 2-3x or 3x+ apart either way. Monte Carlo, 2 million couples.
+    shares where he wants 2x+, she wants more, or his/hers is 0.8-1.2x (about matched), or they are within 2x, 2-3x or 3x+ apart either way. Monte Carlo, 2 million couples.
 
 * **Who has the most sex** (GSS 1989-2022, ages 25-60): the &quot;more than 3 times a week&quot; band of `sexfreq` (about
   7% of adults; GSS can't separate a finer top 3-5%) against the &quot;about once a week&quot; band, which holds the median.
@@ -5161,6 +5166,7 @@ for rho, lab in [(1.0, &quot;sorted (optimal)&quot;), (0.21, &quot;real couples 
                      share_he_2x=float((L &gt;= np.log(2)).mean()), share_she_more=float((L &lt; 0).mean()),
                      share_3x_apart=float((np.abs(L) &gt;= np.log(3)).mean()),
                      share_within_2x=float((np.abs(L) &lt; np.log(2)).mean()),
+                     share_08_12=float(((L &gt;= np.log(0.8)) &amp; (L &lt;= np.log(1.2))).mean()),
                      share_2_to_3x=float(((np.abs(L) &gt;= np.log(2)) &amp; (np.abs(L) &lt; np.log(3))).mean()),
                      sd_log_ratio=float(np.sqrt(sg_m ** 2 + sg_w ** 2 - 2 * rho * sg_m * sg_w)),
                      mu_m=mu_m, sg_m=sg_m, mu_w=mu_w, sg_w=sg_w))
@@ -6041,26 +6047,28 @@ got = (pr.loc[RA].mean_abs_gap_per_month - pr.loc[RE].mean_abs_gap_per_month) / 
     pr.loc[RA].mean_abs_gap_per_month - pr.loc[SO].mean_abs_gap_per_month)
 panel_title(ax, &quot;A&quot;, f&quot;Real couples get {got:.0%} of the way from random to sorted&quot;)
 
-SEGS = [(&quot;share_within_2x&quot;, &quot;Roughly matched (within 2x)&quot;, NAVY), (&quot;share_2_to_3x&quot;, &quot;2-3x apart&quot;, pb.GRAYS[0]),
-        (&quot;share_3x_apart&quot;, &quot;3x or more apart&quot;, RED)]
+pr[&quot;share_12_to_2x&quot;] = pr.share_within_2x - pr.share_08_12
+SEGS = [(&quot;share_08_12&quot;, &quot;Matched: his ideal 0.8-1.2x hers&quot;, NAVY), (&quot;share_12_to_2x&quot;, &quot;1.2-2x apart&quot;, &quot;#8fa9cf&quot;),
+        (&quot;share_2_to_3x&quot;, &quot;2-3x apart&quot;, pb.GRAYS[0]), (&quot;share_3x_apart&quot;, &quot;3x or more apart&quot;, RED)]
 for yi, k in zip(yb, order):
+    if k == SO:
+        continue
     left = 0
     for col, _, c in SEGS:
         v = pr.loc[k][col] * 100
         bx.barh(yi, v, left=left, height=0.6, color=c, edgecolor=P[&quot;SURFACE&quot;], lw=0.8)
         if v &gt;= 6:
             bx.text(left + v / 2, yi, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;,
-                    color=&quot;white&quot;)
+                    color=&quot;white&quot; if c != &quot;#8fa9cf&quot; else INK)
         left += v
-x0 = 0
-for col, lab, c in SEGS:
-    bx.text(x0, 3.42, &quot;\u25a0&quot;, color=c, fontsize=12, va=&quot;center&quot;)
-    bx.text(x0 + 3, 3.42, lab, color=INK2, fontsize=9.8, va=&quot;center&quot;)
-    x0 += 3 + 1.45 * len(lab) + 4
+for n_, (col, lab, c) in enumerate(SEGS):  # legend in the row the sorted pairing would take
+    lx_, ly_ = (0, 50)[n_ % 2], yb[0] + 0.18 - 0.36 * (n_ // 2)
+    bx.text(lx_, ly_, &quot;\u25a0&quot;, color=c, fontsize=13, va=&quot;center&quot;)
+    bx.text(lx_ + 3.5, ly_, lab, color=INK2, fontsize=10.5, va=&quot;center&quot;)
 bx.set_yticks([]); bx.set_xlim(0, 100); bx.set_ylim(-0.55, 3.75)
 bx.set_xticks([0, 25, 50, 75, 100], [&quot;0%&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%&quot;]); bx.grid(axis=&quot;y&quot;, visible=False)
 bx.set_xlabel(&quot;share of couples, by how far apart their ideals are (either way)&quot;)
-panel_title(bx, &quot;B&quot;, &quot;Nearly half of real couples are 3x or more apart; sorted, none are&quot;)
+panel_title(bx, &quot;B&quot;, f&quot;Only {pr.loc[RE].share_08_12:.0%} of real couples want sex about equally often&quot;)
 cut = 1 - pr.loc[SO].mean_abs_gap_per_month / pr.loc[RE].mean_abs_gap_per_month
 header(fig, f&quot;Couples are paired almost at random on libido: sorting by desire would cut the gap by {cut:.0%}&quot;,
        &quot;Ideal sex frequency of partnered British men and women aged 25-40, paired four ways. Even the best pairing &quot;
