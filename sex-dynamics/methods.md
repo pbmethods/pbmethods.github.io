@@ -2331,8 +2331,8 @@ ax.set_yticks(y, [LAB[a] for a in ar.archetype], fontsize=9.5)
 ax.set_xlim(0, 0.52); ax.xaxis.set_major_formatter(pct); ax.grid(axis="y", visible=False)
 ax.set_xlabel("share of the group")
 ch = ar.set_index("archetype").loc["cheater"]
-ax.text(0.30, y[0] + 0.32, f"top 10% by partners ({cut:.0f}+)", color=NAVY, fontsize=9.5, fontweight="bold")
-ax.text(0.30, y[0] + 0.0, "the other 90% of men", color=INK2, fontsize=9.5, fontweight="bold")
+ax.text(0.37, y[0] + 0.19, f"men with {cut:.0f}+ partners\n(top {topsh:.0%})", color=NAVY, fontsize=9.5, fontweight="bold", va="center")
+ax.text(0.37, y[0] - 0.24, "all other men", color=INK2, fontsize=9.5, fontweight="bold", va="center")
 panel_title(ax, "A", f"Cheaters are {ch.share_top / ch.share_rest:.1f}x over-represented; faithful husbands rare")
 
 x = np.arange(len(ar))
@@ -2344,9 +2344,9 @@ for xi, r in zip(x, ar.itertuples()):
     bx.text(xi, 4, f"n={r.n_top}", ha="center", fontsize=8, color="white")
 bx.set_xticks(x, [LAB[a] for a in ar.archetype], fontsize=9)
 bx.set_ylim(0, max(120, ar.hi.max() * 1.15)); bx.set_ylabel("lifetime female partners (mean)")
-panel_title(bx, "B", "Within the top 10%, cheaters don't have more partners")
+panel_title(bx, "B", f"Among men with {cut:.0f}+, cheaters don't have more partners")
 
-header(fig, f"Among men with {cut:.0f}+ partners, cheaters and bachelors outnumber faithful husbands",
+header(fig, f"Most men with {cut:.0f}+ partners are cheaters or bachelors; a fifth are faithful, never-divorced husbands",
        f"Men 25-65 in the top {topsh:.0%} by lifetime female partners, by marital and fidelity history (A), and their "
        "average partner counts (B). US, GSS 2010-2024", y=0.92)
 footnote(fig, f"GSS 2010-2024, men 25-65 (n = {int(ar.n_top.sum() + ar.n_rest.sum()):,}), weighted. Top group = "

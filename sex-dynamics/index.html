@@ -5177,8 +5177,8 @@ ax.set_yticks(y, [LAB[a] for a in ar.archetype], fontsize=9.5)
 ax.set_xlim(0, 0.52); ax.xaxis.set_major_formatter(pct); ax.grid(axis=&quot;y&quot;, visible=False)
 ax.set_xlabel(&quot;share of the group&quot;)
 ch = ar.set_index(&quot;archetype&quot;).loc[&quot;cheater&quot;]
-ax.text(0.30, y[0] + 0.32, f&quot;top 10% by partners ({cut:.0f}+)&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;)
-ax.text(0.30, y[0] + 0.0, &quot;the other 90% of men&quot;, color=INK2, fontsize=9.5, fontweight=&quot;bold&quot;)
+ax.text(0.37, y[0] + 0.19, f&quot;men with {cut:.0f}+ partners\n(top {topsh:.0%})&quot;, color=NAVY, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+ax.text(0.37, y[0] - 0.24, &quot;all other men&quot;, color=INK2, fontsize=9.5, fontweight=&quot;bold&quot;, va=&quot;center&quot;)
 panel_title(ax, &quot;A&quot;, f&quot;Cheaters are {ch.share_top / ch.share_rest:.1f}x over-represented; faithful husbands rare&quot;)
 
 x = np.arange(len(ar))
@@ -5190,9 +5190,9 @@ for xi, r in zip(x, ar.itertuples()):
     bx.text(xi, 4, f&quot;n={r.n_top}&quot;, ha=&quot;center&quot;, fontsize=8, color=&quot;white&quot;)
 bx.set_xticks(x, [LAB[a] for a in ar.archetype], fontsize=9)
 bx.set_ylim(0, max(120, ar.hi.max() * 1.15)); bx.set_ylabel(&quot;lifetime female partners (mean)&quot;)
-panel_title(bx, &quot;B&quot;, &quot;Within the top 10%, cheaters don't have more partners&quot;)
+panel_title(bx, &quot;B&quot;, f&quot;Among men with {cut:.0f}+, cheaters don't have more partners&quot;)
 
-header(fig, f&quot;Among men with {cut:.0f}+ partners, cheaters and bachelors outnumber faithful husbands&quot;,
+header(fig, f&quot;Most men with {cut:.0f}+ partners are cheaters or bachelors; a fifth are faithful, never-divorced husbands&quot;,
        f&quot;Men 25-65 in the top {topsh:.0%} by lifetime female partners, by marital and fidelity history (A), and their &quot;
        &quot;average partner counts (B). US, GSS 2010-2024&quot;, y=0.92)
 footnote(fig, f&quot;GSS 2010-2024, men 25-65 (n = {int(ar.n_top.sum() + ar.n_rest.sum()):,}), weighted. Top group = &quot;
