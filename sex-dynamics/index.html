@@ -6035,7 +6035,7 @@ for yi, k in zip(yb, order):
     ax.text(r_.mean_abs_gap_per_month + 0.3, yi - 0.2, f&quot;typical gap {r_.typical_gap_x:.1f}x&quot;, va=&quot;center&quot;,
             fontsize=9.2, color=INK2)
 ax.set_yticks(yb, [labs[k] for k in order], fontsize=10.5)
-ax.set_xlim(0, 20); ax.set_ylim(-0.55, 3.75); ax.grid(axis=&quot;y&quot;, visible=False)
+ax.set_xlim(0, 20); ax.set_xticks([0, 5, 10, 15]); ax.set_ylim(-0.55, 3.75); ax.grid(axis=&quot;y&quot;, visible=False)
 ax.set_xlabel(&quot;average gap between his and her ideal, times a month&quot;)
 got = (pr.loc[RA].mean_abs_gap_per_month - pr.loc[RE].mean_abs_gap_per_month) / (
     pr.loc[RA].mean_abs_gap_per_month - pr.loc[SO].mean_abs_gap_per_month)
@@ -6060,7 +6060,7 @@ for col, lab, c in SEGS:
 bx.set_yticks([]); bx.set_xlim(0, 100); bx.set_ylim(-0.55, 3.75)
 bx.set_xticks([0, 25, 50, 75, 100], [&quot;0%&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%&quot;]); bx.grid(axis=&quot;y&quot;, visible=False)
 bx.set_xlabel(&quot;share of couples, by how far apart their ideals are (either way)&quot;)
-panel_title(bx, &quot;B&quot;, f&quot;Half of real couples want sex 3x or more apart; sorted, none do&quot;)
+panel_title(bx, &quot;B&quot;, &quot;Nearly half of real couples are 3x or more apart; sorted, none are&quot;)
 cut = 1 - pr.loc[SO].mean_abs_gap_per_month / pr.loc[RE].mean_abs_gap_per_month
 header(fig, f&quot;Couples are paired almost at random on libido: sorting by desire would cut the gap by {cut:.0%}&quot;,
        &quot;Ideal sex frequency of partnered British men and women aged 25-40, paired four ways. Even the best pairing &quot;
