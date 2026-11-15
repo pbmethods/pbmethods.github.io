@@ -143,7 +143,7 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and Personality Science, 366 couples), 0 =
     random, -1 = worst. With one man per woman the median his/hers ratio is the same under every pairing; pairing
     only changes the spread around it. Reported: typical gap (exp of mean |log ratio|), mean absolute gap per month,
-    shares where he wants 2x+, she wants more, or they are 3x+ apart. Monte Carlo, 2 million couples.
+    shares where he wants 2x+, she wants more, or they are within 2x, 2-3x or 3x+ apart either way. Monte Carlo, 2 million couples.
 
 * **Who has the most sex** (GSS 1989-2022, ages 25-60): the "more than 3 times a week" band of `sexfreq` (about
   7% of adults; GSS can't separate a finer top 3-5%) against the "about once a week" band, which holds the median.
@@ -609,12 +609,12 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 
 ### `natsal_desire_pairing.csv`
 
-| pairing | rho | median_ratio | typical_gap_x | mean_abs_gap_per_month | share_he_2x | share_she_more | share_3x_apart | sd_log_ratio | mu_m | sg_m | mu_w | sg_w |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| sorted (optimal) | 1.000 | 1.414 | 1.414 | 3.496 | 0.000 | 0.000 | 0.000 | 0.031 | 1.688 | 1.190 | 1.342 | 1.159 |
-| real couples (r = .21) | 0.210 | 1.417 | 3.356 | 10.244 | 0.408 | 0.407 | 0.469 | 1.477 | 1.688 | 1.190 | 1.342 | 1.159 |
-| random | 0.000 | 1.417 | 3.874 | 11.197 | 0.418 | 0.417 | 0.517 | 1.661 | 1.688 | 1.190 | 1.342 | 1.159 |
-| reverse sorted (worst) | -1.000 | 1.417 | 6.649 | 14.153 | 0.442 | 0.441 | 0.644 | 2.349 | 1.688 | 1.190 | 1.342 | 1.159 |
+| pairing | rho | median_ratio | typical_gap_x | mean_abs_gap_per_month | share_he_2x | share_she_more | share_3x_apart | share_within_2x | share_2_to_3x | sd_log_ratio | mu_m | sg_m | mu_w | sg_w |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| sorted (optimal) | 1.000 | 1.414 | 1.414 | 3.496 | 0.000 | 0.000 | 0.000 | 1.000 | 0.000 | 0.031 | 1.688 | 1.190 | 1.342 | 1.159 |
+| real couples (r = .21) | 0.210 | 1.417 | 3.356 | 10.244 | 0.408 | 0.407 | 0.469 | 0.352 | 0.179 | 1.477 | 1.688 | 1.190 | 1.342 | 1.159 |
+| random | 0.000 | 1.417 | 3.874 | 11.197 | 0.418 | 0.417 | 0.517 | 0.317 | 0.165 | 1.661 | 1.688 | 1.190 | 1.342 | 1.159 |
+| reverse sorted (worst) | -1.000 | 1.417 | 6.649 | 14.153 | 0.442 | 0.441 | 0.644 | 0.230 | 0.127 | 2.349 | 1.688 | 1.190 | 1.342 | 1.159 |
 
 ### `cheating_outside_partners.csv`
 
@@ -1100,7 +1100,7 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and Personality Science, 366 couples), 0 =
     random, -1 = worst. With one man per woman the median his/hers ratio is the same under every pairing; pairing
     only changes the spread around it. Reported: typical gap (exp of mean |log ratio|), mean absolute gap per month,
-    shares where he wants 2x+, she wants more, or they are 3x+ apart. Monte Carlo, 2 million couples.
+    shares where he wants 2x+, she wants more, or they are within 2x, 2-3x or 3x+ apart either way. Monte Carlo, 2 million couples.
 
 * **Who has the most sex** (GSS 1989-2022, ages 25-60): the "more than 3 times a week" band of `sexfreq` (about
   7% of adults; GSS can't separate a finer top 3-5%) against the "about once a week" band, which holds the median.
@@ -1428,6 +1428,8 @@ for rho, lab in [(1.0, "sorted (optimal)"), (0.21, "real couples (r = .21)"), (0
                      typical_gap_x=float(np.exp(np.abs(L).mean())), mean_abs_gap_per_month=float(np.abs(Mx - Wx).mean()),
                      share_he_2x=float((L >= np.log(2)).mean()), share_she_more=float((L < 0).mean()),
                      share_3x_apart=float((np.abs(L) >= np.log(3)).mean()),
+                     share_within_2x=float((np.abs(L) < np.log(2)).mean()),
+                     share_2_to_3x=float(((np.abs(L) >= np.log(2)) & (np.abs(L) < np.log(3))).mean()),
                      sd_log_ratio=float(np.sqrt(sg_m ** 2 + sg_w ** 2 - 2 * rho * sg_m * sg_w)),
                      mu_m=mu_m, sg_m=sg_m, mu_w=mu_w, sg_w=sg_w))
 PAIR = pd.DataFrame(PAIR)
@@ -2292,42 +2294,44 @@ save(fig, "wants_match")
 pr = read("natsal_desire_pairing.csv").set_index("pairing")
 SO, RE, RA, WO = "sorted (optimal)", "real couples (r = .21)", "random", "reverse sorted (worst)"
 dm = pr.loc[RE].mu_m - pr.loc[RE].mu_w
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(16, 6.2), gridspec_kw=dict(width_ratios=[1.25, 1], wspace=0.2))
-lx = np.linspace(np.log(1 / 40), np.log(40), 800)
-ax.axvspan(np.log(1 / 40), 0, color=P["MUTE"], alpha=0.18, lw=0)
-for key, c, ls, lw_ in [(RA, GRAY, (0, (4, 2.5)), 1.8), (RE, RED, "-", 2.8)]:
-    sd = pr.loc[key].sd_log_ratio
-    ax.plot(lx, norm_pdf((lx - dm) / sd) / sd, color=c, ls=ls, lw=lw_)
-ax.plot([dm, dm], [0, 0.345], color=NAVY, lw=3.2, solid_capstyle="butt")
-ax.text(dm + 0.12, 0.345, f"Sorted, rank to rank: every couple at\n{pr.loc[SO].median_ratio:.1f}x, the floor no pairing can beat",
-        fontsize=10, fontweight="bold", color=INK, va="top")
-ax.text(1.55, 0.255, f"Real couples (r = .21)", fontsize=10.5, fontweight="bold", color=INK, va="bottom")
-ax.text(2.25, 0.135, "Random", fontsize=10, color=INK2, va="bottom")
-ax.text(-3.55, 0.335, f"She wants more:\n{pr.loc[RE].share_she_more:.0%} of real couples", fontsize=10, color=INK2,
-        fontweight="bold", va="top")
-TX = [1 / 27, 1 / 9, 1 / 3, 1, 3, 9, 27]
-ax.set_xticks(np.log(TX), ["she 27x", "she 9x", "she 3x", "same", "he 3x", "he 9x", "he 27x"])
-ax.set_xlim(np.log(1 / 40), np.log(40)); ax.set_ylim(0, 0.36); ax.set_yticks([])
-ax.set_xlabel("his ideal frequency divided by hers (log scale)")
-ax.grid(axis="y", visible=False)
-panel_title(ax, "A", "How far apart couples' ideals are, by how they're paired")
-
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(16, 5.8), gridspec_kw=dict(width_ratios=[1, 1.1], wspace=0.06))
 order = [SO, RE, RA, WO]
 labs = {SO: "Sorted by desire\n(the optimum)", RE: "Real couples\n(r = .21)", RA: "Random", WO: "Reverse sorted\n(the worst)"}
 yb = np.arange(len(order))[::-1]
 for yi, k in zip(yb, order):
     r_ = pr.loc[k]
-    bx.barh(yi, r_.mean_abs_gap_per_month, height=0.6, color=RED if k == RE else (NAVY if k == SO else MUTE))
-    bx.text(r_.mean_abs_gap_per_month + 0.3, yi + 0.1, f"{r_.mean_abs_gap_per_month:.1f} a month", va="center",
+    ax.barh(yi, r_.mean_abs_gap_per_month, height=0.6, color=RED if k == RE else (NAVY if k == SO else MUTE))
+    ax.text(r_.mean_abs_gap_per_month + 0.3, yi + 0.1, f"{r_.mean_abs_gap_per_month:.1f} a month", va="center",
             fontsize=12, fontweight="bold", color=INK)
-    bx.text(r_.mean_abs_gap_per_month + 0.3, yi - 0.2, f"typical gap {r_.typical_gap_x:.1f}x; "
-            f"{r_.share_3x_apart:.0%} are 3x+ apart", va="center", fontsize=9.2, color=INK2)
-bx.set_yticks(yb, [labs[k] for k in order], fontsize=10.5)
-bx.set_xlim(0, 21); bx.grid(axis="y", visible=False)
-bx.set_xlabel("average gap between his and her ideal, times a month")
+    ax.text(r_.mean_abs_gap_per_month + 0.3, yi - 0.2, f"typical gap {r_.typical_gap_x:.1f}x", va="center",
+            fontsize=9.2, color=INK2)
+ax.set_yticks(yb, [labs[k] for k in order], fontsize=10.5)
+ax.set_xlim(0, 20); ax.set_ylim(-0.55, 3.75); ax.grid(axis="y", visible=False)
+ax.set_xlabel("average gap between his and her ideal, times a month")
 got = (pr.loc[RA].mean_abs_gap_per_month - pr.loc[RE].mean_abs_gap_per_month) / (
     pr.loc[RA].mean_abs_gap_per_month - pr.loc[SO].mean_abs_gap_per_month)
-panel_title(bx, "B", f"Real couples get {got:.0%} of the way from random to sorted")
+panel_title(ax, "A", f"Real couples get {got:.0%} of the way from random to sorted")
+
+SEGS = [("share_within_2x", "Roughly matched (within 2x)", NAVY), ("share_2_to_3x", "2-3x apart", pb.GRAYS[0]),
+        ("share_3x_apart", "3x or more apart", RED)]
+for yi, k in zip(yb, order):
+    left = 0
+    for col, _, c in SEGS:
+        v = pr.loc[k][col] * 100
+        bx.barh(yi, v, left=left, height=0.6, color=c, edgecolor=P["SURFACE"], lw=0.8)
+        if v >= 6:
+            bx.text(left + v / 2, yi, f"{v:.0f}%", ha="center", va="center", fontsize=11, fontweight="bold",
+                    color="white")
+        left += v
+x0 = 0
+for col, lab, c in SEGS:
+    bx.text(x0, 3.42, "\u25a0", color=c, fontsize=12, va="center")
+    bx.text(x0 + 3, 3.42, lab, color=INK2, fontsize=9.8, va="center")
+    x0 += 3 + 1.45 * len(lab) + 4
+bx.set_yticks([]); bx.set_xlim(0, 100); bx.set_ylim(-0.55, 3.75)
+bx.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"]); bx.grid(axis="y", visible=False)
+bx.set_xlabel("share of couples, by how far apart their ideals are (either way)")
+panel_title(bx, "B", f"Half of real couples want sex 3x or more apart; sorted, none do")
 cut = 1 - pr.loc[SO].mean_abs_gap_per_month / pr.loc[RE].mean_abs_gap_per_month
 header(fig, f"Couples are paired almost at random on libido: sorting by desire would cut the gap by {cut:.0%}",
        "Ideal sex frequency of partnered British men and women aged 25-40, paired four ways. Even the best pairing "
