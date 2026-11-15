@@ -351,7 +351,7 @@ s1, sall = tenplus(SCF, "All married", "top 1%"), tenplus(SCF, "All married", "a
 axs[0, 1].text(10.3, 0.124, f"Husband 10+ years older:\ntop 1% {s1.pct_10plus:.0f}%, everyone {sall.pct_10plus:.1f}%",
                fontsize=10, fontweight="bold", color=INK, va="top")
 axs[0, 1].plot([10.3, 11.5], [0.152, 0.152], color=RED, lw=2.4)
-axs[0, 1].text(11.9, 0.152, f"top 1% net worth (n = {nB['Top 1%']:,} households)", fontsize=9.5, color=INK2,
+axs[0, 1].text(11.9, 0.152, f"top 1% net worth (n = {nB["Top 1%"]:,})", fontsize=9.5, color=INK2,
                va="center")
 axs[0, 1].plot([10.3, 11.5], [0.141, 0.141], color=NAVY, lw=1.8)
 axs[0, 1].text(11.9, 0.141, f"bottom 99% (n = {nB['Bottom 99%']:,})", fontsize=9.5, color=INK2, va="center")
