@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Do rich men marry much younger women? The husband-wife age gap by income and net worth</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Do rich men marry much younger women? The husband-wife age gap by income and net worth</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-15.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/rich-age-gap/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>rich_gap_data.py</code></h3>
+<pre><code class="language-text">Do rich men marry much younger women? The husband-wife age gap by the husband's income (ACS) and the household's
+net worth (SCF), US, top 1% vs everyone else.
+
+Run:  uv run --with pandas,pyarrow,numpy python notebooks/marriage_age_gap/rich_gap_data.py
+Writes rich_gap_bands.csv (share of couples where the husband is 10+ years older, and the mean gap, by nested
+percentile band: all, top 50%, top 10%, top 5%, top 1%) and rich_gap_hist.csv (the distribution of the gap, top 1%
+vs bottom 99%) next to this script. Rebuilds, in a reproducible script, the figures first made in the
+&quot;PSID marrying up&quot; notebook for the pronatalist-dream post.
+
+Unit: opposite-sex married couples living together; gap = husband's age minus wife's age, in whole years.
+
+1. Income: ACS 2023 1-year PUMS (`acs_full/persons/year=2023`). Householder (RELSHIPP 20) paired with an opposite-sex
+   spouse (RELSHIPP 21) in the same household; group quarters excluded. Rank = husband's own total personal income
+   (PINCP x ADJINC/1e6, 2023 dollars), as a weighted percentile within each comparison set, so &quot;top 1%&quot; means the top
+   1% of husbands in that set. Three sets: all married couples; marriages formed in the last 5 years (survey year minus
+   MARHYP &lt;= 5, the husband's year of marriage, which can be a remarriage); and those recent marriages with husbands
+   aged 28-45. Weight PWGTP; standard errors from the 80 successive-difference replicate weights (PWGTP1-80), with
+   the percentile threshold re-estimated in every replicate.
+2. Wealth: SCF 2022 (`p22i6.dta` full public file plus the `rscfp2022.dta` summary extract). Married couples
+   (MARRIED = 1) where the respondent (X8021 sex, X8022 age) and spouse (X103 sex, X104 age) are of opposite sex. Rank
+   = household net worth (NETWORTH), weighted percentile within each of the 5 implicates (weight X42001 / 5). The
+   public SCF drops the year of marriage, so the wealth figures cover all marriages (compare with the ACS &quot;all married&quot;
+   set), and ages are top-coded at 95. Estimates are averaged across implicates; the standard error combines the
+   between-implicate variance (Rubin) with a within-implicate sampling variance approximated as binomial on the Kish
+   effective sample size. That approximation stands in for the SCF replicate weights, which are not used here, and
+   ignores the clustering of the SCF list sample, so treat the wealth intervals as rough.
+Histogram: share of couples at each whole-year gap, ends pooled at -15 and +25; ACS uses marriages formed in the last
+5 years, SCF all married couples, all implicates pooled.
+</code></pre>
+<h3><code>rich_gap_chart.py</code></h3>
+<pre><code class="language-text">Chart: the husband-wife age gap for the top 1% by husband's income (ACS 2023) and household net worth (SCF 2022).
+
+Run after rich_gap_data.py (whose docstring is the full method):
+    uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/marriage_age_gap/rich_gap_chart.py
+
+A: distribution of the gap in marriages formed in the last 5 years, top-1% earning husbands vs the bottom 99% (ACS).
+B: the same for all married couples, top-1% net-worth households vs the bottom 99% (SCF; no marriage year in the
+   public SCF).
+C: share of couples with the husband 10+ years older, by nested income band, for all marriages, marriages from the
+   last 5 years, and those with husbands aged 28-45 (95% intervals from the ACS replicate weights).
+D: the same share by nested net-worth band, all marriages (rough 95% intervals, see the data script).
+Writes the raw PNG to Substack Notes/Unwatermarked graphs/Marriage/ and the watermarked copy to
+Substack Notes/Marriage/ (methods page pbmethods.github.io/rich-age-gap).
+</code></pre>
+<h2>Results</h2>
+<h3><code>rich_gap_bands.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>set</th>
+<th>band</th>
+<th>pct_10plus</th>
+<th>se</th>
+<th>mean_gap</th>
+<th>se_mean_gap</th>
+<th>n</th>
+<th>threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>All married</td>
+<td>all</td>
+<td>6.756</td>
+<td>0.039</td>
+<td>2.208</td>
+<td>0.008</td>
+<td>673825</td>
+<td></td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>All married</td>
+<td>top 50%</td>
+<td>5.460</td>
+<td>0.050</td>
+<td>2.004</td>
+<td>0.010</td>
+<td>336432</td>
+<td>63210.116</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>All married</td>
+<td>top 10%</td>
+<td>5.347</td>
+<td>0.093</td>
+<td>2.055</td>
+<td>0.021</td>
+<td>71518</td>
+<td>183513.240</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>All married</td>
+<td>top 5%</td>
+<td>5.672</td>
+<td>0.159</td>
+<td>2.082</td>
+<td>0.030</td>
+<td>35519</td>
+<td>259977.090</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>All married</td>
+<td>top 1%</td>
+<td>5.699</td>
+<td>0.324</td>
+<td>2.031</td>
+<td>0.061</td>
+<td>7562</td>
+<td>606613.210</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Married in the last 5 years</td>
+<td>all</td>
+<td>7.683</td>
+<td>0.120</td>
+<td>2.104</td>
+<td>0.023</td>
+<td>87850</td>
+<td></td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Married in the last 5 years</td>
+<td>top 50%</td>
+<td>7.149</td>
+<td>0.156</td>
+<td>2.191</td>
+<td>0.029</td>
+<td>47167</td>
+<td>61171.080</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Married in the last 5 years</td>
+<td>top 10%</td>
+<td>9.560</td>
+<td>0.425</td>
+<td>2.883</td>
+<td>0.073</td>
+<td>9927</td>
+<td>152927.700</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Married in the last 5 years</td>
+<td>top 5%</td>
+<td>10.807</td>
+<td>0.825</td>
+<td>3.165</td>
+<td>0.167</td>
+<td>4721</td>
+<td>204923.118</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Married in the last 5 years</td>
+<td>top 1%</td>
+<td>14.133</td>
+<td>1.621</td>
+<td>3.803</td>
+<td>0.285</td>
+<td>993</td>
+<td>515876.108</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Last 5 years, husband 28-45</td>
+<td>all</td>
+<td>3.582</td>
+<td>0.118</td>
+<td>1.539</td>
+<td>0.026</td>
+<td>53176</td>
+<td></td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Last 5 years, husband 28-45</td>
+<td>top 50%</td>
+<td>3.113</td>
+<td>0.140</td>
+<td>1.611</td>
+<td>0.028</td>
+<td>27544</td>
+<td>67288.188</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Last 5 years, husband 28-45</td>
+<td>top 10%</td>
+<td>3.290</td>
+<td>0.293</td>
+<td>1.770</td>
+<td>0.056</td>
+<td>5721</td>
+<td>163122.880</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Last 5 years, husband 28-45</td>
+<td>top 5%</td>
+<td>3.594</td>
+<td>0.488</td>
+<td>1.873</td>
+<td>0.092</td>
+<td>2881</td>
+<td>219196.370</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Last 5 years, husband 28-45</td>
+<td>top 1%</td>
+<td>4.752</td>
+<td>0.963</td>
+<td>2.090</td>
+<td>0.215</td>
+<td>603</td>
+<td>523210.597</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>All married</td>
+<td>all</td>
+<td>7.466</td>
+<td>0.681</td>
+<td>2.282</td>
+<td></td>
+<td>2852</td>
+<td></td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>All married</td>
+<td>top 50%</td>
+<td>6.969</td>
+<td>0.854</td>
+<td>2.276</td>
+<td></td>
+<td>1882</td>
+<td>326201.706</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>All married</td>
+<td>top 10%</td>
+<td>5.074</td>
+<td>1.232</td>
+<td>2.365</td>
+<td></td>
+<td>954</td>
+<td>2779107.526</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>All married</td>
+<td>top 5%</td>
+<td>5.754</td>
+<td>1.645</td>
+<td>2.293</td>
+<td></td>
+<td>735</td>
+<td>5665129.723</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>All married</td>
+<td>top 1%</td>
+<td>11.713</td>
+<td>3.153</td>
+<td>2.742</td>
+<td></td>
+<td>448</td>
+<td>18330182.408</td>
+</tr>
+</tbody>
+</table>
+<h3><code>rich_gap_hist.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>group</th>
+<th>gap</th>
+<th>share</th>
+<th>n</th>
+<th>n_group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>-15</td>
+<td>0.006</td>
+<td>453</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>-11</td>
+<td>0.002</td>
+<td>201</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>-7</td>
+<td>0.008</td>
+<td>619</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>-3</td>
+<td>0.029</td>
+<td>2503</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>1</td>
+<td>0.141</td>
+<td>12267</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>5</td>
+<td>0.047</td>
+<td>4059</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>9</td>
+<td>0.018</td>
+<td>1543</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>13</td>
+<td>0.007</td>
+<td>609</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>17</td>
+<td>0.003</td>
+<td>282</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>21</td>
+<td>0.002</td>
+<td>140</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Bottom 99%</td>
+<td>25</td>
+<td>0.005</td>
+<td>433</td>
+<td>86857</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>-12</td>
+<td>0.001</td>
+<td>1</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>-8</td>
+<td>0.001</td>
+<td>1</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>-4</td>
+<td>0.010</td>
+<td>9</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>0</td>
+<td>0.129</td>
+<td>125</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>4</td>
+<td>0.064</td>
+<td>63</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>8</td>
+<td>0.037</td>
+<td>38</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>12</td>
+<td>0.019</td>
+<td>19</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>16</td>
+<td>0.007</td>
+<td>6</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>20</td>
+<td>0.013</td>
+<td>9</td>
+<td>993</td>
+</tr>
+<tr>
+<td>ACS 2023, husband's income</td>
+<td>Top 1%</td>
+<td>24</td>
+<td>0.001</td>
+<td>2</td>
+<td>993</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>-13</td>
+<td>0.001</td>
+<td>15</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>-9</td>
+<td>0.003</td>
+<td>45</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>-5</td>
+<td>0.017</td>
+<td>166</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>-1</td>
+<td>0.072</td>
+<td>852</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>3</td>
+<td>0.097</td>
+<td>1188</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>7</td>
+<td>0.032</td>
+<td>429</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>11</td>
+<td>0.007</td>
+<td>90</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>15</td>
+<td>0.003</td>
+<td>60</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>19</td>
+<td>0.002</td>
+<td>25</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Bottom 99%</td>
+<td>23</td>
+<td>0.001</td>
+<td>15</td>
+<td>2402</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>-14</td>
+<td>0.000</td>
+<td>0</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>-10</td>
+<td>0.000</td>
+<td>0</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>-6</td>
+<td>0.007</td>
+<td>15</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>-2</td>
+<td>0.086</td>
+<td>123</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>2</td>
+<td>0.119</td>
+<td>253</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>6</td>
+<td>0.022</td>
+<td>60</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>10</td>
+<td>0.034</td>
+<td>30</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>14</td>
+<td>0.007</td>
+<td>20</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>18</td>
+<td>0.017</td>
+<td>16</td>
+<td>449</td>
+</tr>
+<tr>
+<td>SCF 2022, household net worth</td>
+<td>Top 1%</td>
+<td>22</td>
+<td>0.004</td>
+<td>15</td>
+<td>449</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 4th row of 164 shown; full file: <a href="rich_gap_hist.csv">rich_gap_hist.csv</a>.</em></p>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>rich_gap_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Do rich men marry much younger women? The husband-wife age gap by the husband's income (ACS) and the household's
+net worth (SCF), US, top 1% vs everyone else.
+
+Run:  uv run --with pandas,pyarrow,numpy python notebooks/marriage_age_gap/rich_gap_data.py
+Writes rich_gap_bands.csv (share of couples where the husband is 10+ years older, and the mean gap, by nested
+percentile band: all, top 50%, top 10%, top 5%, top 1%) and rich_gap_hist.csv (the distribution of the gap, top 1%
+vs bottom 99%) next to this script. Rebuilds, in a reproducible script, the figures first made in the
+&quot;PSID marrying up&quot; notebook for the pronatalist-dream post.
+
+Unit: opposite-sex married couples living together; gap = husband's age minus wife's age, in whole years.
+
+1. Income: ACS 2023 1-year PUMS (`acs_full/persons/year=2023`). Householder (RELSHIPP 20) paired with an opposite-sex
+   spouse (RELSHIPP 21) in the same household; group quarters excluded. Rank = husband's own total personal income
+   (PINCP x ADJINC/1e6, 2023 dollars), as a weighted percentile within each comparison set, so &quot;top 1%&quot; means the top
+   1% of husbands in that set. Three sets: all married couples; marriages formed in the last 5 years (survey year minus
+   MARHYP &lt;= 5, the husband's year of marriage, which can be a remarriage); and those recent marriages with husbands
+   aged 28-45. Weight PWGTP; standard errors from the 80 successive-difference replicate weights (PWGTP1-80), with
+   the percentile threshold re-estimated in every replicate.
+2. Wealth: SCF 2022 (`p22i6.dta` full public file plus the `rscfp2022.dta` summary extract). Married couples
+   (MARRIED = 1) where the respondent (X8021 sex, X8022 age) and spouse (X103 sex, X104 age) are of opposite sex. Rank
+   = household net worth (NETWORTH), weighted percentile within each of the 5 implicates (weight X42001 / 5). The
+   public SCF drops the year of marriage, so the wealth figures cover all marriages (compare with the ACS &quot;all married&quot;
+   set), and ages are top-coded at 95. Estimates are averaged across implicates; the standard error combines the
+   between-implicate variance (Rubin) with a within-implicate sampling variance approximated as binomial on the Kish
+   effective sample size. That approximation stands in for the SCF replicate weights, which are not used here, and
+   ignores the clustering of the SCF list sample, so treat the wealth intervals as rough.
+Histogram: share of couples at each whole-year gap, ends pooled at -15 and +25; ACS uses marriages formed in the last
+5 years, SCF all married couples, all implicates pooled.
+&quot;&quot;&quot;
+import glob
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+CUTS = [(0.0, &quot;all&quot;), (0.50, &quot;top 50%&quot;), (0.90, &quot;top 10%&quot;), (0.95, &quot;top 5%&quot;), (0.99, &quot;top 1%&quot;)]
+SURVEY_YR, RECENT = 2023, 5
+
+
+def wq(v, w, q):
+    &quot;&quot;&quot;Weighted quantile (midpoint rule) of v at q.&quot;&quot;&quot;
+    o = np.argsort(v, kind=&quot;stable&quot;); v, w = np.asarray(v, float)[o], np.asarray(w, float)[o]
+    return float(np.interp(q, (np.cumsum(w) - 0.5 * w) / w.sum(), v))
+
+
+def hist(gap, w):
+    g = np.clip(gap, -15, 25)
+    return [(v, float(w[g == v].sum() / w.sum()), int((g == v).sum())) for v in range(-15, 26)]
+
+
+rows, hrows = [], []
+# ---------------------------------------------------------------- 1. ACS 2023, husband's income
+REPS = [f&quot;PWGTP{i}&quot; for i in range(1, 81)]
+cols = [&quot;SERIALNO&quot;, &quot;RELSHIPP&quot;, &quot;SEX&quot;, &quot;AGEP&quot;, &quot;PINCP&quot;, &quot;ADJINC&quot;, &quot;MARHYP&quot;, &quot;PWGTP&quot;] + REPS
+a = pd.concat([pd.read_parquet(f, columns=cols) for f in glob.glob(str(DATA / &quot;acs_full/persons/year=2023/*.parquet&quot;))])
+a = a[~a.SERIALNO.astype(str).str.contains(&quot;GQ&quot;)]
+for c in cols[1:]:
+    a[c] = pd.to_numeric(a[c], errors=&quot;coerce&quot;)
+hd, sp = a[a.RELSHIPP.eq(20)], a[a.RELSHIPP.eq(21)]
+cp = hd.merge(sp[[&quot;SERIALNO&quot;, &quot;SEX&quot;, &quot;AGEP&quot;, &quot;PINCP&quot;, &quot;MARHYP&quot;]], on=&quot;SERIALNO&quot;, suffixes=(&quot;&quot;, &quot;_s&quot;))
+cp = cp[cp.SEX != cp.SEX_s]
+hm = cp.SEX.eq(1).to_numpy()
+cp[&quot;H_AGE&quot;] = np.where(hm, cp.AGEP, cp.AGEP_s); cp[&quot;W_AGE&quot;] = np.where(hm, cp.AGEP_s, cp.AGEP)
+cp[&quot;H_INC&quot;] = np.where(hm, cp.PINCP, cp.PINCP_s) * cp.ADJINC / 1e6
+cp[&quot;GAP&quot;] = cp.H_AGE - cp.W_AGE
+cp[&quot;YRS&quot;] = SURVEY_YR - np.where(hm, cp.MARHYP, cp.MARHYP_s)
+print(f&quot;ACS 2023: {len(cp):,} opposite-sex married couples&quot;)
+recent = cp[cp.YRS.between(0, RECENT)]
+SETS = {&quot;All married&quot;: cp, f&quot;Married in the last {RECENT} years&quot;: recent,
+        f&quot;Last {RECENT} years, husband 28-45&quot;: recent[recent.H_AGE.between(28, 45)]}
+for name, f in SETS.items():
+    v, g = f.H_INC.to_numpy(float), f.GAP.to_numpy(float)
+    W = f[[&quot;PWGTP&quot;] + REPS].to_numpy(float)
+    for q, lab in CUTS:
+        est, mg = np.empty(W.shape[1]), np.empty(W.shape[1])
+        for j in range(W.shape[1]):
+            w = W[:, j]; m = v &gt;= (wq(v, w, q) if q &gt; 0 else -np.inf)
+            est[j] = 100 * w[m][g[m] &gt;= 10].sum() / w[m].sum(); mg[j] = np.average(g[m], weights=w[m])
+        m = v &gt;= (wq(v, W[:, 0], q) if q &gt; 0 else -np.inf)
+        rows.append(dict(source=&quot;ACS 2023, husband's income&quot;, set=name, band=lab, pct_10plus=est[0],
+                         se=np.sqrt(4 / 80 * ((est[1:] - est[0]) ** 2).sum()), mean_gap=mg[0],
+                         se_mean_gap=np.sqrt(4 / 80 * ((mg[1:] - mg[0]) ** 2).sum()), n=int(m.sum()),
+                         threshold=None if q == 0 else wq(v, W[:, 0], q)))
+    print(name, &quot;done&quot;, len(f))
+v, w, g = recent.H_INC.to_numpy(float), recent.PWGTP.to_numpy(float), recent.GAP.to_numpy()
+t99 = wq(v, w, 0.99)
+for lab, m in [(&quot;Bottom 99%&quot;, v &lt; t99), (&quot;Top 1%&quot;, v &gt;= t99)]:
+    hrows += [dict(source=&quot;ACS 2023, husband's income&quot;, group=lab, gap=x, share=s, n=n, n_group=int(m.sum()))
+              for x, s, n in hist(g[m], w[m])]
+
+# ---------------------------------------------------------------- 2. SCF 2022, household net worth
+full = pd.read_stata(DATA / &quot;p22i6.dta&quot;, columns=[&quot;y1&quot;, &quot;x8021&quot;, &quot;x8022&quot;, &quot;x103&quot;, &quot;x104&quot;, &quot;x42001&quot;],
+                     convert_categoricals=False)
+summ = pd.read_stata(DATA / &quot;rscfp2022.dta&quot;, columns=[&quot;y1&quot;, &quot;networth&quot;, &quot;married&quot;], convert_categoricals=False)
+s = summ.merge(full, on=&quot;y1&quot;, validate=&quot;1:1&quot;)
+s = s[s.married.eq(1) &amp; s.x104.ge(15) &amp; s.x8022.ge(15) &amp; (s.x8021 != s.x103)].copy()
+s[&quot;IMP&quot;] = s.y1.astype(int) % 10; s[&quot;W&quot;] = s.x42001 / s.IMP.nunique()
+hm = s.x8021.eq(1).to_numpy()
+s[&quot;GAP&quot;] = np.where(hm, s.x8022 - s.x104, s.x104 - s.x8022)
+print(f&quot;SCF 2022: {len(s) // 5:,} opposite-sex married households x 5 implicates&quot;)
+for q, lab in CUTS:
+    ests, mgs, wvar, ns = [], [], [], []
+    for _, d in s.groupby(&quot;IMP&quot;):
+        v, w, g = d.networth.to_numpy(float), d.W.to_numpy(float), d.GAP.to_numpy(float)
+        m = v &gt;= (wq(v, w, q) if q &gt; 0 else -np.inf)
+        p = w[m][g[m] &gt;= 10].sum() / w[m].sum(); neff = w[m].sum() ** 2 / (w[m] ** 2).sum()
+        ests.append(100 * p); wvar.append(1e4 * p * (1 - p) / neff); mgs.append(np.average(g[m], weights=w[m]))
+        ns.append(int(m.sum()))
+    e = np.array(ests)
+    rows.append(dict(source=&quot;SCF 2022, household net worth&quot;, set=&quot;All married&quot;, band=lab, pct_10plus=e.mean(),
+                     se=np.sqrt(np.mean(wvar) + (1 + 1 / len(e)) * e.var(ddof=1)), mean_gap=np.mean(mgs),
+                     se_mean_gap=np.nan, n=int(np.mean(ns)),
+                     threshold=None if q == 0 else np.mean([wq(d.networth, d.W, q) for _, d in s.groupby(&quot;IMP&quot;)])))
+v, w, g = s.networth.to_numpy(float), s.W.to_numpy(float), s.GAP.to_numpy()
+t99 = np.mean([wq(d.networth, d.W, 0.99) for _, d in s.groupby(&quot;IMP&quot;)])
+for lab, m in [(&quot;Bottom 99%&quot;, v &lt; t99), (&quot;Top 1%&quot;, v &gt;= t99)]:
+    hrows += [dict(source=&quot;SCF 2022, household net worth&quot;, group=lab, gap=x, share=sh, n=n, n_group=int(m.sum()) // 5)
+              for x, sh, n in hist(g[m], w[m])]
+
+out = pd.DataFrame(rows)
+out.to_csv(HERE / &quot;rich_gap_bands.csv&quot;, index=False)
+pd.DataFrame(hrows).to_csv(HERE / &quot;rich_gap_hist.csv&quot;, index=False)
+print(out.round(2).to_string(index=False))
+</code></pre>
+<h3><code>rich_gap_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Chart: the husband-wife age gap for the top 1% by husband's income (ACS 2023) and household net worth (SCF 2022).
+
+Run after rich_gap_data.py (whose docstring is the full method):
+    uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/marriage_age_gap/rich_gap_chart.py
+
+A: distribution of the gap in marriages formed in the last 5 years, top-1% earning husbands vs the bottom 99% (ACS).
+B: the same for all married couples, top-1% net-worth households vs the bottom 99% (SCF; no marriage year in the
+   public SCF).
+C: share of couples with the husband 10+ years older, by nested income band, for all marriages, marriages from the
+   last 5 years, and those with husbands aged 28-45 (95% intervals from the ACS replicate weights).
+D: the same share by nested net-worth band, all marriages (rough 95% intervals, see the data script).
+Writes the raw PNG to Substack Notes/Unwatermarked graphs/Marriage/ and the watermarked copy to
+Substack Notes/Marriage/ (methods page pbmethods.github.io/rich-age-gap).
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+OUT_WM, OUT_RAW = NOTES / &quot;Marriage&quot;, NOTES / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot;
+NAME = &quot;rich_age_gap&quot;
+
+P = pb.apply()
+INK, INK2, MUTED, NAVY, RED = P[&quot;INK&quot;], P[&quot;INK2&quot;], P[&quot;MUTED&quot;], P[&quot;NAVY&quot;], P[&quot;RED&quot;]
+GRAY = pb.GRAYS[0]
+b = pd.read_csv(HERE / &quot;rich_gap_bands.csv&quot;)
+h = pd.read_csv(HERE / &quot;rich_gap_hist.csv&quot;)
+ACS, SCF = &quot;ACS 2023, husband's income&quot;, &quot;SCF 2022, household net worth&quot;
+BANDS = [&quot;all&quot;, &quot;top 50%&quot;, &quot;top 10%&quot;, &quot;top 5%&quot;, &quot;top 1%&quot;]
+BLAB = [&quot;Everyone&quot;, &quot;Top 50%&quot;, &quot;Top 10%&quot;, &quot;Top 5%&quot;, &quot;Top 1%&quot;]
+
+fig, axs = plt.subplots(2, 2, figsize=(16, 10.5), gridspec_kw=dict(hspace=0.42, wspace=0.14))
+
+
+def gap_hist(ax, src, letter, title, ymax):
+    d = h[h.source.eq(src)]
+    ax.axvspan(9.5, 25.6, color=P[&quot;MUTE&quot;], alpha=0.16, lw=0)
+    for grp, c, lw in [(&quot;Bottom 99%&quot;, NAVY, 1.8), (&quot;Top 1%&quot;, RED, 2.4)]:
+        g = d[d.group.eq(grp)].sort_values(&quot;gap&quot;)
+        ax.step(g.gap, g.share, where=&quot;mid&quot;, color=c, lw=lw)
+    ax.axvline(0, color=MUTED, lw=0.8, ls=&quot;:&quot;)
+    ax.set_xlim(-15.5, 25.5); ax.set_ylim(0, ymax)
+    ax.set_xticks([-15, -10, -5, 0, 5, 10, 15, 20, 25], [&quot;she 15+&quot;, &quot;-10&quot;, &quot;-5&quot;, &quot;same&quot;, &quot;+5&quot;, &quot;+10&quot;, &quot;+15&quot;, &quot;+20&quot;,
+                                                        &quot;he 25+&quot;])
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0%}&quot;))
+    ax.set_xlabel(&quot;husband's age minus wife's, years&quot;); ax.set_ylabel(&quot;share of couples&quot;)
+    ax.grid(axis=&quot;x&quot;, visible=False)
+    ax.set_title(f&quot;{letter}   {title}&quot;, loc=&quot;left&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK, pad=12)
+    return d
+
+
+def tenplus(src, set_, band):
+    return b[b.source.eq(src) &amp; b.set.eq(set_) &amp; b.band.eq(band)].iloc[0]
+
+
+d = gap_hist(axs[0, 0], ACS, &quot;A&quot;, &quot;Income: marriages from the last 5 years&quot;, 0.165)
+nA = d.groupby(&quot;group&quot;).n_group.first()
+r1, rall = tenplus(ACS, &quot;Married in the last 5 years&quot;, &quot;top 1%&quot;), tenplus(ACS, &quot;Married in the last 5 years&quot;, &quot;all&quot;)
+axs[0, 0].text(10.3, 0.125, f&quot;Husband 10+ years older:\ntop 1% {r1.pct_10plus:.0f}%, everyone {rall.pct_10plus:.0f}%&quot;,
+               fontsize=10, fontweight=&quot;bold&quot;, color=INK, va=&quot;top&quot;)
+axs[0, 0].plot([-14.8, -13.6], [0.139, 0.139], color=RED, lw=2.4)
+axs[0, 0].text(-13.2, 0.139, f&quot;top-1% earning husbands (n = {nA['Top 1%']:,})&quot;, fontsize=9.5, color=INK2,
+               va=&quot;center&quot;)
+axs[0, 0].plot([-14.8, -13.6], [0.128, 0.128], color=NAVY, lw=1.8)
+axs[0, 0].text(-13.2, 0.128, f&quot;bottom 99% (n = {nA['Bottom 99%']:,})&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
+
+d = gap_hist(axs[0, 1], SCF, &quot;B&quot;, &quot;Net worth: all marriages (the SCF has no marriage year)&quot;, 0.165)
+nB = d.groupby(&quot;group&quot;).n_group.first()
+s1, sall = tenplus(SCF, &quot;All married&quot;, &quot;top 1%&quot;), tenplus(SCF, &quot;All married&quot;, &quot;all&quot;)
+axs[0, 1].text(10.3, 0.125, f&quot;Husband 10+ years older:\ntop 1% {s1.pct_10plus:.0f}%, everyone {sall.pct_10plus:.1f}%&quot;,
+               fontsize=10, fontweight=&quot;bold&quot;, color=INK, va=&quot;top&quot;)
+axs[0, 1].plot([-14.8, -13.6], [0.139, 0.139], color=RED, lw=2.4)
+axs[0, 1].text(-13.2, 0.139, f&quot;top 1% net worth (n = {nB['Top 1%']:,} households)&quot;, fontsize=9.5, color=INK2,
+               va=&quot;center&quot;)
+axs[0, 1].plot([-14.8, -13.6], [0.128, 0.128], color=NAVY, lw=1.8)
+axs[0, 1].text(-13.2, 0.128, f&quot;bottom 99% (n = {nB['Bottom 99%']:,})&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
+
+# ---------------------------------------------------------------- C: income bands
+ax = axs[1, 0]
+SETS = [(&quot;All married&quot;, &quot;All marriages&quot;, NAVY), (&quot;Married in the last 5 years&quot;, &quot;Married in the last 5 years&quot;, RED),
+        (&quot;Last 5 years, husband 28-45&quot;, &quot;Last 5 years, husband 28-45&quot;, GRAY)]
+x = np.arange(len(BANDS)); wd = 0.27
+for i, (key, lab, c) in enumerate(SETS):
+    t = b[b.source.eq(ACS) &amp; b.set.eq(key)].set_index(&quot;band&quot;).reindex(BANDS)
+    pos = x + (i - 1) * wd
+    ax.bar(pos, t.pct_10plus, wd * 0.92, color=c)
+    ax.errorbar(pos, t.pct_10plus, yerr=1.96 * t.se, fmt=&quot;none&quot;, ecolor=INK2, elinewidth=0.9, capsize=2.5)
+    for p_, v_, e_ in zip(pos, t.pct_10plus, t.se):
+        ax.text(p_, v_ + 1.96 * e_ + 0.3, f&quot;{v_:.0f}&quot; if v_ &gt;= 9.95 else f&quot;{v_:.1f}&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;,
+                fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
+    ax.text(-0.45, 19.3 - 1.1 * i, &quot;■&quot;, color=c, fontsize=12, va=&quot;center&quot;)
+    ax.text(-0.25, 19.3 - 1.1 * i, lab, color=INK2, fontsize=9.8, va=&quot;center&quot;)
+ax.set_xticks(x, BLAB); ax.set_xlim(-0.55, 4.5); ax.set_ylim(0, 20)
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0f}%&quot;))
+ax.set_xlabel(&quot;husband's own income, nested bands (the top 1% is inside the top 5%)&quot;)
+ax.set_ylabel(&quot;husband 10+ years older&quot;); ax.grid(axis=&quot;x&quot;, visible=False)
+ax.set_title(&quot;C   Top earners' new marriages: twice the 10+ year gaps&quot;, loc=&quot;left&quot;, fontsize=11.5,
+             fontweight=&quot;bold&quot;, color=INK, pad=12)
+
+# ---------------------------------------------------------------- D: net-worth bands
+ax = axs[1, 1]
+t = b[b.source.eq(SCF)].set_index(&quot;band&quot;).reindex(BANDS)
+ax.bar(x, t.pct_10plus, 0.6, color=[NAVY] * 4 + [RED])
+ax.errorbar(x, t.pct_10plus, yerr=1.96 * t.se, fmt=&quot;none&quot;, ecolor=INK2, elinewidth=0.9, capsize=3)
+for p_, v_, e_ in zip(x, t.pct_10plus, t.se):
+    ax.text(p_ + 0.33, v_, f&quot;{v_:.1f}%&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
+ax.set_xticks(x, BLAB); ax.set_xlim(-0.55, 4.7); ax.set_ylim(0, 20)
+ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0f}%&quot;))
+ax.set_xlabel(&quot;household net worth, nested bands&quot;); ax.grid(axis=&quot;x&quot;, visible=False)
+ax.set_title(&quot;D   Net worth: only the top 1% stands out, with wide error bars&quot;, loc=&quot;left&quot;, fontsize=11.5,
+             fontweight=&quot;bold&quot;, color=INK, pad=12)
+
+fig.text(0.01, 0.975, f&quot;Among new marriages, top-1% earners are about twice as likely to be 10+ years older than &quot;
+         f&quot;their wife: {r1.pct_10plus:.0f}% vs {rall.pct_10plus:.0f}%&quot;, fontsize=17, fontweight=&quot;bold&quot;, color=INK,
+         ha=&quot;left&quot;, va=&quot;bottom&quot;)
+fig.text(0.01, 0.952, &quot;Husband's age minus wife's among US opposite-sex married couples, by the husband's income (ACS) &quot;
+         &quot;and the household's net worth (SCF). Across all marriages, the top 1% by income look like everyone else&quot;,
+         fontsize=11, color=INK2, ha=&quot;left&quot;, va=&quot;bottom&quot;)
+fig.text(0.01, 0.035,
+         &quot;Sources: A, C: ACS 2023 1-year PUMS; householder and opposite-sex spouse; husband's own total income &quot;
+         f&quot;(top 1%: ${tenplus(ACS, 'Married in the last 5 years', 'top 1%').threshold / 1e3:,.0f}k+ among recent &quot;
+         &quot;marriages, the husband's year of current marriage, which may be a remarriage); 95% intervals from the 80\n&quot;
+         &quot;replicate weights. B, D: Survey of Consumer Finances 2022, married opposite-sex couples, household net worth &quot;
+         f&quot;(top 1%: ${tenplus(SCF, 'All married', 'top 1%').threshold / 1e6:,.0f}M+), 5 implicates; 95% intervals &quot;
+         &quot;combine imputation and an approximate sampling variance, so treat them as rough. Bands\n&quot;
+         &quot;are percentiles within each group. Histograms pool gaps beyond -15 and +25 years; ages are whole years.&quot;,
+         fontsize=8.2, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.45)
+
+OUT_WM.mkdir(parents=True, exist_ok=True); OUT_RAW.mkdir(parents=True, exist_ok=True)
+raw, wm = OUT_RAW / f&quot;{NAME}.png&quot;, OUT_WM / f&quot;{NAME}_wm.png&quot;
+fig.savefig(raw, dpi=200, bbox_inches=&quot;tight&quot;, pad_inches=0.25)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)], check=True)
+print(&quot;wrote&quot;, wm)
+</code></pre>
+</main></body></html>

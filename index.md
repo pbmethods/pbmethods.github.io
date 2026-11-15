@@ -3,6 +3,7 @@
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
 - [The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more](sex-dynamics/) (2026-11-15)
+- [Do rich men marry much younger women? The husband-wife age gap by income and net worth](rich-age-gap/) (2026-11-15)
 - [The husband-wife age gap at marriage, US 1940-2024, by the wife's age at marriage](marriage-age-gap/) (2026-11-14)
 - [Obese, sedentary, bad diet, smoking: all-cause death-rate multipliers at ages 40+](lifestyle-risk/) (2026-11-11)
 - [US spam calls vs the world, and what share of your calls are spam](spam-calls/) (2026-11-11)
