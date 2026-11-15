@@ -852,24 +852,24 @@ def tenplus(src, set_, band):
 d = gap_hist(axs[0, 0], ACS, &quot;A&quot;, &quot;Income: marriages from the last 5 years&quot;, 0.165)
 nA = d.groupby(&quot;group&quot;).n_group.first()
 r1, rall = tenplus(ACS, &quot;Married in the last 5 years&quot;, &quot;top 1%&quot;), tenplus(ACS, &quot;Married in the last 5 years&quot;, &quot;all&quot;)
-axs[0, 0].text(10.3, 0.125, f&quot;Husband 10+ years older:\ntop 1% {r1.pct_10plus:.0f}%, everyone {rall.pct_10plus:.0f}%&quot;,
+axs[0, 0].text(10.3, 0.124, f&quot;Husband 10+ years older:\ntop 1% {r1.pct_10plus:.0f}%, everyone {rall.pct_10plus:.0f}%&quot;,
                fontsize=10, fontweight=&quot;bold&quot;, color=INK, va=&quot;top&quot;)
-axs[0, 0].plot([-14.8, -13.6], [0.139, 0.139], color=RED, lw=2.4)
-axs[0, 0].text(-13.2, 0.139, f&quot;top-1% earning husbands (n = {nA['Top 1%']:,})&quot;, fontsize=9.5, color=INK2,
+axs[0, 0].plot([10.3, 11.5], [0.152, 0.152], color=RED, lw=2.4)
+axs[0, 0].text(11.9, 0.152, f&quot;top-1% earning husbands (n = {nA['Top 1%']:,})&quot;, fontsize=9.5, color=INK2,
                va=&quot;center&quot;)
-axs[0, 0].plot([-14.8, -13.6], [0.128, 0.128], color=NAVY, lw=1.8)
-axs[0, 0].text(-13.2, 0.128, f&quot;bottom 99% (n = {nA['Bottom 99%']:,})&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
+axs[0, 0].plot([10.3, 11.5], [0.141, 0.141], color=NAVY, lw=1.8)
+axs[0, 0].text(11.9, 0.141, f&quot;bottom 99% (n = {nA['Bottom 99%']:,})&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
 
 d = gap_hist(axs[0, 1], SCF, &quot;B&quot;, &quot;Net worth: all marriages (the SCF has no marriage year)&quot;, 0.165)
 nB = d.groupby(&quot;group&quot;).n_group.first()
 s1, sall = tenplus(SCF, &quot;All married&quot;, &quot;top 1%&quot;), tenplus(SCF, &quot;All married&quot;, &quot;all&quot;)
-axs[0, 1].text(10.3, 0.125, f&quot;Husband 10+ years older:\ntop 1% {s1.pct_10plus:.0f}%, everyone {sall.pct_10plus:.1f}%&quot;,
+axs[0, 1].text(10.3, 0.124, f&quot;Husband 10+ years older:\ntop 1% {s1.pct_10plus:.0f}%, everyone {sall.pct_10plus:.1f}%&quot;,
                fontsize=10, fontweight=&quot;bold&quot;, color=INK, va=&quot;top&quot;)
-axs[0, 1].plot([-14.8, -13.6], [0.139, 0.139], color=RED, lw=2.4)
-axs[0, 1].text(-13.2, 0.139, f&quot;top 1% net worth (n = {nB['Top 1%']:,} households)&quot;, fontsize=9.5, color=INK2,
+axs[0, 1].plot([10.3, 11.5], [0.152, 0.152], color=RED, lw=2.4)
+axs[0, 1].text(11.9, 0.152, f&quot;top 1% net worth (n = {nB['Top 1%']:,} households)&quot;, fontsize=9.5, color=INK2,
                va=&quot;center&quot;)
-axs[0, 1].plot([-14.8, -13.6], [0.128, 0.128], color=NAVY, lw=1.8)
-axs[0, 1].text(-13.2, 0.128, f&quot;bottom 99% (n = {nB['Bottom 99%']:,})&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
+axs[0, 1].plot([10.3, 11.5], [0.141, 0.141], color=NAVY, lw=1.8)
+axs[0, 1].text(11.9, 0.141, f&quot;bottom 99% (n = {nB['Bottom 99%']:,})&quot;, fontsize=9.5, color=INK2, va=&quot;center&quot;)
 
 # ---------------------------------------------------------------- C: income bands
 ax = axs[1, 0]
@@ -882,11 +882,11 @@ for i, (key, lab, c) in enumerate(SETS):
     ax.bar(pos, t.pct_10plus, wd * 0.92, color=c)
     ax.errorbar(pos, t.pct_10plus, yerr=1.96 * t.se, fmt=&quot;none&quot;, ecolor=INK2, elinewidth=0.9, capsize=2.5)
     for p_, v_, e_ in zip(pos, t.pct_10plus, t.se):
-        ax.text(p_, v_ + 1.96 * e_ + 0.3, f&quot;{v_:.0f}&quot; if v_ &gt;= 9.95 else f&quot;{v_:.1f}&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;,
+        ax.text(p_, v_ + 1.96 * e_ + 0.3, f&quot;{v_:.1f}&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;,
                 fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
     ax.text(-0.45, 19.3 - 1.1 * i, &quot;■&quot;, color=c, fontsize=12, va=&quot;center&quot;)
     ax.text(-0.25, 19.3 - 1.1 * i, lab, color=INK2, fontsize=9.8, va=&quot;center&quot;)
-ax.set_xticks(x, BLAB); ax.set_xlim(-0.55, 4.5); ax.set_ylim(0, 20)
+ax.set_xticks(x, BLAB); ax.set_xlim(-0.55, 4.5); ax.set_ylim(0, 20); ax.set_yticks([0, 4, 8, 12, 16, 20])
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0f}%&quot;))
 ax.set_xlabel(&quot;husband's own income, nested bands (the top 1% is inside the top 5%)&quot;)
 ax.set_ylabel(&quot;husband 10+ years older&quot;); ax.grid(axis=&quot;x&quot;, visible=False)
@@ -900,7 +900,7 @@ ax.bar(x, t.pct_10plus, 0.6, color=[NAVY] * 4 + [RED])
 ax.errorbar(x, t.pct_10plus, yerr=1.96 * t.se, fmt=&quot;none&quot;, ecolor=INK2, elinewidth=0.9, capsize=3)
 for p_, v_, e_ in zip(x, t.pct_10plus, t.se):
     ax.text(p_ + 0.33, v_, f&quot;{v_:.1f}%&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
-ax.set_xticks(x, BLAB); ax.set_xlim(-0.55, 4.7); ax.set_ylim(0, 20)
+ax.set_xticks(x, BLAB); ax.set_xlim(-0.55, 4.7); ax.set_ylim(0, 20); ax.set_yticks([0, 4, 8, 12, 16, 20])
 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f&quot;{v:.0f}%&quot;))
 ax.set_xlabel(&quot;household net worth, nested bands&quot;); ax.grid(axis=&quot;x&quot;, visible=False)
 ax.set_title(&quot;D   Net worth: only the top 1% stands out, with wide error bars&quot;, loc=&quot;left&quot;, fontsize=11.5,
