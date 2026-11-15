@@ -162,6 +162,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   equally rich men below 30 partners; B with all men at 30+ regardless of income. 2010+ alone has only 36 such men,
   with the same pattern (cheaters 27% vs 14%, never married 6%, faithful never divorced 53%).
 
+* **Orgasm by couple type** (the orgasm chart): not our microdata. Values are printed in Frederick, St. John, Garcia
+  & Lloyd (2018), "Differences in orgasm frequency among gay, lesbian, bisexual, and heterosexual men and women in a
+  U.S. national sample", Archives of Sexual Behavior 47, 273-288: an online sample (NBCNews.com / ELLE) of 52,588
+  adults 18-65 in relationships, not a probability sample. Own orgasm frequency when sexually intimate in the past
+  month (never / rarely / half the time / usually / always; Figure 1), and how often the respondent's partner
+  orgasmed (results text). Unadjusted shares; the paper's regressions find age and relationship length matter
+  little for women (betas .03-.08). Usually + always from the stacked figure can differ by 1 point from the text
+  through rounding; the text values are labelled.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -659,6 +668,15 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 | faithful, divorced | 30.000 | 0.011 | 21 | 0.220 | 109 | 0.139 | 284 | 0.216 |
 | faithful, never divorced | 30.000 | 0.011 | 39 | 0.349 | 396 | 0.624 | 210 | 0.189 |
 
+### `frederick_orgasm.csv`
+
+| group | n | never | rarely | half | usually | always | usually_always_text | partner_usually_always | source |
+|---|---|---|---|---|---|---|---|---|---|
+| heterosexual women | 24102 | 8 | 10 | 17 | 32 | 33 | 65 | 95 | Frederick et al. 2018, Arch Sex Behav, Figure 1 and results |
+| lesbian women | 340 | 3 | 3 | 8 | 27 | 59 | 86 | 87 | Frederick et al. 2018, Arch Sex Behav, Figure 1 and results |
+| gay men | 452 | 2 | 3 | 6 | 23 | 66 | 89 | 89 | Frederick et al. 2018, Arch Sex Behav, Figure 1 and results |
+| heterosexual men | 26032 | 1 | 1 | 3 | 20 | 75 | 95 | 73 | Frederick et al. 2018, Arch Sex Behav, Figure 1 and results |
+
 ## Notes and caveats
 
 ## Caveats
@@ -970,6 +988,15 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   currently divorced or `divorce` = 1); reformed rake (faithful, never divorced). A compares their mix with
   equally rich men below 30 partners; B with all men at 30+ regardless of income. 2010+ alone has only 36 such men,
   with the same pattern (cheaters 27% vs 14%, never married 6%, faithful never divorced 53%).
+
+* **Orgasm by couple type** (the orgasm chart): not our microdata. Values are printed in Frederick, St. John, Garcia
+  & Lloyd (2018), "Differences in orgasm frequency among gay, lesbian, bisexual, and heterosexual men and women in a
+  U.S. national sample", Archives of Sexual Behavior 47, 273-288: an online sample (NBCNews.com / ELLE) of 52,588
+  adults 18-65 in relationships, not a probability sample. Own orgasm frequency when sexually intimate in the past
+  month (never / rarely / half the time / usually / always; Figure 1), and how often the respondent's partner
+  orgasmed (results text). Unadjusted shares; the paper's regressions find age and relationship length matter
+  little for women (betas .03-.08). Usually + always from the stacked figure can differ by 1 point from the text
+  through rounding; the text values are labelled.
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -1550,6 +1577,19 @@ pd.DataFrame({"agreement": [-3, -2, -1, 0, 1, 2, 3], "pct": sat / sat.sum() * 10
     source="Aella relationships survey, straight non-poly men 12+ yrs, n=3,720 (digitised)").to_csv(
     HERE / "aella_satisfaction_digitised.csv", index=False)
 print("digitised CSVs written")
+
+# Frederick, St. John, Garcia & Lloyd (2018, Arch Sex Behav 47:273-288), US online sample of 52,588 adults 18-65
+# in relationships. Own orgasm frequency "when sexually intimate" in the past month (their Figure 1, printed values,
+# % of each group), and the share saying their partner usually-always orgasmed (results text).
+pd.DataFrame({
+    "group": ["heterosexual women", "lesbian women", "gay men", "heterosexual men"],
+    "n": [24102, 340, 452, 26032],
+    "never": [8, 3, 2, 1], "rarely": [10, 3, 3, 1], "half": [17, 8, 6, 3], "usually": [32, 27, 23, 20],
+    "always": [33, 59, 66, 75],
+    "usually_always_text": [65, 86, 89, 95],
+    "partner_usually_always": [95, 87, 89, 73],
+}).assign(source="Frederick et al. 2018, Arch Sex Behav, Figure 1 and results").to_csv(
+    HERE / "frederick_orgasm.csv", index=False)
 ```
 
 ### `master_post_charts.py`
@@ -2360,4 +2400,57 @@ footnote(fig, f"GSS 1989-2024, men 25-65, weighted. {cut:.0f}+ partners = top 10
               "men, never married 6%,\nfaithful and never divorced 53%). Fidelity is self-reported, so cheating is "
               "probably undercounted.", y=0.0)
 save(fig, "top_decile_archetypes")
+
+
+# =============================================================== 13. orgasm by couple type (Frederick et al. 2018)
+fo = read("frederick_orgasm.csv")
+LABO = {"heterosexual women": "Women with men", "lesbian women": "Women with women", "gay men": "Men with men",
+        "heterosexual men": "Men with women"}
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(15, 5.4), gridspec_kw=dict(width_ratios=[1.6, 1], wspace=0.28))
+y = np.arange(len(fo))[::-1]
+SEG = [("never", "never", pb.GRAYS[2]), ("rarely", "rarely", pb.GRAYS[1]), ("half", "half the time", pb.GRAYS[0]),
+       ("usually", "usually", "#8fa9cf"), ("always", "always", NAVY)]
+for yi, r in zip(y, fo.itertuples()):
+    left = 0
+    for col, _, c in SEG:
+        v = getattr(r, col)
+        ax.barh(yi, v, left=left, height=0.62, color=c, edgecolor=P["SURFACE"], lw=0.8)
+        if v >= 6:
+            ax.text(left + v / 2, yi, f"{v}", ha="center", va="center", fontsize=9.5, color="white",
+                    fontweight="bold" if col == "always" else "normal")
+        left += v
+    ax.text(101.5, yi, f"{r.usually_always_text}%", va="center", fontsize=12, fontweight="bold",
+            color=RED if r.group == "heterosexual women" else INK)
+ax.text(101.5, y[0] + 0.55, "usually or\nalways", fontsize=9, color=INK2, va="bottom")
+ax.set_yticks(y, [f"{LABO[g]}\n(n = {n:,})" for g, n in zip(fo.group, fo.n)], fontsize=10)
+ax.set_xlim(0, 112); ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
+ax.grid(axis="y", visible=False)
+x0 = 0
+for col, lab, c in SEG:
+    ax.text(x0, y[0] + 0.5, "■ " + lab, color=c, fontsize=9, fontweight="bold", va="bottom")
+    x0 += 13 if col != "half" else 19
+ax.set_xlabel("how often you orgasm when sexually intimate (past month, % of group)")
+panel_title(ax, "A", "Own orgasm: women with men are the outlier")
+
+x = np.arange(len(fo))
+bx.bar(x, fo.partner_usually_always, width=0.6, color=[RED if g == "heterosexual men" else GRAY for g in fo.group])
+for xi, v in zip(x, fo.partner_usually_always):
+    bx.text(xi, v + 1.5, f"{v}%", ha="center", fontsize=11, fontweight="bold", color=INK)
+PLAB = {"heterosexual women": "Women\nabout men", "lesbian women": "Women\nabout women",
+        "gay men": "Men\nabout men", "heterosexual men": "Men\nabout women"}
+bx.set_xticks(x, [PLAB[g] for g in fo.group], fontsize=9.5)
+bx.set_ylim(0, 105); bx.yaxis.set_major_formatter(ppt)
+bx.set_ylabel("say their partner usually or always orgasms")
+panel_title(bx, "B", "Partners' reports tell the same story")
+
+header(fig, "Women orgasm far less often with men: 65% usually do, vs 86% with women",
+       "Own orgasm frequency when sexually intimate in the past month (A), and how often people say their partner "
+       "orgasms (B). US adults 18-65 in relationships, Frederick et al. (2018)", y=0.92)
+footnote(fig, "Source: Frederick, St. John, Garcia & Lloyd (2018), 'Differences in orgasm frequency among gay, lesbian, "
+              "bisexual, and heterosexual men and women in a U.S. national sample', Archives of Sexual Behavior 47:273-288. "
+              "Online\nsample (NBCNews.com), not a probability survey; 52,588 adults 18-65. Values as printed in the paper "
+              "(A: its Figure 1; usually-or-always totals from its text). Groups by self-identified orientation, so "
+              "'women with men' are\nheterosexual women, etc. Shares are of people, not of encounters: 65% of "
+              "heterosexual women usually or always orgasm; the paper does not measure the share of encounters.", y=0.0)
+save(fig, "orgasm_by_couple_type")
 ```
