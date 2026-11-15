@@ -184,6 +184,20 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   BMI has no effect for women (it does for men). Frederick has no BMI; its lesbian women are older (36.5 vs 33.8),
   and older women orgasm slightly more there, so an age correction would lower their 86% slightly, if anything.
 
+* **What drives women's orgasm trouble** (the drivers chart): Natsal-3 women sexually active in the past year.
+  Outcome: no orgasm or a long time to orgasm despite arousal for 3+ months in the past year (nolgorg3m). A: one
+  weighted logit with all factors together (partner-fit items sfrlikes2, sfrpdf2, sfrint2, sfrem2; health condition
+  affecting sex, hafsex; depression = diagnosed (medwchd3) or on antidepressants (drgdep); diabetes medication;
+  non-volitional sex (viosuc2); relationship happiness; living together; obesity; age and age^2), among women answering
+  the partner items (in a relationship, n = 4,050). B: weighted shares by WHO BMI class, plus the share of 25-64s with
+  no sex in the past year (who are not asked the problem items). Obesity ORs are age-adjusted.
+
+* **How long sex lasts** (the duration chart): published values. A: Blair & Pukall (2014) Figure 4, average
+  encounter length by relationship type, digitised from the printed bars. B: point and range estimates, minutes:
+  Waldinger et al. (2005) stopwatch IELT median; Richters et al. (2006), the IPG female sexuality survey, Miller &
+  Byers (2004), Nagao et al. (2014) and Cohen & Byers (2014) as reported in Blair & Pukall's literature review;
+  Blair & Pukall medians are the duration band holding each group's 50th percentile.
+
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
   valid count, men and women together); each top group's share of the summed volume, its mean, and the overall
@@ -1104,6 +1118,20 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   and with age, age^2 and self-reported BMI (14-70) or obesity; the coefficient barely moves (-0.55 to -0.57) and
   BMI has no effect for women (it does for men). Frederick has no BMI; its lesbian women are older (36.5 vs 33.8),
   and older women orgasm slightly more there, so an age correction would lower their 86% slightly, if anything.
+
+* **What drives women's orgasm trouble** (the drivers chart): Natsal-3 women sexually active in the past year.
+  Outcome: no orgasm or a long time to orgasm despite arousal for 3+ months in the past year (nolgorg3m). A: one
+  weighted logit with all factors together (partner-fit items sfrlikes2, sfrpdf2, sfrint2, sfrem2; health condition
+  affecting sex, hafsex; depression = diagnosed (medwchd3) or on antidepressants (drgdep); diabetes medication;
+  non-volitional sex (viosuc2); relationship happiness; living together; obesity; age and age^2), among women answering
+  the partner items (in a relationship, n = 4,050). B: weighted shares by WHO BMI class, plus the share of 25-64s with
+  no sex in the past year (who are not asked the problem items). Obesity ORs are age-adjusted.
+
+* **How long sex lasts** (the duration chart): published values. A: Blair & Pukall (2014) Figure 4, average
+  encounter length by relationship type, digitised from the printed bars. B: point and range estimates, minutes:
+  Waldinger et al. (2005) stopwatch IELT median; Richters et al. (2006), the IPG female sexuality survey, Miller &
+  Byers (2004), Nagao et al. (2014) and Cohen & Byers (2014) as reported in Blair & Pukall's literature review;
+  Blair & Pukall medians are the duration band holding each group's 50th percentile.
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -2822,7 +2850,7 @@ for kind in ["ff", "mf", "ielt"]:
             bx.plot([r.lo, r.hi], [yy, yy], color=c, lw=7, solid_capstyle="butt", alpha=0.9)
             txt = f"{r.lo:g}-{r.hi:g}"
         bx.text(max(r.hi, r.lo) + 1.6, yy, txt, va="center", fontsize=9.5, fontweight="bold", color=INK)
-        bx.text(max(r.hi, r.lo) + 1.6 + 1.15 * len(txt) + 1.5, yy, r.label, va="center", fontsize=9.2, color=INK2)
+        bx.text(max(r.hi, r.lo) + 1.6 + 1.5 * len(txt) + 1.5, yy, r.label, va="center", fontsize=9.2, color=INK2)
         yy += 1
     bx.text(0.5, yy - 0.15, head, fontsize=10, fontweight="bold", color=c if kind != "ielt" else INK2, ha="left")
     yy += 1.1
