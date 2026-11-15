@@ -6698,10 +6698,10 @@ yv = np.arange(len(oc))[::-1]
 COLS = {&quot;Women, sex with a man&quot;: RED, &quot;Multi-orgasmic women, typical session&quot;: NAVY}
 for yi, r in zip(yv, oc.itertuples()):
     if r.kind == &quot;ceiling&quot;:
-        ax.barh(yi, r.value, left=0.1, height=0.58, color=&quot;none&quot;, edgecolor=MUTED, hatch=&quot;///&quot;, lw=1.0)
+        ax.barh(yi, r.value - 0.1, left=0.1, height=0.58, color=&quot;none&quot;, edgecolor=MUTED, hatch=&quot;///&quot;, lw=1.0)
         txt = f&quot;up to {r.value:.0f} (claimed, not a measured average)&quot;
     else:
-        ax.barh(yi, r.value, left=0.1, height=0.58, color=COLS.get(r.item, MUTE))
+        ax.barh(yi, r.value - 0.1, left=0.1, height=0.58, color=COLS.get(r.item, MUTE))
         txt = f&quot;{r.value:.2f}&quot; if r.value &lt; 1 else f&quot;about {r.value:.0f}&quot;
     ax.text(r.value * 1.12, yi, txt, va=&quot;center&quot;, fontsize=12.5 if r.kind != &quot;ceiling&quot; else 11,
             fontweight=&quot;bold&quot;, color=INK)
