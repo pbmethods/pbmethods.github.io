@@ -2777,7 +2777,7 @@ save(fig, "orgasm_trouble_drivers")
 # =============================================================== 15. how long sex lasts, by couple type
 bd = read("blair2014_duration.csv")
 st = read("sex_duration_studies.csv")
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(16.5, 6.4), gridspec_kw=dict(width_ratios=[1, 1.05], wspace=0.62))
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(16.5, 6.4), gridspec_kw=dict(width_ratios=[1, 1.15], wspace=0.22))
 BANDS = [("lt10", "<10 min", pb.GRAYS[2]), ("m10_15", "10-15", pb.GRAYS[1]), ("m15_30", "15-30", pb.GRAYS[0]),
          ("m30_45", "30-45", "#8fa9cf"), ("m45_60", "45-60", "#4a6ea3"), ("h1_2", "1-2 h", NAVY),
          ("h2plus", "2 h+", INK)]
@@ -2803,7 +2803,7 @@ x0 = 0
 for col, lab, c in BANDS:
     ax.text(x0, y[0] + 0.45, "■", color=c, fontsize=11, va="bottom")
     ax.text(x0 + 3.2, y[0] + 0.46, lab, color=INK2, fontsize=9, va="bottom")
-    x0 += 13.6 if col != "lt10" else 16
+    x0 += 12.3 if col != "lt10" else 14.5
 ax.set_ylim(-0.55, y[0] + 1.0)
 ax.set_xlabel("how long the average sexual encounter lasts (% of group)")
 panel_title(ax, "A", "Lesbian couples' encounters run longest")
@@ -2822,12 +2822,12 @@ for kind in ["ff", "mf", "ielt"]:
             bx.plot([r.lo, r.hi], [yy, yy], color=c, lw=7, solid_capstyle="butt", alpha=0.9)
             txt = f"{r.lo:g}-{r.hi:g}"
         bx.text(max(r.hi, r.lo) + 1.6, yy, txt, va="center", fontsize=9.5, fontweight="bold", color=INK)
-        ticks.append(yy); labs.append(r.label); yy += 1
-    bx.text(-0.5, yy - 0.1, head, fontsize=10, fontweight="bold", color=c if kind != "ielt" else INK2,
-            transform=bx.get_yaxis_transform(), ha="left")
+        bx.text(max(r.hi, r.lo) + 1.6 + 1.15 * len(txt) + 1.5, yy, r.label, va="center", fontsize=9.2, color=INK2)
+        yy += 1
+    bx.text(0.5, yy - 0.15, head, fontsize=10, fontweight="bold", color=c if kind != "ielt" else INK2, ha="left")
     yy += 1.1
-bx.set_yticks(ticks, labs, fontsize=9.3)
-bx.set_xlim(0, 68); bx.set_xticks([0, 10, 20, 30, 40, 50, 60])
+bx.set_yticks([])
+bx.set_xlim(0, 112); bx.set_xticks([0, 10, 20, 30, 40, 50, 60])
 bx.set_ylim(-0.7, yy - 0.5); bx.grid(axis="y", visible=False)
 bx.set_xlabel("minutes")
 panel_title(bx, "B", "Every study agrees: about twice as long")
