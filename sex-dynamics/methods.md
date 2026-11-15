@@ -2423,18 +2423,18 @@ for yi, r in zip(y, fo.itertuples()):
         left += v
     ax.text(101.5, yi, f"{r.usually_always_text}%", va="center", fontsize=12, fontweight="bold",
             color=RED if r.group == "heterosexual women" else INK)
-ax.text(101.5, y[0] + 0.42, "usually or\nalways", fontsize=9, color=INK2, va="bottom")
+ax.text(101.5, y[0] + 0.5, "usually or\nalways", fontsize=9, color=INK2, va="bottom")
 ax.set_yticks(y, [f"{LABO[g]}\n(n = {n:,})" for g, n in zip(fo.group, fo.n)], fontsize=10)
 ax.set_xlim(0, 112); ax.set_xticks([0, 25, 50, 75, 100], ["0%", "25%", "50%", "75%", "100%"])
 ax.grid(axis="y", visible=False)
 x0 = 0
 for col, lab, c in SEG:
-    ax.text(x0, y[0] + 0.42, "■", color=c, fontsize=11, va="bottom")
-    ax.text(x0 + 2.6, y[0] + 0.43, lab, color=INK2, fontsize=9, va="bottom")
+    ax.text(x0, y[0] + 0.5, "■", color=c, fontsize=11, va="bottom")
+    ax.text(x0 + 2.6, y[0] + 0.51, lab, color=INK2, fontsize=9, va="bottom")
     x0 += 13 if col != "half" else 19
 ax.set_xlabel("how often you orgasm when sexually intimate (past month, % of group)")
 panel_title(ax, "A", "Own orgasm: women with men are the outlier")
-ax.set_title(ax.get_title(loc="left"), loc="left", fontsize=11.5, fontweight="bold", color=INK, pad=30)
+ax.set_ylim(-0.5, y[0] + 1.05)
 
 x = np.arange(len(fo))
 bx.bar(x, fo.partner_usually_always, width=0.6, color=[RED if g == "heterosexual men" else GRAY for g in fo.group])

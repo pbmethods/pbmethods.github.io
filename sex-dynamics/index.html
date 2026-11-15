@@ -5321,18 +5321,18 @@ for yi, r in zip(y, fo.itertuples()):
         left += v
     ax.text(101.5, yi, f&quot;{r.usually_always_text}%&quot;, va=&quot;center&quot;, fontsize=12, fontweight=&quot;bold&quot;,
             color=RED if r.group == &quot;heterosexual women&quot; else INK)
-ax.text(101.5, y[0] + 0.42, &quot;usually or\nalways&quot;, fontsize=9, color=INK2, va=&quot;bottom&quot;)
+ax.text(101.5, y[0] + 0.5, &quot;usually or\nalways&quot;, fontsize=9, color=INK2, va=&quot;bottom&quot;)
 ax.set_yticks(y, [f&quot;{LABO[g]}\n(n = {n:,})&quot; for g, n in zip(fo.group, fo.n)], fontsize=10)
 ax.set_xlim(0, 112); ax.set_xticks([0, 25, 50, 75, 100], [&quot;0%&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%&quot;])
 ax.grid(axis=&quot;y&quot;, visible=False)
 x0 = 0
 for col, lab, c in SEG:
-    ax.text(x0, y[0] + 0.42, &quot;■&quot;, color=c, fontsize=11, va=&quot;bottom&quot;)
-    ax.text(x0 + 2.6, y[0] + 0.43, lab, color=INK2, fontsize=9, va=&quot;bottom&quot;)
+    ax.text(x0, y[0] + 0.5, &quot;■&quot;, color=c, fontsize=11, va=&quot;bottom&quot;)
+    ax.text(x0 + 2.6, y[0] + 0.51, lab, color=INK2, fontsize=9, va=&quot;bottom&quot;)
     x0 += 13 if col != &quot;half&quot; else 19
 ax.set_xlabel(&quot;how often you orgasm when sexually intimate (past month, % of group)&quot;)
 panel_title(ax, &quot;A&quot;, &quot;Own orgasm: women with men are the outlier&quot;)
-ax.set_title(ax.get_title(loc=&quot;left&quot;), loc=&quot;left&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK, pad=30)
+ax.set_ylim(-0.5, y[0] + 1.05)
 
 x = np.arange(len(fo))
 bx.bar(x, fo.partner_usually_always, width=0.6, color=[RED if g == &quot;heterosexual men&quot; else GRAY for g in fo.group])
