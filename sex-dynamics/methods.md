@@ -2933,12 +2933,12 @@ for kind, c, head in GROUPS:
         ax.text(x, r.hi + 1.5, txt, ha="center", va="bottom", fontsize=12, fontweight="bold", color=INK)
         ticks.append(x); labs.append(SHORT[next(k for k in SHORT if r.label.startswith(k))])
         x += 1
-    ax.text((x0 + x - 1) / 2, 72, head, ha="center", va="bottom", fontsize=11, fontweight="bold",
+    ax.text((x0 + x - 1) / 2, 67.5, head, ha="center", va="bottom", fontsize=11, fontweight="bold",
             color=INK if kind != "ielt" else INK2, linespacing=1.2)
     x += 0.6
 ax.set_xticks(ticks, labs, fontsize=9.2, color=INK2, linespacing=1.15)
 ax.tick_params(axis="x", length=0)
-ax.set_xlim(-0.7, x - 0.9); ax.set_ylim(0, 80); ax.set_yticks([0, 10, 20, 30, 40, 50, 60])
+ax.set_xlim(-0.7, x - 0.9); ax.set_ylim(0, 74); ax.set_yticks([0, 10, 20, 30, 40, 50, 60])
 ax.set_ylabel("minutes"); ax.grid(axis="x", visible=False)
 header(fig, "Sex between women lasts about twice as long: 30-60 minutes, against 15-30 for a man and a woman",
        "Estimates of how long sex lasts, across studies. Bars are the reported value, or the middle of a reported "
