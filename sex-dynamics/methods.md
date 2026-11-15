@@ -2430,11 +2430,11 @@ ax.grid(axis="y", visible=False)
 x0 = 0
 for col, lab, c in SEG:
     ax.text(x0, y[0] + 0.42, "■", color=c, fontsize=11, va="bottom")
-    ax.text(x0 + 2.2, y[0] + 0.42, lab, color=INK2, fontsize=9, va="bottom")
+    ax.text(x0 + 2.6, y[0] + 0.43, lab, color=INK2, fontsize=9, va="bottom")
     x0 += 13 if col != "half" else 19
 ax.set_xlabel("how often you orgasm when sexually intimate (past month, % of group)")
 panel_title(ax, "A", "Own orgasm: women with men are the outlier")
-ax.title.set_y(1.07)
+ax.set_title(ax.get_title(loc="left"), loc="left", fontsize=11.5, fontweight="bold", color=INK, pad=30)
 
 x = np.arange(len(fo))
 bx.bar(x, fo.partner_usually_always, width=0.6, color=[RED if g == "heterosexual men" else GRAY for g in fo.group])
