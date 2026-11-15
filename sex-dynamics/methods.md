@@ -171,7 +171,14 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   month (never / rarely / half the time / usually / always; Figure 1), and how often the respondent's partner
   orgasmed (results text). Unadjusted shares; the paper's regressions find age and relationship length matter
   little for women (betas .03-.08). Usually + always from the stacked figure can differ by 1 point from the text
-  through rounding; the text values are labelled.
+  through rounding; the text values are labelled. Triangulation: Garcia, Lloyd, Wallen & Fisher (2014, J Sex Med
+  11:2645-52; 6,151 US singles, mean % of the time they orgasm with a familiar partner: heterosexual women 61.6,
+  lesbian women 74.7, gay men 84.7, heterosexual men 85.5), and Natsal-3 microdata: share with no orgasm or a long
+  time to orgasm despite arousal for 3+ months in the past year (nolgorg3m), by sex of most recent partner (r1sex),
+  weighted. Age/BMI correction for lesbian women: Natsal-3 logit of that outcome on a same-sex-partner dummy, raw
+  and with age, age^2 and self-reported BMI (14-70) or obesity; the coefficient barely moves (-0.55 to -0.57) and
+  BMI has no effect for women (it does for men). Frederick has no BMI; its lesbian women are older (36.5 vs 33.8),
+  and older women orgasm slightly more there, so an age correction would lower their 86% slightly, if anything.
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -679,6 +686,32 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 | gay men | 452 | 2 | 3 | 6 | 23 | 66 | 89 | 89 | Frederick et al. 2018, Arch Sex Behav, Figure 1 and results |
 | heterosexual men | 26032 | 1 | 1 | 3 | 20 | 75 | 95 | 73 | Frederick et al. 2018, Arch Sex Behav, Figure 1 and results |
 
+### `natsal_orgasm_trouble.csv`
+
+| group | n | orgasm_trouble | mean_age | mean_bmi | obese | coef | lo | hi | p | coef_bmi | p_bmi | coef_obese | p_obese |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| heterosexual men | 4705.000 | 0.091 | 41.530 | 26.404 | 0.180 |  |  |  |  |  |  |  |  |
+| gay men | 135.000 | 0.137 | 39.454 | 25.343 | 0.195 |  |  |  |  |  |  |  |  |
+| heterosexual women | 6545.000 | 0.164 | 40.708 | 25.735 | 0.183 |  |  |  |  |  |  |  |  |
+| lesbian women | 124.000 | 0.106 | 37.652 | 26.274 | 0.205 |  |  |  |  |  |  |  |  |
+| logit same-sex partner, women: raw |  |  |  |  |  | -0.550 | -1.216 | 0.115 | 0.105 |  |  |  |  |
+| logit same-sex partner, women: age |  |  |  |  |  | -0.573 | -1.238 | 0.093 | 0.092 |  |  |  |  |
+| logit same-sex partner, women: age_bmi |  |  |  |  |  | -0.567 | -1.232 | 0.099 | 0.095 | -0.008 | 0.255 |  |  |
+| logit same-sex partner, women: age_obese |  |  |  |  |  | -0.570 | -1.235 | 0.096 | 0.093 |  |  | -0.099 | 0.312 |
+| logit same-sex partner, men: raw |  |  |  |  |  | 0.536 | 0.032 | 1.041 | 0.037 |  |  |  |  |
+| logit same-sex partner, men: age |  |  |  |  |  | 0.536 | 0.031 | 1.042 | 0.037 |  |  |  |  |
+| logit same-sex partner, men: age_bmi |  |  |  |  |  | 0.561 | 0.055 | 1.067 | 0.030 | 0.027 | 0.008 |  |  |
+| logit same-sex partner, men: age_obese |  |  |  |  |  | 0.530 | 0.025 | 1.036 | 0.040 |  |  | 0.323 | 0.004 |
+
+### `garcia2014_orgasm.csv`
+
+| group | pct_of_time | source |
+|---|---|---|
+| heterosexual women | 61.600 | Garcia et al. 2014, J Sex Med, abstract |
+| lesbian women | 74.700 | Garcia et al. 2014, J Sex Med, abstract |
+| gay men | 84.700 | Garcia et al. 2014, J Sex Med, abstract |
+| heterosexual men | 85.500 | Garcia et al. 2014, J Sex Med, abstract |
+
 ## Notes and caveats
 
 ## Caveats
@@ -998,7 +1031,14 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   month (never / rarely / half the time / usually / always; Figure 1), and how often the respondent's partner
   orgasmed (results text). Unadjusted shares; the paper's regressions find age and relationship length matter
   little for women (betas .03-.08). Usually + always from the stacked figure can differ by 1 point from the text
-  through rounding; the text values are labelled.
+  through rounding; the text values are labelled. Triangulation: Garcia, Lloyd, Wallen & Fisher (2014, J Sex Med
+  11:2645-52; 6,151 US singles, mean % of the time they orgasm with a familiar partner: heterosexual women 61.6,
+  lesbian women 74.7, gay men 84.7, heterosexual men 85.5), and Natsal-3 microdata: share with no orgasm or a long
+  time to orgasm despite arousal for 3+ months in the past year (nolgorg3m), by sex of most recent partner (r1sex),
+  weighted. Age/BMI correction for lesbian women: Natsal-3 logit of that outcome on a same-sex-partner dummy, raw
+  and with age, age^2 and self-reported BMI (14-70) or obesity; the coefficient barely moves (-0.55 to -0.57) and
+  BMI has no effect for women (it does for men). Frederick has no BMI; its lesbian women are older (36.5 vs 33.8),
+  and older women orgasm slightly more there, so an age correction would lower their 86% slightly, if anything.
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
