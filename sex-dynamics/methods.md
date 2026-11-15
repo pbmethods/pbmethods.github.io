@@ -2762,12 +2762,10 @@ ax.plot([1.6 - 0.36, 3.6 + 0.36], [yb, yb], color=INK2, lw=1.2)
 for xe in [1.6 - 0.36, 3.6 + 0.36]:
     ax.plot([xe, xe], [yb, yb - 2.5], color=INK2, lw=1.2)
 ax.text(2.6, yb + 1.8, f"Everyone else: {lo_}-{hi_}%", ha="center", fontsize=12, fontweight="bold", color=INK)
-ax.text(0, 74, f"{lo_ - fu.usually_always_text.iloc[0]}-{hi_ - fu.usually_always_text.iloc[0]}\npoints\nlower",
-        ha="center", fontsize=11, fontweight="bold", color=INK, linespacing=1.15)
 ax.set_ylim(0, 118); ax.set_yticks([0, 25, 50, 75, 100]); ax.yaxis.set_major_formatter(ppt)
 ax.set_xlim(-0.7, 4.3); ax.grid(axis="x", visible=False)
 ax.set_ylabel("usually or always orgasm when sexually intimate")
-header(fig, "Women with men are the outlier: 65% usually orgasm, everyone else 86-95%",
+header(fig, "Women with men are the outlier: 65% usually orgasm, everyone else ~90%",
        "Share who usually or always orgasm when sexually intimate (past month), by couple type. US adults 18-65 in "
        "relationships", y=0.93)
 footnote(fig, "Source: Frederick, St. John, Garcia & Lloyd (2018), Archives of Sexual Behavior 47:273-288, online sample "
