@@ -2338,9 +2338,9 @@ def pair_share(ax, other, other_lab, red_arch, xmax):
     ax.set_yticks(y, [LAB[a] for a in ar.archetype], fontsize=9.5)
     ax.set_xlim(0, xmax); ax.xaxis.set_major_formatter(pct); ax.grid(axis="y", visible=False)
     ax.set_xlabel("share of the group")
-    ax.text(xmax, y[0] + 0.42, f"rich men with {cut:.0f}+ partners", color=NAVY, fontsize=9.5, fontweight="bold",
+    ax.text(xmax, y[1] + 0.19, f"■ rich men with {cut:.0f}+ partners", color=NAVY, fontsize=9.5, fontweight="bold",
             ha="right", va="center")
-    ax.text(xmax, y[0] + 0.12, other_lab, color=INK2, fontsize=9.5, fontweight="bold", ha="right", va="center")
+    ax.text(xmax, y[1] - 0.19, "■ " + other_lab, color=INK2, fontsize=9.5, fontweight="bold", ha="right", va="center")
 
 
 ch = ar.set_index("archetype")
