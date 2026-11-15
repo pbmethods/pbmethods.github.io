@@ -2298,16 +2298,16 @@ ax.axvspan(np.log(1 / 40), 0, color=P["MUTE"], alpha=0.18, lw=0)
 for key, c, ls, lw_ in [(RA, GRAY, (0, (4, 2.5)), 1.8), (RE, RED, "-", 2.8)]:
     sd = pr.loc[key].sd_log_ratio
     ax.plot(lx, norm_pdf((lx - dm) / sd) / sd, color=c, ls=ls, lw=lw_)
-ax.plot([dm, dm], [0, 0.62], color=NAVY, lw=3.2, solid_capstyle="butt")
-ax.text(dm + 0.12, 0.6, f"Sorted, rank to rank: every couple at\n{pr.loc[SO].median_ratio:.1f}x, the floor no pairing can beat",
+ax.plot([dm, dm], [0, 0.345], color=NAVY, lw=3.2, solid_capstyle="butt")
+ax.text(dm + 0.12, 0.345, f"Sorted, rank to rank: every couple at\n{pr.loc[SO].median_ratio:.1f}x, the floor no pairing can beat",
         fontsize=10, fontweight="bold", color=INK, va="top")
 ax.text(1.55, 0.255, f"Real couples (r = .21)", fontsize=10.5, fontweight="bold", color=INK, va="bottom")
 ax.text(2.25, 0.135, "Random", fontsize=10, color=INK2, va="bottom")
-ax.text(-3.55, 0.5, f"She wants more:\n{pr.loc[RE].share_she_more:.0%} of real couples", fontsize=10, color=INK2,
+ax.text(-3.55, 0.335, f"She wants more:\n{pr.loc[RE].share_she_more:.0%} of real couples", fontsize=10, color=INK2,
         fontweight="bold", va="top")
 TX = [1 / 27, 1 / 9, 1 / 3, 1, 3, 9, 27]
 ax.set_xticks(np.log(TX), ["she 27x", "she 9x", "she 3x", "same", "he 3x", "he 9x", "he 27x"])
-ax.set_xlim(np.log(1 / 40), np.log(40)); ax.set_ylim(0, 0.66); ax.set_yticks([])
+ax.set_xlim(np.log(1 / 40), np.log(40)); ax.set_ylim(0, 0.36); ax.set_yticks([])
 ax.set_xlabel("his ideal frequency divided by hers (log scale)")
 ax.grid(axis="y", visible=False)
 panel_title(ax, "A", "How far apart couples' ideals are, by how they're paired")
@@ -2334,12 +2334,12 @@ header(fig, f"Couples are paired almost at random on libido: sorting by desire w
        f"leaves him wanting about {pr.loc[SO].median_ratio:.1f}x what she wants", y=0.93)
 footnote(fig, "Sources: Natsal-3 (Britain 2010-12), partnered men and women aged 25-40: ideal monthly frequency fitted "
               f"per sex as a lognormal (men median {np.exp(pr.loc[RE].mu_m):.1f} a month, women "
-              f"{np.exp(pr.loc[RE].mu_w):.1f}; log-SD {pr.loc[RE].sg_m:.2f} and {pr.loc[RE].sg_w:.2f}).\n"
-              "Paired by a Gaussian copula on log desire: sorted (rank to rank, the optimal one-to-one pairing for any "
-              "cost that grows with the gap), random, and reverse sorted. Real couples use r = .21, the correlation\n"
-              "between partners' desire in 366 mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and "
+              f"{np.exp(pr.loc[RE].mu_w):.1f}; log-SD {pr.loc[RE].sg_m:.2f} and {pr.loc[RE].sg_w:.2f}). Paired by a\n"
+              "Gaussian copula on log desire: sorted (rank to rank, the optimal one-to-one pairing for any "
+              "cost that grows with the gap), random, and reverse sorted. Real couples use r = .21, the correlation between\n"
+              "partners' desire in 366 mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and "
               "Personality Science), an upper bound for sorting at pairing since it includes partners converging. "
-              "Typical gap:\nexp of the mean absolute log ratio. Sorting on income or status barely helps: it passes "
+              "Typical gap: exp of\nthe mean absolute log ratio. Sorting on income or status barely helps: it passes "
               "on only the product of libido's small correlations with status. Ideals partly estimated from recent "
               "counts, which widens the spread.", y=0.0)
 save(fig, "desire_pairing")
