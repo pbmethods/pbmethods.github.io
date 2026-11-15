@@ -759,13 +759,13 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 
 ### `orgasm_capacity.csv`
 
-| item | value | kind | source |
-|---|---|---|---|
-| Women, sex with a man | 0.686 | partnered | Frederick et al. 2018 (US, n = 24,102), expected from the frequency distribution |
-| Women, sex with a woman | 0.851 | partnered | Frederick et al. 2018 (n = 340) |
-| Men, sex with a woman | 0.927 | partnered | Frederick et al. 2018 (n = 26,032) |
-| Multi-orgasmic women, typical session | 3.000 | capacity | Gerard et al. 2020/21, J Sex Res (419 women), via Psychology Today |
-| Claimed ceiling, with a vibrator | 50.000 | ceiling | Sherfey 1972, theoretical maximum |
+| item | value | lo | hi | kind | source |
+|---|---|---|---|---|---|
+| Women, sex with a man | 0.600 | 0.492 | 0.686 | partnered | Frederick et al. 2018 (US, n = 24,102) |
+| Women, sex with a woman | 0.750 | 0.625 | 0.851 | partnered | Frederick et al. 2018 (n = 340) |
+| Men, sex with a woman | 0.821 | 0.697 | 0.927 | partnered | Frederick et al. 2018 (n = 26,032) |
+| Multi-orgasmic women, typical session | 3.000 |  |  | capacity | Gerard et al. 2020/21, J Sex Res (419 women), via Psychology Today |
+| Claimed ceiling, with a vibrator | 50.000 |  |  | ceiling | Sherfey 1972, theoretical maximum |
 
 ### `natsal_orgasm_drivers.csv`
 
@@ -1844,26 +1844,39 @@ pd.DataFrame({"group": ["heterosexual women", "lesbian women", "gay men", "heter
     source="Garcia et al. 2014, J Sex Med, abstract").to_csv(HERE / "garcia2014_orgasm.csv", index=False)
 
 # Orgasms per session: what partnered sex delivers vs what women can do. Expected orgasms per encounter from
-# Frederick et al.'s frequency distribution (frederick_orgasm.csv), scoring never 0, rarely 0.15, about half 0.5,
-# usually 0.8, always 1.0. This is the chance of at least one orgasm, so it ignores multiples (YouGov 2022: 11% of
-# British women have multiple orgasms per session). Against it: the typical total for women who are multi-orgasmic
-# (3, Gerard et al. 2020/21, J Sex Res, 419 multi-orgasmic women, as summarised in Psychology Today; not checked
-# against the full text), and the often-cited ceiling of up to 50 in one session with a vibrator (Sherfey 1972, a
-# theoretical claim, not a measured average; in Davis et al. 1996, most women using a vibrator counted 1-2).
+# Frederick et al.'s frequency distribution (frederick_orgasm.csv) under three scorings of what each answer means
+# (never / rarely / about half / usually / always):
+#   harsh    0 / 0.15 / 0.5 / 0.4 / 0.8   (a reader's prior: "always" is generous, "usually" well under certain;
+#                                          scoring "usually" below "about half" contradicts the answer scale, so this
+#                                          is a floor)
+#   central  0 / 0.1  / 0.5 / 0.65 / 0.9
+#   generous 0 / 0.15 / 0.5 / 0.8  / 1.0
+# Cross-check that needs no scoring: Garcia et al. 2014 asked for the percent of the time directly (women with men
+# 61.6%). These are chances of at least one orgasm, so multiples are not counted (YouGov 2022: 11% of British women
+# have multiple orgasms per session). Against them: the typical total for women who are multi-orgasmic (3, Gerard et
+# al. 2020/21, J Sex Res, 419 multi-orgasmic women, as summarised in Psychology Today; not checked against the full
+# text), and the often-cited ceiling of up to 50 in one session with a vibrator (Sherfey 1972, a theoretical claim,
+# not a measured average; in Davis et al. 1996, most women using a vibrator counted 1-2).
 fr = pd.read_csv(HERE / "frederick_orgasm.csv").set_index("group")
-SCORE = dict(never=0.0, rarely=0.15, half=0.5, usually=0.8, always=1.0)
-exp_org = {g: sum(fr.loc[g, k] / 100 * v for k, v in SCORE.items()) for g in fr.index}
-print({g: round(v, 2) for g, v in exp_org.items()})
+SCORES = dict(harsh=dict(never=0, rarely=0.15, half=0.5, usually=0.4, always=0.8),
+              central=dict(never=0, rarely=0.1, half=0.5, usually=0.65, always=0.9),
+              generous=dict(never=0, rarely=0.15, half=0.5, usually=0.8, always=1.0))
+expo = {sc: {g: sum(fr.loc[g, k] / 100 * v for k, v in SC.items()) for g in fr.index} for sc, SC in SCORES.items()}
+print(pd.DataFrame(expo).round(3))
+
+
+def prow(item, g, src):
+    return dict(item=item, value=expo["central"][g], lo=expo["harsh"][g], hi=expo["generous"][g], kind="partnered",
+                source=src)
+
+
 pd.DataFrame([
-    dict(item="Women, sex with a man", value=exp_org["heterosexual women"], kind="partnered",
-         source="Frederick et al. 2018 (US, n = 24,102), expected from the frequency distribution"),
-    dict(item="Women, sex with a woman", value=exp_org["lesbian women"], kind="partnered",
-         source="Frederick et al. 2018 (n = 340)"),
-    dict(item="Men, sex with a woman", value=exp_org["heterosexual men"], kind="partnered",
-         source="Frederick et al. 2018 (n = 26,032)"),
-    dict(item="Multi-orgasmic women, typical session", value=3.0, kind="capacity",
+    prow("Women, sex with a man", "heterosexual women", "Frederick et al. 2018 (US, n = 24,102)"),
+    prow("Women, sex with a woman", "lesbian women", "Frederick et al. 2018 (n = 340)"),
+    prow("Men, sex with a woman", "heterosexual men", "Frederick et al. 2018 (n = 26,032)"),
+    dict(item="Multi-orgasmic women, typical session", value=3.0, lo=np.nan, hi=np.nan, kind="capacity",
          source="Gerard et al. 2020/21, J Sex Res (419 women), via Psychology Today"),
-    dict(item="Claimed ceiling, with a vibrator", value=50.0, kind="ceiling",
+    dict(item="Claimed ceiling, with a vibrator", value=50.0, lo=np.nan, hi=np.nan, kind="ceiling",
          source="Sherfey 1972, theoretical maximum"),
 ]).to_csv(HERE / "orgasm_capacity.csv", index=False)
 
@@ -2936,8 +2949,12 @@ for yi, r in zip(yv, oc.itertuples()):
         txt = f"up to {r.value:.0f} (claimed, not a measured average)"
     else:
         ax.barh(yi, r.value - 0.1, left=0.1, height=0.58, color=COLS.get(r.item, MUTE))
-        txt = f"{r.value:.2f}" if r.value < 1 else f"about {r.value:.0f}"
-    ax.text(r.value * 1.12, yi, txt, va="center", fontsize=12.5 if r.kind != "ceiling" else 11,
+        txt = f"about {r.value:.0f}"
+        if r.kind == "partnered":
+            ax.errorbar(r.value, yi, xerr=[[r.value - r.lo], [r.hi - r.value]], fmt="none", ecolor=INK2,
+                        elinewidth=1.1, capsize=4)
+            txt = f"{r.value:.2f}  ({r.lo:.2f}-{r.hi:.2f})"
+    ax.text((r.hi if r.kind == "partnered" else r.value) * 1.1, yi, txt, va="center", fontsize=12.5 if r.kind != "ceiling" else 11,
             fontweight="bold", color=INK)
 ax.set_xscale("log"); ax.set_xlim(0.1, 400)
 ax.set_xticks([0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50], ["0.1", "0.25", "0.5", "1", "2", "5", "10", "20", "50"])
@@ -2948,17 +2965,20 @@ ax.grid(axis="y", visible=False)
 ax.set_xlabel("orgasms per session (log scale)")
 w_, m_ = oc.value.iloc[0], oc.value.iloc[3]
 ax.annotate("", xy=(m_, 1.42), xytext=(w_, 1.42), arrowprops=dict(arrowstyle="<->", color=INK2, lw=1.0))
-ax.text(np.sqrt(w_ * m_), 1.55, f"{m_ / w_:.1f}x", ha="center", va="bottom", fontsize=11, fontweight="bold", color=INK)
+lo_, hi_ = oc.lo.iloc[0], oc.hi.iloc[0]
+ax.text(np.sqrt(w_ * m_), 1.55, f"{m_ / w_:.0f}x  ({m_ / hi_:.1f}-{m_ / lo_:.1f}x)", ha="center", va="bottom", fontsize=11, fontweight="bold", color=INK)
 header(fig, f"With a man, women average about {w_:.1f} orgasms a session; women who have multiples typically have 3",
        "Expected orgasms per sexual encounter by partner type (US), against what multi-orgasmic women report for a "
        "typical session and the often-quoted ceiling", y=0.9)
 footnote(fig, "Sources: Frederick et al. (2018), Archives of Sexual Behavior, 52,588 US adults: how often each group "
-              "orgasms when sexually intimate, scored never 0, rarely 0.15, about half 0.5, usually 0.8, always 1. "
-              "That is the chance of at\nleast one orgasm, so multiples are not counted (11% of British women report "
+              "orgasms when sexually intimate. Bars score never 0, rarely 0.1, about half 0.5, usually 0.65, always 0.9; "
+              "whiskers run from\na harsh scoring (always 0.8, usually 0.4) to a generous one (always 1, usually 0.8). "
+              "Asked directly, women with men put it at 62% of the time (Garcia et al. 2014). These are the chance of "
+              "at least one orgasm,\nso multiples are not counted (11% of British women report "
               "multiple orgasms per session, YouGov 2022). Multi-orgasmic women: Gerard et al. (2020), Journal of Sex "
-              "Research, 419 women who\nidentify as multi-orgasmic, typical total as summarised in Psychology Today. "
+              "Research, 419 women who identify as multi-orgasmic, typical total as summarised in\nPsychology Today. "
               "Ceiling: Sherfey (1972), a theoretical claim of up to 50 in a session with a vibrator; in Davis et al. "
-              "(1996), most women using a\nvibrator counted 1-2. About half of women report ever having multiple "
+              "(1996), most women using a vibrator counted 1-2. About half of women report ever having multiple "
               "orgasms (Herbenick et al. 2018, US probability sample, 47%).", y=0.0)
 save(fig, "orgasm_capacity")
 
