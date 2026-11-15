@@ -4493,6 +4493,48 @@ pd.DataFrame({
     &quot;partner_usually_always&quot;: [95, 87, 89, 73],
 }).assign(source=&quot;Frederick et al. 2018, Arch Sex Behav, Figure 1 and results&quot;).to_csv(
     HERE / &quot;frederick_orgasm.csv&quot;, index=False)
+
+# Orgasm triangulation and the age/BMI check on lesbian women (Natsal-3, UK probability sample 2010-12).
+# Groups by sex of most recent partner (r1sex), outcome = no orgasm or a long time to orgasm despite arousal for 3+
+# months in the last year (nolgorg3m). Logit of that on same-sex partner, then + age, age^2 and BMI (self-reported,
+# 14-70) or obesity, to see whether women-with-women's advantage moves at straight women's age and BMI.
+import statsmodels.formula.api as smf  # noqa: E402
+no = pd.read_stata(NAT, columns=[&quot;rsex&quot;, &quot;r1sex&quot;, &quot;dage&quot;, &quot;bodymass&quot;, &quot;nolgorg3m&quot;, &quot;total_wt&quot;],
+                   convert_categoricals=False)
+no = no[no.nolgorg3m.isin([0, 1]) &amp; no.r1sex.isin([1, 2])].copy()
+no[&quot;bmi&quot;] = no.bodymass.where(no.bodymass.between(14, 70))
+no[&quot;obese&quot;] = (no.bmi &gt;= 30).astype(float).where(no.bmi.notna())
+no[&quot;same&quot;] = (no.rsex == no.r1sex).astype(int)
+GLAB = {(2, 0): &quot;heterosexual women&quot;, (2, 1): &quot;lesbian women&quot;, (1, 1): &quot;gay men&quot;, (1, 0): &quot;heterosexual men&quot;}
+orows = []
+for (s, same), g in no.groupby([&quot;rsex&quot;, &quot;same&quot;]):
+    gb = g[g.bmi.notna()]
+    orows.append(dict(group=GLAB[(s, same)], n=len(g), orgasm_trouble=np.average(g.nolgorg3m, weights=g.total_wt),
+                      mean_age=np.average(g.dage, weights=g.total_wt),
+                      mean_bmi=np.average(gb.bmi, weights=gb.total_wt),
+                      obese=np.average(gb.obese, weights=gb.total_wt)))
+NORG = pd.DataFrame(orows)
+for s, lab in [(2, &quot;women&quot;), (1, &quot;men&quot;)]:
+    g = no[(no.rsex == s) &amp; no.bmi.notna()]
+    for name, fml in [(&quot;raw&quot;, &quot;nolgorg3m ~ same&quot;), (&quot;age&quot;, &quot;nolgorg3m ~ same + dage + I(dage**2)&quot;),
+                      (&quot;age_bmi&quot;, &quot;nolgorg3m ~ same + dage + I(dage**2) + bmi&quot;),
+                      (&quot;age_obese&quot;, &quot;nolgorg3m ~ same + dage + I(dage**2) + obese&quot;)]:
+        r = smf.glm(fml, data=g, family=sm.families.Binomial(), freq_weights=g.total_wt).fit()
+        lo, hi = r.conf_int().loc[&quot;same&quot;]
+        row = {&quot;group&quot;: f&quot;logit same-sex partner, {lab}: {name}&quot;, &quot;coef&quot;: r.params[&quot;same&quot;], &quot;lo&quot;: lo, &quot;hi&quot;: hi,
+               &quot;p&quot;: r.pvalues[&quot;same&quot;]}
+        for k in [&quot;bmi&quot;, &quot;obese&quot;]:
+            if k in r.params:
+                row[f&quot;coef_{k}&quot;], row[f&quot;p_{k}&quot;] = r.params[k], r.pvalues[k]
+        NORG = pd.concat([NORG, pd.DataFrame([row])], ignore_index=True)
+NORG.to_csv(HERE / &quot;natsal_orgasm_trouble.csv&quot;, index=False)
+print(NORG.round(3).to_string(index=False))
+
+# Garcia, Lloyd, Wallen &amp; Fisher (2014, J Sex Med 11:2645-52), Singles in America 2012, n = 6,151 US singles:
+# mean % of the time respondents orgasm in sex with a familiar partner (abstract values).
+pd.DataFrame({&quot;group&quot;: [&quot;heterosexual women&quot;, &quot;lesbian women&quot;, &quot;gay men&quot;, &quot;heterosexual men&quot;],
+              &quot;pct_of_time&quot;: [61.6, 74.7, 84.7, 85.5]}).assign(
+    source=&quot;Garcia et al. 2014, J Sex Med, abstract&quot;).to_csv(HERE / &quot;garcia2014_orgasm.csv&quot;, index=False)
 </code></pre>
 <h3><code>master_post_charts.py</code></h3>
 <pre><code class="language-python">&quot;&quot;&quot;Charts for &quot;The master post of sexual and relationship dynamics&quot; (Performative Bafflement).
@@ -5303,57 +5345,69 @@ save(fig, &quot;top_decile_archetypes&quot;)
 
 
 # =============================================================== 13. orgasm by couple type (Frederick et al. 2018)
+# One panel: Frederick's distribution, with two independent surveys alongside, and the age/BMI check on lesbian women.
 fo = read(&quot;frederick_orgasm.csv&quot;)
+ga = read(&quot;garcia2014_orgasm.csv&quot;).set_index(&quot;group&quot;)
+nt = read(&quot;natsal_orgasm_trouble.csv&quot;)
+nt_adj = nt[nt.group.str.startswith(&quot;logit same-sex partner, women&quot;)].set_index(&quot;group&quot;)
+nt = nt[nt.n.notna()].set_index(&quot;group&quot;)
 LABO = {&quot;heterosexual women&quot;: &quot;Women with men&quot;, &quot;lesbian women&quot;: &quot;Women with women&quot;, &quot;gay men&quot;: &quot;Men with men&quot;,
         &quot;heterosexual men&quot;: &quot;Men with women&quot;}
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(15, 5.4), gridspec_kw=dict(width_ratios=[1.6, 1], wspace=0.28))
-y = np.arange(len(fo))[::-1]
+fig, ax = plt.subplots(figsize=(14, 6.0))
+y = np.arange(len(fo))[::-1] * 1.25
 SEG = [(&quot;never&quot;, &quot;never&quot;, pb.GRAYS[2]), (&quot;rarely&quot;, &quot;rarely&quot;, pb.GRAYS[1]), (&quot;half&quot;, &quot;half the time&quot;, pb.GRAYS[0]),
        (&quot;usually&quot;, &quot;usually&quot;, &quot;#8fa9cf&quot;), (&quot;always&quot;, &quot;always&quot;, NAVY)]
+C1, C2, C3 = 108, 126, 144
 for yi, r in zip(y, fo.itertuples()):
     left = 0
     for col, _, c in SEG:
         v = getattr(r, col)
-        ax.barh(yi, v, left=left, height=0.62, color=c, edgecolor=P[&quot;SURFACE&quot;], lw=0.8)
+        ax.barh(yi, v, left=left, height=0.66, color=c, edgecolor=P[&quot;SURFACE&quot;], lw=0.8)
         if v &gt;= 6:
             ax.text(left + v / 2, yi, f&quot;{v}&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=9.5, color=&quot;white&quot;,
                     fontweight=&quot;bold&quot; if col == &quot;always&quot; else &quot;normal&quot;)
         left += v
-    ax.text(101.5, yi, f&quot;{r.usually_always_text}%&quot;, va=&quot;center&quot;, fontsize=12, fontweight=&quot;bold&quot;,
-            color=RED if r.group == &quot;heterosexual women&quot; else INK)
-ax.text(101.5, y[0] + 0.5, &quot;usually or\nalways&quot;, fontsize=9, color=INK2, va=&quot;bottom&quot;)
-ax.set_yticks(y, [f&quot;{LABO[g]}\n(n = {n:,})&quot; for g, n in zip(fo.group, fo.n)], fontsize=10)
-ax.set_xlim(0, 112); ax.set_xticks([0, 25, 50, 75, 100], [&quot;0%&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%&quot;])
+    hl = r.group == &quot;heterosexual women&quot;
+    ax.text(C1, yi, f&quot;{r.usually_always_text}%&quot;, va=&quot;center&quot;, ha=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;,
+            color=RED if hl else INK)
+    ax.text(C2, yi, f&quot;{ga.loc[r.group, 'pct_of_time']:.0f}%&quot;, va=&quot;center&quot;, ha=&quot;center&quot;, fontsize=11.5,
+            fontweight=&quot;bold&quot;, color=INK)
+    ax.text(C3, yi, f&quot;{nt.loc[r.group, 'orgasm_trouble']:.0%}&quot;, va=&quot;center&quot;, ha=&quot;center&quot;, fontsize=11.5,
+            fontweight=&quot;bold&quot;, color=INK)
+yl = y[list(fo.group).index(&quot;lesbian women&quot;)]
+ax.text(0.5, yl - 0.55, &quot;Corrected to straight women's age and BMI: still about 86%. Lesbian women are heavier, but &quot;
+        &quot;BMI doesn't predict women's orgasm trouble (Natsal-3)&quot;, fontsize=8.8, color=INK2, va=&quot;center&quot;)
+top = y[0] + 0.55
+for xc, lab in [(C1, &quot;usually or\nalways&quot;), (C2, &quot;% of the time,\nsingles&quot;), (C3, &quot;3+ months of\norgasm trouble&quot;)]:
+    ax.text(xc, top, lab, fontsize=9, color=INK2, ha=&quot;center&quot;, va=&quot;bottom&quot;, linespacing=1.2)
+for xc, lab in [(C1, &quot;Frederick 2018&quot;), (C2, &quot;Garcia 2014&quot;), (C3, &quot;Natsal-3, UK&quot;)]:
+    ax.text(xc, top + 0.62, lab, fontsize=9.5, color=INK, fontweight=&quot;bold&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;)
+ax.set_yticks(y, [f&quot;{LABO[g]}\n(n = {n:,})&quot; for g, n in zip(fo.group, fo.n)], fontsize=10.5)
+ax.set_xlim(0, 152); ax.set_xticks([0, 25, 50, 75, 100], [&quot;0%&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%&quot;])
 ax.grid(axis=&quot;y&quot;, visible=False)
 x0 = 0
 for col, lab, c in SEG:
-    ax.text(x0, y[0] + 0.5, &quot;■&quot;, color=c, fontsize=11, va=&quot;bottom&quot;)
-    ax.text(x0 + 2.6, y[0] + 0.51, lab, color=INK2, fontsize=9, va=&quot;bottom&quot;)
-    x0 += 13 if col != &quot;half&quot; else 19
-ax.set_xlabel(&quot;how often you orgasm when sexually intimate (past month, % of group)&quot;)
-panel_title(ax, &quot;A&quot;, &quot;Own orgasm: women with men are the outlier&quot;)
-ax.set_ylim(-0.5, y[0] + 1.05)
+    ax.text(x0, top, &quot;■&quot;, color=c, fontsize=11, va=&quot;bottom&quot;)
+    ax.text(x0 + 2.4, top + 0.01, lab, color=INK2, fontsize=9, va=&quot;bottom&quot;)
+    x0 += 12 if col != &quot;half&quot; else 17
+ax.set_xlabel(&quot;Frederick 2018: how often you orgasm when sexually intimate (past month, % of group)&quot;, x=0.33)
+ax.set_ylim(y[-1] - 0.85, top + 1.15)
+for xc in [C1 - 8, C2 - 9, C3 - 9]:
+    ax.axvline(xc, color=P[&quot;GRID&quot;], lw=0.8, ymax=0.97)
 
-x = np.arange(len(fo))
-bx.bar(x, fo.partner_usually_always, width=0.6, color=[RED if g == &quot;heterosexual men&quot; else GRAY for g in fo.group])
-for xi, v in zip(x, fo.partner_usually_always):
-    bx.text(xi, v + 1.5, f&quot;{v}%&quot;, ha=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK)
-PLAB = {&quot;heterosexual women&quot;: &quot;Women\nabout men&quot;, &quot;lesbian women&quot;: &quot;Women\nabout women&quot;,
-        &quot;gay men&quot;: &quot;Men\nabout men&quot;, &quot;heterosexual men&quot;: &quot;Men\nabout women&quot;}
-bx.set_xticks(x, [PLAB[g] for g in fo.group], fontsize=9.5)
-bx.set_ylim(0, 105); bx.yaxis.set_major_formatter(ppt)
-bx.set_ylabel(&quot;say their partner usually or always orgasms&quot;)
-panel_title(bx, &quot;B&quot;, &quot;Partners' reports tell the same story&quot;)
-
-header(fig, &quot;Women orgasm far less often with men: 65% usually do, vs 86% with women&quot;,
-       &quot;Own orgasm frequency when sexually intimate in the past month (A), and how often people say their partner &quot;
-       &quot;orgasms (B). US adults 18-65 in relationships, Frederick et al. (2018)&quot;, y=0.92)
-footnote(fig, &quot;Source: Frederick, St. John, Garcia &amp; Lloyd (2018), 'Differences in orgasm frequency among gay, lesbian, &quot;
-              &quot;bisexual, and heterosexual men and women in a U.S. national sample', Archives of Sexual Behavior 47:273-288. &quot;
-              &quot;Online\nsample (NBCNews.com), not a probability survey; 52,588 adults 18-65. Values as printed in the paper &quot;
-              &quot;(A: its Figure 1; usually-or-always totals from its text). Groups by self-identified orientation, so &quot;
-              &quot;'women with men' are\nheterosexual women, etc. Shares are of people, not of encounters: 65% of &quot;
-              &quot;heterosexual women usually or always orgasm; the paper does not measure the share of encounters.&quot;, y=0.0)
+header(fig, &quot;Women orgasm far less often with men: 65% usually do, vs 86% with women and about 90% of men&quot;,
+       &quot;Own orgasm frequency by couple type. Three surveys agree on the order: women with men are the outlier, and &quot;
+       &quot;men with men sit a little below men with women&quot;, y=0.93)
+footnote(fig, &quot;Sources: Frederick, St. John, Garcia &amp; Lloyd (2018), Archives of Sexual Behavior 47:273-288, online &quot;
+              &quot;sample of 52,588 US adults 18-65 in relationships, values as printed (Figure 1; totals from the text). &quot;
+              &quot;Garcia,\nLloyd, Wallen &amp; Fisher (2014), J Sex Med 11:2645-52: mean % of the time 6,151 US singles orgasm &quot;
+              &quot;with a familiar partner. Natsal-3 (UK probability sample, 2010-12): no orgasm or a long time to\norgasm &quot;
+              &quot;despite arousal for 3+ months in the past year, by sex of most recent partner (n = 124 women and 135 men &quot;
+              &quot;with a same-sex partner; lower is better). Correction: in Natsal-3, adding age and BMI\nchanges women-&quot;
+              f&quot;with-women's advantage from {nt_adj.coef.iloc[0]:.2f} to {nt_adj.coef.iloc[2]:.2f} (log-odds); BMI's own &quot;
+              f&quot;effect is nil (p = {nt_adj.p_bmi.iloc[2]:.2f}). Frederick has no BMI, and its lesbian women are older, but age &quot;
+              &quot;barely matters for women's orgasm there.\nShares are of people, not encounters: 65% of heterosexual women &quot;
+              &quot;usually or always orgasm. Groups by self-identified orientation (Natsal: partner's sex).&quot;, y=0.0)
 save(fig, &quot;orgasm_by_couple_type&quot;)
 </code></pre>
 </main></body></html>
