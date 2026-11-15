@@ -2504,12 +2504,12 @@ header(fig, "Women orgasm far less often with men: 65% usually do, vs 86% with w
 footnote(fig, "Sources: Frederick, St. John, Garcia & Lloyd (2018), Archives of Sexual Behavior 47:273-288, online "
               "sample of 52,588 US adults 18-65 in relationships, values as printed (Figure 1; totals from the text). "
               "Garcia,\nLloyd, Wallen & Fisher (2014), J Sex Med 11:2645-52: mean % of the time 6,151 US singles orgasm "
-              "with a familiar partner. Natsal-3 (UK probability sample, 2010-12): no orgasm or a long time to\norgasm "
+              "with a familiar partner. Natsal-3 (UK probability sample, 2010-12):\nno orgasm or a long time to orgasm "
               "despite arousal for 3+ months in the past year, by sex of most recent partner (n = 124 women and 135 men "
-              "with a same-sex partner; lower is better). Correction: in Natsal-3, adding age and BMI\nchanges women-"
+              "with a same-sex partner; lower is better). Correction:\nin Natsal-3, adding age and BMI changes women-"
               f"with-women's advantage from {nt_adj.coef.iloc[0]:.2f} to {nt_adj.coef.iloc[2]:.2f} (log-odds); BMI's own "
               f"effect is nil (p = {nt_adj.p_bmi.iloc[2]:.2f}). Frederick has no BMI, and its lesbian women are older, but age "
-              "barely matters for women's orgasm there.\nShares are of people, not encounters: 65% of heterosexual women "
+              "barely matters\nfor women's orgasm there. Shares are of people, not encounters: 65% of heterosexual women "
               "usually or always orgasm. Groups by self-identified orientation (Natsal: partner's sex).", y=0.0)
 save(fig, "orgasm_by_couple_type")
 ```
