@@ -188,9 +188,12 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   Outcome: no orgasm or a long time to orgasm despite arousal for 3+ months in the past year (nolgorg3m). A: one
   weighted logit with all factors together (partner-fit items sfrlikes2, sfrpdf2, sfrint2, sfrem2; health condition
   affecting sex, hafsex; depression = diagnosed (medwchd3) or on antidepressants (drgdep); diabetes medication;
-  non-volitional sex (viosuc2); relationship happiness; living together; obesity; age and age^2), among women answering
-  the partner items (in a relationship, n = 4,050). B: weighted shares by WHO BMI class, plus the share of 25-64s with
-  no sex in the past year (who are not asked the problem items). Obesity ORs are age-adjusted.
+  non-volitional sex (viosuc2); relationship happiness; living together; age and age^2), among sexually active women
+  answering the partner items (in a relationship). BMI is left out of A on purpose: the problem items are asked only of
+  people who had sex in the past year, heavier women with problems more often stop having sex (so the heavier women
+  left are selected), and BMI's other costs run through health and depression, which are in the model. B: ALL women
+  25-64 by WHO BMI class, counting those with no sex: no sex in the past year, orgasm trouble among the sexually active,
+  "no sex or orgasm trouble", depression; obese-vs-not odds ratios adjusted for age and age^2.
 
 * **How long sex lasts** (the duration chart): published values. A: Blair & Pukall (2014) Figure 4, average
   encounter length by relationship type, digitised from the printed bars. B: point and range estimates, minutes:
@@ -1126,9 +1129,12 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   Outcome: no orgasm or a long time to orgasm despite arousal for 3+ months in the past year (nolgorg3m). A: one
   weighted logit with all factors together (partner-fit items sfrlikes2, sfrpdf2, sfrint2, sfrem2; health condition
   affecting sex, hafsex; depression = diagnosed (medwchd3) or on antidepressants (drgdep); diabetes medication;
-  non-volitional sex (viosuc2); relationship happiness; living together; obesity; age and age^2), among women answering
-  the partner items (in a relationship, n = 4,050). B: weighted shares by WHO BMI class, plus the share of 25-64s with
-  no sex in the past year (who are not asked the problem items). Obesity ORs are age-adjusted.
+  non-volitional sex (viosuc2); relationship happiness; living together; age and age^2), among sexually active women
+  answering the partner items (in a relationship). BMI is left out of A on purpose: the problem items are asked only of
+  people who had sex in the past year, heavier women with problems more often stop having sex (so the heavier women
+  left are selected), and BMI's other costs run through health and depression, which are in the model. B: ALL women
+  25-64 by WHO BMI class, counting those with no sex: no sex in the past year, orgasm trouble among the sexually active,
+  "no sex or orgasm trouble", depression; obese-vs-not odds ratios adjusted for age and age^2.
 
 * **How long sex lasts** (the duration chart): published values. A: Blair & Pukall (2014) Figure 4, average
   encounter length by relationship type, digitised from the printed bars. B: point and range estimates, minutes:
