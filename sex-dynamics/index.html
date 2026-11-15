@@ -5375,8 +5375,9 @@ for yi, r in zip(y, fo.itertuples()):
     ax.text(C3, yi, f&quot;{nt.loc[r.group, 'orgasm_trouble']:.0%}&quot;, va=&quot;center&quot;, ha=&quot;center&quot;, fontsize=11.5,
             fontweight=&quot;bold&quot;, color=INK)
 yl = y[list(fo.group).index(&quot;lesbian women&quot;)]
-ax.text(0.5, yl - 0.55, &quot;Corrected to straight women's age and BMI: still about 86%. Lesbian women are heavier, but &quot;
-        &quot;BMI doesn't predict women's orgasm trouble (Natsal-3)&quot;, fontsize=8.8, color=INK2, va=&quot;center&quot;)
+ax.text(0.5, yl - 0.55, &quot;Corrected to straight women's age and BMI: still about 86%. Lesbian women are heavier, &quot;
+        &quot;but BMI doesn't\npredict women's orgasm trouble (Natsal-3), and in Frederick older women orgasm slightly more&quot;,
+        fontsize=8.8, color=INK2, va=&quot;center&quot;, linespacing=1.25)
 top = y[0] + 0.55
 for xc, lab in [(C1, &quot;usually or\nalways&quot;), (C2, &quot;% of the time,\nsingles&quot;), (C3, &quot;3+ months of\norgasm trouble&quot;)]:
     ax.text(xc, top, lab, fontsize=9, color=INK2, ha=&quot;center&quot;, va=&quot;bottom&quot;, linespacing=1.2)
@@ -5391,7 +5392,7 @@ for col, lab, c in SEG:
     ax.text(x0 + 2.4, top + 0.01, lab, color=INK2, fontsize=9, va=&quot;bottom&quot;)
     x0 += 12 if col != &quot;half&quot; else 17
 ax.set_xlabel(&quot;Frederick 2018: how often you orgasm when sexually intimate (past month, % of group)&quot;, x=0.33)
-ax.set_ylim(y[-1] - 0.85, top + 1.15)
+ax.set_ylim(y[-1] - 0.85, top + 1.0)
 for xc in [C1 - 8, C2 - 9, C3 - 9]:
     ax.axvline(xc, color=P[&quot;GRID&quot;], lw=0.8, ymax=0.97)
 
