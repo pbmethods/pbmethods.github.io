@@ -40,6 +40,8 @@
 
 ![chart 19](chart19.png)
 
+![chart 20](chart20.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -135,6 +137,13 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     per sex as an interval-censored lognormal from each person's achieved count plus the direction of their wish
     ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
+  - *Pairing by desire* (`natsal_desire_pairing.csv`): the two fitted lognormals paired under a Gaussian copula on
+    log desire with correlation rho: 1 = sorted rank-to-rank pairing (the optimal one-to-one assignment for any
+    convex cost of the gap, by 1-D optimal transport), 0.21 = the partner correlation in desire measured in real
+    mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and Personality Science, 366 couples), 0 =
+    random, -1 = worst. With one man per woman the median his/hers ratio is the same under every pairing; pairing
+    only changes the spread around it. Reported: typical gap (exp of mean |log ratio|), mean absolute gap per month,
+    shares where he wants 2x+, she wants more, or they are 3x+ apart. Monte Carlo, 2 million couples.
 
 * **Who has the most sex** (GSS 1989-2022, ages 25-60): the "more than 3 times a week" band of `sexfreq` (about
   7% of adults; GSS can't separate a finer top 3-5%) against the "about once a week" band, which holds the median.
@@ -597,6 +606,15 @@ _Every 1th row of 45 shown; full file: [natsal_years_married.csv](natsal_years_m
 | 30.000 | 0.038 | 0.925 |
 
 _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desire_matching.csv)._
+
+### `natsal_desire_pairing.csv`
+
+| pairing | rho | median_ratio | typical_gap_x | mean_abs_gap_per_month | share_he_2x | share_she_more | share_3x_apart | sd_log_ratio | mu_m | sg_m | mu_w | sg_w |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| sorted (optimal) | 1.000 | 1.414 | 1.414 | 3.496 | 0.000 | 0.000 | 0.000 | 0.031 | 1.688 | 1.190 | 1.342 | 1.159 |
+| real couples (r = .21) | 0.210 | 1.417 | 3.356 | 10.244 | 0.408 | 0.407 | 0.469 | 1.477 | 1.688 | 1.190 | 1.342 | 1.159 |
+| random | 0.000 | 1.417 | 3.874 | 11.197 | 0.418 | 0.417 | 0.517 | 1.661 | 1.688 | 1.190 | 1.342 | 1.159 |
+| reverse sorted (worst) | -1.000 | 1.417 | 6.649 | 14.153 | 0.442 | 0.441 | 0.644 | 2.349 | 1.688 | 1.190 | 1.342 | 1.159 |
 
 ### `cheating_outside_partners.csv`
 
@@ -1076,6 +1094,13 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
     per sex as an interval-censored lognormal from each person's achieved count plus the direction of their wish
     ("a bit more" capped at twice the achieved count; "much more" above that). The matching curves give, for an
     ideal of x a month, the share of women whose ideal is x or more and the share of men whose ideal is x or less.
+  - *Pairing by desire* (`natsal_desire_pairing.csv`): the two fitted lognormals paired under a Gaussian copula on
+    log desire with correlation rho: 1 = sorted rank-to-rank pairing (the optimal one-to-one assignment for any
+    convex cost of the gap, by 1-D optimal transport), 0.21 = the partner correlation in desire measured in real
+    mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and Personality Science, 366 couples), 0 =
+    random, -1 = worst. With one man per woman the median his/hers ratio is the same under every pairing; pairing
+    only changes the spread around it. Reported: typical gap (exp of mean |log ratio|), mean absolute gap per month,
+    shares where he wants 2x+, she wants more, or they are 3x+ apart. Monte Carlo, 2 million couples.
 
 * **Who has the most sex** (GSS 1989-2022, ages 25-60): the "more than 3 times a week" band of `sexfreq` (about
   7% of adults; GSS can't separate a finer top 3-5%) against the "about once a week" band, which holds the median.
@@ -1386,6 +1411,28 @@ MATCH = pd.DataFrame({
 MATCH.to_csv(HERE / "natsal_desire_matching.csv", index=False)
 print({sx: f"median wanted {np.exp(mu):.1f}/mo" for sx, (mu, sg) in FIT.items()}, WANT_ALL)
 print(MATCH[MATCH.per_month.isin([2, 4.25, 4.5, 8.75, 13, 17.25, 30])].round(3).to_string(index=False))
+
+# ---------------------------------------------------------------- Pairing men and women by desired frequency
+# Pair the two fitted ideal-frequency distributions under different couplings: a Gaussian copula on log desire with
+# correlation rho. rho = 1 is the sorted (rank-to-rank) pairing, the optimal one-to-one assignment for any convex cost
+# of the gap (1-D optimal transport); rho = 0 is random pairing; rho = -1 the worst. rho = 0.21 is the partner
+# correlation in desire in Kim, Muise et al. (2020, SPPS 12(4), 366 mixed-sex couples), an upper bound for sorting at
+# pairing (intact, fairly satisfied couples who may also have converged). Monte Carlo, 2 million couples, seed 0.
+rng = np.random.default_rng(0); z1, z2 = rng.standard_normal(2_000_000), rng.standard_normal(2_000_000)
+PAIR = []
+for rho, lab in [(1.0, "sorted (optimal)"), (0.21, "real couples (r = .21)"), (0.0, "random"),
+                 (-1.0, "reverse sorted (worst)")]:
+    Mx = np.exp(mu_m + sg_m * z1); Wx = np.exp(mu_w + sg_w * (rho * z1 + np.sqrt(max(0.0, 1 - rho ** 2)) * z2))
+    L = np.log(Mx / Wx)
+    PAIR.append(dict(pairing=lab, rho=rho, median_ratio=float(np.exp(np.median(L))),
+                     typical_gap_x=float(np.exp(np.abs(L).mean())), mean_abs_gap_per_month=float(np.abs(Mx - Wx).mean()),
+                     share_he_2x=float((L >= np.log(2)).mean()), share_she_more=float((L < 0).mean()),
+                     share_3x_apart=float((np.abs(L) >= np.log(3)).mean()),
+                     sd_log_ratio=float(np.sqrt(sg_m ** 2 + sg_w ** 2 - 2 * rho * sg_m * sg_w)),
+                     mu_m=mu_m, sg_m=sg_m, mu_w=mu_w, sg_w=sg_w))
+PAIR = pd.DataFrame(PAIR)
+PAIR.to_csv(HERE / "natsal_desire_pairing.csv", index=False)
+print(PAIR.round(3).to_string(index=False))
 
 # ---------------------------------------------------------------- GSS: men's lifetime partner distribution (40-60)
 bcg = read_gss(["year", "age", "sex", "numwomen", "marital", "divorce", "degree", "conrinc", "evpaidsx", "xmovie",
@@ -1929,6 +1976,7 @@ GRID_C = P["GRID"]
 pct = plt.FuncFormatter(lambda v, _: f"{v:.0%}")
 ppt = plt.FuncFormatter(lambda v, _: f"{v:.0f}%")
 read = lambda name: pd.read_csv(HERE / name)
+norm_pdf = lambda z: np.exp(-0.5 * np.asarray(z) ** 2) / np.sqrt(2 * np.pi)
 
 
 def header(fig, title, subtitle, y=1.0):
@@ -2239,6 +2287,62 @@ footnote(fig, "Partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal fre
               "share of men whose ideal is x or less. The cap moves the levels, not the gap between the sexes.",
          y=0.0)
 save(fig, "wants_match")
+
+# --------------------------------------------------------------- 4d. how well could men and women be paired by desire?
+pr = read("natsal_desire_pairing.csv").set_index("pairing")
+SO, RE, RA, WO = "sorted (optimal)", "real couples (r = .21)", "random", "reverse sorted (worst)"
+dm = pr.loc[RE].mu_m - pr.loc[RE].mu_w
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(16, 6.2), gridspec_kw=dict(width_ratios=[1.25, 1], wspace=0.2))
+lx = np.linspace(np.log(1 / 40), np.log(40), 800)
+ax.axvspan(np.log(1 / 40), 0, color=P["MUTE"], alpha=0.18, lw=0)
+for key, c, ls, lw_ in [(RA, GRAY, (0, (4, 2.5)), 1.8), (RE, RED, "-", 2.8)]:
+    sd = pr.loc[key].sd_log_ratio
+    ax.plot(lx, norm_pdf((lx - dm) / sd) / sd, color=c, ls=ls, lw=lw_)
+ax.plot([dm, dm], [0, 0.62], color=NAVY, lw=3.2, solid_capstyle="butt")
+ax.text(dm + 0.12, 0.6, f"Sorted, rank to rank: every couple at\n{pr.loc[SO].median_ratio:.1f}x, the floor no pairing can beat",
+        fontsize=10, fontweight="bold", color=INK, va="top")
+ax.text(1.55, 0.255, f"Real couples (r = .21)", fontsize=10.5, fontweight="bold", color=INK, va="bottom")
+ax.text(2.25, 0.135, "Random", fontsize=10, color=INK2, va="bottom")
+ax.text(-3.55, 0.5, f"She wants more:\n{pr.loc[RE].share_she_more:.0%} of real couples", fontsize=10, color=INK2,
+        fontweight="bold", va="top")
+TX = [1 / 27, 1 / 9, 1 / 3, 1, 3, 9, 27]
+ax.set_xticks(np.log(TX), ["she 27x", "she 9x", "she 3x", "same", "he 3x", "he 9x", "he 27x"])
+ax.set_xlim(np.log(1 / 40), np.log(40)); ax.set_ylim(0, 0.66); ax.set_yticks([])
+ax.set_xlabel("his ideal frequency divided by hers (log scale)")
+ax.grid(axis="y", visible=False)
+panel_title(ax, "A", "How far apart couples' ideals are, by how they're paired")
+
+order = [SO, RE, RA, WO]
+labs = {SO: "Sorted by desire\n(the optimum)", RE: "Real couples\n(r = .21)", RA: "Random", WO: "Reverse sorted\n(the worst)"}
+yb = np.arange(len(order))[::-1]
+for yi, k in zip(yb, order):
+    r_ = pr.loc[k]
+    bx.barh(yi, r_.mean_abs_gap_per_month, height=0.6, color=RED if k == RE else (NAVY if k == SO else MUTE))
+    bx.text(r_.mean_abs_gap_per_month + 0.3, yi + 0.1, f"{r_.mean_abs_gap_per_month:.1f} a month", va="center",
+            fontsize=12, fontweight="bold", color=INK)
+    bx.text(r_.mean_abs_gap_per_month + 0.3, yi - 0.2, f"typical gap {r_.typical_gap_x:.1f}x; "
+            f"{r_.share_3x_apart:.0%} are 3x+ apart", va="center", fontsize=9.2, color=INK2)
+bx.set_yticks(yb, [labs[k] for k in order], fontsize=10.5)
+bx.set_xlim(0, 21); bx.grid(axis="y", visible=False)
+bx.set_xlabel("average gap between his and her ideal, times a month")
+got = (pr.loc[RA].mean_abs_gap_per_month - pr.loc[RE].mean_abs_gap_per_month) / (
+    pr.loc[RA].mean_abs_gap_per_month - pr.loc[SO].mean_abs_gap_per_month)
+panel_title(bx, "B", f"Real couples get {got:.0%} of the way from random to sorted")
+cut = 1 - pr.loc[SO].mean_abs_gap_per_month / pr.loc[RE].mean_abs_gap_per_month
+header(fig, f"Couples are paired almost at random on libido: sorting by desire would cut the gap by {cut:.0%}",
+       "Ideal sex frequency of partnered British men and women aged 25-40, paired four ways. Even the best pairing "
+       f"leaves him wanting about {pr.loc[SO].median_ratio:.1f}x what she wants", y=0.93)
+footnote(fig, "Sources: Natsal-3 (Britain 2010-12), partnered men and women aged 25-40: ideal monthly frequency fitted "
+              f"per sex as a lognormal (men median {np.exp(pr.loc[RE].mu_m):.1f} a month, women "
+              f"{np.exp(pr.loc[RE].mu_w):.1f}; log-SD {pr.loc[RE].sg_m:.2f} and {pr.loc[RE].sg_w:.2f}).\n"
+              "Paired by a Gaussian copula on log desire: sorted (rank to rank, the optimal one-to-one pairing for any "
+              "cost that grows with the gap), random, and reverse sorted. Real couples use r = .21, the correlation\n"
+              "between partners' desire in 366 mixed-sex couples (Kim, Muise et al. 2020, Social Psychological and "
+              "Personality Science), an upper bound for sorting at pairing since it includes partners converging. "
+              "Typical gap:\nexp of the mean absolute log ratio. Sorting on income or status barely helps: it passes "
+              "on only the product of libido's small correlations with status. Ideals partly estimated from recent "
+              "counts, which widens the spread.", y=0.0)
+save(fig, "desire_pairing")
 
 # --------------------------------------------------------------- 4c. sex falls, porn rises, men still want more
 fig, axs = plt.subplots(1, 3, figsize=(19, 5.6), gridspec_kw=dict(wspace=0.22))
