@@ -38,6 +38,8 @@
 
 ![chart 18](chart18.png)
 
+![chart 19](chart19.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -2910,4 +2912,42 @@ footnote(fig, "Sources: A: Blair & Pukall (2014), Canadian Journal of Human Sexu
               "and rounded. Blair &\nPukall's women with women also had sex less often, and their sexual satisfaction "
               "did not differ from other couples' (p = .91).", y=0.0)
 save(fig, "sex_duration")
+
+# --------------------------------------------------------------- 15b. the study estimates alone, as vertical bars
+SHORT = {"Waldinger": "Waldinger 2005\nstopwatch,\nmedian", "Richters": "Richters 2006\nAustralia,\nmeans",
+         "IPG": "IPG survey", "Miller": "Miller & Byers\n2004, mean", "Blair": "Blair & Pukall\n2014, median",
+         "Nagao": "Nagao 2014\nJapan, median", "Cohen": "Cohen & Byers\n2014, mean"}
+GROUPS = [("ielt", pb.GRAYS[1], "Intercourse only"), ("mf", NAVY, "Man and woman:\nwhole encounter"),
+          ("ff", RED, "Woman and woman:\nwhole encounter")]
+fig, ax = plt.subplots(figsize=(13, 6.6))
+x, ticks, labs = 0.0, [], []
+for kind, c, head in GROUPS:
+    g = st[st.kind.eq(kind)].assign(mid=lambda t: (t.lo + t.hi) / 2).sort_values("mid")
+    x0 = x
+    for r in g.itertuples():
+        ax.bar(x, r.mid, width=0.72, color=c, zorder=2)
+        if r.lo != r.hi:
+            ax.errorbar(x, r.mid, yerr=[[r.mid - r.lo], [r.hi - r.mid]], fmt="none", ecolor=INK2, elinewidth=1.1,
+                        capsize=4, zorder=3)
+        txt = f"{r.lo:g}" if r.lo == r.hi else f"{r.lo:g}-{r.hi:g}"
+        ax.text(x, r.hi + 1.5, txt, ha="center", va="bottom", fontsize=12, fontweight="bold", color=INK)
+        ticks.append(x); labs.append(SHORT[next(k for k in SHORT if r.label.startswith(k))])
+        x += 1
+    ax.text((x0 + x - 1) / 2, 72, head, ha="center", va="bottom", fontsize=11, fontweight="bold",
+            color=INK if kind != "ielt" else INK2, linespacing=1.2)
+    x += 0.6
+ax.set_xticks(ticks, labs, fontsize=9.2, color=INK2, linespacing=1.15)
+ax.tick_params(axis="x", length=0)
+ax.set_xlim(-0.7, x - 0.9); ax.set_ylim(0, 80); ax.set_yticks([0, 10, 20, 30, 40, 50, 60])
+ax.set_ylabel("minutes"); ax.grid(axis="x", visible=False)
+header(fig, "Sex between women lasts about twice as long: 30-60 minutes, against 15-30 for a man and a woman",
+       "Estimates of how long sex lasts, across studies. Bars are the reported value, or the middle of a reported "
+       "range (whiskers); intercourse itself is about 5 minutes", y=0.9)
+footnote(fig, "Sources: Waldinger et al. (2005), J Sex Med 2:492-497, stopwatch-timed intercourse (penetration to "
+              "ejaculation), median of 500 couples in 5 countries. Richters et al. (2006), the IPG female sexuality "
+              "survey,\nMiller & Byers (2004), Nagao et al. (2014) and Cohen & Byers (2014) as reported in Blair & "
+              "Pukall (2014)'s review, Canadian Journal of Human Sexuality 23(2):123-136; Blair & Pukall's own values "
+              "are the\nmedian band of their Figure 4 (online sample of 822 people in relationships). Whole-encounter "
+              "times include kissing, foreplay and oral sex; self-reported and rounded.", y=0.0)
+save(fig, "sex_duration_studies")
 ```

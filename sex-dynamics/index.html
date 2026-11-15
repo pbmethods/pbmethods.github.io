@@ -42,6 +42,7 @@ li{margin:.2rem 0}
 <p><img alt="chart 16" src="chart16.png" /></p>
 <p><img alt="chart 17" src="chart17.png" /></p>
 <p><img alt="chart 18" src="chart18.png" /></p>
+<p><img alt="chart 19" src="chart19.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -6558,5 +6559,43 @@ footnote(fig, &quot;Sources: A: Blair &amp; Pukall (2014), Canadian Journal of H
               &quot;and rounded. Blair &amp;\nPukall's women with women also had sex less often, and their sexual satisfaction &quot;
               &quot;did not differ from other couples' (p = .91).&quot;, y=0.0)
 save(fig, &quot;sex_duration&quot;)
+
+# --------------------------------------------------------------- 15b. the study estimates alone, as vertical bars
+SHORT = {&quot;Waldinger&quot;: &quot;Waldinger 2005\nstopwatch,\nmedian&quot;, &quot;Richters&quot;: &quot;Richters 2006\nAustralia,\nmeans&quot;,
+         &quot;IPG&quot;: &quot;IPG survey&quot;, &quot;Miller&quot;: &quot;Miller &amp; Byers\n2004, mean&quot;, &quot;Blair&quot;: &quot;Blair &amp; Pukall\n2014, median&quot;,
+         &quot;Nagao&quot;: &quot;Nagao 2014\nJapan, median&quot;, &quot;Cohen&quot;: &quot;Cohen &amp; Byers\n2014, mean&quot;}
+GROUPS = [(&quot;ielt&quot;, pb.GRAYS[1], &quot;Intercourse only&quot;), (&quot;mf&quot;, NAVY, &quot;Man and woman:\nwhole encounter&quot;),
+          (&quot;ff&quot;, RED, &quot;Woman and woman:\nwhole encounter&quot;)]
+fig, ax = plt.subplots(figsize=(13, 6.6))
+x, ticks, labs = 0.0, [], []
+for kind, c, head in GROUPS:
+    g = st[st.kind.eq(kind)].assign(mid=lambda t: (t.lo + t.hi) / 2).sort_values(&quot;mid&quot;)
+    x0 = x
+    for r in g.itertuples():
+        ax.bar(x, r.mid, width=0.72, color=c, zorder=2)
+        if r.lo != r.hi:
+            ax.errorbar(x, r.mid, yerr=[[r.mid - r.lo], [r.hi - r.mid]], fmt=&quot;none&quot;, ecolor=INK2, elinewidth=1.1,
+                        capsize=4, zorder=3)
+        txt = f&quot;{r.lo:g}&quot; if r.lo == r.hi else f&quot;{r.lo:g}-{r.hi:g}&quot;
+        ax.text(x, r.hi + 1.5, txt, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=INK)
+        ticks.append(x); labs.append(SHORT[next(k for k in SHORT if r.label.startswith(k))])
+        x += 1
+    ax.text((x0 + x - 1) / 2, 72, head, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=11, fontweight=&quot;bold&quot;,
+            color=INK if kind != &quot;ielt&quot; else INK2, linespacing=1.2)
+    x += 0.6
+ax.set_xticks(ticks, labs, fontsize=9.2, color=INK2, linespacing=1.15)
+ax.tick_params(axis=&quot;x&quot;, length=0)
+ax.set_xlim(-0.7, x - 0.9); ax.set_ylim(0, 80); ax.set_yticks([0, 10, 20, 30, 40, 50, 60])
+ax.set_ylabel(&quot;minutes&quot;); ax.grid(axis=&quot;x&quot;, visible=False)
+header(fig, &quot;Sex between women lasts about twice as long: 30-60 minutes, against 15-30 for a man and a woman&quot;,
+       &quot;Estimates of how long sex lasts, across studies. Bars are the reported value, or the middle of a reported &quot;
+       &quot;range (whiskers); intercourse itself is about 5 minutes&quot;, y=0.9)
+footnote(fig, &quot;Sources: Waldinger et al. (2005), J Sex Med 2:492-497, stopwatch-timed intercourse (penetration to &quot;
+              &quot;ejaculation), median of 500 couples in 5 countries. Richters et al. (2006), the IPG female sexuality &quot;
+              &quot;survey,\nMiller &amp; Byers (2004), Nagao et al. (2014) and Cohen &amp; Byers (2014) as reported in Blair &amp; &quot;
+              &quot;Pukall (2014)'s review, Canadian Journal of Human Sexuality 23(2):123-136; Blair &amp; Pukall's own values &quot;
+              &quot;are the\nmedian band of their Figure 4 (online sample of 822 people in relationships). Whole-encounter &quot;
+              &quot;times include kissing, foreplay and oral sex; self-reported and rounded.&quot;, y=0.0)
+save(fig, &quot;sex_duration_studies&quot;)
 </code></pre>
 </main></body></html>
