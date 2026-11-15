@@ -42,6 +42,8 @@
 
 ![chart 20](chart20.png)
 
+![chart 21](chart21.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-dynamics/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -754,6 +756,16 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 | lesbian women | 74.700 | Garcia et al. 2014, J Sex Med, abstract |
 | gay men | 84.700 | Garcia et al. 2014, J Sex Med, abstract |
 | heterosexual men | 85.500 | Garcia et al. 2014, J Sex Med, abstract |
+
+### `orgasm_capacity.csv`
+
+| item | value | kind | source |
+|---|---|---|---|
+| Women, sex with a man | 0.686 | partnered | Frederick et al. 2018 (US, n = 24,102), expected from the frequency distribution |
+| Women, sex with a woman | 0.851 | partnered | Frederick et al. 2018 (n = 340) |
+| Men, sex with a woman | 0.927 | partnered | Frederick et al. 2018 (n = 26,032) |
+| Multi-orgasmic women, typical session | 3.000 | capacity | Gerard et al. 2020/21, J Sex Res (419 women), via Psychology Today |
+| Claimed ceiling, with a vibrator | 50.000 | ceiling | Sherfey 1972, theoretical maximum |
 
 ### `natsal_orgasm_drivers.csv`
 
@@ -1831,6 +1843,30 @@ pd.DataFrame({"group": ["heterosexual women", "lesbian women", "gay men", "heter
               "pct_of_time": [61.6, 74.7, 84.7, 85.5]}).assign(
     source="Garcia et al. 2014, J Sex Med, abstract").to_csv(HERE / "garcia2014_orgasm.csv", index=False)
 
+# Orgasms per session: what partnered sex delivers vs what women can do. Expected orgasms per encounter from
+# Frederick et al.'s frequency distribution (frederick_orgasm.csv), scoring never 0, rarely 0.15, about half 0.5,
+# usually 0.8, always 1.0. This is the chance of at least one orgasm, so it ignores multiples (YouGov 2022: 11% of
+# British women have multiple orgasms per session). Against it: the typical total for women who are multi-orgasmic
+# (3, Gerard et al. 2020/21, J Sex Res, 419 multi-orgasmic women, as summarised in Psychology Today; not checked
+# against the full text), and the often-cited ceiling of up to 50 in one session with a vibrator (Sherfey 1972, a
+# theoretical claim, not a measured average; in Davis et al. 1996, most women using a vibrator counted 1-2).
+fr = pd.read_csv(HERE / "frederick_orgasm.csv").set_index("group")
+SCORE = dict(never=0.0, rarely=0.15, half=0.5, usually=0.8, always=1.0)
+exp_org = {g: sum(fr.loc[g, k] / 100 * v for k, v in SCORE.items()) for g in fr.index}
+print({g: round(v, 2) for g, v in exp_org.items()})
+pd.DataFrame([
+    dict(item="Women, sex with a man", value=exp_org["heterosexual women"], kind="partnered",
+         source="Frederick et al. 2018 (US, n = 24,102), expected from the frequency distribution"),
+    dict(item="Women, sex with a woman", value=exp_org["lesbian women"], kind="partnered",
+         source="Frederick et al. 2018 (n = 340)"),
+    dict(item="Men, sex with a woman", value=exp_org["heterosexual men"], kind="partnered",
+         source="Frederick et al. 2018 (n = 26,032)"),
+    dict(item="Multi-orgasmic women, typical session", value=3.0, kind="capacity",
+         source="Gerard et al. 2020/21, J Sex Res (419 women), via Psychology Today"),
+    dict(item="Claimed ceiling, with a vibrator", value=50.0, kind="ceiling",
+         source="Sherfey 1972, theoretical maximum"),
+]).to_csv(HERE / "orgasm_capacity.csv", index=False)
+
 # What predicts women's orgasm trouble (Natsal-3), and why BMI doesn't. Women sexually active in the past year.
 # A: one weighted logit of nolgorg3m (no orgasm / slow to orgasm despite arousal, 3+ months in the past year) on all
 #    candidate drivers together, among women answering the partner items (in a relationship). Odds ratios with 95% CI.
@@ -2888,6 +2924,43 @@ footnote(fig, "Source: Frederick, St. John, Garcia & Lloyd (2018), Archives of S
               "Natsal-3 (UK probability sample).", y=0.0)
 save(fig, "orgasm_usually_always")
 
+
+# --------------------------------------------------------------- 13c. orgasms per session: delivered vs possible
+oc = read("orgasm_capacity.csv")
+fig, ax = plt.subplots(figsize=(13, 5.4))
+yv = np.arange(len(oc))[::-1]
+COLS = {"Women, sex with a man": RED, "Multi-orgasmic women, typical session": NAVY}
+for yi, r in zip(yv, oc.itertuples()):
+    if r.kind == "ceiling":
+        ax.barh(yi, r.value, left=0.1, height=0.58, color="none", edgecolor=MUTED, hatch="///", lw=1.0)
+        txt = f"up to {r.value:.0f} (claimed, not a measured average)"
+    else:
+        ax.barh(yi, r.value, left=0.1, height=0.58, color=COLS.get(r.item, MUTE))
+        txt = f"{r.value:.2f}" if r.value < 1 else f"about {r.value:.0f}"
+    ax.text(r.value * 1.12, yi, txt, va="center", fontsize=12.5 if r.kind != "ceiling" else 11,
+            fontweight="bold", color=INK)
+ax.set_xscale("log"); ax.set_xlim(0.1, 400)
+ax.set_xticks([0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50], ["0.1", "0.25", "0.5", "1", "2", "5", "10", "20", "50"])
+ax.minorticks_off()
+ax.set_yticks(yv, ["Women, sex with a man", "Women, sex with a woman", "Men, sex with a woman",
+                   "Multi-orgasmic women,\ntypical session", "Claimed ceiling,\nwith a vibrator"], fontsize=11)
+ax.grid(axis="y", visible=False)
+ax.set_xlabel("orgasms per session (log scale)")
+w_, m_ = oc.value.iloc[0], oc.value.iloc[3]
+ax.annotate("", xy=(m_, 1.42), xytext=(w_, 1.42), arrowprops=dict(arrowstyle="<->", color=INK2, lw=1.0))
+ax.text(np.sqrt(w_ * m_), 1.55, f"{m_ / w_:.1f}x", ha="center", va="bottom", fontsize=11, fontweight="bold", color=INK)
+header(fig, f"With a man, women average about {w_:.1f} orgasms a session; women who have multiples typically have 3",
+       "Expected orgasms per sexual encounter by partner type (US), against what multi-orgasmic women report for a "
+       "typical session and the often-quoted ceiling", y=0.9)
+footnote(fig, "Sources: Frederick et al. (2018), Archives of Sexual Behavior, 52,588 US adults: how often each group "
+              "orgasms when sexually intimate, scored never 0, rarely 0.15, about half 0.5, usually 0.8, always 1. "
+              "That is the chance of at\nleast one orgasm, so multiples are not counted (11% of British women report "
+              "multiple orgasms per session, YouGov 2022). Multi-orgasmic women: Gerard et al. (2020), Journal of Sex "
+              "Research, 419 women who\nidentify as multi-orgasmic, typical total as summarised in Psychology Today. "
+              "Ceiling: Sherfey (1972), a theoretical claim of up to 50 in a session with a vibrator; in Davis et al. "
+              "(1996), most women using a\nvibrator counted 1-2. About half of women report ever having multiple "
+              "orgasms (Herbenick et al. 2018, US probability sample, 47%).", y=0.0)
+save(fig, "orgasm_capacity")
 
 # =============================================================== 14. what drives women's orgasm trouble (Natsal-3)
 dr = read("natsal_orgasm_drivers.csv").sort_values("OR")
