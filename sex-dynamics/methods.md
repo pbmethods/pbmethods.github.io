@@ -153,14 +153,14 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   before it ended (years since first sex with the current partner vs years since the marriage stopped, against
   a 2011 fieldwork midpoint), overall and by whether unfaithfulness was cited (the checklist doesn't say whose).
 
-* **Who the top decile are** (the archetype chart): GSS 2010+, men 25-65 with a valid `numwomen`, marital status
-  and, if ever married, a yes/no `evstray` (n about 3,750). Top decile = weighted 90th percentile of lifetime female
-  partners (30+; heaping at 30 makes it about 12% of men). Archetypes: never married (`marital` = 5); cheater (ever
-  married, `evstray` = 1); serial monogamist (faithful, ever divorced: currently divorced or `divorce` = 1); reformed
-  rake (faithful, never divorced). Each archetype's share of the top decile vs of the other 90%, and its mean
-  partners (capped at 300) within the top decile with bootstrap 95% intervals. Medians are all 50 (round-number
-  heaping), so means are shown. Within-decile means compare men already selected on body count, so they don't
-  measure what cheating adds.
+* **Who the rich high-count men are** (the archetype chart): GSS 1989-2024, men 25-65 with a valid `numwomen`,
+  marital status and, if ever married, a yes/no `evstray` (n about 10,400). High count = weighted 90th percentile of
+  lifetime female partners (30+). Rich = top 10% of own income (`conrinc`), as a weighted percentile within survey
+  year among these men, ties at mid-rank; the group with both is about 1% of men (n = 116). Archetypes: never
+  married (`marital` = 5); cheater (ever married, `evstray` = 1); serial monogamist (faithful, ever divorced:
+  currently divorced or `divorce` = 1); reformed rake (faithful, never divorced). A compares their mix with
+  equally rich men below 30 partners; B with all men at 30+ regardless of income. 2010+ alone has only 36 such men,
+  with the same pattern (cheaters 27% vs 14%, never married 6%, faithful never divorced 53%).
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -652,12 +652,12 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 
 ### `top_decile_archetypes.csv`
 
-| archetype | n_top | share_top | n_rest | share_rest | mean_partners_top | lo | hi | cutoff | top_share_of_men |
-|---|---|---|---|---|---|---|---|---|---|
-| cheater | 138 | 0.272 | 361 | 0.108 | 72.529 | 62.159 | 84.245 | 30.000 | 0.123 |
-| never married | 163 | 0.310 | 991 | 0.278 | 62.946 | 55.758 | 71.794 | 30.000 | 0.123 |
-| faithful, divorced | 104 | 0.221 | 593 | 0.163 | 81.567 | 66.768 | 98.599 | 30.000 | 0.123 |
-| faithful, never divorced | 71 | 0.197 | 1325 | 0.452 | 69.484 | 52.719 | 91.815 | 30.000 | 0.123 |
+| archetype | cutoff | rich_top_share_of_men | n_rich_top | share_rich_top | n_rich_rest | share_rich_rest | n_all_top | share_all_top |
+|---|---|---|---|---|---|---|---|---|
+| cheater | 30.000 | 0.011 | 41 | 0.359 | 141 | 0.188 | 453 | 0.324 |
+| never married | 30.000 | 0.011 | 15 | 0.073 | 53 | 0.049 | 407 | 0.271 |
+| faithful, divorced | 30.000 | 0.011 | 21 | 0.220 | 109 | 0.139 | 284 | 0.216 |
+| faithful, never divorced | 30.000 | 0.011 | 39 | 0.349 | 396 | 0.624 | 210 | 0.189 |
 
 ## Notes and caveats
 
@@ -962,14 +962,14 @@ Writes small CSVs next to this script; `master_post_charts.py` draws them. Run f
   before it ended (years since first sex with the current partner vs years since the marriage stopped, against
   a 2011 fieldwork midpoint), overall and by whether unfaithfulness was cited (the checklist doesn't say whose).
 
-* **Who the top decile are** (the archetype chart): GSS 2010+, men 25-65 with a valid `numwomen`, marital status
-  and, if ever married, a yes/no `evstray` (n about 3,750). Top decile = weighted 90th percentile of lifetime female
-  partners (30+; heaping at 30 makes it about 12% of men). Archetypes: never married (`marital` = 5); cheater (ever
-  married, `evstray` = 1); serial monogamist (faithful, ever divorced: currently divorced or `divorce` = 1); reformed
-  rake (faithful, never divorced). Each archetype's share of the top decile vs of the other 90%, and its mean
-  partners (capped at 300) within the top decile with bootstrap 95% intervals. Medians are all 50 (round-number
-  heaping), so means are shown. Within-decile means compare men already selected on body count, so they don't
-  measure what cheating adds.
+* **Who the rich high-count men are** (the archetype chart): GSS 1989-2024, men 25-65 with a valid `numwomen`,
+  marital status and, if ever married, a yes/no `evstray` (n about 10,400). High count = weighted 90th percentile of
+  lifetime female partners (30+). Rich = top 10% of own income (`conrinc`), as a weighted percentile within survey
+  year among these men, ties at mid-rank; the group with both is about 1% of men (n = 116). Archetypes: never
+  married (`marital` = 5); cheater (ever married, `evstray` = 1); serial monogamist (faithful, ever divorced:
+  currently divorced or `divorce` = 1); reformed rake (faithful, never divorced). A compares their mix with
+  equally rich men below 30 partners; B with all men at 30+ regardless of income. 2010+ alone has only 36 such men,
+  with the same pattern (cheaters 27% vs 14%, never married 6%, faithful never divorced 53%).
 
 * **Concentration** (the two-panel concentration chart): men are ranked by lifetime partners (GSS men 40-60,
   capped at 300) and everyone by occasions of sex in the last 4 weeks (Natsal-3, all respondents 16-74 with a
@@ -1507,27 +1507,33 @@ HT.to_csv(HERE / "nsfg_height_sexless.csv", index=False)
 print(f"NSFG 2011-17 het. NH white men 18-29 with height: n = {len(ns):,}")
 print(HT.round(1).to_string(index=False))
 
-# ---------------------------------------------------------------- top-decile archetypes (GSS 2010+, men 25-65)
-ar = read_gss(["year", "age", "sex", "numwomen", "marital", "evstray", "divorce", "wtssps"])
-ar = ar[ar.sex.eq(1) & ar.year.ge(2010) & ar.age.between(25, 65) & ar.numwomen.between(0, 989)
+# ---------------------------------------------------------------- top-decile archetypes, rich men (GSS 1989+, men 25-65)
+ar = read_gss(["year", "age", "sex", "numwomen", "marital", "evstray", "divorce", "conrinc", "wtssps"])
+ar = ar[ar.sex.eq(1) & ar.year.ge(1989) & ar.age.between(25, 65) & ar.numwomen.between(0, 989)
         & ar.marital.between(1, 5)].copy()
 ar["w"] = ar.wtssps.fillna(1.0); ar["nw"] = ar.numwomen.clip(upper=CAP)
+ar["ip"] = np.nan  # weighted own-income percentile within year (share below + half of ties), men reporting income
+for _, s_ in ar[ar.conrinc.gt(0)].groupby("year"):
+    tot = s_.w.sum(); by = s_.groupby("conrinc").w.sum()
+    ar.loc[s_.index, "ip"] = (s_.conrinc.map(by.cumsum().shift(fill_value=0) / tot) + s_.conrinc.map(by / tot) / 2)
 ar_div = ar.marital.eq(3) | ar.divorce.eq(1)
 ar["arch"] = np.select([ar.marital.eq(5), ar.evstray.eq(1), ar.evstray.eq(2) & ar_div, ar.evstray.eq(2) & ~ar_div],
                        ["never married", "cheater", "faithful, divorced", "faithful, never divorced"], default="")
 ar = ar[ar.arch.ne("")]
 AR_CUT = wq(ar.nw, ar.w, 0.9)
-ar_top, ar_rest = ar[ar.nw >= AR_CUT], ar[ar.nw < AR_CUT]
+hi_bc, rich = ar.nw >= AR_CUT, ar.ip >= 0.9
+GROUPS = {"rich_top": ar[hi_bc & rich], "rich_rest": ar[~hi_bc & rich], "all_top": ar[hi_bc]}
 rows = []
 for a in ["cheater", "never married", "faithful, divorced", "faithful, never divorced"]:
-    s_, r_ = ar_top[ar_top.arch.eq(a)], ar_rest[ar_rest.arch.eq(a)]
-    lo, hi = boot_ci(s_.nw, s_.w)
-    rows.append(dict(archetype=a, n_top=len(s_), share_top=s_.w.sum() / ar_top.w.sum(), n_rest=len(r_),
-                     share_rest=r_.w.sum() / ar_rest.w.sum(), mean_partners_top=wmean(s_.nw, s_.w), lo=lo, hi=hi,
-                     cutoff=AR_CUT, top_share_of_men=ar_top.w.sum() / ar.w.sum()))
+    r = dict(archetype=a, cutoff=AR_CUT, rich_top_share_of_men=GROUPS["rich_top"].w.sum() / ar.w.sum())
+    for k, d_ in GROUPS.items():
+        r[f"n_{k}"] = int(d_.arch.eq(a).sum())
+        r[f"share_{k}"] = d_.w[d_.arch.eq(a)].sum() / d_.w.sum()
+    rows.append(r)
 AR = pd.DataFrame(rows)
 AR.to_csv(HERE / "top_decile_archetypes.csv", index=False)
-print(f"top-decile archetypes, GSS 2010+ men 25-65 (n = {len(ar):,}, cutoff {AR_CUT:.0f}+)")
+print(f"rich top-decile archetypes, GSS 1989+ men 25-65 (n = {len(ar):,}, cutoff {AR_CUT:.0f}+, "
+      f"rich and high-count n = {len(GROUPS['rich_top'])})")
 print(AR.round(3).to_string(index=False))
 
 # ---------------------------------------------------------------- digitised external series
@@ -2312,49 +2318,46 @@ footnote(fig, "A, C: GSS 1991-2022, ever-married people 25-70, survey-weighted, 
               "unfaithfulness it was, so it is usually the husband's when a woman cites it.", y=0.0)
 save(fig, "cheating_women_switching")
 
-# =============================================================== 12. who the top decile are (faithful or not)
+# =============================================================== 12. rich high-count men: faithful or not
 ar = read("top_decile_archetypes.csv")
 LAB = {"cheater": "Cheater\n(ever cheated\nwhile married)", "never married": "Never\nmarried",
        "faithful, divorced": "Faithful,\nbut divorced", "faithful, never divorced": "Faithful,\nnever divorced"}
-cut, topsh = ar.cutoff.iloc[0], ar.top_share_of_men.iloc[0]
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(15, 5.8), gridspec_kw=dict(width_ratios=[1.25, 1], wspace=0.22))
-
+cut, n_rt = ar.cutoff.iloc[0], int(ar.n_rich_top.sum())
+fig, axes = plt.subplots(1, 2, figsize=(15, 5.9), gridspec_kw=dict(wspace=0.32))
 y = np.arange(len(ar))[::-1]
-for yi, r in zip(y, ar.itertuples()):
-    is_ch = r.archetype == "cheater"
-    ax.barh(yi + 0.19, r.share_top, height=0.36, color=RED if is_ch else NAVY)
-    ax.barh(yi - 0.19, r.share_rest, height=0.36, color=MUTE)
-    ax.text(r.share_top + 0.008, yi + 0.19, f"{r.share_top:.0%}", va="center", fontsize=10.5, fontweight="bold",
-            color=INK)
-    ax.text(r.share_rest + 0.008, yi - 0.19, f"{r.share_rest:.0%}", va="center", fontsize=9.5, color=INK2)
-ax.set_yticks(y, [LAB[a] for a in ar.archetype], fontsize=9.5)
-ax.set_xlim(0, 0.52); ax.xaxis.set_major_formatter(pct); ax.grid(axis="y", visible=False)
-ax.set_xlabel("share of the group")
-ch = ar.set_index("archetype").loc["cheater"]
-ax.text(0.37, y[0] + 0.19, f"men with {cut:.0f}+ partners\n(top {topsh:.0%})", color=NAVY, fontsize=9.5, fontweight="bold", va="center")
-ax.text(0.37, y[0] - 0.24, "all other men", color=INK2, fontsize=9.5, fontweight="bold", va="center")
-panel_title(ax, "A", f"Cheaters are {ch.share_top / ch.share_rest:.1f}x over-represented; faithful husbands rare")
 
-x = np.arange(len(ar))
-cols = [RED if a == "cheater" else GRAY for a in ar.archetype]
-bx.bar(x, ar.mean_partners_top, width=0.62, color=cols)
-errbars(bx, x, ar.mean_partners_top, ar.lo, ar.hi)
-for xi, r in zip(x, ar.itertuples()):
-    bx.text(xi, r.hi + 3, f"{r.mean_partners_top:.0f}", ha="center", fontsize=10.5, fontweight="bold", color=INK)
-    bx.text(xi, 4, f"n={r.n_top}", ha="center", fontsize=8, color="white")
-bx.set_xticks(x, [LAB[a] for a in ar.archetype], fontsize=9)
-bx.set_ylim(0, max(120, ar.hi.max() * 1.15)); bx.set_ylabel("lifetime female partners (mean)")
-panel_title(bx, "B", f"Among men with {cut:.0f}+, cheaters don't have more partners")
 
-header(fig, f"Most men with {cut:.0f}+ partners are cheaters or bachelors; a fifth are faithful, never-divorced husbands",
-       f"Men 25-65 in the top {topsh:.0%} by lifetime female partners, by marital and fidelity history (A), and their "
-       "average partner counts (B). US, GSS 2010-2024", y=0.92)
-footnote(fig, f"GSS 2010-2024, men 25-65 (n = {int(ar.n_top.sum() + ar.n_rest.sum()):,}), weighted. Top group = "
-              f"weighted 90th percentile of lifetime female partners ({cut:.0f}+; many men answer exactly {cut:.0f}, "
-              f"so it holds {topsh:.0%} of men). Cheater = ever had sex with someone\nother than his wife while "
-              "married. Divorced = currently divorced or ever divorced. Means cap answers at 300; bars show 95% "
-              "intervals. Medians are 50 in every group (answers heap at round numbers). B compares men\nalready "
-              "selected on partner count, so it does not measure what cheating adds. The pooled 1989-2024 mix is "
-              "similar (cheaters 32%, never married 27%).", y=0.0)
+def pair_share(ax, other, other_lab, red_arch, xmax):
+    for yi, r in zip(y, ar.itertuples()):
+        ax.barh(yi + 0.19, r.share_rich_top, height=0.36, color=RED if r.archetype == red_arch else NAVY)
+        ax.barh(yi - 0.19, getattr(r, f"share_{other}"), height=0.36, color=MUTE)
+        ax.text(r.share_rich_top + 0.008, yi + 0.19, f"{r.share_rich_top:.0%}  (n={r.n_rich_top})", va="center",
+                fontsize=10, fontweight="bold", color=INK)
+        ax.text(getattr(r, f"share_{other}") + 0.008, yi - 0.19, f"{getattr(r, f'share_{other}'):.0%}", va="center",
+                fontsize=9.5, color=INK2)
+    ax.set_yticks(y, [LAB[a] for a in ar.archetype], fontsize=9.5)
+    ax.set_xlim(0, xmax); ax.xaxis.set_major_formatter(pct); ax.grid(axis="y", visible=False)
+    ax.set_xlabel("share of the group")
+    ax.text(xmax, y[0] + 0.42, f"rich men with {cut:.0f}+ partners", color=NAVY, fontsize=9.5, fontweight="bold",
+            ha="right", va="center")
+    ax.text(xmax, y[0] + 0.12, other_lab, color=INK2, fontsize=9.5, fontweight="bold", ha="right", va="center")
+
+
+ch = ar.set_index("archetype")
+pair_share(axes[0], "rich_rest", f"rich men with fewer partners", "cheater", 0.75)
+panel_title(axes[0], "A", f"Vs equally rich men: cheaters {ch.loc['cheater', 'share_rich_top'] / ch.loc['cheater', 'share_rich_rest']:.1f}x as common")
+pair_share(axes[1], "all_top", f"all men with {cut:.0f}+ partners", "never married", 0.75)
+panel_title(axes[1], "B", "Vs all men with that many partners: bachelors vanish")
+
+header(fig, f"Rich men with {cut:.0f}+ partners nearly all marry: a third cheated, a third are faithful, never-divorced husbands",
+       f"Men 25-65 in the top 10% of own income with {cut:.0f}+ lifetime female partners (about "
+       f"{ar.rich_top_share_of_men.iloc[0]:.0%} of men, n = {n_rt}), by marital and fidelity history. US, GSS 1989-2024",
+       y=0.92)
+footnote(fig, f"GSS 1989-2024, men 25-65, weighted. {cut:.0f}+ partners = top 10% of men by lifetime female partners "
+              "(weighted 90th percentile). Rich = top 10% of own income, ranked within each survey year. Cheater = "
+              "ever had sex with someone other than his\nwife while married. Divorced = currently or ever divorced. "
+              "GSS 2010-2024 alone has only 36 such men, with the same pattern (cheaters 27% vs 14% of equally rich "
+              "men, never married 6%,\nfaithful and never divorced 53%). Fidelity is self-reported, so cheating is "
+              "probably undercounted.", y=0.0)
 save(fig, "top_decile_archetypes")
 ```
