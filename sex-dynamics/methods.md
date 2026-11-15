@@ -2971,15 +2971,15 @@ header(fig, f"With a man, women average about {w_:.1f} orgasms a session; women 
        "Expected orgasms per sexual encounter by partner type (US), against what multi-orgasmic women report for a "
        "typical session and the often-quoted ceiling", y=0.9)
 footnote(fig, "Sources: Frederick et al. (2018), Archives of Sexual Behavior, 52,588 US adults: how often each group "
-              "orgasms when sexually intimate. Bars score never 0, rarely 0.1, about half 0.5, usually 0.65, always 0.9; "
-              "whiskers run from\na harsh scoring (always 0.8, usually 0.4) to a generous one (always 1, usually 0.8). "
-              "Asked directly, women with men put it at 62% of the time (Garcia et al. 2014). These are the chance of "
-              "at least one orgasm,\nso multiples are not counted (11% of British women report "
-              "multiple orgasms per session, YouGov 2022). Multi-orgasmic women: Gerard et al. (2020), Journal of Sex "
-              "Research, 419 women who identify as multi-orgasmic, typical total as summarised in\nPsychology Today. "
-              "Ceiling: Sherfey (1972), a theoretical claim of up to 50 in a session with a vibrator; in Davis et al. "
-              "(1996), most women using a vibrator counted 1-2. About half of women report ever having multiple "
-              "orgasms (Herbenick et al. 2018, US probability sample, 47%).", y=0.0)
+              "orgasms when sexually intimate. Bars score never 0, rarely 0.1, about half 0.5, usually 0.65,\n"
+              "always 0.9; whiskers run from a harsh scoring (always 0.8, usually 0.4) to a generous one (always 1, "
+              "usually 0.8). Asked directly, women with men put it at 62% of the time (Garcia et al. 2014).\n"
+              "These are the chance of at least one orgasm, so multiples are not counted (11% of British women report "
+              "multiple orgasms per session, YouGov 2022). Multi-orgasmic women: Gerard et al. (2020),\n"
+              "Journal of Sex Research, 419 women who identify as multi-orgasmic, typical total as summarised in "
+              "Psychology Today. Ceiling: Sherfey (1972), a theoretical claim of up to 50 in a session with a\n"
+              "vibrator; in Davis et al. (1996), most women using a vibrator counted 1-2. About half of women report "
+              "ever having multiple orgasms (Herbenick et al. 2018, US probability sample, 47%).", y=0.0)
 save(fig, "orgasm_capacity")
 
 # =============================================================== 14. what drives women's orgasm trouble (Natsal-3)
