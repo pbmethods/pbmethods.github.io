@@ -734,39 +734,42 @@ _Every 2th row of 117 shown; full file: [natsal_desire_matching.csv](natsal_desi
 
 | factor | label | OR | lo | hi | p | n | prevalence | rate_yes | rate_no |
 |---|---|---|---|---|---|---|---|---|---|
-| sfrlikes2 | Doesn't share partner's sexual likes | 2.073 | 1.546 | 2.781 | 0.000 | 4050 | 0.073 | 0.356 | 0.151 |
-| sfrpdf2 | Partner has sexual difficulties | 1.802 | 1.451 | 2.239 | 0.000 | 4050 | 0.171 | 0.254 | 0.147 |
-| sfrint2 | Different interest in sex from partner | 1.652 | 1.353 | 2.016 | 0.000 | 4050 | 0.276 | 0.253 | 0.132 |
-| sfrem2 | Not emotionally close during sex | 1.614 | 1.013 | 2.572 | 0.044 | 4050 | 0.025 | 0.374 | 0.160 |
-| health | Health condition affects sex | 1.781 | 1.450 | 2.188 | 0.000 | 4050 | 0.189 | 0.275 | 0.140 |
-| depr | Depression or antidepressants | 1.711 | 1.327 | 2.205 | 0.000 | 4050 | 0.107 | 0.285 | 0.151 |
-| diab | Diabetes medication | 1.559 | 0.851 | 2.857 | 0.150 | 4050 | 0.017 | 0.280 | 0.164 |
-| viosuc2 | Ever had sex against her will | 1.411 | 1.085 | 1.835 | 0.010 | 4050 | 0.100 | 0.248 | 0.157 |
-| unhappy | Less than happy in relationship | 0.928 | 0.770 | 1.118 | 0.430 | 4050 | 0.385 | 0.185 | 0.154 |
-| cohab | Living together (vs dating) | 1.002 | 0.770 | 1.304 | 0.987 | 4050 | 0.860 | 0.164 | 0.175 |
-| obese | Obese (BMI 30+) | 0.771 | 0.609 | 0.978 | 0.032 | 4050 | 0.187 | 0.158 | 0.168 |
-| age10 | 10 years older | 0.924 | 0.856 | 0.998 | 0.043 | 4050 |  |  |  |
+| sfrlikes2 | Doesn't share partner's sexual likes | 1.896 | 1.422 | 2.529 | 0.000 | 4284 | 0.073 | 0.339 | 0.147 |
+| sfrpdf2 | Partner has sexual difficulties | 1.810 | 1.464 | 2.239 | 0.000 | 4284 | 0.170 | 0.250 | 0.143 |
+| sfrint2 | Different interest in sex from partner | 1.693 | 1.391 | 2.060 | 0.000 | 4284 | 0.273 | 0.247 | 0.129 |
+| sfrem2 | Not emotionally close during sex | 1.654 | 1.052 | 2.601 | 0.029 | 4284 | 0.025 | 0.364 | 0.156 |
+| health | Health condition affects sex | 1.747 | 1.428 | 2.137 | 0.000 | 4284 | 0.189 | 0.266 | 0.137 |
+| depr | Depression or antidepressants | 1.611 | 1.260 | 2.060 | 0.000 | 4284 | 0.109 | 0.274 | 0.147 |
+| diab | Diabetes medication | 1.360 | 0.755 | 2.451 | 0.306 | 4284 | 0.018 | 0.256 | 0.160 |
+| viosuc2 | Ever had sex against her will | 1.424 | 1.102 | 1.841 | 0.007 | 4284 | 0.100 | 0.244 | 0.152 |
+| unhappy | Less than happy in relationship | 0.932 | 0.776 | 1.118 | 0.448 | 4284 | 0.382 | 0.180 | 0.149 |
+| cohab | Living together (vs dating) | 0.977 | 0.755 | 1.265 | 0.862 | 4284 | 0.861 | 0.160 | 0.171 |
+| age10 | 10 years older | 0.924 | 0.857 | 0.996 | 0.039 | 4284 |  |  |  |
 
 ### `natsal_bmi_problems.csv`
 
-| sex | bmi_class | n | orgasm_trouble | any_problem | health | depression | diabetes | erection | active_25_64 | OR | lo | hi |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| women | under 18.5 | 231.000 | 0.199 | 0.535 | 0.194 | 0.142 | 0.015 | 0.000 | 0.778 |  |  |  |
-| women | 25-30 | 1618.000 | 0.157 | 0.510 | 0.168 | 0.115 | 0.023 | 0.000 | 0.813 |  |  |  |
-| women | 18.5-25 | 3346.000 | 0.175 | 0.513 | 0.172 | 0.096 | 0.004 | 0.000 | 0.854 |  |  |  |
-| women | 30-35 | 687.000 | 0.153 | 0.570 | 0.225 | 0.189 | 0.032 | 0.000 | 0.766 |  |  |  |
-| women | 35+ | 368.000 | 0.151 | 0.471 | 0.224 | 0.235 | 0.084 | 0.000 | 0.693 |  |  |  |
-| men | 18.5-25 | 2153.000 | 0.087 | 0.403 | 0.125 | 0.052 | 0.012 | 0.110 | 0.846 |  |  |  |
-| men | 25-30 | 1686.000 | 0.087 | 0.407 | 0.150 | 0.056 | 0.034 | 0.135 | 0.878 |  |  |  |
-| men | 30-35 | 579.000 | 0.108 | 0.473 | 0.182 | 0.062 | 0.068 | 0.178 | 0.833 |  |  |  |
-| men | 35+ | 179.000 | 0.140 | 0.492 | 0.271 | 0.095 | 0.143 | 0.138 | 0.702 |  |  |  |
-| men | under 18.5 | 78.000 | 0.104 | 0.365 | 0.103 | 0.051 | 0.000 | 0.041 | 0.684 |  |  |  |
-| women | obese OR, age-adjusted: nolgorg3m |  |  |  |  |  |  |  |  | 0.917 | 0.757 | 1.112 |
-| women | obese OR, age-adjusted: health |  |  |  |  |  |  |  |  | 1.346 | 1.135 | 1.594 |
-| women | obese OR, age-adjusted: depr |  |  |  |  |  |  |  |  | 2.213 | 1.840 | 2.661 |
-| men | obese OR, age-adjusted: nolgorg3m |  |  |  |  |  |  |  |  | 1.413 | 1.136 | 1.759 |
-| men | obese OR, age-adjusted: health |  |  |  |  |  |  |  |  | 1.376 | 1.155 | 1.641 |
-| men | obese OR, age-adjusted: depr |  |  |  |  |  |  |  |  | 1.236 | 0.941 | 1.624 |
+| sex | bmi_class | n | nosex | org_active | nosex_or_org | health | depr | OR | lo | hi | p |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| women | under 18.5 | 140 | 0.222 | 0.205 | 0.381 | 0.249 | 0.174 |  |  |  |  |
+| women | 25-30 | 1519 | 0.187 | 0.155 | 0.313 | 0.171 | 0.135 |  |  |  |  |
+| women | 35+ | 435 | 0.307 | 0.146 | 0.408 | 0.199 | 0.233 |  |  |  |  |
+| women | 30-35 | 734 | 0.234 | 0.147 | 0.346 | 0.209 | 0.221 |  |  |  |  |
+| women | 18.5-25 | 2690 | 0.146 | 0.163 | 0.285 | 0.179 | 0.103 |  |  |  |  |
+| women | obese OR, age-adjusted: nosex | 5518 |  |  |  |  |  | 1.612 | 1.366 | 1.902 | 0.000 |
+| women | obese OR, age-adjusted: org_active | 4483 |  |  |  |  |  | 0.896 | 0.724 | 1.108 | 0.310 |
+| women | obese OR, age-adjusted: nosex_or_org | 5518 |  |  |  |  |  | 1.266 | 1.098 | 1.459 | 0.001 |
+| women | obese OR, age-adjusted: health | 5287 |  |  |  |  |  | 1.186 | 1.002 | 1.405 | 0.048 |
+| women | obese OR, age-adjusted: depr | 5518 |  |  |  |  |  | 2.204 | 1.859 | 2.613 | 0.000 |
+| men | 18.5-25 | 1472 | 0.154 | 0.083 | 0.224 | 0.147 | 0.068 |  |  |  |  |
+| men | 25-30 | 1512 | 0.122 | 0.086 | 0.198 | 0.152 | 0.066 |  |  |  |  |
+| men | 30-35 | 550 | 0.167 | 0.105 | 0.254 | 0.199 | 0.085 |  |  |  |  |
+| men | 35+ | 204 | 0.298 | 0.118 | 0.381 | 0.266 | 0.140 |  |  |  |  |
+| men | under 18.5 | 36 | 0.316 | 0.187 | 0.444 | 0.223 | 0.132 |  |  |  |  |
+| men | obese OR, age-adjusted: nosex | 3774 |  |  |  |  |  | 1.478 | 1.237 | 1.765 | 0.000 |
+| men | obese OR, age-adjusted: org_active | 3155 |  |  |  |  |  | 1.332 | 1.042 | 1.703 | 0.022 |
+| men | obese OR, age-adjusted: nosex_or_org | 3774 |  |  |  |  |  | 1.457 | 1.249 | 1.700 | 0.000 |
+| men | obese OR, age-adjusted: health | 3571 |  |  |  |  |  | 1.457 | 1.225 | 1.735 | 0.000 |
+| men | obese OR, age-adjusted: depr | 3774 |  |  |  |  |  | 1.475 | 1.168 | 1.861 | 0.001 |
 
 ### `blair2014_duration.csv`
 
@@ -1771,8 +1774,9 @@ pd.DataFrame({"group": ["heterosexual women", "lesbian women", "gay men", "heter
 # What predicts women's orgasm trouble (Natsal-3), and why BMI doesn't. Women sexually active in the past year.
 # A: one weighted logit of nolgorg3m (no orgasm / slow to orgasm despite arousal, 3+ months in the past year) on all
 #    candidate drivers together, among women answering the partner items (in a relationship). Odds ratios with 95% CI.
-# B: by WHO BMI class, weighted shares with orgasm trouble, any 3+ month problem, a health condition affecting sex
-#    (hafsex), depression (diagnosed or on antidepressants), for women and for men.
+# B: by WHO BMI class, ALL women and men 25-64 (sexually active or not): no sex in the past year, orgasm trouble among
+#    the sexually active, "no sex or orgasm trouble" (counting everyone), a health condition affecting sex (hafsex,
+#    among those answering), depression; plus obesity odds ratios adjusted for age and age^2.
 dv = pd.read_stata(NAT, columns=["rsex", "dage", "bodymass", "bmiwho", "total_wt", "nolgorg3m", "oneplus3m",
                                  "sfrint2", "sfrem2", "sfrlikes2", "sfrpdf2", "relsat2", "medwchd3", "drgdep",
                                  "hafsex", "viosuc2", "r1rel", "drgdi", "erect3m"], convert_categoricals=False)
@@ -1789,7 +1793,10 @@ DRV = {"sfrlikes2": "Doesn't share partner's sexual likes", "sfrpdf2": "Partner 
        "health": "Health condition affects sex", "depr": "Depression or antidepressants",
        "diab": "Diabetes medication", "viosuc2": "Ever had sex against her will",
        "unhappy": "Less than happy in relationship", "cohab": "Living together (vs dating)",
-       "obese": "Obese (BMI 30+)", "age10": "10 years older"}
+       "age10": "10 years older"}
+# BMI is deliberately not in this model: among sexually active women it is selected (heavier women with problems more
+# often stop having sex) and its effects run through health and depression, which are in the model. Its total effect,
+# counting women with no sex, is in B below.
 zw = dv[(dv.rsex == 2) & dv.nolgorg3m.isin([0, 1])].dropna(subset=[c for c in DRV if c != "age10"])
 r = smf.glm("nolgorg3m ~ " + " + ".join(DRV) + " + I(age10**2)", data=zw, family=sm.families.Binomial(),
             freq_weights=zw.total_wt).fit()
@@ -1808,29 +1815,29 @@ pd.DataFrame(drows).to_csv(HERE / "natsal_orgasm_drivers.csv", index=False)
 print(pd.DataFrame(drows).round(3).to_string(index=False))
 
 BCL = {1: "under 18.5", 2: "18.5-25", 3: "25-30", 4: "30-35", 5: "35+", 6: "35+"}
+al = pd.read_stata(NAT, columns=["rsex", "dage", "bodymass", "bmiwho", "oneplus3m", "nolgorg3m", "hafsex", "medwchd3",
+                                 "drgdep", "total_wt"], convert_categoricals=False)
+al = al[al.bmiwho.between(1, 6) & al.dage.between(25, 64)].copy()
+al = al.assign(nosex=(~al.oneplus3m.isin([0, 1])).astype(int), obese=(al.bodymass >= 30).astype(int),
+               age10=(al.dage - 40) / 10, depr=((al.medwchd3 == 1) | (al.drgdep == 1)).astype(int),
+               health=(al.hafsex == 1).astype(float).where(al.hafsex.isin([1, 2])))
+al["org_active"] = (al.nolgorg3m == 1).astype(float).where(al.nosex == 0)
+al["nosex_or_org"] = ((al.nosex == 1) | (al.nolgorg3m == 1)).astype(int)
+wavg = lambda h, k: np.average(h[k].dropna(), weights=h.total_wt[h[k].notna()])
 brows = []
-for s, sx in [(2, "women"), (1, "men")]:
-    g0 = dv[(dv.rsex == s) & dv.bmiwho.between(1, 6) & dv.nolgorg3m.isin([0, 1])]
-    for b, g in g0.groupby(g0.bmiwho.map(BCL), sort=False):
-        brows.append(dict(sex=sx, bmi_class=b, n=len(g), **{k: np.average(g[v] == 1, weights=g.total_wt) for k, v in
-                     [("orgasm_trouble", "nolgorg3m"), ("any_problem", "oneplus3m"), ("health", "health"),
-                      ("depression", "depr"), ("diabetes", "diab"), ("erection", "erect3m")]}))
-BMIP = pd.DataFrame(brows)
-# selection: problem items are asked only of people sexually active in the past year; share of 25-64s who were, by BMI
-al = pd.read_stata(NAT, columns=["rsex", "dage", "bmiwho", "oneplus3m", "total_wt"], convert_categoricals=False)
-al = al[al.bmiwho.between(1, 6) & al.dage.between(25, 64)]
-act = (al.assign(sex=al.rsex.map({1: "men", 2: "women"}), bmi_class=al.bmiwho.map(BCL))
-       .groupby(["sex", "bmi_class"]).apply(lambda h: np.average(h.oneplus3m.isin([0, 1]), weights=h.total_wt))
-       .rename("active_25_64").reset_index())
-BMIP = BMIP.merge(act, on=["sex", "bmi_class"], how="left")
-for s, sx in [(2, "women"), (1, "men")]:  # obesity ORs, age-adjusted
-    g = dv[(dv.rsex == s) & dv.nolgorg3m.isin([0, 1]) & dv.obese.notna()]
-    for y in ["nolgorg3m", "health", "depr"]:
-        rr = smf.glm(f"{y} ~ obese + age10 + I(age10**2)", data=g, family=sm.families.Binomial(),
+for s_, sx in [(2, "women"), (1, "men")]:
+    g0 = al[al.rsex == s_]
+    for b_, g in g0.groupby(g0.bmiwho.map(BCL), sort=False):
+        brows.append(dict(sex=sx, bmi_class=b_, n=len(g), **{k: wavg(g, k) for k in
+                     ["nosex", "org_active", "nosex_or_org", "health", "depr"]}))
+    for y_ in ["nosex", "org_active", "nosex_or_org", "health", "depr"]:
+        g = g0[g0[y_].notna()]
+        rr = smf.glm(f"{y_} ~ obese + age10 + I(age10**2)", data=g, family=sm.families.Binomial(),
                      freq_weights=g.total_wt).fit()
         c_ = np.exp(rr.conf_int().loc["obese"])
-        BMIP = pd.concat([BMIP, pd.DataFrame([dict(sex=sx, bmi_class=f"obese OR, age-adjusted: {y}",
-                                                   OR=np.exp(rr.params.obese), lo=c_[0], hi=c_[1])])])
+        brows.append(dict(sex=sx, bmi_class=f"obese OR, age-adjusted: {y_}", n=len(g), OR=np.exp(rr.params.obese),
+                          lo=c_[0], hi=c_[1], p=rr.pvalues["obese"]))
+BMIP = pd.DataFrame(brows)
 BMIP.to_csv(HERE / "natsal_bmi_problems.csv", index=False)
 print(BMIP.round(3).to_string(index=False))
 
@@ -2762,43 +2769,45 @@ ax.set_xlabel("odds of orgasm trouble, all factors together (95% CI)")
 ax.text(0.52, len(dr) - 0.35, "partner fit", color=RED, fontsize=10, fontweight="bold")
 ax.text(0.52, len(dr) - 0.95, "health", color=NAVY, fontsize=10, fontweight="bold")
 ax.set_ylim(-0.6, len(dr) + 0.1)
-panel_title(ax, "A", "Partner fit and health predict it; weight and age don't")
+panel_title(ax, "A", "Among women having sex: partner fit and health")
 
-w = bp[(bp.sex == "women") & bp.n.notna()].set_index("bmi_class").loc[["under 18.5", "18.5-25", "25-30", "30-35", "35+"]]
+w = bp[(bp.sex == "women") & bp.OR.isna()].set_index("bmi_class").loc[["under 18.5", "18.5-25", "25-30", "30-35", "35+"]]
 xb = np.arange(len(w))
-LINES = [("health", "Health condition\naffects sex", NAVY, "-"), ("depression", "Depression", pb.GRAYS[1], "-"),
-         ("inactive", "No sex in the past\nyear (ages 25-64)", pb.GRAYS[0], "--"),
-         ("orgasm_trouble", "Orgasm trouble\n(sexually active)", RED, "-")]
-w = w.assign(inactive=1 - w.active_25_64)
+LINES = [("nosex_or_org", "No sex, or\norgasm trouble", RED, "-", 2.8),
+         ("nosex", "No sex in\nthe past year", pb.GRAYS[1], "--", 2),
+         ("depr", "Depression", NAVY, "-", 2),
+         ("org_active", "Orgasm trouble, if\nsexually active", pb.GRAYS[0], ":", 2)]
 ends = {}
-for k, l, c, ls in LINES:
-    bx.plot(xb, w[k], color=c, lw=2.6 if k == "orgasm_trouble" else 2, ls=ls, marker="o", ms=5)
+for k, l, c, ls, lw_ in LINES:
+    bx.plot(xb, w[k], color=c, lw=lw_, ls=ls, marker="o", ms=5)
     ends[k] = w[k].iloc[-1]
+    bx.text(-0.15, w[k].iloc[0], f"{w[k].iloc[0]:.0%}", color=INK2, fontsize=9, va="center", ha="right")
 order = sorted(ends, key=ends.get, reverse=True); ypos, prev = {}, None
 for k in order:  # nudge end labels apart
-    ypos[k] = prev = ends[k] if prev is None else min(ends[k], prev - 0.03)
-for k, l, c, ls in LINES:
-    bx.text(len(w) - 0.82, ypos[k], f"{l}: {ends[k]:.0%}",
-            color=INK, fontsize=9.5, fontweight="bold", va="center", linespacing=1.15)
+    ypos[k] = prev = ends[k] if prev is None else min(ends[k], prev - 0.045)
+for k, l, c, ls, lw_ in LINES:
+    bx.text(len(w) - 0.82, ypos[k], f"{l}: {ends[k]:.0%}", color=INK, fontsize=9.5, fontweight="bold", va="center",
+            linespacing=1.15)
 bx.set_xticks(xb, list(w.index)); bx.set_xlabel("BMI")
-bx.set_xlim(-0.55, len(w) + 0.9); bx.set_ylim(0, 0.36); bx.yaxis.set_major_formatter(pct)
-bx.set_ylabel("share of women")
-panel_title(bx, "B", "Heavier women are sicker, but drop out of sex")
+bx.set_xlim(-0.65, len(w) + 0.9); bx.set_ylim(0, 0.45); bx.yaxis.set_major_formatter(pct)
+bx.set_ylabel("share of all women 25-64")
+panel_title(bx, "B", "Weight's cost: more women with no sex at all")
 
-oo = bp[bp.bmi_class.str.startswith("obese OR", na=False)].set_index(["sex", "bmi_class"])
+oo = bp[bp.OR.notna()].set_index(["sex", "bmi_class"])
 o = lambda s, y_: oo.loc[(s, f"obese OR, age-adjusted: {y_}"), "OR"]
-header(fig, "Women's orgasm trouble tracks the partner and her health, not her weight",
-       "UK women sexually active in the past year: what predicts 3+ months of no or slow orgasm (A), and how it, and "
-       "its health causes, vary with BMI (B)", y=0.93)
+header(fig, "Women's orgasm trouble tracks the partner and her health; weight's cost is having no sex at all",
+       "UK women: what predicts 3+ months of no or slow orgasm among the sexually active (A), and how sex life varies "
+       "with BMI once women having no sex are counted (B)", y=0.93)
 footnote(fig, "Source: Natsal-3 (UK probability sample, 2010-12), weighted. Orgasm trouble = no orgasm or a long time "
               "to orgasm despite arousal for 3+ months in the past year (16% of sexually active women). A: one logistic\n"
-              f"model, all factors at once, women in a relationship (n = {int(dr.n.iloc[0]):,}); in brackets, the share of "
-              "women with each factor. Associations, not proven causes: trouble can itself make a woman feel mismatched or "
-              "less close.\nB: weighted shares by WHO BMI class. Obese women are more likely to have a health condition "
-              f"affecting sex (age-adjusted OR {o('women', 'health'):.2f}) and depression ({o('women', 'depr'):.1f}), yet "
-              f"no more orgasm trouble ({o('women', 'nolgorg3m'):.2f}). The problem\nquestions skip women with no sex in "
-              "the past year, who are commoner at high BMI, so some of the heaviest women's problems go uncounted. In men, "
-              f"obesity does raise orgasm trouble (OR {o('men', 'nolgorg3m'):.1f}).", y=0.0)
+              f"model, all factors at once, sexually active women in a relationship (n = {int(dr.n.iloc[0]):,}); in "
+              "brackets, the share of women with each factor. Associations, not proven causes. BMI is left out of A: "
+              "among women still\nhaving sex it shows nothing, because heavier women with problems more often stop having "
+              "sex, and its other costs run through health and depression. B: all women 25-64. Obese vs not, age-"
+              "adjusted\nodds: no sex in the past year "
+              f"{o('women', 'nosex'):.1f}x, no sex or orgasm trouble {o('women', 'nosex_or_org'):.2f}x, depression "
+              f"{o('women', 'depr'):.1f}x, orgasm trouble among the sexually active {o('women', 'org_active'):.2f}x "
+              f"(not significant). Men: obesity also raises orgasm trouble ({o('men', 'org_active'):.1f}x).", y=0.0)
 save(fig, "orgasm_trouble_drivers")
 
 
