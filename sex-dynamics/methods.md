@@ -2348,6 +2348,7 @@ save(fig, "wants_match")
 # --------------------------------------------------------------- 4b2. the meta-analytic gap (A) next to the match curves (B)
 G_SD = 0.69                                  # Frankenbach et al. 2022, overall sex drive, men higher (Hedges' g)
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(17, 6.6), gridspec_kw=dict(width_ratios=[1, 1.3], wspace=0.17))
+fig.subplots_adjust(top=0.84, bottom=0.17)
 z = np.linspace(-3.6, 4.4, 600)
 fw, fm = norm_pdf(z), norm_pdf(z - G_SD)
 ax.fill_between(z, fw, color=NAVY, alpha=0.08, lw=0)
@@ -2372,7 +2373,7 @@ panel_title(bx, "B", f"If he wants it twice a week, only {he2:.0%} of women do")
 header(fig, f"Only a quarter of women want sex more than the median man, so if he wants it twice a week, "
        f"only {he2:.0%} of women do",
        "The meta-analytic gap in sex drive (A), and what it means for matching how often each sex ideally wants sex "
-       "(B, partnered adults 25-40, Britain)", y=0.86)
+       "(B, partnered adults 25-40, Britain)", y=0.9)
 footnote(fig, "A: Frankenbach et al. 2022, meta-analysis of 211 studies (N = 621,463), overall sex drive, g = 0.69; "
               "about 0.54 after removing the gap on bias-prone items. Drawn as two normal curves with equal spread.\n"
               "B: Natsal-3, partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal frequency is estimated per sex "
