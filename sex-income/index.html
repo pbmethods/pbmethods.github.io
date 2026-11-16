@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How much income has the same happiness effect as having sex more often? US (GSS) vs China (CHFLS)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>How much income has the same happiness effect as having sex more often? US (GSS) vs China (CHFLS)</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-16.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-income/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>replicate.R</code></h3>
+<pre><code class="language-text">Replication of Cheng &amp; Smyth (2015) &quot;Sex and happiness&quot;, Table 2 Panel A,
+plus the income-equivalent (&quot;extra monthly income needed&quot;) calculation.
+Data: China Health and Family Life Survey 1999-2000, public release chfls1.dta
+(downloaded from the Internet Archive copy of src.uchicago.edu/datalib/chfls).
+</code></pre>
+<h3><code>us_china_ladder.R</code></h3>
+<pre><code class="language-text">Income-equivalent of having sex more often, starting from &lt;=1/month, US (GSS 1989-2024)
+vs China (CHFLS 1999-2000). Same model in both: happiness on log(times per month),
+log income and controls; the equivalent at frequency F is exp(b * ln(F / 0.75) / g) - 1,
+where b = log-frequency coefficient and g = log-income coefficient. The ratio b/g does
+not depend on the happiness scale, so the 4-point (China) and 3-point (US) questions compare.
+</code></pre>
+<h3><code>sexfreq_income_chart.py</code></h3>
+<pre><code class="language-text">Chart (light, house style): how much income has the same happiness effect as having sex more (or less) often,
+US (GSS 1989-2024) vs China (CHFLS 1999-2000). Light re-render of us_china_chart.R.
+
+Run after us_china_ladder.R (which writes us_china_ladder.csv):
+    uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/us_public_data/CHFLS/sexfreq_income_chart.py
+
+Method (estimated in us_china_ladder.R, data prep from replicate.R):
+- Model, same in both countries: OLS of happiness on log(times having sex per month), log income and controls
+  (sex, age, age squared, marital status, education, self-rated health; plus survey-year dummies in the US).
+- Income equivalent of moving from &quot;once a month or less&quot; (0.75/month) to frequency F:
+  exp(b * ln(F / 0.75) / g) - 1, where b is the log-frequency coefficient and g the log-income coefficient. The ratio
+  b/g does not depend on the happiness scale, so China's 4-point and the GSS's 3-point question compare.
+- US: General Social Survey 1989-2024 (data/gss_extract.csv from the cumulative GSS file): SEXFREQ (past 12 months,
+  category midpoints 0.125, 1, 2.5, 4.3, 10.8, 17 per month), HAPPY, REALINC (family income, 1986 $), AGE, SEX,
+  MARITAL, EDUC, HEALTH, YEAR; adults with valid answers and SEXFREQ above &quot;not at all&quot;, n = 17,953.
+- China: China Health and Family Life Survey 1999-2000 (chfls1.dta, public release), variables as in Cheng &amp; Smyth
+  (2015, &quot;Sex and happiness&quot;): 4-point happiness, 5 frequency categories (midpoints 30, 18, 6, 2.5, 0.75 per
+  month), personal monthly income, n = 2,981. Its lowest category is &quot;once a month or less&quot;, so no 1-2/year point.
+- Uncertainty: 95% intervals from 500 cluster-bootstrap draws (US clusters: year x stratum x PSU; China: the 60
+  sampling sites), re-estimating b/g in each draw.
+- &quot;Daily&quot; (30/month) for the US lies beyond the GSS top category (4+ times a week, midpoint 17), so it is an
+  extrapolation of the log-linear fit (dashed).
+- Dollars: the US percentage applied to $74k, the median family income (REALINC converted to 2024 dollars with CPI-U
+  annual averages, 1986 = 109.6, 2024 = 313.689) of the US analysis sample having sex once a month or less.
+- Correlational: happier, healthier people have more sex, so the ratio is an association, not a causal price.
+Writes the raw PNG to Substack Notes/Unwatermarked graphs/Sex/ and the watermarked copy to Substack Notes/Sex/
+(methods page pbmethods.github.io/sex-income).
+</code></pre>
+<h2>Results</h2>
+<h3><code>us_china_ladder.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>country</th>
+<th>level</th>
+<th>est_pct</th>
+<th>lo95</th>
+<th>hi95</th>
+<th>n</th>
+<th>clusters</th>
+<th>b_logfreq</th>
+<th>g_loginc</th>
+<th>halving_income_loss_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>China</td>
+<td>1-2/year</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>2981</td>
+<td>60</td>
+<td>0.036</td>
+<td>0.078</td>
+<td>27.040</td>
+</tr>
+<tr>
+<td>China</td>
+<td>&lt;=1/month</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2981</td>
+<td>60</td>
+<td>0.036</td>
+<td>0.078</td>
+<td>27.040</td>
+</tr>
+<tr>
+<td>China</td>
+<td>2-3/month</td>
+<td>72.907</td>
+<td>24.893</td>
+<td>159.667</td>
+<td>2981</td>
+<td>60</td>
+<td>0.036</td>
+<td>0.078</td>
+<td>27.040</td>
+</tr>
+<tr>
+<td>China</td>
+<td>Weekly</td>
+<td>121.276</td>
+<td>38.045</td>
+<td>299.107</td>
+<td>2981</td>
+<td>60</td>
+<td>0.036</td>
+<td>0.078</td>
+<td>27.040</td>
+</tr>
+<tr>
+<td>China</td>
+<td>Daily</td>
+<td>435.350</td>
+<td>97.601</td>
+<td>1761.028</td>
+<td>2981</td>
+<td>60</td>
+<td>0.036</td>
+<td>0.078</td>
+<td>27.040</td>
+</tr>
+<tr>
+<td>US</td>
+<td>1-2/year</td>
+<td>-79.078</td>
+<td>-88.492</td>
+<td>-67.952</td>
+<td>17953</td>
+<td>4450</td>
+<td>0.036</td>
+<td>0.041</td>
+<td>45.402</td>
+</tr>
+<tr>
+<td>US</td>
+<td>&lt;=1/month</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>17953</td>
+<td>4450</td>
+<td>0.036</td>
+<td>0.041</td>
+<td>45.402</td>
+</tr>
+<tr>
+<td>US</td>
+<td>2-3/month</td>
+<td>186.101</td>
+<td>114.822</td>
+<td>327.529</td>
+<td>17953</td>
+<td>4450</td>
+<td>0.036</td>
+<td>0.041</td>
+<td>45.402</td>
+</tr>
+<tr>
+<td>US</td>
+<td>Weekly</td>
+<td>359.364</td>
+<td>203.153</td>
+<td>722.586</td>
+<td>17953</td>
+<td>4450</td>
+<td>0.036</td>
+<td>0.041</td>
+<td>45.402</td>
+</tr>
+<tr>
+<td>US</td>
+<td>Daily</td>
+<td>2404.614</td>
+<td>941.031</td>
+<td>8474.995</td>
+<td>17953</td>
+<td>4450</td>
+<td>0.036</td>
+<td>0.041</td>
+<td>45.402</td>
+</tr>
+</tbody>
+</table>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>replicate.R</code></h3>
+<pre><code class="language-r"># Replication of Cheng &amp; Smyth (2015) &quot;Sex and happiness&quot;, Table 2 Panel A,
+# plus the income-equivalent (&quot;extra monthly income needed&quot;) calculation.
+# Data: China Health and Family Life Survey 1999-2000, public release chfls1.dta
+# (downloaded from the Internet Archive copy of src.uchicago.edu/datalib/chfls).
+suppressMessages(library(foreign))
+
+d &lt;- read.dta(&quot;data/chfls1.dta&quot;, convert.factors = FALSE)
+
+# ---- variables (codes from the public-release value labels) -------------------
+d$happy   &lt;- ifelse(d$jk20 %in% 1:4, 5 - d$jk20, NA)        # 4 = very happy ... 1 = very unhappy
+d$sexfreq &lt;- ifelse(d$ax02 %in% 1:5, d$ax02, NA)            # 1 &gt;=1/day, 2 3-6/wk, 3 1-2/wk, 4 2-3/mo, 5 &lt;=1/mo
+d$female  &lt;- as.integer(d$zj05 == 2)
+d$age     &lt;- d$zj06
+d$age2    &lt;- d$zj06^2
+d$marital &lt;- ifelse(d$hy04 %in% 1:6, d$hy04, NA)            # unmarried, 1st marriage, remarried, cohab, divorced, widowed
+d$school  &lt;- c(0, 6, 9, 12, 15, 16)[ifelse(d$zj07 %in% 1:6, d$zj07, NA)]
+d$lninc   &lt;- ifelse(d$incrm &gt; 0, log(d$incrm), NA)          # imputed+rounded personal monthly income
+d$health  &lt;- ifelse(d$jk01 %in% 1:5, d$jk01, NA)            # 1 excellent ... 5 poor
+d$w       &lt;- d$weight0x
+
+vars &lt;- c(&quot;happy&quot;, &quot;sexfreq&quot;, &quot;female&quot;, &quot;age&quot;, &quot;age2&quot;, &quot;marital&quot;, &quot;school&quot;, &quot;lninc&quot;, &quot;health&quot;, &quot;w&quot;, &quot;site&quot;)
+s &lt;- d[complete.cases(d[, vars]), vars]
+
+# ---- OLS (optionally weighted) with neighbourhood-clustered SEs ----------------
+ols_cl &lt;- function(formula, data, weights = NULL, cluster) {
+  X &lt;- model.matrix(formula, data); y &lt;- model.response(model.frame(formula, data))
+  w &lt;- if (is.null(weights)) rep(1, nrow(X)) else weights
+  XtWX &lt;- crossprod(X * w, X); b &lt;- solve(XtWX, crossprod(X * w, y))
+  e &lt;- as.vector(y - X %*% b)
+  U &lt;- rowsum(X * (w * e), cluster)                         # cluster score sums
+  G &lt;- nrow(U); n &lt;- nrow(X); k &lt;- ncol(X)
+  V &lt;- solve(XtWX) %*% crossprod(U) %*% solve(XtWX) * (G / (G - 1)) * ((n - 1) / (n - k))
+  data.frame(coef = as.vector(b), se = sqrt(diag(V)), t = as.vector(b) / sqrt(diag(V)), row.names = colnames(X))
+}
+
+f &lt;- happy ~ factor(sexfreq) + female + age + age2 + factor(marital) + school + lninc + factor(health)
+keep &lt;- c(&quot;factor(sexfreq)2&quot;, &quot;factor(sexfreq)3&quot;, &quot;factor(sexfreq)4&quot;, &quot;factor(sexfreq)5&quot;, &quot;lninc&quot;)
+paper &lt;- c(-0.0957, -0.0808, -0.125, -0.193, NA)
+
+cat(&quot;Analysis sample N =&quot;, nrow(s), &quot; (paper Table 2: 2,970)\n\n&quot;)
+fits &lt;- list(
+  unweighted = ols_cl(f, s, NULL, s$site),
+  weighted   = ols_cl(f, s, s$w, s$site)
+)
+for (nm in names(fits)) {
+  r &lt;- fits[[nm]][keep, ]
+  cat(&quot;==&quot;, nm, &quot;\n&quot;)
+  print(round(cbind(r, paper = paper), 4))
+  cat(&quot;\n&quot;)
+}
+
+# ---- income-equivalent: extra % of monthly income giving the same happiness ----
+# A happiness gap b (negative) offsets ln-income coefficient g: exp(-b/g) - 1
+equiv &lt;- function(r) {
+  g &lt;- r[&quot;lninc&quot;, &quot;coef&quot;]
+  b &lt;- r[keep[1:4], &quot;coef&quot;]
+  round(100 * (exp(-b / g) - 1))
+}
+for (nm in names(fits)) cat(&quot;income-equivalent % (&quot;, nm, &quot;):&quot;, equiv(fits[[nm]]), &quot;\n&quot;)
+cat(&quot;chart:                               138 111 205 452\n&quot;)
+
+# ---- sensitivity: how income is coded changes the income coefficient -------------
+cat(&quot;\nIncome coefficient under alternative income codings (unweighted):\n&quot;)
+alt &lt;- list(
+  &quot;ln(incrm), incrm&gt;0 [main]&quot; = ifelse(d$incrm &gt; 0, log(d$incrm), NA),
+  &quot;ln(incrm+1), incl. zeros&quot;  = ifelse(d$incrm &gt;= 0, log(d$incrm + 1), NA),
+  &quot;ln(zj16m), reported only&quot;  = ifelse(d$zj16m &gt; 0, log(d$zj16m), NA),
+  &quot;ln(zj16m+1), reported&quot;     = ifelse(d$zj16m &gt;= 0, log(d$zj16m + 1), NA)
+)
+for (nm in names(alt)) {
+  d$lninc_alt &lt;- alt[[nm]]
+  v2 &lt;- c(setdiff(vars, &quot;lninc&quot;), &quot;lninc_alt&quot;)
+  s2 &lt;- d[complete.cases(d[, v2]), v2]; names(s2)[names(s2) == &quot;lninc_alt&quot;] &lt;- &quot;lninc&quot;
+  r &lt;- ols_cl(f, s2, NULL, s2$site)
+  cat(sprintf(&quot;  %-28s N=%4d  ln-income coef=%.4f (t=%.2f)  equiv%%: %s\n&quot;, nm, nrow(s2),
+              r[&quot;lninc&quot;, &quot;coef&quot;], r[&quot;lninc&quot;, &quot;t&quot;], paste(equiv(r), collapse=&quot; &quot;)))
+}
+
+# ---- cluster bootstrap CIs for the income-equivalents (main spec) ----------------
+set.seed(1)
+sites &lt;- unique(s$site); B &lt;- 1000
+boot &lt;- t(replicate(B, {
+  pick &lt;- sample(sites, length(sites), replace = TRUE)
+  sb &lt;- do.call(rbind, lapply(seq_along(pick), function(i) { x &lt;- s[s$site == pick[i], ]; x$site &lt;- i; x }))
+  r &lt;- tryCatch(ols_cl(f, sb, NULL, sb$site), error = function(e) NULL)
+  if (is.null(r) || !all(keep %in% rownames(r))) rep(NA, 4) else
+    100 * (exp(-r[keep[1:4], &quot;coef&quot;] / r[&quot;lninc&quot;, &quot;coef&quot;]) - 1)
+}))
+ci &lt;- apply(boot, 2, quantile, c(.025, .5, .975), na.rm = TRUE)
+colnames(ci) &lt;- c(&quot;3-6/wk&quot;, &quot;1-2/wk&quot;, &quot;2-3/mo&quot;, &quot;&lt;=1/mo&quot;)
+cat(&quot;\nCluster-bootstrap (&quot;, B, &quot;draws) income-equivalent %, 2.5 / 50 / 97.5 percentiles:\n&quot;)
+print(round(ci))
+saveRDS(list(main = fits$unweighted, boot = boot), &quot;results.rds&quot;)
+</code></pre>
+<h3><code>us_china_ladder.R</code></h3>
+<pre><code class="language-r"># Income-equivalent of having sex more often, starting from &lt;=1/month, US (GSS 1989-2024)
+# vs China (CHFLS 1999-2000). Same model in both: happiness on log(times per month),
+# log income and controls; the equivalent at frequency F is exp(b * ln(F / 0.75) / g) - 1,
+# where b = log-frequency coefficient and g = log-income coefficient. The ratio b/g does
+# not depend on the happiness scale, so the 4-point (China) and 3-point (US) questions compare.
+source_lines &lt;- readLines(&quot;replicate.R&quot;)
+eval(parse(text = source_lines[1:grep(&quot;^keep &lt;-&quot;, source_lines)]))   # data prep + ols_cl()
+
+# ---- China --------------------------------------------------------------------------
+cn &lt;- s
+cn$permonth &lt;- c(30, 18, 6, 2.5, 0.75)[cn$sexfreq]
+cn$cl &lt;- cn$site
+f_cn &lt;- happy ~ log(permonth) + lninc + female + age + age2 + factor(marital) + school + factor(health)
+
+# ---- US -----------------------------------------------------------------------------
+g &lt;- read.csv(&quot;data/gss_extract.csv&quot;)
+g &lt;- subset(g, sexfreq &gt;= 1 &amp; happy %in% 1:3 &amp; realinc &gt; 0 &amp; !is.na(age) &amp; marital %in% 1:5 &amp;
+               !is.na(educ) &amp; educ &lt;= 20 &amp; health %in% 1:4 &amp; sex %in% 1:2)
+g$happy    &lt;- 4 - g$happy                                          # 3 = very happy
+g$permonth &lt;- c(0.125, 1, 2.5, 4.3, 10.8, 17)[g$sexfreq]           # category midpoints, times/month
+g$lninc    &lt;- log(g$realinc)
+g$female   &lt;- as.integer(g$sex == 2); g$age2 &lt;- g$age^2
+g$cl       &lt;- paste(g$year, g$vstrat, g$vpsu)
+f_us &lt;- happy ~ log(permonth) + lninc + female + age + age2 + factor(marital) + educ + factor(health) + factor(year)
+
+# ---- estimates + cluster bootstrap ----------------------------------------------------------
+levels_pm &lt;- c(&quot;1-2/year&quot; = 0.125, &quot;&lt;=1/month&quot; = 0.75, &quot;2-3/month&quot; = 2.5, &quot;Weekly&quot; = 4.3, &quot;Daily&quot; = 30)
+equiv &lt;- function(b, gm) 100 * (exp(b * log(levels_pm / 0.75) / gm) - 1)
+
+run &lt;- function(dat, f, B = 500, seed = 1) {
+  r &lt;- ols_cl(f, dat, NULL, dat$cl)
+  rows &lt;- split(seq_len(nrow(dat)), dat$cl); G &lt;- length(rows)
+  set.seed(seed)
+  bt &lt;- t(replicate(B, {
+    pick &lt;- sample(G, G, replace = TRUE)
+    ix &lt;- unlist(rows[pick], use.names = FALSE)
+    db &lt;- dat[ix, ]; db$cl &lt;- rep(seq_along(pick), lengths(rows[pick]))
+    rb &lt;- ols_cl(f, db, NULL, db$cl)
+    equiv(rb[&quot;log(permonth)&quot;, &quot;coef&quot;], rb[&quot;lninc&quot;, &quot;coef&quot;])
+  }))
+  list(r = r, est = equiv(r[&quot;log(permonth)&quot;, &quot;coef&quot;], r[&quot;lninc&quot;, &quot;coef&quot;]),
+       lo = apply(bt, 2, quantile, .025), hi = apply(bt, 2, quantile, .975), n = nrow(dat), G = G)
+}
+res &lt;- list(China = run(cn, f_cn), US = run(g, f_us))
+# China's lowest category is &quot;&lt;=1/month&quot;: nothing below it was asked, so no 1-2/year point
+for (k in c(&quot;est&quot;, &quot;lo&quot;, &quot;hi&quot;)) res$China[[k]][&quot;1-2/year&quot;] &lt;- NA
+
+for (nm in names(res)) {
+  x &lt;- res[[nm]]; r &lt;- x$r
+  cat(sprintf(&quot;\n%s  N=%d, clusters=%d\n  log-frequency coef %.4f (t=%.2f)   log-income coef %.4f (t=%.2f)\n&quot;,
+              nm, x$n, x$G, r[&quot;log(permonth)&quot;, &quot;coef&quot;], r[&quot;log(permonth)&quot;, &quot;t&quot;], r[&quot;lninc&quot;, &quot;coef&quot;], r[&quot;lninc&quot;, &quot;t&quot;]))
+  cat(sprintf(&quot;  halving frequency ~ losing %.0f%% of income\n&quot;, 100 * (1 - exp(-r[&quot;log(permonth)&quot;, &quot;coef&quot;] * log(2) / r[&quot;lninc&quot;, &quot;coef&quot;]))))
+  print(round(rbind(estimate = x$est, lo95 = x$lo, hi95 = x$hi)))
+}
+saveRDS(res, &quot;us_china_ladder.rds&quot;)
+
+# ---- flat CSV for the Python (light) chart and the methods page -------------------------
+flat &lt;- do.call(rbind, lapply(names(res), function(nm) {
+  x &lt;- res[[nm]]; r &lt;- x$r
+  data.frame(country = nm, level = names(x$est), est_pct = x$est, lo95 = x$lo, hi95 = x$hi, n = x$n, clusters = x$G,
+             b_logfreq = r[&quot;log(permonth)&quot;, &quot;coef&quot;], g_loginc = r[&quot;lninc&quot;, &quot;coef&quot;],
+             halving_income_loss_pct = 100 * (1 - exp(-r[&quot;log(permonth)&quot;, &quot;coef&quot;] * log(2) / r[&quot;lninc&quot;, &quot;coef&quot;])))
+}))
+write.csv(flat, &quot;us_china_ladder.csv&quot;, row.names = FALSE)
+</code></pre>
+<h3><code>sexfreq_income_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Chart (light, house style): how much income has the same happiness effect as having sex more (or less) often,
+US (GSS 1989-2024) vs China (CHFLS 1999-2000). Light re-render of us_china_chart.R.
+
+Run after us_china_ladder.R (which writes us_china_ladder.csv):
+    uv run --with matplotlib,pillow,fonttools,pandas,numpy python notebooks/us_public_data/CHFLS/sexfreq_income_chart.py
+
+Method (estimated in us_china_ladder.R, data prep from replicate.R):
+- Model, same in both countries: OLS of happiness on log(times having sex per month), log income and controls
+  (sex, age, age squared, marital status, education, self-rated health; plus survey-year dummies in the US).
+- Income equivalent of moving from &quot;once a month or less&quot; (0.75/month) to frequency F:
+  exp(b * ln(F / 0.75) / g) - 1, where b is the log-frequency coefficient and g the log-income coefficient. The ratio
+  b/g does not depend on the happiness scale, so China's 4-point and the GSS's 3-point question compare.
+- US: General Social Survey 1989-2024 (data/gss_extract.csv from the cumulative GSS file): SEXFREQ (past 12 months,
+  category midpoints 0.125, 1, 2.5, 4.3, 10.8, 17 per month), HAPPY, REALINC (family income, 1986 $), AGE, SEX,
+  MARITAL, EDUC, HEALTH, YEAR; adults with valid answers and SEXFREQ above &quot;not at all&quot;, n = 17,953.
+- China: China Health and Family Life Survey 1999-2000 (chfls1.dta, public release), variables as in Cheng &amp; Smyth
+  (2015, &quot;Sex and happiness&quot;): 4-point happiness, 5 frequency categories (midpoints 30, 18, 6, 2.5, 0.75 per
+  month), personal monthly income, n = 2,981. Its lowest category is &quot;once a month or less&quot;, so no 1-2/year point.
+- Uncertainty: 95% intervals from 500 cluster-bootstrap draws (US clusters: year x stratum x PSU; China: the 60
+  sampling sites), re-estimating b/g in each draw.
+- &quot;Daily&quot; (30/month) for the US lies beyond the GSS top category (4+ times a week, midpoint 17), so it is an
+  extrapolation of the log-linear fit (dashed).
+- Dollars: the US percentage applied to $74k, the median family income (REALINC converted to 2024 dollars with CPI-U
+  annual averages, 1986 = 109.6, 2024 = 313.689) of the US analysis sample having sex once a month or less.
+- Correlational: happier, healthier people have more sex, so the ratio is an association, not a causal price.
+Writes the raw PNG to Substack Notes/Unwatermarked graphs/Sex/ and the watermarked copy to Substack Notes/Sex/
+(methods page pbmethods.github.io/sex-income).
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+OUT_WM, OUT_RAW = NOTES / &quot;Sex&quot;, NOTES / &quot;Unwatermarked graphs&quot; / &quot;Sex&quot;
+NAME = &quot;sex_income_equivalent&quot;
+
+P = pb.apply()
+INK, INK2, MUTED, NAVY, RED = P[&quot;INK&quot;], P[&quot;INK2&quot;], P[&quot;MUTED&quot;], P[&quot;NAVY&quot;], P[&quot;RED&quot;]
+COL = {&quot;US&quot;: NAVY, &quot;China&quot;: RED}
+LEVELS = [&quot;1-2/year&quot;, &quot;&lt;=1/month&quot;, &quot;2-3/month&quot;, &quot;Weekly&quot;, &quot;Daily&quot;]
+XL = [&quot;Once or twice\na year&quot;, &quot;Once a month\nor less&quot;, &quot;2-3 times\na month&quot;, &quot;Weekly&quot;, &quot;Daily&quot;]
+
+d = pd.read_csv(HERE / &quot;us_china_ladder.csv&quot;)
+g = pd.read_csv(HERE / &quot;data&quot; / &quot;gss_extract.csv&quot;)
+g = g[g.sexfreq.isin([1, 2]) &amp; g.happy.isin([1, 2, 3]) &amp; (g.realinc &gt; 0) &amp; g.age.notna() &amp; g.marital.isin(range(1, 6))
+      &amp; g.educ.notna() &amp; (g.educ &lt;= 20) &amp; g.health.isin(range(1, 5)) &amp; g.sex.isin([1, 2])]
+BASE = g.realinc.median() * 313.689 / 109.6
+
+
+def usd(v):
+    s = &quot;-&quot; if v &lt; 0 else &quot;&quot;
+    v = abs(v)
+    return f&quot;{s}${v / 1e6:.1f}M&quot; if v &gt;= 1e6 else f&quot;{s}${v / 1e3:,.0f}k&quot;
+
+
+def pct(v):
+    return f&quot;{'+' if v &gt; 0 else ''}{v:,.0f}%&quot;
+
+
+fig, ax = plt.subplots(figsize=(13, 8))
+fig.subplots_adjust(left=0.1, right=0.83, top=0.83, bottom=0.17)
+x = np.arange(1, 6)
+DX = {&quot;China&quot;: -0.05, &quot;US&quot;: 0.05}
+for c in [&quot;China&quot;, &quot;US&quot;]:
+    t = d[d.country.eq(c)].set_index(&quot;level&quot;).reindex(LEVELS)
+    m, lo, hi = 1 + t.est_pct / 100, 1 + t.lo95 / 100, np.minimum(1 + t.hi95 / 100, 100)
+    xs = x + DX[c]
+    real = [0, 1, 2, 3] if c == &quot;US&quot; else [1, 2, 3, 4]
+    ax.fill_between(xs[real], lo.iloc[real], hi.iloc[real], color=COL[c], alpha=0.13, lw=0)
+    ax.plot(xs[real], m.iloc[real], color=COL[c], lw=2.8, zorder=3)
+    if c == &quot;US&quot;:
+        ax.fill_between(xs[3:], lo.iloc[3:], hi.iloc[3:], color=COL[c], alpha=0.06, lw=0)
+        ax.plot(xs[3:], m.iloc[3:], color=COL[c], lw=2.8, ls=(0, (4, 2.5)), zorder=3)
+    ok = m.notna().to_numpy()
+    ax.scatter(xs[ok], m[ok], s=60, color=COL[c], zorder=4)
+    for i in np.where(ok &amp; (t.est_pct.to_numpy() != 0))[0]:
+        ax.plot([xs[i]] * 2, [lo.iloc[i], hi.iloc[i]], color=COL[c], lw=1.3, alpha=0.7, zorder=2)
+        e = t.est_pct.iloc[i]
+        if c == &quot;US&quot;:
+            up = e &gt; 0
+            ax.text(xs[i] - 0.08, m.iloc[i] * (1.75 if up else 1 / 1.3), pct(e), ha=&quot;right&quot;, va=&quot;center&quot;,
+                    fontsize=12, fontweight=&quot;bold&quot;, color=INK)
+            ax.text(xs[i] - 0.08, m.iloc[i] * (1.3 if up else 1 / 1.62), f&quot;≈ {usd(e / 100 * BASE)} / yr&quot;,
+                    ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=10, color=INK2)
+        else:
+            ax.text(xs[i] + 0.1, m.iloc[i] / 1.32, pct(e), ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=12,
+                    fontweight=&quot;bold&quot;, color=INK)
+ax.text(1.05, 1.35, &quot;not asked\nin China&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=9, color=MUTED)
+
+ax.set_yscale(&quot;log&quot;); ax.set_ylim(0.1, 100); ax.set_xlim(0.7, 5.3)
+ticks = [-90, -80, -50, 0, 100, 200, 400, 1000, 2500, 5000, 9900]
+ax.set_yticks([1 + v / 100 for v in ticks], [pct(v) if v else &quot;0%&quot; for v in ticks])
+ax.yaxis.set_minor_locator(plt.NullLocator())
+ax.axhline(1, color=MUTED, lw=1)
+ax.set_xticks(x, XL, fontsize=11.5); ax.tick_params(axis=&quot;x&quot;, length=0, pad=10)
+ax.grid(axis=&quot;x&quot;, visible=False)
+ax.set_ylabel(&quot;income change with the same happiness effect (log scale)&quot;, fontsize=11)
+
+for c, y, lab in [(&quot;US&quot;, 30, &quot;United States\nGSS 1989-2024&quot;), (&quot;China&quot;, 6, &quot;China\nCHFLS 1999-2000&quot;)]:
+    n = int(d[d.country.eq(c)].n.iloc[0])
+    ax.plot([5.45, 5.65], [y, y], color=COL[c], lw=2.8, clip_on=False)
+    ax.scatter([5.55], [y], s=60, color=COL[c], clip_on=False, zorder=4)
+    ax.text(5.75, y, f&quot;{lab}\nn = {n:,}&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=11.5, color=INK, linespacing=1.3)
+
+loss = d.groupby(&quot;country&quot;).halving_income_loss_pct.first()
+fig.text(0.01, 0.955, f&quot;Halving how often people have sex goes with as much lost happiness as losing &quot;
+         f&quot;{loss['US']:.0f}% of income&quot;, fontsize=17, fontweight=&quot;bold&quot;, color=INK, ha=&quot;left&quot;, va=&quot;bottom&quot;)
+fig.text(0.01, 0.905, &quot;How much income has the same happiness effect as having sex more (or less) often? Income &quot;
+         &quot;change, relative to people who\nhave sex once a month or less, that predicts the same change in &quot;
+         f&quot;happiness. US {loss['US']:.0f}%, China {loss['China']:.0f}% for halving.&quot;,
+         fontsize=11, color=INK2, ha=&quot;left&quot;, va=&quot;center&quot;, linespacing=1.4)
+fig.text(0.01, 0.07,
+         &quot;Shaded and whiskers: 95% cluster-bootstrap intervals. Dashed: US daily is extrapolated (the top GSS &quot;
+         &quot;category is 4+ times a week).\nOLS of happiness on log(sex per month) and log income with age, sex, marital &quot;
+         &quot;status, education, health (+ survey year in the US). Correlational.\nUS dollars: household income per year &quot;
+         f&quot;(2024 \\$) on a base of {usd(BASE).replace('$', chr(92) + '$')}, the median family income of US respondents having sex once a month or &quot;
+         &quot;less.&quot;, fontsize=8.6, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.5)
+
+OUT_WM.mkdir(parents=True, exist_ok=True); OUT_RAW.mkdir(parents=True, exist_ok=True)
+raw, wm = OUT_RAW / f&quot;{NAME}.png&quot;, OUT_WM / f&quot;{NAME}_wm.png&quot;
+fig.savefig(raw, dpi=200, bbox_inches=&quot;tight&quot;, pad_inches=0.25)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)], check=True)
+print(&quot;wrote&quot;, wm)
+</code></pre>
+</main></body></html>

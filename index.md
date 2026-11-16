@@ -2,6 +2,7 @@
 
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
+- [How much income has the same happiness effect as having sex more often? US (GSS) vs China (CHFLS)](sex-income/) (2026-11-16)
 - [Do rich men marry much younger women? The husband-wife age gap by income and net worth](rich-age-gap/) (2026-11-15)
 - [The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more](sex-dynamics/) (2026-11-15)
 - [The husband-wife age gap at marriage, US 1940-2024, by the wife's age at marriage](marriage-age-gap/) (2026-11-14)
