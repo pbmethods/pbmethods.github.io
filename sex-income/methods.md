@@ -369,7 +369,7 @@ fig.text(0.01, 0.955, f"Going from sex once a month to 4-7 times a week matches 
          f"{mult[17]:.0f}-{mult[30]:.0f}x higher income", fontsize=17, fontweight="bold", color=INK, ha="left",
          va="bottom")
 fig.text(0.01, 0.905, "How much income has the same happiness effect as having sex more (or less) often? Income "
-         "change, relative to people who\nhave sex once a month or less, that predicts the same change in "
+         "change, relative to people who have sex once a month\nor less, that predicts the same change in "
          f"happiness (US: 4/week is 17 a month, 7/week is daily). Halving sex ~ losing {loss['US']:.0f}% of income "
          f"(US), {loss['China']:.0f}% (China).",
          fontsize=11, color=INK2, ha="left", va="center", linespacing=1.4)
