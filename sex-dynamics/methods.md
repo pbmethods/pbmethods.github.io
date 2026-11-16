@@ -1,6 +1,6 @@
 # The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more
 
-<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-15.</p>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-16.</p>
 
 ![chart 1](chart.png)
 
@@ -2005,6 +2005,7 @@ the methods page pbmethods.github.io/sex-dynamics, unless PB_NO_PUSH=1).
 
 Every number and method is in `master_post_data.py`'s docstring; caveats are in CAVEATS.md.
 """
+import math
 import os
 import subprocess
 import sys
@@ -2292,41 +2293,45 @@ footnote(fig, "A: partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal 
 save(fig, "wants_more")
 
 # --------------------------------------------------------------- 4b. panel A alone, annotated at every grid line
+def draw_match(ax):
+    xs = np.linspace(1, 30.4, 400)
+    wl = np.interp(xs, mt.per_month, mt.women_want_at_least)
+    mm = np.interp(xs, mt.per_month, mt.men_want_at_most)
+    ax.plot(xs, wl, color=NAVY, lw=2.8, zorder=3)
+    ax.plot(xs, mm, color=GRAY, lw=2.8, zorder=3)
+    GRIDX = [(52 / 12, "once a week"), (104 / 12, "twice a week"), (156 / 12, "3x a week"), (208 / 12, "4x a week"),
+             (30.4, "daily")]
+    for i, (gx, lab) in enumerate(GRIDX):
+        w_ = float(np.interp(gx, mt.per_month, mt.women_want_at_least))
+        m_ = float(np.interp(gx, mt.per_month, mt.men_want_at_most))
+        red = i == 1
+        ax.plot([gx], [w_], "o", ms=10 if red else 7.5, color=RED if red else NAVY, mec=P["SURFACE"], mew=1.5, zorder=5)
+        ax.plot([gx], [m_], "o", ms=7.5, color=GRAY, mec=P["SURFACE"], mew=1.5, zorder=5)
+        if i == 0:  # the curves cross here, so one label in the gap to the right
+            ax.annotate(f"Once a week: {w_:.0%} of women want it at least\nthis often, {m_:.0%} of men no more than this. "
+                        "The\ncurves cross here: the best-matched frequency", xy=(gx + 0.25, (w_ + m_) / 2),
+                        xytext=(5.9, 0.445), fontsize=9.3, fontweight="bold", color=INK, va="center", linespacing=1.3,
+                        arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+            continue
+        last = gx > 29
+        ha, dx = ("right", -0.4) if last else ("left", 0.4)
+        ax.text(gx + dx, w_ + 0.03, f"{w_:.0%} of women", color=RED if red else NAVY, fontsize=11, fontweight="bold",
+                ha=ha, va="bottom", zorder=6)
+        ax.text(gx + dx, m_ + 0.03 if last else m_ - 0.03, f"{m_:.0%} of men", color=INK2, fontsize=11,
+                fontweight="bold", ha=ha, va="bottom" if last else "top", zorder=6)
+    ax.text(2.0, 0.885, "Blue: if he wants it this often, the share\nof women who want it at least as often",
+            color=NAVY, fontsize=9.8, fontweight="bold", ha="left", va="top")
+    ax.text(29.8, 0.70, "Gray: if she wants it this often, the share\nof men who'd want it no more than that",
+            color=INK2, fontsize=9.8, fontweight="bold", ha="right", va="top")
+    ax.set_xticks([g for g, _ in GRIDX], [l.replace(" a ", "\na ") for _, l in GRIDX])
+    ax.grid(axis="x", visible=True)
+    ax.set_xlim(1, 31.4); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
+    ax.set_xlabel("how often you'd ideally like sex")
+    ax.set_ylabel("share of the other sex who'd be a match")
+
+
 fig, ax = plt.subplots(figsize=(11, 6.6))
-xs = np.linspace(1, 30.4, 400)
-wl = np.interp(xs, mt.per_month, mt.women_want_at_least)
-mm = np.interp(xs, mt.per_month, mt.men_want_at_most)
-ax.plot(xs, wl, color=NAVY, lw=2.8, zorder=3)
-ax.plot(xs, mm, color=GRAY, lw=2.8, zorder=3)
-GRIDX = [(52 / 12, "once a week"), (104 / 12, "twice a week"), (156 / 12, "3x a week"), (208 / 12, "4x a week"),
-         (30.4, "daily")]
-for i, (gx, lab) in enumerate(GRIDX):
-    w_ = float(np.interp(gx, mt.per_month, mt.women_want_at_least))
-    m_ = float(np.interp(gx, mt.per_month, mt.men_want_at_most))
-    red = i == 1
-    ax.plot([gx], [w_], "o", ms=10 if red else 7.5, color=RED if red else NAVY, mec=P["SURFACE"], mew=1.5, zorder=5)
-    ax.plot([gx], [m_], "o", ms=7.5, color=GRAY, mec=P["SURFACE"], mew=1.5, zorder=5)
-    if i == 0:  # the curves cross here, so one label in the gap to the right
-        ax.annotate(f"Once a week: {w_:.0%} of women want it at least\nthis often, {m_:.0%} of men no more than this. "
-                    "The\ncurves cross here: the best-matched frequency", xy=(gx + 0.25, (w_ + m_) / 2),
-                    xytext=(5.9, 0.445), fontsize=9.3, fontweight="bold", color=INK, va="center", linespacing=1.3,
-                    arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-        continue
-    last = gx > 29
-    ha, dx = ("right", -0.4) if last else ("left", 0.4)
-    ax.text(gx + dx, w_ + 0.03, f"{w_:.0%} of women", color=RED if red else NAVY, fontsize=11, fontweight="bold",
-            ha=ha, va="bottom", zorder=6)
-    ax.text(gx + dx, m_ + 0.03 if last else m_ - 0.03, f"{m_:.0%} of men", color=INK2, fontsize=11,
-            fontweight="bold", ha=ha, va="bottom" if last else "top", zorder=6)
-ax.text(2.0, 0.885, "Blue: if he wants it this often, the share\nof women who want it at least as often",
-        color=NAVY, fontsize=9.8, fontweight="bold", ha="left", va="top")
-ax.text(29.8, 0.70, "Gray: if she wants it this often, the share\nof men who'd want it no more than that",
-        color=INK2, fontsize=9.8, fontweight="bold", ha="right", va="top")
-ax.set_xticks([g for g, _ in GRIDX], [l.replace(" a ", "\na ") for _, l in GRIDX])
-ax.grid(axis="x", visible=True)
-ax.set_xlim(1, 31.4); ax.set_ylim(0, 1); ax.yaxis.set_major_formatter(pct)
-ax.set_xlabel("how often you'd ideally like sex")
-ax.set_ylabel("share of the other sex who'd be a match")
+draw_match(ax)
 he2 = float(np.interp(104 / 12, mt.per_month, mt.women_want_at_least))
 she1 = float(np.interp(52 / 12, mt.per_month, mt.men_want_at_most))
 header(fig, f"If he wants sex twice a week, only {he2:.0%} of women want it that often",
@@ -2339,6 +2344,43 @@ footnote(fig, "Partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal fre
               "share of men whose ideal is x or less. The cap moves the levels, not the gap between the sexes.",
          y=0.0)
 save(fig, "wants_match")
+
+# --------------------------------------------------------------- 4b2. the meta-analytic gap (A) next to the match curves (B)
+G_SD = 0.69                                  # Frankenbach et al. 2022, overall sex drive, men higher (Hedges' g)
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(17, 6.6), gridspec_kw=dict(width_ratios=[1, 1.3], wspace=0.17))
+z = np.linspace(-3.6, 4.4, 600)
+fw, fm = norm_pdf(z), norm_pdf(z - G_SD)
+ax.fill_between(z, fw, color=NAVY, alpha=0.08, lw=0)
+ax.fill_between(z, fm, color=GRAY, alpha=0.08, lw=0)
+ax.plot(z, fw, color=NAVY, lw=2.8); ax.plot(z, fm, color=GRAY, lw=2.8)
+hi_ = z >= G_SD
+ax.fill_between(z[hi_], fw[hi_], color=RED, alpha=0.30, lw=0)
+ax.axvline(G_SD, color=INK2, lw=1.1, ls=(0, (4, 3)))
+share_above = 0.5 * math.erfc(G_SD / np.sqrt(2))     # women above the male median
+ax.annotate(f"{share_above:.1%} of women want sex\nmore than the median man", xy=(1.25, 0.12), xytext=(1.75, 0.30),
+            fontsize=10.5, fontweight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+ax.text(G_SD + 0.06, 0.425, f"median man (+{G_SD} SD)", fontsize=9.5, color=INK2, ha="left", va="center")
+ax.text(-1.25, 0.30, "women", color=NAVY, fontsize=11, fontweight="bold", ha="right")
+ax.text(2.05, 0.19, "men", color=INK2, fontsize=11, fontweight="bold", ha="left")
+ax.set_xlim(-3.6, 4.4); ax.set_ylim(0, 0.45); ax.set_yticks([])
+ax.set_xticks([-3, -2, -1, 0, 1, 2, 3, 4], ["-3", "-2", "-1", "women's\naverage", "+1", "+2", "+3", "+4 SD"])
+ax.grid(axis="y", visible=False)
+ax.set_xlabel("sex drive, in standard deviations")
+panel_title(ax, "A", f"Men's sex drive averages {G_SD} SD higher (211 studies)")
+draw_match(bx)
+panel_title(bx, "B", f"If he wants it twice a week, only {he2:.0%} of women do")
+header(fig, f"Only a quarter of women want sex more than the median man, so if he wants it twice a week, "
+       f"only {he2:.0%} of women do",
+       "The meta-analytic gap in sex drive (A), and what it means for matching how often each sex ideally wants sex "
+       "(B, partnered adults 25-40, Britain)", y=0.86)
+footnote(fig, "A: Frankenbach et al. 2022, meta-analysis of 211 studies (N = 621,463), overall sex drive, g = 0.69; "
+              "about 0.54 after removing the gap on bias-prone items. Drawn as two normal curves with equal spread.\n"
+              "B: Natsal-3, partnered men and women aged 25-40 (n = 1,097 / 1,797). Ideal frequency is estimated per sex "
+              "from each person's actual count in the last 4 weeks plus whether they wanted sex more, less or about\n"
+              "as often (a lognormal fit; 'a bit more' capped at twice the actual count). Blue: if a man wants sex x times "
+              "a month, the share of women whose ideal is x or more. Gray: if a woman wants it x times, the share\n"
+              "of men whose ideal is x or less.", y=0.0)
+save(fig, "libido_gap_match")
 
 # --------------------------------------------------------------- 4d. how well could men and women be paired by desire?
 pr = read("natsal_desire_pairing.csv").set_index("pairing")
