@@ -363,11 +363,15 @@ for c, y, lab in [("US", 30, "United States\nGSS 1989-2024"), ("China", 6, "Chin
     ax.text(5.75, y, f"{lab}\nn = {n:,}", ha="left", va="center", fontsize=11.5, color=INK, linespacing=1.3)
 
 loss = d.groupby("country").halving_income_loss_pct.first()
-fig.text(0.01, 0.955, f"Halving how often people have sex goes with as much lost happiness as losing "
-         f"{loss['US']:.0f}% of income", fontsize=17, fontweight="bold", color=INK, ha="left", va="bottom")
+us = d[d.country.eq("US")].iloc[0]
+mult = {f: np.exp(us.b_logfreq / us.g_loginc * np.log(f / 0.75)) for f in (17, 30)}   # 4/week (GSS top), 7/week
+fig.text(0.01, 0.955, f"Going from sex once a month to 4-7 times a week matches the happiness of a "
+         f"{mult[17]:.0f}-{mult[30]:.0f}x higher income", fontsize=17, fontweight="bold", color=INK, ha="left",
+         va="bottom")
 fig.text(0.01, 0.905, "How much income has the same happiness effect as having sex more (or less) often? Income "
          "change, relative to people who\nhave sex once a month or less, that predicts the same change in "
-         f"happiness. US {loss['US']:.0f}%, China {loss['China']:.0f}% for halving.",
+         f"happiness (US: 4/week is 17 a month, 7/week is daily). Halving sex ~ losing {loss['US']:.0f}% of income "
+         f"(US), {loss['China']:.0f}% (China).",
          fontsize=11, color=INK2, ha="left", va="center", linespacing=1.4)
 fig.text(0.01, 0.07,
          "Shaded and whiskers: 95% cluster-bootstrap intervals. Dashed: US daily is extrapolated (the top GSS "
