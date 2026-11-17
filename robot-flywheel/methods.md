@@ -881,8 +881,8 @@ def main():
 
     # --- A: benchmark saturation
     a.axhline(TEACHER, color=MUTED, lw=1, ls=(0, (4, 3)), zorder=1)
-    a.text(date(2026, 8, 20), TEACHER + 1.5, "80%: good enough to teach (assumed)", fontsize=8.5,
-           color=INK2, va="bottom")
+    a.text(date(2027, 6, 1), TEACHER - 1.5, "80%: good enough to teach (assumed)", fontsize=8.5,
+           color=INK2, va="top")
     a.plot(date(2026, 10, 28), 42.59, "o", ms=6, color=MUTED, zorder=5)
     a.annotate("Best robot-specific model\n(WALL-OSS, Oct 2026): 42.6", (date(2026, 10, 28), 42.59),
                xytext=(10, -26), textcoords="offset points", fontsize=8, color=INK2)
@@ -891,15 +891,14 @@ def main():
         xs = [d for d, _ in s["pts"][1:]] + [date(2028, 1, 1)]
         ys = [v for _, v in s["pts"][1:]] + [s["pts"][-1][1]]
         a.step(xs, ys, where="post", zorder=3, **style[k])
-        a.text(date(2027, 12, 20), ys[-1] + (1.6 if k != "low" else -1.6),
-               f"×{r} per release → {s['ceiling']:.0f}%", fontsize=8.5, ha="right",
-               va="bottom" if k != "low" else "top", color=INK if k == "central" else INK2,
+        a.text(date(2028, 1, 10), ys[-1], f"×{r} → {s['ceiling']:.0f}%", fontsize=8.5, ha="left",
+               va="center", color=INK if k == "central" else INK2,
                fontweight="bold" if k == "central" else "normal")
     for name, d, s in OBSERVED:
         a.plot(d, s, "o", ms=8, color=RED, mec=SURF, mew=1.2, zorder=6)
         a.annotate(f"{name}: {s:.0f}", (d, s), xytext=(8, 2), textcoords="offset points",
                    fontsize=8.5, color=INK, fontweight="bold", va="bottom")
-    a.set_xlim(date(2026, 8, 1), date(2028, 1, 1))
+    a.set_xlim(date(2026, 8, 1), date(2028, 4, 15))
     a.set_ylim(0, 100)
     a.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(1, 7)))
     a.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
@@ -911,9 +910,9 @@ def main():
     lo, mid, hi = TARGET
     b.axhspan(lo, hi, color=GRID, alpha=0.75, lw=0, zorder=0)
     b.axhline(mid, color=MUTED, lw=1, ls=(0, (4, 3)), zorder=1)
-    b.text(date(2025, 1, 20), hi * 1.15,
-           "Enough robot-specific data for general robotics (assumed 100M–1B hrs, ~7–70× Waymo’s driverless hours)",
-           fontsize=8.5, color=INK2, va="bottom")
+    b.text(date(2025, 1, 20), lo / 1.15,
+           "Enough robot-specific data for general robotics\n(assumed 100M–1B hrs, ~7–70× Waymo’s driverless hours)",
+           fontsize=8.5, color=INK2, va="top")
     b.text(date(2025, 1, 20), mid * 1.1, "300M central", fontsize=8, color=INK2, va="bottom")
     b.axvspan(date(2028, 10, 1), date(2029, 4, 1), color=GRID, alpha=0.5, lw=0, zorder=0)
     b.text(date(2029, 1, 1), 1.3e5, "Centroid for the\nstep change", ha="center", va="bottom",
@@ -923,14 +922,15 @@ def main():
     proj = ~e.is_hist | (e.x == e.x[e.is_hist][-1])
     b.plot(e.x[hist], e.r_mid[hist], color=INK, lw=2.2, zorder=4)
     b.plot(e.x[proj], e.r_mid[proj], color=MUTED, lw=1.6, ls=(0, (4, 2)), zorder=3)
-    b.text(date(2030, 12, 20), e.r_mid[np.argmax(e.x >= date(2030, 12, 1))] / 1.25,
-           "Human-collected only", fontsize=8.5, color=INK2, ha="right", va="top")
+    li = np.argmax(e.x >= date(2029, 11, 1))
+    b.text(date(2029, 11, 15), e.r_mid[li] / 1.35, "Human-collected only", fontsize=8.5,
+           color=INK2, ha="left", va="top")
     for k in ("low", "high", "central"):
         s = sc[k]
         b.plot(e.x[proj], s["total"][proj], zorder=4, **style[k])
-    end = np.argmax(e.x >= date(2029, 9, 1))
-    for k, dy in (("high", 1.25), ("central", 1.0), ("low", 0.8)):
-        b.text(date(2029, 9, 15), sc[k]["total"][end] * dy,
+    end = np.argmax(e.x >= date(2029, 5, 1))
+    for k, dy in (("high", 1.0), ("central", 1.0), ("low", 1.0)):
+        b.text(date(2029, 5, 15), sc[k]["total"][end] * dy / 1.25,
                {"high": "High", "central": "Central", "low": "Low"}[k], fontsize=8.5,
                color=INK if k == "central" else INK2, fontweight="bold" if k == "central" else "normal",
                va="center")
@@ -940,8 +940,9 @@ def main():
     lo_d = crossing(sc["high"]["total"], lo)
     hi_d = crossing(sc["low"]["total"], hi)
     b.annotate(f"Central: {d_mid:%b %Y}\n(range {lo_d:%b %Y} – {hi_d:%b %Y})", (d_mid, mid),
-               xytext=(-14, 14), textcoords="offset points", ha="right", fontsize=9.5,
-               color=INK, fontweight="bold")
+               xytext=(-40, 62), textcoords="offset points", ha="right", fontsize=9.5,
+               color=INK, fontweight="bold",
+               arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=2, shrinkB=6))
     b.axvline(c["start"], color=NAVY, lw=1, alpha=0.5, zorder=1)
     b.text(c["start"] + timedelta(days=15), 4e5,
            f"Fleet starts\nself-collecting\n({c['start']:%b %Y}, central)", fontsize=8, color=INK2)
