@@ -906,7 +906,7 @@ def main():
 
     # End-2027 compute marker
     ax.axvline(date(2027, 12, 31), color=GRID, lw=1.2, zorder=0)
-    ax.text(date(2028, 1, 15), date(2032, 10, 1), "~$600B of new AI\ncompute online by end-2027",
+    ax.text(date(2028, 1, 15), date(2032, 4, 1), "~$600B of new AI\ncompute online by end-2027",
             fontsize=8, color=INK2, va="top")
 
     # Projected landing date, stepping down at each release
@@ -929,7 +929,7 @@ def main():
             ax.annotate(f"−{step:.2f}", (d, y), xytext=(4, -3), textcoords="offset points",
                         fontsize=7.5, color=INK2, va="top")
     ax.annotate(f"Projected: every 70 days, each step ×{STEP_RATIO} the last",
-                (rel[3][0], ys[4]), xytext=(60, 40), textcoords="offset points", fontsize=8.5,
+                (rel[3][0], ys[4]), xytext=(date(2028, 5, 1), date(2031, 5, 1)), textcoords="data", fontsize=8.5,
                 color=INK, fontweight="demibold",
                 arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
 
