@@ -888,8 +888,9 @@ def main():
                xytext=(10, -26), textcoords=&quot;offset points&quot;, fontsize=8, color=INK2)
     for k in (&quot;low&quot;, &quot;high&quot;, &quot;central&quot;):
         s, r = sc[k], SCENARIOS[k][0]
-        xs = [d for d, _ in s[&quot;pts&quot;][1:]] + [date(2028, 1, 1)]
-        ys = [v for _, v in s[&quot;pts&quot;][1:]] + [s[&quot;pts&quot;][-1][1]]
+        shown = [(d, v) for d, v in s[&quot;pts&quot;][1:] if d &lt; date(2028, 1, 1)]
+        xs = [d for d, _ in shown] + [date(2028, 1, 1)]
+        ys = [v for _, v in shown] + [shown[-1][1]]
         a.step(xs, ys, where=&quot;post&quot;, zorder=3, **style[k])
         a.text(date(2028, 1, 10), ys[-1], f&quot;×{r} → {s['ceiling']:.0f}%&quot;, fontsize=8.5, ha=&quot;left&quot;,
                va=&quot;center&quot;, color=INK if k == &quot;central&quot; else INK2,
@@ -911,7 +912,7 @@ def main():
     b.axhspan(lo, hi, color=GRID, alpha=0.75, lw=0, zorder=0)
     b.axhline(mid, color=MUTED, lw=1, ls=(0, (4, 3)), zorder=1)
     b.text(date(2025, 1, 20), lo / 1.15,
-           &quot;Enough robot-specific data for general robotics\n(assumed 100M–1B hrs, ~7–70× Waymo’s driverless hours)&quot;,
+           &quot;Enough robot-specific data for\ngeneral robotics (assumed 100M–1B\nhrs, ~7–70× Waymo’s driverless hours)&quot;,
            fontsize=8.5, color=INK2, va=&quot;top&quot;)
     b.text(date(2025, 1, 20), mid * 1.1, &quot;300M central&quot;, fontsize=8, color=INK2, va=&quot;bottom&quot;)
     b.axvspan(date(2028, 10, 1), date(2029, 4, 1), color=GRID, alpha=0.5, lw=0, zorder=0)
@@ -928,19 +929,21 @@ def main():
     for k in (&quot;low&quot;, &quot;high&quot;, &quot;central&quot;):
         s = sc[k]
         b.plot(e.x[proj], s[&quot;total&quot;][proj], zorder=4, **style[k])
-    end = np.argmax(e.x &gt;= date(2029, 5, 1))
-    for k, dy in ((&quot;high&quot;, 1.0), (&quot;central&quot;, 1.0), (&quot;low&quot;, 1.0)):
-        b.text(date(2029, 5, 15), sc[k][&quot;total&quot;][end] * dy / 1.25,
-               {&quot;high&quot;: &quot;High&quot;, &quot;central&quot;: &quot;Central&quot;, &quot;low&quot;: &quot;Low&quot;}[k], fontsize=8.5,
-               color=INK if k == &quot;central&quot; else INK2, fontweight=&quot;bold&quot; if k == &quot;central&quot; else &quot;normal&quot;,
-               va=&quot;center&quot;)
+    # direct labels: High above its line, Central and Low below theirs, at spread-out dates
+    for k, when, f, va in ((&quot;high&quot;, date(2028, 8, 1), 1.35, &quot;bottom&quot;),
+                           (&quot;central&quot;, date(2029, 9, 1), 1 / 1.35, &quot;top&quot;),
+                           (&quot;low&quot;, date(2030, 5, 1), 1 / 1.35, &quot;top&quot;)):
+        i = np.argmax(e.x &gt;= when)
+        b.text(when, sc[k][&quot;total&quot;][i] * f, {&quot;high&quot;: &quot;High&quot;, &quot;central&quot;: &quot;Central&quot;, &quot;low&quot;: &quot;Low&quot;}[k],
+               fontsize=8.5, color=INK if k == &quot;central&quot; else INK2,
+               fontweight=&quot;bold&quot; if k == &quot;central&quot; else &quot;normal&quot;, va=va, ha=&quot;center&quot;)
     c = sc[&quot;central&quot;]
     d_mid = crossing(c[&quot;total&quot;], mid)
     b.plot(d_mid, mid, &quot;o&quot;, ms=9, color=RED, mec=SURF, mew=1.3, zorder=7)
     lo_d = crossing(sc[&quot;high&quot;][&quot;total&quot;], lo)
     hi_d = crossing(sc[&quot;low&quot;][&quot;total&quot;], hi)
     b.annotate(f&quot;Central: {d_mid:%b %Y}\n(range {lo_d:%b %Y} – {hi_d:%b %Y})&quot;, (d_mid, mid),
-               xytext=(-40, 62), textcoords=&quot;offset points&quot;, ha=&quot;right&quot;, fontsize=9.5,
+               xytext=(-95, 62), textcoords=&quot;offset points&quot;, ha=&quot;right&quot;, fontsize=9.5,
                color=INK, fontweight=&quot;bold&quot;,
                arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8, shrinkA=2, shrinkB=6))
     b.axvline(c[&quot;start&quot;], color=NAVY, lw=1, alpha=0.5, zorder=1)

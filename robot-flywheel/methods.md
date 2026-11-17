@@ -888,8 +888,9 @@ def main():
                xytext=(10, -26), textcoords="offset points", fontsize=8, color=INK2)
     for k in ("low", "high", "central"):
         s, r = sc[k], SCENARIOS[k][0]
-        xs = [d for d, _ in s["pts"][1:]] + [date(2028, 1, 1)]
-        ys = [v for _, v in s["pts"][1:]] + [s["pts"][-1][1]]
+        shown = [(d, v) for d, v in s["pts"][1:] if d < date(2028, 1, 1)]
+        xs = [d for d, _ in shown] + [date(2028, 1, 1)]
+        ys = [v for _, v in shown] + [shown[-1][1]]
         a.step(xs, ys, where="post", zorder=3, **style[k])
         a.text(date(2028, 1, 10), ys[-1], f"×{r} → {s['ceiling']:.0f}%", fontsize=8.5, ha="left",
                va="center", color=INK if k == "central" else INK2,
@@ -911,7 +912,7 @@ def main():
     b.axhspan(lo, hi, color=GRID, alpha=0.75, lw=0, zorder=0)
     b.axhline(mid, color=MUTED, lw=1, ls=(0, (4, 3)), zorder=1)
     b.text(date(2025, 1, 20), lo / 1.15,
-           "Enough robot-specific data for general robotics\n(assumed 100M–1B hrs, ~7–70× Waymo’s driverless hours)",
+           "Enough robot-specific data for\ngeneral robotics (assumed 100M–1B\nhrs, ~7–70× Waymo’s driverless hours)",
            fontsize=8.5, color=INK2, va="top")
     b.text(date(2025, 1, 20), mid * 1.1, "300M central", fontsize=8, color=INK2, va="bottom")
     b.axvspan(date(2028, 10, 1), date(2029, 4, 1), color=GRID, alpha=0.5, lw=0, zorder=0)
@@ -928,19 +929,21 @@ def main():
     for k in ("low", "high", "central"):
         s = sc[k]
         b.plot(e.x[proj], s["total"][proj], zorder=4, **style[k])
-    end = np.argmax(e.x >= date(2029, 5, 1))
-    for k, dy in (("high", 1.0), ("central", 1.0), ("low", 1.0)):
-        b.text(date(2029, 5, 15), sc[k]["total"][end] * dy / 1.25,
-               {"high": "High", "central": "Central", "low": "Low"}[k], fontsize=8.5,
-               color=INK if k == "central" else INK2, fontweight="bold" if k == "central" else "normal",
-               va="center")
+    # direct labels: High above its line, Central and Low below theirs, at spread-out dates
+    for k, when, f, va in (("high", date(2028, 8, 1), 1.35, "bottom"),
+                           ("central", date(2029, 9, 1), 1 / 1.35, "top"),
+                           ("low", date(2030, 5, 1), 1 / 1.35, "top")):
+        i = np.argmax(e.x >= when)
+        b.text(when, sc[k]["total"][i] * f, {"high": "High", "central": "Central", "low": "Low"}[k],
+               fontsize=8.5, color=INK if k == "central" else INK2,
+               fontweight="bold" if k == "central" else "normal", va=va, ha="center")
     c = sc["central"]
     d_mid = crossing(c["total"], mid)
     b.plot(d_mid, mid, "o", ms=9, color=RED, mec=SURF, mew=1.3, zorder=7)
     lo_d = crossing(sc["high"]["total"], lo)
     hi_d = crossing(sc["low"]["total"], hi)
     b.annotate(f"Central: {d_mid:%b %Y}\n(range {lo_d:%b %Y} – {hi_d:%b %Y})", (d_mid, mid),
-               xytext=(-40, 62), textcoords="offset points", ha="right", fontsize=9.5,
+               xytext=(-95, 62), textcoords="offset points", ha="right", fontsize=9.5,
                color=INK, fontweight="bold",
                arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=2, shrinkB=6))
     b.axvline(c["start"], color=NAVY, lw=1, alpha=0.5, zorder=1)
