@@ -109,6 +109,21 @@ Run: uv run --with matplotlib,numpy,pillow,fonttools python notebooks/robotics_d
   forecasts are ~$785B (2026, Moody's) and ~$1.2T (2027, Goldman Sachs), which are spending, not
   compute coming online.
 
+## Flywheel model (robotics_flywheel.py)
+
+- **The 80% "teacher" threshold is an assumption.** Nothing shows a model at 80% on RoboDojo-Sim can
+  run real robots safely enough to collect usable data; Astra's real-robot run was halted for safety.
+  The 6-month lag for sim-to-real and safety work is also assumed.
+- **The data target (100M–1B hours) is a judgment.** It is anchored loosely to Waymo (~300M driverless
+  miles ≈ 15–20M hours for one task family) and scaled by an assumed 7–70× for general manipulation.
+  A strong teacher could need far less; contact-heavy long tails could need more.
+- **Fleet numbers are forecasts.** Humanoid shipments after 2026 are interpolated toward ~500k a year in
+  2030 (Smart Analytics Global; Goldman Sachs' base case is 250k+). The share practising (15–50%) and
+  useful hours (8 a day) are assumptions.
+- **Autonomous practice is counted like teleop data, hour for hour.** On-policy data may be worth more
+  for fixing a policy's own mistakes, or less because it is noisier and lower in diversity.
+- **Panel A extrapolates one observed step ratio** (Fable 5.2 vs Astra) on one simulated benchmark.
+
 ## Code
 
 Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.
