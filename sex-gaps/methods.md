@@ -1489,7 +1489,7 @@ def main():
     a2.bar(xb, vals, color=[pb.NAVY] * (len(BANDS) - 1) + [pb.RED], width=.62)
     a2.vlines(xb, [s[2] * 100 for s in shares], [s[3] * 100 for s in shares], color=INK, lw=1.1, alpha=.55)
     a2.axhline(base * 100, color=pb.GRAYS[0], lw=1.6, ls=(0, (2, 2)), zorder=3)
-    a2.text(len(BANDS) - .62, base * 100, f"all men\n{base:.1%}", fontsize=9.5, color=pb.GRAYS[1], va="center",
+    a2.text(len(BANDS) - .62, base * 100 + .35, f"all men\n{base:.1%}", fontsize=9.5, color=pb.GRAYS[1], va="bottom",
             ha="left", linespacing=1.1)
     a2.set_xlim(-.5, len(BANDS) - .05)
     for xi, s in zip(xb, shares):
