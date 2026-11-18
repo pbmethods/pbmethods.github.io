@@ -25,6 +25,8 @@ li{margin:.2rem 0}
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-18.</p>
 
 <p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p><img alt="chart 3" src="chart3.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -58,7 +60,8 @@ Trait effect sizes: as in sex_gaps_tails_chart.py (GAPS): Su, Rounds &amp; Armst
 al. 2022 (sex drive, g = 0.69; bias-adjusted 0.54), Hyde 1984/86 (physical aggression), Kajonius &amp; Johnson 2018
 (neuroticism, agreeableness). Women-higher traits are drawn as &quot;women taller by&quot;.
 Run:  uv run --with matplotlib,scipy,fonttools,pandas python notebooks/sex_gaps_height_chart.py
-Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
 </code></pre>
 <h2>Notes and caveats</h2>
 <h1>Caveats: sex differences, mean gaps, tails, and height equivalents</h1>
@@ -288,19 +291,25 @@ Trait effect sizes: as in sex_gaps_tails_chart.py (GAPS): Su, Rounds &amp; Armst
 al. 2022 (sex drive, g = 0.69; bias-adjusted 0.54), Hyde 1984/86 (physical aggression), Kajonius &amp; Johnson 2018
 (neuroticism, agreeableness). Women-higher traits are drawn as &quot;women taller by&quot;.
 Run:  uv run --with matplotlib,scipy,fonttools,pandas python notebooks/sex_gaps_height_chart.py
-Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
 &quot;&quot;&quot;
 import sys
 from pathlib import Path
+
+import subprocess
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from sex_gaps_tails_chart import GAPS, SEXDRIVE_ADJ, BLUE, ORANGE, GREY, INK, MUTED, GRID, save  # noqa: E402
+from sex_gaps_tails_chart import (GAPS, SEXDRIVE_ADJ, BLUE, ORANGE, GREY, INK, MUTED, GRID, SURFACE,  # noqa: E402
+                                  OUT, RAW)
 
 NHANES = Path(__file__).resolve().parent / &quot;nhanes_p_data&quot;
+SUB = &quot;Gender differences&quot;
+LEFT = -4.9  # x where the row labels end
 
 
 def height_stats():
@@ -339,16 +348,15 @@ def main():
         tag = &quot;men taller by&quot; if d &gt; 0 else &quot;women taller by&quot;
         a.text(cm / 2.54 + (.12 if d &gt; 0 else -.12), yi, f&quot;{abs(cm) / 2.54:.1f} in  ({abs(cm):.1f} cm)&quot;,
                va=&quot;center&quot;, ha=&quot;left&quot; if d &gt; 0 else &quot;right&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK)
-        a.text(cm / 2.54 + (.12 if d &gt; 0 else -.12), yi - .33, f&quot;{tag}, d = {abs(d):.2f}&quot;, va=&quot;center&quot;,
+        note = f&quot;  (white tick: bias-adjusted, {SEXDRIVE_ADJ * sd / 2.54:.1f} in)&quot; if lab == &quot;Sex drive&quot; else &quot;&quot;
+        a.text(cm / 2.54 + (.12 if d &gt; 0 else -.12), yi - .33, f&quot;{tag}, d = {abs(d):.2f}{note}&quot;, va=&quot;center&quot;,
                ha=&quot;left&quot; if d &gt; 0 else &quot;right&quot;, fontsize=8.5, color=MUTED)
-        a.text(-3.4, yi + .1, lab, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5, color=INK)
-        a.text(-3.4, yi - .28, src, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5, color=MUTED)
+        a.text(LEFT, yi + .1, lab, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5, color=INK)
+        a.text(LEFT, yi - .28, src, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5, color=MUTED)
     ysd = [i for i, r in enumerate(rows) if r[0] == &quot;Sex drive&quot;][0]
     a.plot([SEXDRIVE_ADJ * sd / 2.54] * 2, [ysd - .31, ysd + .31], color=&quot;white&quot;, lw=2)
-    a.text(SEXDRIVE_ADJ * sd / 2.54 - .08, ysd + .45, f&quot;bias-adjusted: {SEXDRIVE_ADJ * sd / 2.54:.1f} in&quot;,
-           fontsize=8.5, color=MUTED, ha=&quot;center&quot;, va=&quot;bottom&quot;)
     a.axvline(0, color=INK, lw=1)
-    a.set_xlim(-3.4, 6.6)
+    a.set_xlim(LEFT, 6.6)
     a.set_ylim(-.7, len(rows) - .3)
     a.set_yticks([])
     a.set_xticks(range(-2, 7))
@@ -369,8 +377,19 @@ def main():
         f&quot;{ft_in(mw)}). Trait gaps: Su, Rounds &amp; Armstrong 2009; Frankenbach et al. 2022; Hyde 1984/86; Kajonius &amp; &quot;
         &quot;Johnson 2018. It shows how separated the sexes are, not how much a trait matters.&quot;),
         fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
-    fig.subplots_adjust(left=.33, right=.97, top=.89, bottom=.1)
+    fig.subplots_adjust(left=.27, right=.97, top=.89, bottom=.1)
     save(fig, &quot;sex_gaps_height.png&quot;)
+
+
+def save(fig, name):
+    raw, wm = RAW / SUB / name, OUT / SUB / f&quot;{Path(name).stem}_wm.png&quot;
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    wm.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(raw, dpi=200, bbox_inches=&quot;tight&quot;, facecolor=SURFACE)
+    plt.close(fig)
+    print(&quot;wrote&quot;, raw, &quot;\n     &quot;, wm)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)],
+                   check=True)
 
 
 if __name__ == &quot;__main__&quot;:
