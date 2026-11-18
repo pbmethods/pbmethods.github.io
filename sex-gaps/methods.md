@@ -8,6 +8,8 @@
 
 ![chart 3](chart3.png)
 
+![chart 4](chart4.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -47,6 +49,28 @@ Trait effect sizes: as in sex_gaps_tails_chart.py (GAPS): Su, Rounds & Armstrong
 al. 2022 (sex drive, g = 0.69; bias-adjusted 0.54), Hyde 1984/86 (physical aggression), Kajonius & Johnson 2018
 (neuroticism, agreeableness). Women-higher traits are drawn as "women taller by".
 Run:  uv run --with matplotlib,scipy,fonttools,pandas python notebooks/sex_gaps_height_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
+```
+
+### `sex_gaps_4sd_chart.py`
+
+```text
+Sex differences four standard deviations out: who is left above +4σ.
+
+Method: each trait is modeled as two normal distributions, one per sex, with means d apart (d = the meta-analytic
+standardized gap; see sex_gaps_tails_chart.py GAPS for sources). Scores are in units of the pooled within-sex SD and
+centered on the midpoint between the two means. The cutoff is +4 SD above that midpoint, which leaves roughly the
+top 1 in 10,000-30,000 of everyone depending on d. The ratio is
+    P(higher sex above cutoff) / P(lower sex above cutoff) = sf(4 - d/2) / sf(4 + d/2)
+with equal numbers of men and women, and is shown as "higher sex : lower sex" and as that sex's share of the tail.
+
+Variance sensitivity (the tick at the end of each bar): men are more variable than women on many traits (variance
+ratios often ~1.1-1.2). The tick shows the same ratio if men's variance is 10% higher, keeping the pooled variance at 1:
+SD_men = sqrt(2*1.1/2.1), SD_women = sqrt(2/2.1). That pushes male-higher ratios up and female-higher ones down.
+
+Height reference: NHANES 2017-March 2020, adults 20+, weighted (d = 1.93; see sex_gaps_height_chart.py).
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_4sd_chart.py
 Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
 Unwatermarked graphs/Gender differences/.
 ```
@@ -386,6 +410,107 @@ def save(fig, name):
     print("wrote", raw, "\n     ", wm)
     subprocess.run([sys.executable, str(Path.home() / "_watermark" / "watermark.py"), "7", str(raw), str(wm)],
                    check=True)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### `sex_gaps_4sd_chart.py`
+
+```python
+"""Sex differences four standard deviations out: who is left above +4σ.
+
+Method: each trait is modeled as two normal distributions, one per sex, with means d apart (d = the meta-analytic
+standardized gap; see sex_gaps_tails_chart.py GAPS for sources). Scores are in units of the pooled within-sex SD and
+centered on the midpoint between the two means. The cutoff is +4 SD above that midpoint, which leaves roughly the
+top 1 in 10,000-30,000 of everyone depending on d. The ratio is
+    P(higher sex above cutoff) / P(lower sex above cutoff) = sf(4 - d/2) / sf(4 + d/2)
+with equal numbers of men and women, and is shown as "higher sex : lower sex" and as that sex's share of the tail.
+
+Variance sensitivity (the tick at the end of each bar): men are more variable than women on many traits (variance
+ratios often ~1.1-1.2). The tick shows the same ratio if men's variance is 10% higher, keeping the pooled variance at 1:
+SD_men = sqrt(2*1.1/2.1), SD_women = sqrt(2/2.1). That pushes male-higher ratios up and female-higher ones down.
+
+Height reference: NHANES 2017-March 2020, adults 20+, weighted (d = 1.93; see sex_gaps_height_chart.py).
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_4sd_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
+"""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import norm
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sex_gaps_tails_chart import GAPS, BLUE, ORANGE, GREY, INK, MUTED, GRID  # noqa: E402
+from sex_gaps_height_chart import height_stats, save  # noqa: E402
+
+Z = 4.0
+VR = 1.1
+
+
+def ratio(d, vr=1.0, z=Z):
+    """Men : women above z (pooled-SD units from the midpoint); men's variance vr times women's, pooled var = 1."""
+    sm, sw = np.sqrt(2 * vr / (1 + vr)), np.sqrt(2 / (1 + vr))
+    return norm.sf((z - d / 2) / sm) / norm.sf((z + d / 2) / sw)
+
+
+def fmt(r):
+    return f"{r:,.0f}" if r >= 10 else f"{r:.1f}"
+
+
+def main():
+    mm, mw, sd = height_stats()
+    rows = [("Height (reference)", (mm - mw) / sd, "NHANES 2017–20")] + [g for g in GAPS if "reference" not in g[0]]
+    rows = rows[::-1]
+
+    fig, a = plt.subplots(figsize=(11, 6.6))
+    y = np.arange(len(rows))
+    for yi, (lab, d, src) in zip(y, rows):
+        r, rv = ratio(d), ratio(d, VR)
+        hi, hv = (r, rv) if d > 0 else (1 / r, 1 / rv)
+        c = GREY if "reference" in lab else (BLUE if d > 0 else ORANGE)
+        sex = "men" if d > 0 else "women"
+        a.barh(yi, hi - 1, left=1, color=c, height=.62)
+        a.plot([hv, hv], [yi - .31, yi + .31], color=c, lw=2.2)
+        a.plot([hi, hv], [yi, yi], color=c, lw=1, ls=":")
+        xl = max(hi, hv) * 1.12
+        a.text(xl, yi + .1, f"{fmt(hi)} : 1", va="center", ha="left", fontsize=11.5, fontweight="bold", color=INK)
+        a.text(xl, yi - .3, f"{100 * hi / (hi + 1):.1f}% {sex}  ·  {fmt(hv)} : 1 if men 10% more variable",
+               va="center", ha="left", fontsize=8.5, color=MUTED)
+        a.text(.33, yi + .1, lab, va="center", ha="right", fontsize=11.5, color=INK)
+        a.text(.33, yi - .28, f"d = {abs(d):.2f}, {src}", va="center", ha="right", fontsize=8.5, color=MUTED)
+    a.set_xscale("log")
+    a.set_xlim(.33, 3e5)
+    a.set_ylim(-.7, len(rows) - .3)
+    a.set_yticks([])
+    ticks = [1, 10, 100, 1000, 10000]
+    a.set_xticks(ticks)
+    a.set_xticklabels([f"{t:,} : 1" for t in ticks])
+    a.minorticks_off()
+    a.grid(axis="x", color=GRID, lw=.6)
+    a.spines["left"].set_visible(False)
+    a.tick_params(labelsize=10)
+    a.set_xlabel("Higher-scoring sex : other sex, among people above +4σ (log scale)", fontsize=10.5)
+
+    things = ratio(.93)
+    fig.suptitle(f"Four sigmas out, it's {things:.0f} men for every woman", x=.03, ha="left", y=.99,
+                 fontsize=16, fontweight="bold", color=INK)
+    fig.text(.03, .935, ("Who is left above +4σ (roughly the top 1 in 10,000–30,000 people) on traits where the "
+                         "average sexes differ by only half to one SD"), ha="left", fontsize=11.5, color=MUTED)
+    fig.text(.03, -.02, (
+        "Model: two normal curves per trait, means d apart, equal numbers of men and women; cutoff 4 pooled SDs above "
+        "the midpoint between the sexes' means. Bars assume equal spread; the tick at the end of each\nbar assumes "
+        "men's variance is 10% higher (common for many traits), which raises male-higher ratios and lowers "
+        "female-higher ones. Effect sizes: Su, Rounds & Armstrong 2009; Frankenbach et al. 2022;\nHyde 1984/86; "
+        "Kajonius & Johnson 2018. Height: NHANES 2017–Mar 2020. Far tails are where the normal assumption is least "
+        "tested: treat these as what the averages imply, not counts."),
+        fontsize=8.3, color=MUTED, ha="left", va="top")
+    fig.subplots_adjust(left=.27, right=.97, top=.89, bottom=.12)
+    save(fig, "sex_gaps_4sd.png")
 
 
 if __name__ == "__main__":
