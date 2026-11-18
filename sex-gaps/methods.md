@@ -581,8 +581,14 @@ WOMAN = [(-.045, .815), (.045, .815), (.14, .79), (.17, .74), (.18, .47), (.145,
          (-.14, .79)]
 
 
+WIDTH = .8  # horizontal squeeze so pairs don't touch
+LABELS = {"Interest in things vs. people": "Things vs. people", "Mechanical / 'Realistic' interests": "Mechanical interests",
+          "Scientific / 'Investigative' interests": "Scientific interests",
+          "Interest in 'Social' work (helping, teaching)": "Helping / teaching interests"}
+
+
 def figure(a, shape, x, h, color):
-    a.add_patch(Polygon([(x + px * h, py * h) for px, py in shape], closed=True, color=color, lw=0))
+    a.add_patch(Polygon([(x + px * h * WIDTH, py * h) for px, py in shape], closed=True, color=color, lw=0))
     hx, hy, r = HEAD
     a.add_patch(Circle((x + hx * h, hy * h), r * h, color=color, lw=0))
 
@@ -597,8 +603,8 @@ def main():
     mid = (mm + mw) / 2 / 2.54
     rows = [("Actual height", (mm - mw) / sd)] + [(lab, d) for lab, d, _ in GAPS if "reference" not in lab]
 
-    fig, a = plt.subplots(figsize=(16, 7))
-    pitch, half = 46, 9.5   # inches between pair centers; each figure's offset from its pair center
+    fig, a = plt.subplots(figsize=(16, 6.2))
+    pitch, half = 50, 12.5   # inches between pair centers; each figure's offset from its pair center
     for i, (lab, d) in enumerate(rows):
         cx = i * pitch
         gap = abs(d) * sd / 2.54
@@ -608,20 +614,20 @@ def main():
         tall_c = REF_TALL if i == 0 else (BLUE if men_taller else ORANGE)
         figure(a, MAN, cx - half, hm, tall_c if men_taller else SHORT)
         figure(a, WOMAN, cx + half, hw, SHORT if men_taller else tall_c)
-        a.plot([cx - half - 11, cx + half + 11], [short_h, short_h], color=INK, lw=.8, ls=(0, (2, 2)))
-        a.text(cx, tall_h + 3.2, f"+{gap:.1f} in", ha="center", fontsize=12.5, fontweight="bold", color=INK)
-        a.text(cx, tall_h + 1.2, ("men taller" if men_taller else "women taller"), ha="center", fontsize=8.5,
+        a.plot([cx - half - 10, cx + half + 10], [short_h, short_h], color=INK, lw=.8, ls=(0, (2, 2)))
+        a.text(cx, tall_h + 5.6, f"+{gap:.1f} in", ha="center", fontsize=12.5, fontweight="bold", color=INK)
+        a.text(cx, tall_h + 1.8, ("men taller" if men_taller else "women taller"), ha="center", fontsize=8.5,
                color=MUTED)
-        name = "\n".join(textwrap.wrap(lab.replace("Interest in ", "").replace(" (helping, teaching)", ""), 16))
+        name = "\n".join(textwrap.wrap(LABELS.get(lab, lab), 15))
         a.text(cx, -2.5, name, ha="center", va="top", fontsize=10.5, color=INK, linespacing=1.15)
-        a.text(cx, -10.5, f"d = {abs(d):.2f}", ha="center", va="top", fontsize=8.5, color=MUTED)
+        a.text(cx, -11.5, f"d = {abs(d):.2f}", ha="center", va="top", fontsize=8.5, color=MUTED)
         if i == 0:
-            a.text(cx, -13.8, f"{ft_in(hm)} vs {ft_in(hw)}", ha="center", va="top", fontsize=8.5, color=MUTED)
+            a.text(cx, -15, f"{ft_in(hm)} vs {ft_in(hw)}", ha="center", va="top", fontsize=8.5, color=MUTED)
     a.axhline(0, color=GRID, lw=1.2)
     a.axvline(pitch / 2, ymin=.08, ymax=.92, color=GRID, lw=1)
     a.set_aspect("equal")
     a.set_xlim(-pitch / 2, (len(rows) - .5) * pitch)
-    a.set_ylim(-17, mid + 10)
+    a.set_ylim(-18, mid + 10)
     a.axis("off")
 
     fig.suptitle("If the psychological sex differences were height differences",
@@ -629,7 +635,7 @@ def main():
     fig.text(.03, .915, (f"Each pair is the average man and woman, to scale, if the trait gap were a height gap. "
                          f"Real gap at left; colored figure = the sex that scores higher"),
              ha="left", fontsize=11.5, color=MUTED)
-    fig.text(.03, .09, (
+    fig.text(.03, .1, (
         f"Method: gap in SDs (Cohen's d) × pooled within-sex SD of US adult height ({sd / 2.54:.2f} in). Pairs are "
         f"centered on {ft_in(mid)}, the midpoint of the real means. Height: NHANES 2017–Mar 2020, adults 20+, weighted. "
         "Trait gaps: Su, Rounds &\nArmstrong 2009 (interests); Frankenbach et al. 2022 (sex drive; 0.54 bias-adjusted); "
