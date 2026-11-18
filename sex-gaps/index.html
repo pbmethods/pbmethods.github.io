@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sex differences: modest average gaps, lopsided tails, and the same gaps in inches of height</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Sex differences: modest average gaps, lopsided tails, and the same gaps in inches of height</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-18.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>sex_gaps_tails_chart.py</code></h3>
+<pre><code class="language-text">Sex differences: modest mean gaps, lopsided tails.
+
+1. sex_gaps_means.png: meta-analytic mean gaps (Cohen's d / Hedges' g), men-higher right, women-higher left.
+2. sex_gaps_tails.png: A, the higher-scoring sex's over-representation above a cutoff, implied by those d's
+   under equal-variance normals; B, observed male share in real-world extreme tails.
+Data: effect sizes hard-coded from the cited meta-analyses; self-made billionaires from Forbes 2026
+(billionaires_inheritance/forbes_2026.json).
+Run:  uv run --with matplotlib,scipy,fonttools python notebooks/sex_gaps_tails_chart.py
+Writes the _wm copies to ~/Desktop/Recent Projects/Substack Notes/ and the originals to its Unwatermarked graphs/.
+</code></pre>
+<h3><code>sex_gaps_height_chart.py</code></h3>
+<pre><code class="language-text">Sex differences in psychology, restated as height differences.
+
+Method: every gap in the companion chart is a standardized mean difference, d = (mean_men - mean_women) / pooled
+within-sex SD. To put a trait gap in height units, multiply its d by the pooled within-sex SD of adult height:
+a trait with d = 0.69 separates the sexes as much as a height gap of 0.69 SDs of height would. That is a statement
+about overlap only (how far apart the two bell curves sit relative to their width), not about how much the trait
+matters.
+
+Height SD and the real height gap: NHANES 2017-March 2020 pre-pandemic file (P_BMX standing height, P_DEMO sex/age),
+adults 20+, weighted by the MEC exam weight WTMECPRP. Men 175.0 cm (SD 7.38), women 161.2 cm (SD 6.97); pooled SD
+= sqrt((7.38^2 + 6.97^2) / 2) = 7.18 cm (2.83 in), so the real gap is 13.9 cm = d 1.93. (The companion chart's
+height reference, d = 1.81, is Meyer et al. 2001 as cited by Frankenbach et al. 2022; NHANES gives a slightly
+larger gap.)
+
+Trait effect sizes: as in sex_gaps_tails_chart.py (GAPS): Su, Rounds &amp; Armstrong 2009 (interests), Frankenbach et
+al. 2022 (sex drive, g = 0.69; bias-adjusted 0.54), Hyde 1984/86 (physical aggression), Kajonius &amp; Johnson 2018
+(neuroticism, agreeableness). Women-higher traits are drawn as &quot;women taller by&quot;.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas python notebooks/sex_gaps_height_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/.
+</code></pre>
+<h2>Notes and caveats</h2>
+<h1>Caveats: sex differences, mean gaps, tails, and height equivalents</h1>
+<ul>
+<li><strong>Effect sizes are from published meta-analyses, hard-coded, not re-estimated.</strong> Physical aggression (d = 0.60) is
+  Hyde 1984/86 as tabulated in Archer's 2019 review; Archer 2004's own real-world estimates vary by measure and age.</li>
+<li><strong>Sex drive:</strong> Frankenbach et al. 2022 report g = 0.69 overall and treat 0.54 (after subtracting the gap on
+  bias-prone items) as a lower bound.</li>
+<li><strong>Height equivalents</strong> keep the overlap between the sexes' distributions, not the practical importance of a trait.
+  They assume each trait is roughly normal with similar spread in both sexes.</li>
+<li><strong>Tail ratios</strong> assume equal variances. Men are more variable on many traits (variance ratios often ~1.1–1.2),
+  which raises male-higher ratios and lowers female-higher ones further out.</li>
+<li><strong>Real-world tails</strong> (billionaires, top earners, homicide, VC deals) are outcomes, shaped by hours, choices and
+  opportunity as well as traits. Top-earner shares are 2014 head counts (Guvenen, Kaplan &amp; Song).</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>sex_gaps_tails_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Sex differences: modest mean gaps, lopsided tails.
+
+1. sex_gaps_means.png: meta-analytic mean gaps (Cohen's d / Hedges' g), men-higher right, women-higher left.
+2. sex_gaps_tails.png: A, the higher-scoring sex's over-representation above a cutoff, implied by those d's
+   under equal-variance normals; B, observed male share in real-world extreme tails.
+Data: effect sizes hard-coded from the cited meta-analyses; self-made billionaires from Forbes 2026
+(billionaires_inheritance/forbes_2026.json).
+Run:  uv run --with matplotlib,scipy,fonttools python notebooks/sex_gaps_tails_chart.py
+Writes the _wm copies to ~/Desktop/Recent Projects/Substack Notes/ and the originals to its Unwatermarked graphs/.
+&quot;&quot;&quot;
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import norm
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+OUT = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;   # _wm copies
+RAW = OUT / &quot;Unwatermarked graphs&quot;                                      # unmarked originals
+pb.apply()
+INK, INK2, MUTED, GRID, SURFACE = pb.INK, pb.INK2, pb.MUTED, pb.GRID, pb.SURFACE
+# diverging poles: men higher = navy, women higher = red; the height reference = gray
+BLUE, ORANGE, GREY = pb.NAVY, pb.RED, pb.GRAYS[0]
+
+# (label, d, source); positive = men higher
+GAPS = [
+    (&quot;Height (reference)&quot;, 1.81, &quot;Meyer et al. 2001&quot;),
+    (&quot;Interest in things vs. people&quot;, 0.93, &quot;Su et al. 2009&quot;),
+    (&quot;Mechanical / 'Realistic' interests&quot;, 0.84, &quot;Su et al. 2009&quot;),
+    (&quot;Sex drive&quot;, 0.69, &quot;Frankenbach et al. 2022&quot;),
+    (&quot;Physical aggression&quot;, 0.60, &quot;Hyde 1984/86&quot;),
+    (&quot;Scientific / 'Investigative' interests&quot;, 0.26, &quot;Su et al. 2009&quot;),
+    (&quot;Neuroticism&quot;, -0.40, &quot;Kajonius &amp; Johnson 2018&quot;),
+    (&quot;Agreeableness&quot;, -0.58, &quot;Kajonius &amp; Johnson 2018&quot;),
+    (&quot;Interest in 'Social' work (helping, teaching)&quot;, -0.68, &quot;Su et al. 2009&quot;),
+]
+SEXDRIVE_ADJ = 0.54  # Frankenbach's bias-adjusted lower bound
+
+TAIL_TRAITS = [(&quot;Things vs. people interest&quot;, 0.93, BLUE, &quot;-&quot;),
+               (&quot;Sex drive&quot;, 0.69, BLUE, &quot;--&quot;),
+               (&quot;Physical aggression&quot;, 0.60, BLUE, &quot;:&quot;),
+               (&quot;Agreeableness (women higher)&quot;, -0.58, ORANGE, &quot;-&quot;),
+               (&quot;Neuroticism (women higher)&quot;, -0.40, ORANGE, &quot;--&quot;)]
+
+
+def self_made_male_share():
+    r = json.load(open(HERE / &quot;billionaires_inheritance&quot; / &quot;forbes_2026.json&quot;))[&quot;personList&quot;][&quot;personsLists&quot;]
+    sm = [p for p in r if p.get(&quot;selfMade&quot;)]
+    return sum(p.get(&quot;gender&quot;) == &quot;M&quot; for p in sm) / len(sm), len(sm)
+
+
+def style(a):
+    a.tick_params(labelsize=10)
+
+
+def tail_ratio(d, z):
+    &quot;&quot;&quot;Higher sex : lower sex above cutoff z (SDs above the midpoint between the two means), equal variance.&quot;&quot;&quot;
+    d = abs(d)
+    return norm.sf(z - d / 2) / norm.sf(z + d / 2)
+
+
+def means_chart():
+    fig, a = plt.subplots(figsize=(11, 6.6))
+    rows = GAPS[::-1]
+    y = np.arange(len(rows))
+    for yi, (lab, d, src) in zip(y, rows):
+        c = GREY if &quot;reference&quot; in lab else (BLUE if d &gt; 0 else ORANGE)
+        a.plot([0, d], [yi, yi], color=c, lw=3, solid_capstyle=&quot;butt&quot;, alpha=.35)
+        a.plot(d, yi, &quot;o&quot;, color=c, ms=10, zorder=3)
+        a.text(d + (.07 if d &gt; 0 else -.07), yi, f&quot;{abs(d):.2f}&quot;, va=&quot;center&quot;, ha=&quot;left&quot; if d &gt; 0 else &quot;right&quot;,
+               fontsize=11, fontweight=&quot;bold&quot;, color=INK)
+        a.text(-1.2, yi, lab, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5, color=INK)
+        a.text(-1.2, yi - .32, src, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5, color=MUTED)
+    ysd = [i for i, r in enumerate(rows) if r[0] == &quot;Sex drive&quot;][0]
+    a.plot(SEXDRIVE_ADJ, ysd, &quot;o&quot;, mfc=SURFACE, mec=BLUE, mew=1.8, ms=9, zorder=4)
+    a.annotate(&quot;bias-adjusted 0.54&quot;, (SEXDRIVE_ADJ, ysd), xytext=(SEXDRIVE_ADJ - .05, ysd + .42), fontsize=8.5,
+               color=INK2, ha=&quot;right&quot;, va=&quot;center&quot;)
+    a.axvline(0, color=INK, lw=1)
+    a.set_xlim(-1.2, 2.1)
+    a.set_ylim(-.8, len(rows) - .4)
+    a.set_yticks([])
+    a.set_xticks([-1, -.5, 0, .5, 1, 1.5, 2])
+    a.xaxis.grid(True)
+    a.yaxis.grid(False)
+    a.set_xlabel(&quot;Gap between the average man and average woman, in standard deviations (Cohen's d)&quot;,
+                 color=MUTED, fontsize=10.5)
+    a.text(-.05, len(rows) - .25, &quot;◀ women higher&quot;, ha=&quot;right&quot;, fontsize=10.5, color=ORANGE, fontweight=&quot;bold&quot;)
+    a.text(.05, len(rows) - .25, &quot;men higher ▶&quot;, ha=&quot;left&quot;, fontsize=10.5, color=BLUE, fontweight=&quot;bold&quot;)
+    style(a)
+    fig.suptitle(&quot;Men and women differ by about half to one standard deviation on the average&quot;,
+                 x=.03, ha=&quot;left&quot;, y=.99, fontsize=16, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(.03, .935, &quot;Meta-analytic mean gaps; most are \&quot;medium\&quot; effects, about a third to half of the height gap&quot;,
+             ha=&quot;left&quot;, fontsize=11.5, color=MUTED)
+    fig.text(.03, -.02, (
+        &quot;Personality: IPIP-NEO, N = 320,128 US adults (Kajonius &amp; Johnson 2018). Interests: 47 inventories, N = 503,188 &quot;
+        &quot;(Su, Rounds &amp; Armstrong 2009). Sex drive: 211 studies, N = 621,463;\nadjusted value subtracts the gap on &quot;
+        &quot;bias-prone items (Frankenbach et al. 2022). Physical aggression: Hyde 1984/86 meta-analyses. Height: &quot;
+        &quot;US adults, as cited in Frankenbach et al.&quot;), fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.subplots_adjust(left=.33, right=.97, top=.89, bottom=.1)
+    return save(fig, &quot;sex_gaps_means.png&quot;)
+
+
+def tails_chart():
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(14, 6.8), gridspec_kw={&quot;width_ratios&quot;: [1.35, 1], &quot;wspace&quot;: .32})
+
+    z = np.linspace(0, 4, 200)
+    for lab, d, c, ls in TAIL_TRAITS:
+        r = tail_ratio(d, z)
+        a1.plot(z, r, color=c, ls=ls, lw=2.4, label=f&quot;{lab}, d = {abs(d):.2f}&quot;)
+        nudge = {&quot;Physical aggression&quot;: 1.06, &quot;Agreeableness (women higher)&quot;: .94}.get(lab, 1)
+        a1.text(4.05, r[-1] * nudge, f&quot;{r[-1]:.0f}:1&quot; if r[-1] &gt;= 10 else f&quot;{r[-1]:.1f}:1&quot;, va=&quot;center&quot;, fontsize=10,
+                color=INK, fontweight=&quot;bold&quot;)
+    for zc in (2, 3):
+        a1.axvline(zc, color=GRID, lw=1, zorder=0)
+        for lab, d, c, ls in TAIL_TRAITS[:1]:
+            rv = tail_ratio(d, zc)
+            a1.annotate(f&quot;{rv:.0f}:1&quot; if rv &gt;= 10 else f&quot;{rv:.1f}:1&quot;, (zc, rv), xytext=(-6, 8), textcoords=&quot;offset points&quot;,
+                        ha=&quot;right&quot;, fontsize=9.5, color=INK2)
+    a1.set_yscale(&quot;log&quot;)
+    a1.set_yticks([1, 2, 3, 5, 10, 20, 50])
+    a1.set_yticklabels([&quot;1:1&quot;, &quot;2:1&quot;, &quot;3:1&quot;, &quot;5:1&quot;, &quot;10:1&quot;, &quot;20:1&quot;, &quot;50:1&quot;])
+    a1.set_ylim(.9, 70)
+    a1.set_xlim(0, 4.4)
+    a1.set_xticks([0, 1, 2, 3, 4])
+    a1.set_xticklabels([&quot;average&quot;, &quot;+1σ\ntop 16%&quot;, &quot;+2σ\ntop 2.3%&quot;, &quot;+3σ\ntop 0.13%&quot;, &quot;+4σ\ntop 1 in 31k&quot;])
+    a1.set_ylabel(&quot;Higher-scoring sex : other sex above the cutoff (log scale)&quot;, color=MUTED, fontsize=10)
+    a1.legend(frameon=False, fontsize=9.5, loc=&quot;upper left&quot;, labelcolor=INK)
+    a1.set_title(&quot;A. What the mean gaps imply above a cutoff&quot;, loc=&quot;left&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, color=INK)
+    style(a1)
+
+    sm, n_sm = self_made_male_share()
+    obs = [(&quot;Self-made billionaires\n(Forbes 2026)&quot;, sm),
+           (&quot;Homicide offenders\n(UNODC, global)&quot;, .90),
+           (&quot;Top 0.1% of US earners\n(2014)&quot;, .89),
+           (&quot;Top 1% of US earners\n(2014)&quot;, .84),
+           (&quot;US VC deals with no\nfemale founder (2024)&quot;, .749)][::-1]
+    y = np.arange(len(obs))
+    a2.barh(y, [v * 100 for _, v in obs], color=BLUE, height=.6)
+    a2.barh(y, [100 - v * 100 for _, v in obs], left=[v * 100 for _, v in obs], color=ORANGE, alpha=.35, height=.6)
+    for yi, (lab, v) in zip(y, obs):
+        a2.text(v * 100 - 2, yi, f&quot;{v * 100:.0f}% male · {v / (1 - v):.0f}:1&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=10,
+                color=&quot;white&quot;, fontweight=&quot;bold&quot;)
+    a2.set_yticks(y)
+    a2.set_yticklabels([lab for lab, _ in obs], fontsize=10, color=INK)
+    a2.set_xlim(0, 100)
+    a2.axvline(50, color=SURFACE, lw=1, ls=&quot;:&quot;)
+    a2.set_xticks([0, 25, 50, 75, 100])
+    a2.set_xticklabels([&quot;0%&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%&quot;])
+    a2.set_title(&quot;B. The extreme tails we can actually count&quot;, loc=&quot;left&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, color=INK)
+    style(a2)
+    a2.grid(False)
+
+    fig.suptitle(&quot;A half-sigma gap in the middle becomes a lopsided ratio in the tails&quot;,
+                 x=.06, ha=&quot;left&quot;, y=1.0, fontsize=17, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(.06, .935, &quot;Above +3σ, a d = 0.9 gap means ~20 of one sex for every 1 of the other; d = 0.6 still means ~7 to 1&quot;,
+             ha=&quot;left&quot;, fontsize=12, color=MUTED)
+    fig.text(.06, -.02, (
+        &quot;A: two normal curves with equal spread, means d apart; cutoff measured from the midpoint between them. &quot;
+        &quot;Men are also more variable on many traits (variance ratios often ~1.1–1.2), which pushes male-higher ratios further up&quot;
+        &quot;\nand pulls female-higher ones down. Effect sizes as in the companion chart. &quot;
+        f&quot;B: Forbes 2026, {n_sm:,} self-made billionaires; UNODC Global Study on Homicide 2019 (~90% of suspects male); &quot;
+        &quot;Guvenen, Kaplan &amp; Song (NBER), 2014 head-count shares;\nPitchBook-JPMorgan All In 2024 (25.1% of US VC deals &quot;
+        &quot;had at least one female founder). B is outcomes, not traits: they also reflect hours, choices, and opportunity.&quot;),
+        fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.subplots_adjust(left=.06, right=.97, top=.86, bottom=.12)
+    return save(fig, &quot;sex_gaps_tails.png&quot;)
+
+
+def save(fig, name):
+    RAW.mkdir(parents=True, exist_ok=True)
+    out = RAW / name
+    fig.savefig(out, dpi=200, bbox_inches=&quot;tight&quot;, facecolor=SURFACE)
+    plt.close(fig)
+    wm = OUT / f&quot;{Path(name).stem}_wm.png&quot;
+    print(&quot;wrote&quot;, out, &quot;\n     &quot;, wm)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(out),
+                    str(wm)], check=True)
+    return out
+
+
+if __name__ == &quot;__main__&quot;:
+    for zc in (2, 3, 4):
+        print(f&quot;+{zc}σ&quot;, {lab.split(&quot; (&quot;)[0]: round(tail_ratio(d, zc), 1) for lab, d, *_ in TAIL_TRAITS})
+    means_chart()
+    tails_chart()
+</code></pre>
+<h3><code>sex_gaps_height_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Sex differences in psychology, restated as height differences.
+
+Method: every gap in the companion chart is a standardized mean difference, d = (mean_men - mean_women) / pooled
+within-sex SD. To put a trait gap in height units, multiply its d by the pooled within-sex SD of adult height:
+a trait with d = 0.69 separates the sexes as much as a height gap of 0.69 SDs of height would. That is a statement
+about overlap only (how far apart the two bell curves sit relative to their width), not about how much the trait
+matters.
+
+Height SD and the real height gap: NHANES 2017-March 2020 pre-pandemic file (P_BMX standing height, P_DEMO sex/age),
+adults 20+, weighted by the MEC exam weight WTMECPRP. Men 175.0 cm (SD 7.38), women 161.2 cm (SD 6.97); pooled SD
+= sqrt((7.38^2 + 6.97^2) / 2) = 7.18 cm (2.83 in), so the real gap is 13.9 cm = d 1.93. (The companion chart's
+height reference, d = 1.81, is Meyer et al. 2001 as cited by Frankenbach et al. 2022; NHANES gives a slightly
+larger gap.)
+
+Trait effect sizes: as in sex_gaps_tails_chart.py (GAPS): Su, Rounds &amp; Armstrong 2009 (interests), Frankenbach et
+al. 2022 (sex drive, g = 0.69; bias-adjusted 0.54), Hyde 1984/86 (physical aggression), Kajonius &amp; Johnson 2018
+(neuroticism, agreeableness). Women-higher traits are drawn as &quot;women taller by&quot;.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas python notebooks/sex_gaps_height_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/.
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sex_gaps_tails_chart import GAPS, SEXDRIVE_ADJ, BLUE, ORANGE, GREY, INK, MUTED, GRID, save  # noqa: E402
+
+NHANES = Path(__file__).resolve().parent / &quot;nhanes_p_data&quot;
+
+
+def height_stats():
+    &quot;&quot;&quot;Weighted adult (20+) height mean and SD by sex, cm. Returns (men_mean, women_mean, pooled_sd).&quot;&quot;&quot;
+    b = pd.read_sas(NHANES / &quot;P_BMX.XPT&quot;)[[&quot;SEQN&quot;, &quot;BMXHT&quot;]]
+    d = pd.read_sas(NHANES / &quot;P_DEMO.XPT&quot;)[[&quot;SEQN&quot;, &quot;RIAGENDR&quot;, &quot;RIDAGEYR&quot;, &quot;WTMECPRP&quot;]]
+    m = b.merge(d, on=&quot;SEQN&quot;)
+    m = m[(m.RIDAGEYR &gt;= 20) &amp; m.BMXHT.notna()]
+    out = {}
+    for sex, g in m.groupby(&quot;RIAGENDR&quot;):
+        mu = np.average(g.BMXHT, weights=g.WTMECPRP)
+        out[sex] = (mu, np.sqrt(np.average((g.BMXHT - mu) ** 2, weights=g.WTMECPRP)))
+    (mm, sm), (mw, sw) = out[1.0], out[2.0]
+    return mm, mw, np.sqrt((sm ** 2 + sw ** 2) / 2)
+
+
+def ft_in(cm):
+    i = round(cm / 2.54 * 2) / 2
+    f, r = divmod(i, 12)
+    return f&quot;{int(f)}′{r:g}″&quot;.replace(&quot;.5&quot;, &quot;½&quot;)
+
+
+def main():
+    mm, mw, sd = height_stats()
+    real_d = (mm - mw) / sd
+    print(f&quot;men {mm:.1f} cm, women {mw:.1f} cm, pooled SD {sd:.2f} cm -&gt; real gap d = {real_d:.2f}&quot;)
+
+    rows = [(&quot;Actual height gap&quot;, real_d, &quot;NHANES 2017–20&quot;)] + [g for g in GAPS if &quot;reference&quot; not in g[0]]
+    rows = rows[::-1]
+    fig, a = plt.subplots(figsize=(11, 6.6))
+    y = np.arange(len(rows))
+    for yi, (lab, d, src) in zip(y, rows):
+        cm = d * sd
+        c = GREY if lab.startswith(&quot;Actual&quot;) else (BLUE if d &gt; 0 else ORANGE)
+        a.barh(yi, cm / 2.54, color=c, height=.62)
+        tag = &quot;men taller by&quot; if d &gt; 0 else &quot;women taller by&quot;
+        a.text(cm / 2.54 + (.12 if d &gt; 0 else -.12), yi, f&quot;{abs(cm) / 2.54:.1f} in  ({abs(cm):.1f} cm)&quot;,
+               va=&quot;center&quot;, ha=&quot;left&quot; if d &gt; 0 else &quot;right&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=INK)
+        a.text(cm / 2.54 + (.12 if d &gt; 0 else -.12), yi - .33, f&quot;{tag}, d = {abs(d):.2f}&quot;, va=&quot;center&quot;,
+               ha=&quot;left&quot; if d &gt; 0 else &quot;right&quot;, fontsize=8.5, color=MUTED)
+        a.text(-3.4, yi + .1, lab, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5, color=INK)
+        a.text(-3.4, yi - .28, src, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5, color=MUTED)
+    ysd = [i for i, r in enumerate(rows) if r[0] == &quot;Sex drive&quot;][0]
+    a.plot([SEXDRIVE_ADJ * sd / 2.54] * 2, [ysd - .31, ysd + .31], color=&quot;white&quot;, lw=2)
+    a.text(SEXDRIVE_ADJ * sd / 2.54 - .08, ysd + .45, f&quot;bias-adjusted: {SEXDRIVE_ADJ * sd / 2.54:.1f} in&quot;,
+           fontsize=8.5, color=MUTED, ha=&quot;center&quot;, va=&quot;bottom&quot;)
+    a.axvline(0, color=INK, lw=1)
+    a.set_xlim(-3.4, 6.6)
+    a.set_ylim(-.7, len(rows) - .3)
+    a.set_yticks([])
+    a.set_xticks(range(-2, 7))
+    a.set_xticklabels([f&quot;{abs(t)} in&quot; for t in range(-2, 7)])
+    a.grid(axis=&quot;x&quot;, color=GRID, lw=.6)
+    a.spines[&quot;left&quot;].set_visible(False)
+    a.tick_params(labelsize=10)
+    a.set_xlabel(&quot;Equivalent gap in average height between men and women&quot;, fontsize=10.5)
+
+    fig.suptitle(&quot;If the psychological sex differences were height differences&quot;,
+                 x=.03, ha=&quot;left&quot;, y=.99, fontsize=16, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(.03, .935, (f&quot;Each gap scaled to height's spread (1 SD = {sd / 2.54:.1f} in). The real gap is &quot;
+                         f&quot;{(mm - mw) / 2.54:.1f} in; the sex-drive gap would be like the average man standing &quot;
+                         f&quot;{0.69 * sd / 2.54:.1f} in taller&quot;), ha=&quot;left&quot;, fontsize=11.5, color=MUTED)
+    fig.text(.03, -.02, (
+        f&quot;Method: gap in SDs (Cohen's d) × pooled within-sex SD of US adult height ({sd:.2f} cm). Same overlap between the &quot;
+        f&quot;two bell curves, in inches. Height: NHANES 2017–Mar 2020, adults 20+, weighted\n(men {ft_in(mm)}, women &quot;
+        f&quot;{ft_in(mw)}). Trait gaps: Su, Rounds &amp; Armstrong 2009; Frankenbach et al. 2022; Hyde 1984/86; Kajonius &amp; &quot;
+        &quot;Johnson 2018. It shows how separated the sexes are, not how much a trait matters.&quot;),
+        fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.subplots_adjust(left=.33, right=.97, top=.89, bottom=.1)
+    save(fig, &quot;sex_gaps_height.png&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
