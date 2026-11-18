@@ -3,6 +3,7 @@
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
 - [Sex differences: modest average gaps, lopsided tails, and the same gaps in inches of height](sex-gaps/) (2026-11-18)
+- [Stay-at-home mothers by husband's earnings, up to the top 1%](sahm-income/) (2026-11-18)
 - [If LLMs can teach robots: a self-collecting fleet and the road to general robotics](robot-flywheel/) (2026-11-17)
 - [How fast shrinking LLM jumps close the gap to 'Astra-level' robotics](robot-gap/) (2026-11-17)
 - [The master post of sexual and relationship dynamics: looks, money, height, paying for sex, marriage, porn and wanting more](sex-dynamics/) (2026-11-16)

@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stay-at-home mothers by husband&#x27;s earnings, up to the top 1%</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Stay-at-home mothers by husband's earnings, up to the top 1%</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-18.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sahm-income/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>psid_sahm_chart.py</code></h3>
+<pre><code class="language-text">Stay-at-home mothers by husband's earnings: what share of married mothers stay home, at each rung of the
+husband's earnings ladder? PSID 2011-2021.
+
+Data: PSID via the SHELF extract notebooks/us_public_data/psid_slim.parquet, waves 2011-2021 (biennial), one row per
+family-wave, taken from the reference person's record (REL == 1). PSID makes the husband the reference person in
+nearly all married couples (99.3% of married family units here); the few with a female reference person are dropped.
+Sample: legally married couples (FAM_MARRIED == 1), husband aged 25-60 with positive earnings, at least one child
+under 18 living in the family unit (FAM_SIZE_CHI &gt; 0). Weight: longitudinal family weight FW (the cross-sectional FW_CROSS exists only for 2017 and 2019).
+
+Husband's earnings: his total labor income, real 2024 USD (EARN_TOT_RD_RP), ranked into weighted percentiles within
+each wave (so each wave contributes equally to every rung), then pooled: deciles, 90-95, 95-99, top 1%.
+Stay-at-home mother, two definitions from the wife's own current employment status (EMP_STAT_1M_SP, first mention):
+  keeping house   status 6 &quot;keeping house&quot; -- the headline line
+  not working     anything but &quot;working now&quot; (EMP_WORK_SP == 0): adds unemployed, laid off, disabled, retired,
+                  students
+Plotted: weighted share per rung, 95% intervals from a family bootstrap (500 draws, resampling family units with
+all their waves). Tick labels give the husband's median earnings in each rung.
+Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_sahm_chart.py
+Writes psid_sahm.csv next to this script; chart _wm copy to ~/Desktop/Recent Projects/Substack Notes/Marriage/
+(original in Unwatermarked graphs/Marriage/).
+</code></pre>
+<h2>Results</h2>
+<h3><code>psid_sahm.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>rung</th>
+<th>n</th>
+<th>husband_median_earn</th>
+<th>keeping_house</th>
+<th>kh_lo</th>
+<th>kh_hi</th>
+<th>not_working</th>
+<th>nw_lo</th>
+<th>nw_hi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-10</td>
+<td>1179</td>
+<td>15258.000</td>
+<td>0.257</td>
+<td>0.211</td>
+<td>0.301</td>
+<td>0.328</td>
+<td>0.277</td>
+<td>0.374</td>
+</tr>
+<tr>
+<td>10-20</td>
+<td>1210</td>
+<td>35405.000</td>
+<td>0.246</td>
+<td>0.210</td>
+<td>0.289</td>
+<td>0.321</td>
+<td>0.277</td>
+<td>0.364</td>
+</tr>
+<tr>
+<td>20-30</td>
+<td>1206</td>
+<td>47047.000</td>
+<td>0.202</td>
+<td>0.168</td>
+<td>0.238</td>
+<td>0.261</td>
+<td>0.226</td>
+<td>0.300</td>
+</tr>
+<tr>
+<td>30-40</td>
+<td>1154</td>
+<td>57990.000</td>
+<td>0.246</td>
+<td>0.203</td>
+<td>0.289</td>
+<td>0.304</td>
+<td>0.259</td>
+<td>0.351</td>
+</tr>
+<tr>
+<td>40-50</td>
+<td>1151</td>
+<td>69107.000</td>
+<td>0.199</td>
+<td>0.162</td>
+<td>0.236</td>
+<td>0.244</td>
+<td>0.205</td>
+<td>0.283</td>
+</tr>
+<tr>
+<td>50-60</td>
+<td>1018</td>
+<td>81861.000</td>
+<td>0.192</td>
+<td>0.160</td>
+<td>0.224</td>
+<td>0.239</td>
+<td>0.203</td>
+<td>0.276</td>
+</tr>
+<tr>
+<td>60-70</td>
+<td>968</td>
+<td>96813.000</td>
+<td>0.245</td>
+<td>0.206</td>
+<td>0.292</td>
+<td>0.291</td>
+<td>0.246</td>
+<td>0.337</td>
+</tr>
+<tr>
+<td>70-80</td>
+<td>887</td>
+<td>118016.000</td>
+<td>0.261</td>
+<td>0.215</td>
+<td>0.309</td>
+<td>0.297</td>
+<td>0.247</td>
+<td>0.349</td>
+</tr>
+<tr>
+<td>80-90</td>
+<td>844</td>
+<td>150778.000</td>
+<td>0.231</td>
+<td>0.189</td>
+<td>0.269</td>
+<td>0.284</td>
+<td>0.236</td>
+<td>0.329</td>
+</tr>
+<tr>
+<td>90-95</td>
+<td>419</td>
+<td>198266.000</td>
+<td>0.306</td>
+<td>0.245</td>
+<td>0.363</td>
+<td>0.346</td>
+<td>0.286</td>
+<td>0.405</td>
+</tr>
+<tr>
+<td>95-99</td>
+<td>312</td>
+<td>313661.000</td>
+<td>0.422</td>
+<td>0.339</td>
+<td>0.510</td>
+<td>0.446</td>
+<td>0.362</td>
+<td>0.535</td>
+</tr>
+<tr>
+<td>99-100</td>
+<td>70</td>
+<td>831389.000</td>
+<td>0.642</td>
+<td>0.419</td>
+<td>0.810</td>
+<td>0.693</td>
+<td>0.505</td>
+<td>0.842</td>
+</tr>
+</tbody>
+</table>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>psid_sahm_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Stay-at-home mothers by husband's earnings: what share of married mothers stay home, at each rung of the
+husband's earnings ladder? PSID 2011-2021.
+
+Data: PSID via the SHELF extract notebooks/us_public_data/psid_slim.parquet, waves 2011-2021 (biennial), one row per
+family-wave, taken from the reference person's record (REL == 1). PSID makes the husband the reference person in
+nearly all married couples (99.3% of married family units here); the few with a female reference person are dropped.
+Sample: legally married couples (FAM_MARRIED == 1), husband aged 25-60 with positive earnings, at least one child
+under 18 living in the family unit (FAM_SIZE_CHI &gt; 0). Weight: longitudinal family weight FW (the cross-sectional FW_CROSS exists only for 2017 and 2019).
+
+Husband's earnings: his total labor income, real 2024 USD (EARN_TOT_RD_RP), ranked into weighted percentiles within
+each wave (so each wave contributes equally to every rung), then pooled: deciles, 90-95, 95-99, top 1%.
+Stay-at-home mother, two definitions from the wife's own current employment status (EMP_STAT_1M_SP, first mention):
+  keeping house   status 6 &quot;keeping house&quot; -- the headline line
+  not working     anything but &quot;working now&quot; (EMP_WORK_SP == 0): adds unemployed, laid off, disabled, retired,
+                  students
+Plotted: weighted share per rung, 95% intervals from a family bootstrap (500 draws, resampling family units with
+all their waves). Tick labels give the husband's median earnings in each rung.
+Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_sahm_chart.py
+Writes psid_sahm.csv next to this script; chart _wm copy to ~/Desktop/Recent Projects/Substack Notes/Marriage/
+(original in Unwatermarked graphs/Marriage/).
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+PSID = HERE / &quot;us_public_data&quot; / &quot;psid_slim.parquet&quot;
+CSV = HERE / &quot;psid_sahm.csv&quot;
+OUT = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+RAW = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot;
+RUNGS = [(0, 10), (10, 20), (20, 30), (30, 40), (40, 50), (50, 60), (60, 70), (70, 80), (80, 90), (90, 95), (95, 99),
+         (99, 100)]
+B = 500
+RNG = np.random.default_rng(17)
+pb.apply()
+
+
+def wpct(x, w):
+    &quot;&quot;&quot;Weighted mid-rank percentile (0-100) of each value.&quot;&quot;&quot;
+    o = np.argsort(x, kind=&quot;stable&quot;)
+    cw = np.cumsum(w[o])
+    pos = np.empty(len(x))
+    pos[o] = (cw - w[o] / 2) / cw[-1] * 100
+    return pos
+
+
+def families():
+    d = pd.read_parquet(PSID, columns=[&quot;FUID&quot;, &quot;ID&quot;, &quot;YEAR&quot;, &quot;REL&quot;, &quot;DEMO_SEX&quot;, &quot;DEMO_AGE_GEN&quot;, &quot;FAM_MARRIED&quot;,
+                                       &quot;FAM_SIZE_CHI&quot;, &quot;EMP_STAT_1M_SP&quot;, &quot;EMP_WORK_SP&quot;, &quot;EARN_TOT_RD_RP&quot;,
+                                       &quot;FW&quot;])
+    d = d[(d.YEAR &gt;= 2011) &amp; (d.REL == 1)]
+    married = d[d.FAM_MARRIED == 1]
+    print(f&quot;married family-waves: {len(married):,}; husband is RP in {np.mean(married.DEMO_SEX == 1):.1%}&quot;)
+    f = married[(married.DEMO_SEX == 1) &amp; married.DEMO_AGE_GEN.between(25, 60) &amp; (married.FAM_SIZE_CHI &gt; 0)
+                &amp; (married.EARN_TOT_RD_RP &gt; 0) &amp; (married.FW &gt; 0) &amp; married.EMP_STAT_1M_SP.between(1, 8)].copy()
+    f[&quot;keeping_house&quot;] = (f.EMP_STAT_1M_SP == 6).astype(float)
+    f[&quot;not_working&quot;] = (f.EMP_WORK_SP == 0).astype(float)
+    f[&quot;pct&quot;] = np.nan
+    for _, g in f.groupby(&quot;YEAR&quot;):
+        f.loc[g.index, &quot;pct&quot;] = wpct(g.EARN_TOT_RD_RP.to_numpy(), g.FW.to_numpy())
+    f[&quot;rung&quot;] = np.searchsorted([b for _, b in RUNGS[:-1]], f.pct, side=&quot;right&quot;)
+    return f
+
+
+def rung_shares(f):
+    g = f.assign(wk=f.keeping_house * f.FW, wn=f.not_working * f.FW).groupby(&quot;rung&quot;)[
+        [&quot;wk&quot;, &quot;wn&quot;, &quot;FW&quot;]].sum().reindex(range(len(RUNGS)))
+    return (g.wk / g.FW).to_numpy(), (g.wn / g.FW).to_numpy()
+
+
+def main():
+    f = families()
+    k, n = rung_shares(f)
+    ids = f.ID.unique()
+    by = f.groupby(&quot;ID&quot;).indices
+    bk, bn = [], []
+    for _ in range(B):
+        idx = np.concatenate([by[i] for i in RNG.choice(ids, len(ids))])
+        a, b = rung_shares(f.iloc[idx])
+        bk.append(a)
+        bn.append(b)
+    klo, khi = np.nanpercentile(bk, [2.5, 97.5], axis=0)
+    nlo, nhi = np.nanpercentile(bn, [2.5, 97.5], axis=0)
+    med = f.groupby(&quot;rung&quot;).EARN_TOT_RD_RP.median().reindex(range(len(RUNGS))).to_numpy()
+    cnt = f.groupby(&quot;rung&quot;).size().reindex(range(len(RUNGS))).to_numpy()
+    allk = np.average(f.keeping_house, weights=f.FW)
+    alln = np.average(f.not_working, weights=f.FW)
+    t = pd.DataFrame({&quot;rung&quot;: [f&quot;{a}-{b}&quot; for a, b in RUNGS], &quot;n&quot;: cnt, &quot;husband_median_earn&quot;: med.round(),
+                      &quot;keeping_house&quot;: k, &quot;kh_lo&quot;: klo, &quot;kh_hi&quot;: khi, &quot;not_working&quot;: n, &quot;nw_lo&quot;: nlo, &quot;nw_hi&quot;: nhi})
+    t.round(4).to_csv(CSV, index=False)
+    print(t.round(3).to_string())
+    print(f&quot;all: keeping house {allk:.1%}, not working {alln:.1%}; family-waves {len(f):,}, families {f.ID.nunique():,}&quot;)
+    chart(t, allk, alln, len(f), f.ID.nunique())
+
+
+def kfmt(v):
+    return f&quot;${v / 1e6:.1f}M&quot; if v &gt;= 1e6 else f&quot;${v / 1e3:.0f}k&quot;
+
+
+def chart(t, allk, alln, n_fw, n_fam):
+    fig, a = plt.subplots(figsize=(13, 7))
+    x = np.arange(len(t))
+    a.fill_between(x, t.nw_lo * 100, t.nw_hi * 100, color=pb.GRAYS[0], alpha=.15, lw=0)
+    a.plot(x, t.not_working * 100, &quot;o-&quot;, color=pb.GRAYS[0], ms=5, lw=1.4)
+    a.fill_between(x, t.kh_lo * 100, t.kh_hi * 100, color=pb.NAVY, alpha=.15, lw=0)
+    a.plot(x[:-1], t.keeping_house[:-1] * 100, &quot;o-&quot;, color=pb.NAVY, ms=7, lw=2)
+    a.plot(x[-2:], t.keeping_house[-2:] * 100, &quot;-&quot;, color=pb.NAVY, lw=2)
+    a.plot(x[-1], t.keeping_house.iloc[-1] * 100, &quot;o&quot;, color=pb.RED, ms=10, zorder=4)
+    last = t.iloc[-1]
+    a.annotate(f&quot;Top 1%: {last.keeping_house:.0%} keep house\n(n = {last.n} family-years)&quot;,
+               (x[-1], last.keeping_house * 100), xytext=(-14, 12), textcoords=&quot;offset points&quot;, ha=&quot;right&quot;,
+               fontsize=10.5, fontweight=&quot;bold&quot;, color=pb.INK)
+    a.text(x[0] - .2, t.not_working.iloc[0] * 100 + 2.2, &quot;Wife not working (any reason)&quot;, fontsize=10,
+           color=pb.GRAYS[1], ha=&quot;left&quot;)
+    a.text(x[0] - .2, t.keeping_house.iloc[0] * 100 - 3.6, &quot;Wife \&quot;keeping house\&quot;&quot;, fontsize=10.5,
+           fontweight=&quot;bold&quot;, color=pb.NAVY, ha=&quot;left&quot;)
+    labs = [&quot;Bottom 10%&quot;] + [f&quot;{a}–{b}&quot; for a, b in RUNGS[1:-1]] + [&quot;Top 1%&quot;]
+    a.set_xticks(x)
+    a.set_xticklabels([f&quot;{lab}\n{kfmt(m)}&quot; for lab, m in zip(labs, t.husband_median_earn)], fontsize=9.3)
+    a.set_xlabel(&quot;Husband's earnings percentile (median husband earnings in each band, 2024 $)&quot;, fontsize=10.5)
+    a.set_ylabel(&quot;Share of married mothers, %&quot;, fontsize=10.5)
+    a.set_ylim(0, max(t.nw_hi.max() * 100 + 5, 60))
+    a.set_xlim(-.5, len(t) - .5)
+    a.grid(axis=&quot;y&quot;, color=pb.GRID, lw=.6)
+    lo, hi = t.keeping_house.iloc[4:6].mean(), t.keeping_house.iloc[-1]
+    fig.suptitle(&quot;About 1 in 4 married mothers stay home, until the husband hits the top 10%. Then it soars&quot;,
+                 x=.05, ha=&quot;left&quot;, y=.985, fontsize=17, fontweight=&quot;bold&quot;, color=pb.INK)
+    fig.text(.05, .925, (f&quot;Married mothers with a child under 18, by husband's earnings. Overall {allk:.0%} keep house &quot;
+                         f&quot;and {alln:.0%} aren't working. US, PSID 2011–21&quot;), ha=&quot;left&quot;, fontsize=11.5,
+             color=pb.MUTED)
+    fig.text(.05, .02, (
+        f&quot;PSID 2011–2021 waves, {n_fw:,} family-years ({n_fam:,} families): legally married, husband (PSID reference &quot;
+        &quot;person) aged 25–60 with positive labor earnings, at least one child under 18 in the household; family &quot;
+        &quot;longitudinal weights (FW).\nHusband's earnings ranked within each wave, real 2024 $. \&quot;Keeping house\&quot;: wife's &quot;
+        &quot;own current employment status. \&quot;Not working\&quot;: anything but working now (adds unemployed, laid off, disabled, &quot;
+        &quot;retired, students).\nShaded: 95% family-bootstrap intervals.&quot;),
+        fontsize=8.3, color=pb.MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.subplots_adjust(left=.07, right=.98, top=.88, bottom=.2)
+    RAW.mkdir(parents=True, exist_ok=True)
+    OUT.mkdir(parents=True, exist_ok=True)
+    raw, wm = RAW / &quot;psid_sahm.png&quot;, OUT / &quot;psid_sahm_wm.png&quot;
+    fig.savefig(raw, dpi=200, bbox_inches=&quot;tight&quot;, facecolor=pb.SURFACE)
+    plt.close(fig)
+    print(&quot;wrote&quot;, raw, &quot;\n     &quot;, wm)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)],
+                   check=True)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
