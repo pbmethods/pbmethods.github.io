@@ -584,7 +584,7 @@ WOMAN = [(-.045, .815), (.045, .815), (.14, .79), (.17, .74), (.18, .47), (.145,
 WIDTH = .8  # horizontal squeeze so pairs don't touch
 LABELS = {"Interest in things vs. people": "Things vs. people", "Mechanical / 'Realistic' interests": "Mechanical interests",
           "Scientific / 'Investigative' interests": "Scientific interests",
-          "Interest in 'Social' work (helping, teaching)": "Helping / teaching interests"}
+          "Interest in 'Social' work (helping, teaching)": "Helping / teaching"}
 
 
 def figure(a, shape, x, h, color):
@@ -620,14 +620,14 @@ def main():
                color=MUTED)
         name = "\n".join(textwrap.wrap(LABELS.get(lab, lab), 15))
         a.text(cx, -2.5, name, ha="center", va="top", fontsize=10.5, color=INK, linespacing=1.15)
-        a.text(cx, -11.5, f"d = {abs(d):.2f}", ha="center", va="top", fontsize=8.5, color=MUTED)
+        a.text(cx, -13, f"d = {abs(d):.2f}", ha="center", va="top", fontsize=8.5, color=MUTED)
         if i == 0:
-            a.text(cx, -15, f"{ft_in(hm)} vs {ft_in(hw)}", ha="center", va="top", fontsize=8.5, color=MUTED)
+            a.text(cx, -16.3, f"{ft_in(hm)} vs {ft_in(hw)}", ha="center", va="top", fontsize=8.5, color=MUTED)
     a.axhline(0, color=GRID, lw=1.2)
     a.axvline(pitch / 2, ymin=.08, ymax=.92, color=GRID, lw=1)
     a.set_aspect("equal")
     a.set_xlim(-pitch / 2, (len(rows) - .5) * pitch)
-    a.set_ylim(-18, mid + 10)
+    a.set_ylim(-19.5, mid + 10)
     a.axis("off")
 
     fig.suptitle("If the psychological sex differences were height differences",

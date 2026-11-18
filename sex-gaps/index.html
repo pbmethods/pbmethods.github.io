@@ -574,7 +574,7 @@ WOMAN = [(-.045, .815), (.045, .815), (.14, .79), (.17, .74), (.18, .47), (.145,
 WIDTH = .8  # horizontal squeeze so pairs don't touch
 LABELS = {&quot;Interest in things vs. people&quot;: &quot;Things vs. people&quot;, &quot;Mechanical / 'Realistic' interests&quot;: &quot;Mechanical interests&quot;,
           &quot;Scientific / 'Investigative' interests&quot;: &quot;Scientific interests&quot;,
-          &quot;Interest in 'Social' work (helping, teaching)&quot;: &quot;Helping / teaching interests&quot;}
+          &quot;Interest in 'Social' work (helping, teaching)&quot;: &quot;Helping / teaching&quot;}
 
 
 def figure(a, shape, x, h, color):
@@ -610,14 +610,14 @@ def main():
                color=MUTED)
         name = &quot;\n&quot;.join(textwrap.wrap(LABELS.get(lab, lab), 15))
         a.text(cx, -2.5, name, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=10.5, color=INK, linespacing=1.15)
-        a.text(cx, -11.5, f&quot;d = {abs(d):.2f}&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=8.5, color=MUTED)
+        a.text(cx, -13, f&quot;d = {abs(d):.2f}&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=8.5, color=MUTED)
         if i == 0:
-            a.text(cx, -15, f&quot;{ft_in(hm)} vs {ft_in(hw)}&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=8.5, color=MUTED)
+            a.text(cx, -16.3, f&quot;{ft_in(hm)} vs {ft_in(hw)}&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=8.5, color=MUTED)
     a.axhline(0, color=GRID, lw=1.2)
     a.axvline(pitch / 2, ymin=.08, ymax=.92, color=GRID, lw=1)
     a.set_aspect(&quot;equal&quot;)
     a.set_xlim(-pitch / 2, (len(rows) - .5) * pitch)
-    a.set_ylim(-18, mid + 10)
+    a.set_ylim(-19.5, mid + 10)
     a.axis(&quot;off&quot;)
 
     fig.suptitle(&quot;If the psychological sex differences were height differences&quot;,
