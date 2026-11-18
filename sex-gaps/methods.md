@@ -10,6 +10,8 @@
 
 ![chart 4](chart4.png)
 
+![chart 5](chart5.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -71,6 +73,23 @@ SD_men = sqrt(2*1.1/2.1), SD_women = sqrt(2/2.1). That pushes male-higher ratios
 
 Height reference: NHANES 2017-March 2020, adults 20+, weighted (d = 1.93; see sex_gaps_height_chart.py).
 Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_4sd_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
+```
+
+### `sex_gaps_silhouettes_chart.py`
+
+```text
+Sex differences in psychology as height differences, drawn as pairs of silhouettes.
+
+Method: same conversion as sex_gaps_height_chart.py. Each trait's standardized gap d (sources in
+sex_gaps_tails_chart.py GAPS) is multiplied by the pooled within-sex SD of US adult height (NHANES 2017-March 2020,
+adults 20+, MEC-weighted; 7.18 cm), giving the height gap with the same overlap between the sexes. Each pair is drawn
+around the midpoint between the real male and female means (about 5'6"): the shorter figure at midpoint - gap/2 and
+the taller at midpoint + gap/2, so the leftmost "actual height" pair stands at the real NHANES means (5'9" and
+5'3.5"). Figures are to scale on a common ground line; the taller figure is colored (navy = man, red = woman), the
+shorter one gray. A dashed line marks the shorter figure's head height.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_silhouettes_chart.py
 Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
 Unwatermarked graphs/Gender differences/.
 ```
@@ -515,6 +534,110 @@ def main():
         fontsize=8.3, color=MUTED, ha="left", va="top")
     fig.subplots_adjust(left=.27, right=.97, top=.89, bottom=.12)
     save(fig, "sex_gaps_4sd.png")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### `sex_gaps_silhouettes_chart.py`
+
+```python
+"""Sex differences in psychology as height differences, drawn as pairs of silhouettes.
+
+Method: same conversion as sex_gaps_height_chart.py. Each trait's standardized gap d (sources in
+sex_gaps_tails_chart.py GAPS) is multiplied by the pooled within-sex SD of US adult height (NHANES 2017-March 2020,
+adults 20+, MEC-weighted; 7.18 cm), giving the height gap with the same overlap between the sexes. Each pair is drawn
+around the midpoint between the real male and female means (about 5'6"): the shorter figure at midpoint - gap/2 and
+the taller at midpoint + gap/2, so the leftmost "actual height" pair stands at the real NHANES means (5'9" and
+5'3.5"). Figures are to scale on a common ground line; the taller figure is colored (navy = man, red = woman), the
+shorter one gray. A dashed line marks the shorter figure's head height.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_silhouettes_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
+"""
+import sys
+import textwrap
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Polygon
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sex_gaps_tails_chart import GAPS, BLUE, ORANGE, INK, MUTED, GRID, pb  # noqa: E402
+from sex_gaps_height_chart import height_stats, save  # noqa: E402
+
+SHORT = pb.MUTE          # the shorter figure in each pair
+REF_TALL = pb.GRAYS[1]   # the real-height pair
+
+# Pictograms in unit height (feet at 0, top of head at 1); body outlines plus a round head.
+HEAD = (0.0, 0.925, 0.075)
+MAN = [(-.05, .815), (.05, .815), (.17, .79), (.20, .74), (.20, .46), (.16, .46), (.155, .70), (.13, .70),
+       (.12, .47), (.11, 0), (.025, 0), (.02, .42), (-.02, .42), (-.025, 0), (-.11, 0), (-.12, .47), (-.13, .70),
+       (-.155, .70), (-.16, .46), (-.20, .46), (-.20, .74), (-.17, .79)]
+WOMAN = [(-.045, .815), (.045, .815), (.14, .79), (.17, .74), (.18, .47), (.145, .47), (.13, .69), (.115, .66),
+         (.10, .56), (.19, .28), (.085, .28), (.08, 0), (.025, 0), (.02, .28), (-.02, .28), (-.025, 0), (-.08, 0),
+         (-.085, .28), (-.19, .28), (-.10, .56), (-.115, .66), (-.13, .69), (-.145, .47), (-.18, .47), (-.17, .74),
+         (-.14, .79)]
+
+
+def figure(a, shape, x, h, color):
+    a.add_patch(Polygon([(x + px * h, py * h) for px, py in shape], closed=True, color=color, lw=0))
+    hx, hy, r = HEAD
+    a.add_patch(Circle((x + hx * h, hy * h), r * h, color=color, lw=0))
+
+
+def ft_in(inches):
+    f, r = divmod(round(inches * 2) / 2, 12)
+    return f"{int(f)}′{r:g}″".replace(".5", "½")
+
+
+def main():
+    mm, mw, sd = height_stats()
+    mid = (mm + mw) / 2 / 2.54
+    rows = [("Actual height", (mm - mw) / sd)] + [(lab, d) for lab, d, _ in GAPS if "reference" not in lab]
+
+    fig, a = plt.subplots(figsize=(16, 7))
+    pitch, half = 46, 9.5   # inches between pair centers; each figure's offset from its pair center
+    for i, (lab, d) in enumerate(rows):
+        cx = i * pitch
+        gap = abs(d) * sd / 2.54
+        tall_h, short_h = mid + gap / 2, mid - gap / 2
+        men_taller = d > 0
+        hm, hw = (tall_h, short_h) if men_taller else (short_h, tall_h)
+        tall_c = REF_TALL if i == 0 else (BLUE if men_taller else ORANGE)
+        figure(a, MAN, cx - half, hm, tall_c if men_taller else SHORT)
+        figure(a, WOMAN, cx + half, hw, SHORT if men_taller else tall_c)
+        a.plot([cx - half - 11, cx + half + 11], [short_h, short_h], color=INK, lw=.8, ls=(0, (2, 2)))
+        a.text(cx, tall_h + 3.2, f"+{gap:.1f} in", ha="center", fontsize=12.5, fontweight="bold", color=INK)
+        a.text(cx, tall_h + 1.2, ("men taller" if men_taller else "women taller"), ha="center", fontsize=8.5,
+               color=MUTED)
+        name = "\n".join(textwrap.wrap(lab.replace("Interest in ", "").replace(" (helping, teaching)", ""), 16))
+        a.text(cx, -2.5, name, ha="center", va="top", fontsize=10.5, color=INK, linespacing=1.15)
+        a.text(cx, -10.5, f"d = {abs(d):.2f}", ha="center", va="top", fontsize=8.5, color=MUTED)
+        if i == 0:
+            a.text(cx, -13.8, f"{ft_in(hm)} vs {ft_in(hw)}", ha="center", va="top", fontsize=8.5, color=MUTED)
+    a.axhline(0, color=GRID, lw=1.2)
+    a.axvline(pitch / 2, ymin=.08, ymax=.92, color=GRID, lw=1)
+    a.set_aspect("equal")
+    a.set_xlim(-pitch / 2, (len(rows) - .5) * pitch)
+    a.set_ylim(-17, mid + 10)
+    a.axis("off")
+
+    fig.suptitle("If the psychological sex differences were height differences",
+                 x=.03, ha="left", y=.98, fontsize=17, fontweight="bold", color=INK)
+    fig.text(.03, .915, (f"Each pair is the average man and woman, to scale, if the trait gap were a height gap. "
+                         f"Real gap at left; colored figure = the sex that scores higher"),
+             ha="left", fontsize=11.5, color=MUTED)
+    fig.text(.03, .09, (
+        f"Method: gap in SDs (Cohen's d) × pooled within-sex SD of US adult height ({sd / 2.54:.2f} in). Pairs are "
+        f"centered on {ft_in(mid)}, the midpoint of the real means. Height: NHANES 2017–Mar 2020, adults 20+, weighted. "
+        "Trait gaps: Su, Rounds &\nArmstrong 2009 (interests); Frankenbach et al. 2022 (sex drive; 0.54 bias-adjusted); "
+        "Hyde 1984/86 (physical aggression); Kajonius & Johnson 2018 (neuroticism, agreeableness). It shows how "
+        "separated the sexes are, not how much a trait matters."),
+        fontsize=8.3, color=MUTED, ha="left", va="top")
+    fig.subplots_adjust(left=.02, right=.98, top=.88, bottom=.12)
+    save(fig, "sex_gaps_silhouettes.png")
 
 
 if __name__ == "__main__":
