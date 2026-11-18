@@ -32,6 +32,7 @@ li{margin:.2rem 0}
 <p><img alt="chart 6" src="chart6.png" /></p>
 <p><img alt="chart 7" src="chart7.png" /></p>
 <p><img alt="chart 8" src="chart8.png" /></p>
+<p><img alt="chart 9" src="chart9.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -176,6 +177,26 @@ height, age and age squared.
 Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_earnings_chart.py
 Writes psid_height_earnings.csv next to this script; chart _wm copy to
 ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+</code></pre>
+<h3><code>psid_height_tall_chart.py</code></h3>
+<pre><code class="language-text">Men's height up the earnings ladder (A) and how common 6'2&quot;+ men are in each earnings band (B). PSID 2011-2021.
+
+Sample, earnings and height correction: identical to psid_height_earnings_chart.py (imported from it). PSID reference
+persons and spouses aged 25-60 with positive earnings, waves 2011-2021, one row per person (mean real 2024-dollar
+labor earnings over their positive waves, median reported height, mean IW_CROSS weight). Reported heights are
+quantile-mapped onto NHANES 2017-March 2020 measured heights within sex, with NHANES reweighted to the PSID sample's
+mix of married/partnered vs not and age 25-39 vs 40-60.
+
+A: weighted mean corrected height for each own-sex earnings rung (deciles, 90-95, 95-99, top 1%), 95% person-level
+bootstrap intervals (500 draws).
+B: weighted share of men at 6'2&quot; or taller (corrected height &gt;= 73.5 in, i.e. rounds to 6'2&quot;+) within broader earnings
+bands -- bottom 50%, 50-80, 80-90, 90-97, top 3% -- because tall men are few: the top 3% band holds ~150 men, ~20 of
+them 6'2&quot;+. 95% intervals from 1,000 bootstrap draws within band. The dotted line is the share among all men in the
+sample (population incidence). 6'6&quot;+ is not shown: NHANES has only 3 measured men that tall at 25-60, too few to
+correct reported heights against.
+Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_tall_chart.py
+Writes the chart's _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in
+Unwatermarked graphs/Gender differences/).
 </code></pre>
 <h2>Results</h2>
 <h3><code>sex_gaps_addhealth_corr.csv</code></h3>
@@ -2108,6 +2129,121 @@ def chart(res):
         fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
     fig.subplots_adjust(left=.06, right=.98, top=.86, bottom=.22, wspace=.18)
     save(fig, &quot;psid_height_earnings.png&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>psid_height_tall_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Men's height up the earnings ladder (A) and how common 6'2&quot;+ men are in each earnings band (B). PSID 2011-2021.
+
+Sample, earnings and height correction: identical to psid_height_earnings_chart.py (imported from it). PSID reference
+persons and spouses aged 25-60 with positive earnings, waves 2011-2021, one row per person (mean real 2024-dollar
+labor earnings over their positive waves, median reported height, mean IW_CROSS weight). Reported heights are
+quantile-mapped onto NHANES 2017-March 2020 measured heights within sex, with NHANES reweighted to the PSID sample's
+mix of married/partnered vs not and age 25-39 vs 40-60.
+
+A: weighted mean corrected height for each own-sex earnings rung (deciles, 90-95, 95-99, top 1%), 95% person-level
+bootstrap intervals (500 draws).
+B: weighted share of men at 6'2&quot; or taller (corrected height &gt;= 73.5 in, i.e. rounds to 6'2&quot;+) within broader earnings
+bands -- bottom 50%, 50-80, 80-90, 90-97, top 3% -- because tall men are few: the top 3% band holds ~150 men, ~20 of
+them 6'2&quot;+. 95% intervals from 1,000 bootstrap draws within band. The dotted line is the share among all men in the
+sample (population incidence). 6'6&quot;+ is not shown: NHANES has only 3 measured men that tall at 25-60, too few to
+correct reported heights against.
+Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_tall_chart.py
+Writes the chart's _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in
+Unwatermarked graphs/Gender differences/).
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from psid_height_earnings_chart import (RUNGS, persons, nhanes, correct, rung_means, wquant_rank,  # noqa: E402
+                                        premium, wspear)
+from sex_gaps_tails_chart import INK, MUTED, GRID, pb  # noqa: E402
+from sex_gaps_height_chart import save  # noqa: E402
+
+TALL = 73.5  # 6'2&quot; on the measured scale
+BANDS = [(0, 50, &quot;Bottom 50%&quot;), (50, 80, &quot;50–80th&quot;), (80, 90, &quot;80–90th&quot;), (90, 97, &quot;90–97th&quot;), (97, 100, &quot;Top 3%&quot;)]
+RNG = np.random.default_rng(5)
+
+
+def main():
+    p = persons()
+    p[&quot;hc&quot;] = correct(p, nhanes())
+    m = p[p.sex == &quot;Men&quot;].copy()
+    m[&quot;pct&quot;] = wquant_rank(m.earn.to_numpy(), m.w.to_numpy()) * 100
+    avg = np.average(m.hc, weights=m.w)
+
+    mean, n = rung_means(m)
+    bs = np.array([rung_means(m.iloc[RNG.integers(0, len(m), len(m))])[0] for _ in range(500)])
+    lo, hi = np.nanpercentile(bs, [2.5, 97.5], axis=0)
+
+    base = np.average(m.hc &gt;= TALL, weights=m.w)
+    shares = []
+    for a, b, lab in BANDS:
+        g = m[(m.pct &gt;= a) &amp; ((m.pct &lt; b) if b &lt; 100 else (m.pct &gt;= a))]
+        t, w = (g.hc &gt;= TALL).to_numpy(), g.w.to_numpy()
+        draws = [np.average(t[i], weights=w[i]) for i in (RNG.integers(0, len(g), len(g)) for _ in range(1000))]
+        shares.append((lab, np.average(t, weights=w), *np.percentile(draws, [2.5, 97.5]), int(t.sum()), len(g)))
+        print(f&quot;{lab:11s} {shares[-1][1]:6.1%} [{shares[-1][2]:.1%}, {shares[-1][3]:.1%}]  {t.sum()} of {len(g)}&quot;)
+    print(f&quot;all men: {base:.1%} 6'2\&quot;+; r = {wspear(m.hc, m.earn, m.w.to_numpy()):.3f}, premium {premium(m):+.2%}/in&quot;)
+
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(15, 6.6), gridspec_kw={&quot;width_ratios&quot;: [1.25, 1], &quot;wspace&quot;: .2})
+    x = np.arange(len(RUNGS))
+    a1.axhline(avg, color=GRID, lw=1.2, zorder=0)
+    a1.text(-.4, avg + .05, f&quot;average {avg:.1f} in&quot;, fontsize=9, color=MUTED, va=&quot;bottom&quot;)
+    a1.vlines(x, lo, hi, color=pb.NAVY, lw=1.4, alpha=.5)
+    a1.plot(x, mean, &quot;o-&quot;, color=pb.NAVY, ms=7, lw=1.6)
+    labels = [f&quot;{a}–{b}&quot; if b &lt; 100 else &quot;Top 1%&quot; for a, b in RUNGS]
+    labels[0] = &quot;Bottom 10%&quot;
+    a1.set_xticks(x)
+    a1.set_xticklabels(labels, rotation=40, ha=&quot;right&quot;, fontsize=9.5)
+    a1.set_xlabel(&quot;Own earnings percentile among men&quot;, fontsize=10)
+    a1.set_ylabel(&quot;Average height, inches (measured-scale)&quot;, fontsize=10)
+    a1.set_ylim(np.nanmin(lo) - .4, np.nanmin(lo) + 3.2)
+    a1.grid(axis=&quot;y&quot;, color=GRID, lw=.6)
+    a1.set_title(f&quot;A  Average height rises ~1 in up the ladder ({premium(m):+.1%} earnings per inch)&quot;, loc=&quot;left&quot;,
+                 fontsize=12.5, fontweight=&quot;bold&quot;, color=INK)
+
+    xb = np.arange(len(BANDS))
+    vals = np.array([s[1] for s in shares]) * 100
+    a2.bar(xb, vals, color=[pb.NAVY] * (len(BANDS) - 1) + [pb.RED], width=.62)
+    a2.vlines(xb, [s[2] * 100 for s in shares], [s[3] * 100 for s in shares], color=INK, lw=1.1, alpha=.55)
+    a2.axhline(base * 100, color=pb.GRAYS[0], lw=1.6, ls=(0, (2, 2)), zorder=3)
+    a2.text(-.45, base * 100 + .3, f&quot;all men: {base:.1%}&quot;, fontsize=9.5, color=pb.GRAYS[1], va=&quot;bottom&quot;)
+    for xi, s in zip(xb, shares):
+        a2.text(xi, s[3] * 100 + .4, f&quot;{s[1]:.1%}&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=11, fontweight=&quot;bold&quot;,
+                color=INK)
+        a2.text(xi, .4, f&quot;{s[4]} of\n{s[5]:,}&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=8.5, color=&quot;white&quot;,
+                linespacing=1.1)
+    a2.set_xticks(xb)
+    a2.set_xticklabels([s[0] for s in shares], fontsize=10)
+    a2.set_xlabel(&quot;Own earnings band among men&quot;, fontsize=10)
+    a2.set_ylabel(&quot;Share who are 6′2″ or taller, %&quot;, fontsize=10)
+    a2.set_ylim(0, max(s[3] for s in shares) * 100 + 3)
+    a2.grid(axis=&quot;y&quot;, color=GRID, lw=.6)
+    top = shares[-1]
+    a2.set_title(f&quot;B  6′2″+ men are {top[1] / base:.1f}× as common in the top 3%&quot;, loc=&quot;left&quot;, fontsize=12.5,
+                 fontweight=&quot;bold&quot;, color=INK)
+
+    fig.suptitle(&quot;Tall men are over-represented at the top of the earnings ladder, modestly&quot;,
+                 x=.04, ha=&quot;left&quot;, y=.99, fontsize=16.5, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(.04, .925, (&quot;US men 25–60, PSID 2011–21, reported heights corrected to measured. White labels: tall men in &quot;
+                         &quot;band / men in band. Lines: 95% intervals&quot;), ha=&quot;left&quot;, fontsize=11.5, color=MUTED)
+    fig.text(.04, .02, (
+        &quot;PSID reference persons and spouses with positive earnings; person mean of real (2024 $) labor earnings over &quot;
+        &quot;2011–2021 waves; weighted. Reported heights run ~1.1 in tall (38% claim 6′0″+ vs 21% measured), so each man's &quot;
+        &quot;reported\nheight is mapped by rank onto NHANES 2017–20 measured heights, reweighted to PSID's mix of partnered vs &quot;
+        &quot;not and age. B: bands widened at the top because tall men are few; the top-3% interval is wide (20 men). &quot;
+        &quot;6′6″+ can't\nbe estimated: NHANES has only 3 measured men that tall to correct against. Premium: weighted &quot;
+        &quot;regression of log earnings on height, age, age².&quot;),
+        fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;)
+    fig.subplots_adjust(left=.06, right=.98, top=.86, bottom=.22)
+    save(fig, &quot;psid_height_tall.png&quot;)
 
 
 if __name__ == &quot;__main__&quot;:
