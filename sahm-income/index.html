@@ -885,7 +885,7 @@ def chart(t, n_fw, n_w):
     a1.plot(x + off, A.sahm, &quot;o-&quot;, color=pb.NAVY, ms=8, lw=2)
     a1.text(x[0] + off + .12, A.sahm[0] - .12, &quot;Stay-at-home wives&quot;, fontsize=10.5, fontweight=&quot;bold&quot;,
             color=pb.NAVY, va=&quot;top&quot;)
-    a1.text(x[0] - off - .1, A.other[0] + .32, &quot;Working (other) wives&quot;, fontsize=10.5, color=pb.GRAYS[1], va=&quot;bottom&quot;)
+    a1.text(x[0] - off, A.other[0] + .2, &quot;Working wives&quot;, fontsize=10.5, color=pb.GRAYS[1], va=&quot;bottom&quot;, ha=&quot;center&quot;)
     a1.set_xticks(x)
     a1.set_xticklabels(A.band, fontsize=10)
     a1.set_xlabel(&quot;Husband's earnings band&quot;, fontsize=10.5)

@@ -606,7 +606,7 @@ def chart(t, n_fw, n_w):
     a1.plot(x + off, A.sahm, "o-", color=pb.NAVY, ms=8, lw=2)
     a1.text(x[0] + off + .12, A.sahm[0] - .12, "Stay-at-home wives", fontsize=10.5, fontweight="bold",
             color=pb.NAVY, va="top")
-    a1.text(x[0] - off - .1, A.other[0] + .32, "Working (other) wives", fontsize=10.5, color=pb.GRAYS[1], va="bottom")
+    a1.text(x[0] - off, A.other[0] + .2, "Working wives", fontsize=10.5, color=pb.GRAYS[1], va="bottom", ha="center")
     a1.set_xticks(x)
     a1.set_xticklabels(A.band, fontsize=10)
     a1.set_xlabel("Husband's earnings band", fontsize=10.5)
