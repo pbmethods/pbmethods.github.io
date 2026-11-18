@@ -472,11 +472,15 @@ def main():
         c = GREY if &quot;reference&quot; in lab else (BLUE if d &gt; 0 else ORANGE)
         sex = &quot;men&quot; if d &gt; 0 else &quot;women&quot;
         a.barh(yi, hi - 1, left=1, color=c, height=.62)
-        a.plot([hv, hv], [yi - .31, yi + .31], color=c, lw=2.2)
-        a.plot([hi, hv], [yi, yi], color=c, lw=1, ls=&quot;:&quot;)
+        inside = hv &lt; hi  # tick falls inside the bar: draw it white
+        a.plot([hv, hv], [yi - .31, yi + .31], color=&quot;white&quot; if inside else c, lw=2.2, zorder=3)
+        if not inside:
+            a.plot([hi, hv], [yi, yi], color=c, lw=1, ls=&quot;:&quot;)
         xl = max(hi, hv) * 1.12
         a.text(xl, yi + .1, f&quot;{fmt(hi)} : 1&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK)
-        a.text(xl, yi - .3, f&quot;{100 * hi / (hi + 1):.1f}% {sex}  ·  {fmt(hv)} : 1 if men 10% more variable&quot;,
+        share = 100 * hi / (hi + 1)
+        pct = f&quot;{share:.2f}&quot; if share &gt; 99.9 else f&quot;{share:.1f}&quot;
+        a.text(xl, yi - .3, f&quot;{pct}% {sex}  ·  {fmt(hv)} : 1 if men 10% more variable&quot;,
                va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=8.5, color=MUTED)
         a.text(.33, yi + .1, lab, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11.5, color=INK)
         a.text(.33, yi - .28, f&quot;d = {abs(d):.2f}, {src}&quot;, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=8.5, color=MUTED)
