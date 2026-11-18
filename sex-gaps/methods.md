@@ -12,6 +12,8 @@
 
 ![chart 5](chart5.png)
 
+![chart 6](chart6.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -90,6 +92,28 @@ the taller at midpoint + gap/2, so the leftmost "actual height" pair stands at t
 5'3.5"). Figures are to scale on a common ground line; the taller figure is colored (navy = man, red = woman), the
 shorter one gray. A dashed line marks the shorter figure's head height.
 Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_silhouettes_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
+```
+
+### `sex_gaps_rarity_silhouettes_chart.py`
+
+```text
+How rare is a woman at the top-0.1%-man level of a male-skewed trait (and vice versa), in height terms.
+
+Method: each trait is modeled as two normal distributions with equal spread and means d apart (d = the meta-analytic
+standardized gap; sources in sex_gaps_tails_chart.py GAPS). The reference level is the top 1 in 1,000 of the
+higher-scoring sex: z = 3.09 within that sex. A member of the other sex at the same level sits at z + |d| within her
+(or his) own sex, which is 1 in 1/sf(z + |d|) of them.
+
+That rarity is then turned into a height: the height that is equally rare within a sex, using NHANES 2017-March 2020
+adults 20+ (MEC-weighted; men 175.0 cm, SD 7.38; women 161.2 cm, SD 6.97; see sex_gaps_height_chart.py). For
+male-skewed traits the comparison figure is a man (height = male mean + (z + |d|) male SDs): "a woman with a
+top-0.1%-man sex drive is as rare among women as a man this tall is among men". For female-skewed traits it is a
+woman, with heights from the female distribution. Each tall figure stands next to the average man or woman, to scale.
+Because rarity grows exponentially with distance from the mean while height grows linearly, very different
+rarities map to heights only an inch or two apart.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_rarity_silhouettes_chart.py
 Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
 Unwatermarked graphs/Gender differences/.
 ```
@@ -644,6 +668,128 @@ def main():
         fontsize=8.3, color=MUTED, ha="left", va="top")
     fig.subplots_adjust(left=.02, right=.98, top=.88, bottom=.12)
     save(fig, "sex_gaps_silhouettes.png")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### `sex_gaps_rarity_silhouettes_chart.py`
+
+```python
+"""How rare is a woman at the top-0.1%-man level of a male-skewed trait (and vice versa), in height terms.
+
+Method: each trait is modeled as two normal distributions with equal spread and means d apart (d = the meta-analytic
+standardized gap; sources in sex_gaps_tails_chart.py GAPS). The reference level is the top 1 in 1,000 of the
+higher-scoring sex: z = 3.09 within that sex. A member of the other sex at the same level sits at z + |d| within her
+(or his) own sex, which is 1 in 1/sf(z + |d|) of them.
+
+That rarity is then turned into a height: the height that is equally rare within a sex, using NHANES 2017-March 2020
+adults 20+ (MEC-weighted; men 175.0 cm, SD 7.38; women 161.2 cm, SD 6.97; see sex_gaps_height_chart.py). For
+male-skewed traits the comparison figure is a man (height = male mean + (z + |d|) male SDs): "a woman with a
+top-0.1%-man sex drive is as rare among women as a man this tall is among men". For female-skewed traits it is a
+woman, with heights from the female distribution. Each tall figure stands next to the average man or woman, to scale.
+Because rarity grows exponentially with distance from the mean while height grows linearly, very different
+rarities map to heights only an inch or two apart.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_rarity_silhouettes_chart.py
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ and the original to
+Unwatermarked graphs/Gender differences/.
+"""
+import sys
+import textwrap
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from scipy.stats import norm
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sex_gaps_tails_chart import GAPS, BLUE, ORANGE, INK, MUTED, GRID  # noqa: E402
+from sex_gaps_height_chart import NHANES, save  # noqa: E402
+from sex_gaps_silhouettes_chart import MAN, WOMAN, LABELS, SHORT, figure, ft_in  # noqa: E402
+
+LEVEL = 1e-3  # top 1 in 1,000 of the higher-scoring sex
+
+
+def height_by_sex():
+    """Weighted adult (20+) height mean and SD in inches: {'M': (mean, sd), 'F': (mean, sd)}."""
+    b = pd.read_sas(NHANES / "P_BMX.XPT")[["SEQN", "BMXHT"]]
+    d = pd.read_sas(NHANES / "P_DEMO.XPT")[["SEQN", "RIAGENDR", "RIDAGEYR", "WTMECPRP"]]
+    m = b.merge(d, on="SEQN")
+    m = m[(m.RIDAGEYR >= 20) & m.BMXHT.notna()]
+    out = {}
+    for sex, g in m.groupby("RIAGENDR"):
+        w, x = g.WTMECPRP, g.BMXHT / 2.54
+        mu = (x * w).sum() / w.sum()
+        out["M" if sex == 1 else "F"] = (mu, (((x - mu) ** 2 * w).sum() / w.sum()) ** .5)
+    return out
+
+
+def one_in(p):
+    n = 1 / p
+    return f"{round(n, -3):,.0f}" if n >= 10000 else f"{round(n, -2):,.0f}"
+
+
+def main():
+    hs = height_by_sex()
+    z0 = norm.isf(LEVEL)
+    rows = []
+    for lab, d, _ in GAPS:
+        if "reference" in lab:
+            continue
+        z = z0 + abs(d)
+        sex = "M" if d > 0 else "F"   # the figure drawn is the higher-scoring sex; the rarity is the other sex's
+        mu, sd = hs[sex]
+        rows.append((LABELS.get(lab, lab), d, norm.sf(z), mu + sd * z, mu))
+        print(f"{lab:45s} 1 in {1 / norm.sf(z):>8,.0f}  -> {ft_in(mu + sd * z)}")
+
+    fig, a = plt.subplots(figsize=(16, 7))
+    pitch, half = 50, 12.5
+    for i, (lab, d, p, h, avg) in enumerate(rows):
+        cx = i * pitch
+        male = d > 0
+        shape, c = (MAN, BLUE) if male else (WOMAN, ORANGE)
+        figure(a, shape, cx - half, avg, SHORT)
+        figure(a, shape, cx + half, h, c)
+        a.text(cx + half, h + 2.0, ft_in(h), ha="center", fontsize=13, fontweight="bold", color=INK)
+        a.text(cx - half, avg + 2.0, ft_in(avg), ha="center", fontsize=9, color=MUTED)
+        a.text(cx, -2.5, "\n".join(textwrap.wrap(lab, 15)), ha="center", va="top", fontsize=10.5, color=INK,
+               linespacing=1.15)
+        other = "women" if male else "men"
+        a.text(cx, -13, f"1 in {one_in(p)}\n{other}", ha="center", va="top", fontsize=10, fontweight="bold",
+               color=INK, linespacing=1.15)
+        a.text(cx, -21.5, f"d = {abs(d):.2f}", ha="center", va="top", fontsize=8.5, color=MUTED)
+    nm = sum(r[1] > 0 for r in rows)
+    a.axvline((nm - .5) * pitch, ymin=.12, ymax=.9, color=GRID, lw=1)
+    a.axhline(0, color=GRID, lw=1.2)
+    for ft in (5, 6):
+        a.axhline(ft * 12, color=GRID, lw=.6, ls=(0, (3, 3)), zorder=0)
+        a.text((len(rows) - .5) * pitch, ft * 12 + .6, f"{ft} ft", ha="right", fontsize=8.5, color=MUTED)
+    a.text((nm / 2 - .5) * pitch, 97, "Male-skewed traits: a woman at the top-0.1% man's level is as rare as…",
+           ha="center", fontsize=11, fontweight="bold", color=BLUE)
+    a.text(((nm + len(rows)) / 2 - .5) * pitch, 97, "Female-skewed: a man at the top-0.1% woman's level is as rare as…",
+           ha="center", fontsize=11, fontweight="bold", color=ORANGE)
+    a.set_aspect("equal")
+    a.set_xlim(-pitch / 2, (len(rows) - .5) * pitch)
+    a.set_ylim(-25, 102)
+    a.axis("off")
+
+    sexd = [r for r in rows if r[0] == "Sex drive"][0]
+    fig.suptitle(f"A woman with a top-0.1% male sex drive is as rare as a {ft_in(sexd[3])} man",
+                 x=.03, ha="left", y=.985, fontsize=17, fontweight="bold", color=INK)
+    fig.text(.03, .925, ("Each colored figure is as tall as someone equally rare in height: how rare it is for the "
+                         "other sex to reach the top 1-in-1,000 level of the higher-scoring sex. Gray = average man or "
+                         "woman, to scale"), ha="left", fontsize=11, color=MUTED)
+    fig.text(.03, .06, (
+        "Model: two normal curves per trait, equal spread, means d apart. Level = top 1 in 1,000 of the higher-scoring sex "
+        "(3.09 SD above its mean); the other sex reaches it at 3.09 + d of its own SDs. Height of equal rarity from "
+        "NHANES 2017–Mar 2020,\nadults 20+, weighted (men 5′9″, SD 2.9 in; women 5′3½″, SD 2.7 in). Trait gaps: Su, "
+        "Rounds & Armstrong 2009; Frankenbach et al. 2022 (sex drive; 0.54 bias-adjusted); Hyde 1984/86; Kajonius & "
+        "Johnson 2018. Rarity grows exponentially while height grows\nlinearly, so 1 in 2,500 and 1 in 34,000 sit only "
+        "two inches apart. Far tails are where the normal assumption is least tested."),
+        fontsize=8.3, color=MUTED, ha="left", va="top")
+    fig.subplots_adjust(left=.02, right=.98, top=.9, bottom=.1)
+    save(fig, "sex_gaps_rarity_silhouettes.png")
 
 
 if __name__ == "__main__":
