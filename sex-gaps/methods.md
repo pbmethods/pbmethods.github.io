@@ -14,6 +14,10 @@
 
 ![chart 6](chart6.png)
 
+![chart 7](chart7.png)
+
+![chart 8](chart8.png)
+
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 ## Method
@@ -118,6 +122,179 @@ Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/Gender differenc
 Unwatermarked graphs/Gender differences/.
 ```
 
+### `sex_gaps_addhealth_corr.py`
+
+```text
+Do the male-typical traits travel together in the same people, and more so in men or women? Add Health Wave IV.
+
+Data: Add Health (ICPSR 21600) Wave IV public-use in-home survey (DS0022, 2007-09, ages 24-32, N = 5,114) and its
+cross-sectional weight GSWGT4_2 (DS0031); sample clusters CLUSTER2.
+Measures (all within the respondent's own sex):
+  height        measured height, cm (H4HGT; 996+ missing)
+  earnings      personal earnings last year (H4EC2; DK/refused filled from the bracket H4EC3 at bracket midpoint;
+                restricted to earnings > 0, i.e. people who worked)
+  partners      lifetime opposite-sex vaginal-sex partners (H4SE8)
+  casual        partners had sex with only once (H4SE25)
+  fights        past-12-month violence index: serious fight (H4DS11) + group fight (H4DS7) + hurt someone badly
+                enough to need care (H4DS12, legit skip = 0) + used/threatened a weapon to get something (H4DS4);
+                each 0 never ... 3 five+ times
+  anger         trait anger, 4 items: get angry easily, lose my temper (+); rarely irritated, keep my cool (-)
+  agreeable     Mini-IPIP agreeableness: sympathize, feel others' emotions (+); not interested in others' problems,
+                uninterested in others (-)
+  neurotic      Mini-IPIP neuroticism: mood swings, upset easily (+); relaxed most of the time, seldom blue (-)
+  things job   current/most recent job in a things-oriented SOC major group: 17 architecture/engineering,
+                45 farming/fishing/forestry, 47 construction/extraction, 49 installation/maintenance/repair,
+                51 production, 53 transportation/material moving (H4LM18) -- a proxy for mechanical interests
+Personality items run 1 strongly agree .. 5 strongly disagree and are flipped so higher = more of the trait; scale =
+mean of available items (at least 3 of 4).
+Statistic: weighted Spearman correlation computed separately for men and women: within-sex ranks (ties averaged),
+then a weighted Pearson correlation with GSWGT4_2, pairwise-complete. 95% intervals from a cluster bootstrap
+(resample CLUSTER2 with replacement, 400 draws).
+Bundle index: orient every measure so the male-typical direction is positive (agreeableness and neuroticism
+reversed, because men average lower), then average the 36 pairwise correlations within each sex.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_addhealth_corr.py
+Writes sex_gaps_addhealth_corr.csv next to this script, and the chart's _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+```
+
+### `psid_height_earnings_chart.py`
+
+```text
+How tall are people at each rung of the earnings ladder, up to the top 1%? PSID 2011-2021, by sex.
+
+Data: PSID via the SHELF extract notebooks/us_public_data/psid_slim.parquet. Waves 2011-2021 (biennial), reference
+persons and spouses (the only people PSID asks height about: REL 1 and 2), ages 25-60. Earnings = own total labor
+income, real 2024 USD (EARN_TOT_RD_RP for reference persons, EARN_TOT_RD_SP for spouses). One row per person: mean
+of their positive-earnings waves (averaging cuts year-to-year noise), median reported height, mean IW_CROSS weight.
+
+Height correction: PSID heights are self- or family-reported and run tall. Men 25-60 report 70.4 in on average with
+38% at 6'0"+, against 69.2 in and 21% in NHANES 2017-March 2020 measured heights (adults 25-60, MEC-weighted). Part of
+any gap could be real, because PSID's reference persons and spouses are mostly married or partnered and married men
+are measurably taller; but in NHANES that is worth only ~0.1 in (married/partnered men 69.3 in, others 69.0). So
+reported heights are quantile-mapped onto NHANES measured heights, within sex, with NHANES reweighted to the PSID
+person sample's mix of married/partnered vs not and of age 25-39 vs 40-60. Each person keeps their rank; the scale,
+and the heaping at round numbers like 6'0", come from measured data. Ties take their mid-rank.
+
+Statistics: earnings rungs are weighted within-sex percentiles of person mean earnings (deciles, then 90-95, 95-99,
+top 1%). Plotted: weighted mean corrected height per rung, 95% interval from a person-level bootstrap (500 draws;
+PSID's family clustering ignored, so intervals are a bit narrow). Also reported: weighted Spearman correlation of
+height with earnings, and the per-inch earnings premium from a weighted regression of log earnings on corrected
+height, age and age squared.
+Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_earnings_chart.py
+Writes psid_height_earnings.csv next to this script; chart _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+```
+
+## Results
+
+### `sex_gaps_addhealth_corr.csv`
+
+| sex | a | b | r | lo | hi | n |
+|---|---|---|---|---|---|---|
+| Men | height | earnings | 0.091 | 0.041 | 0.143 | 2191 |
+| Men | height | partners | 0.068 | 0.006 | 0.122 | 2044 |
+| Men | height | casual | 0.063 | 0.019 | 0.112 | 2147 |
+| Men | height | fights | 0.015 | -0.032 | 0.054 | 2325 |
+| Men | height | anger | -0.008 | -0.049 | 0.039 | 2332 |
+| Men | height | things_job | -0.031 | -0.083 | 0.023 | 2280 |
+| Men | height | agreeable | 0.040 | -0.002 | 0.081 | 2330 |
+| Men | height | neurotic | -0.023 | -0.067 | 0.023 | 2331 |
+| Men | earnings | partners | -0.016 | -0.071 | 0.040 | 1949 |
+| Men | earnings | casual | 0.055 | 0.010 | 0.106 | 2039 |
+| Men | earnings | fights | -0.070 | -0.119 | -0.023 | 2198 |
+| Men | earnings | anger | -0.033 | -0.081 | 0.013 | 2203 |
+| Men | earnings | things_job | -0.051 | -0.100 | -0.002 | 2168 |
+| Men | earnings | agreeable | 0.048 | -0.001 | 0.101 | 2203 |
+| Men | earnings | neurotic | -0.106 | -0.148 | -0.060 | 2203 |
+| Men | partners | casual | 0.622 | 0.581 | 0.658 | 2003 |
+| Men | partners | fights | 0.193 | 0.146 | 0.240 | 2052 |
+| Men | partners | anger | 0.078 | 0.029 | 0.126 | 2053 |
+| Men | partners | things_job | 0.043 | -0.009 | 0.093 | 2017 |
+| Men | partners | agreeable | -0.005 | -0.057 | 0.046 | 2053 |
+| Men | partners | neurotic | 0.047 | -0.002 | 0.094 | 2053 |
+| Men | casual | fights | 0.118 | 0.074 | 0.162 | 2158 |
+| Men | casual | anger | 0.050 | -0.001 | 0.097 | 2158 |
+| Men | casual | things_job | -0.044 | -0.103 | 0.017 | 2120 |
+| Men | casual | agreeable | -0.018 | -0.068 | 0.036 | 2158 |
+| Men | casual | neurotic | 0.013 | -0.035 | 0.069 | 2158 |
+| Men | fights | anger | 0.144 | 0.099 | 0.185 | 2340 |
+| Men | fights | things_job | 0.037 | -0.005 | 0.082 | 2293 |
+| Men | fights | agreeable | -0.066 | -0.109 | -0.018 | 2339 |
+| Men | fights | neurotic | 0.096 | 0.056 | 0.137 | 2339 |
+| Men | anger | things_job | 0.100 | 0.065 | 0.135 | 2295 |
+| Men | anger | agreeable | -0.226 | -0.272 | -0.182 | 2347 |
+| Men | anger | neurotic | 0.631 | 0.594 | 0.665 | 2348 |
+| Men | things_job | agreeable | -0.175 | -0.224 | -0.129 | 2294 |
+| Men | things_job | neurotic | 0.131 | 0.098 | 0.167 | 2294 |
+| Men | agreeable | neurotic | -0.158 | -0.200 | -0.115 | 2347 |
+| Women | height | earnings | 0.065 | 0.011 | 0.109 | 2417 |
+| Women | height | partners | 0.028 | -0.008 | 0.065 | 2513 |
+| Women | height | casual | 0.042 | 0.002 | 0.083 | 2587 |
+| Women | height | fights | -0.020 | -0.067 | 0.024 | 2734 |
+| Women | height | anger | -0.042 | -0.080 | -0.007 | 2737 |
+| Women | height | things_job | -0.026 | -0.058 | 0.012 | 2678 |
+| Women | height | agreeable | 0.051 | 0.013 | 0.099 | 2735 |
+| Women | height | neurotic | -0.070 | -0.111 | -0.028 | 2736 |
+| Women | earnings | partners | -0.076 | -0.117 | -0.032 | 2246 |
+| Women | earnings | casual | -0.021 | -0.064 | 0.028 | 2313 |
+| Women | earnings | fights | -0.150 | -0.191 | -0.105 | 2432 |
+| Women | earnings | anger | -0.131 | -0.178 | -0.083 | 2433 |
+| Women | earnings | things_job | -0.049 | -0.107 | 0.009 | 2402 |
+| Women | earnings | agreeable | 0.119 | 0.075 | 0.160 | 2433 |
+| Women | earnings | neurotic | -0.182 | -0.231 | -0.139 | 2433 |
+| Women | partners | casual | 0.602 | 0.561 | 0.638 | 2503 |
+| Women | partners | fights | 0.102 | 0.055 | 0.146 | 2530 |
+| Women | partners | anger | 0.112 | 0.068 | 0.156 | 2531 |
+| Women | partners | things_job | 0.048 | 0.007 | 0.099 | 2491 |
+| Women | partners | agreeable | 0.003 | -0.042 | 0.055 | 2530 |
+| Women | partners | neurotic | 0.146 | 0.104 | 0.192 | 2531 |
+| Women | casual | fights | 0.049 | -0.017 | 0.111 | 2605 |
+| Women | casual | anger | 0.100 | 0.056 | 0.144 | 2605 |
+| Women | casual | things_job | 0.014 | -0.024 | 0.055 | 2561 |
+| Women | casual | agreeable | 0.005 | -0.040 | 0.049 | 2604 |
+| Women | casual | neurotic | 0.093 | 0.051 | 0.136 | 2605 |
+| Women | fights | anger | 0.109 | 0.069 | 0.152 | 2752 |
+| Women | fights | things_job | 0.051 | -0.001 | 0.110 | 2695 |
+| Women | fights | agreeable | -0.084 | -0.128 | -0.037 | 2751 |
+| Women | fights | neurotic | 0.113 | 0.074 | 0.150 | 2752 |
+| Women | anger | things_job | 0.077 | 0.039 | 0.115 | 2697 |
+| Women | anger | agreeable | -0.172 | -0.204 | -0.135 | 2755 |
+| Women | anger | neurotic | 0.634 | 0.608 | 0.661 | 2756 |
+| Women | things_job | agreeable | -0.069 | -0.111 | -0.028 | 2696 |
+| Women | things_job | neurotic | 0.052 | 0.008 | 0.093 | 2697 |
+| Women | agreeable | neurotic | -0.139 | -0.176 | -0.106 | 2754 |
+
+_Every 1th row of 72 shown; full file: [sex_gaps_addhealth_corr.csv](sex_gaps_addhealth_corr.csv)._
+
+### `psid_height_earnings.csv`
+
+| sex | rung | n | mean_in | lo | hi |
+|---|---|---|---|---|---|
+| Men | 0-10 | 841 | 68.935 | 68.669 | 69.255 |
+| Men | 10-20 | 870 | 68.811 | 68.445 | 69.093 |
+| Men | 20-30 | 835 | 68.682 | 68.372 | 68.945 |
+| Men | 30-40 | 829 | 68.948 | 68.647 | 69.203 |
+| Men | 40-50 | 730 | 69.090 | 68.862 | 69.396 |
+| Men | 50-60 | 752 | 69.356 | 69.085 | 69.620 |
+| Men | 60-70 | 686 | 69.334 | 69.074 | 69.588 |
+| Men | 70-80 | 621 | 69.481 | 69.196 | 69.738 |
+| Men | 80-90 | 570 | 69.825 | 69.585 | 70.075 |
+| Men | 90-95 | 276 | 69.660 | 69.294 | 70.075 |
+| Men | 95-99 | 213 | 70.040 | 69.583 | 70.367 |
+| Men | 99-100 | 45 | 69.678 | 69.027 | 70.835 |
+| Women | 0-10 | 840 | 63.406 | 63.139 | 63.638 |
+| Women | 10-20 | 857 | 63.704 | 63.442 | 63.988 |
+| Women | 20-30 | 865 | 63.434 | 63.185 | 63.759 |
+| Women | 30-40 | 853 | 63.757 | 63.421 | 63.962 |
+| Women | 40-50 | 832 | 64.005 | 63.814 | 64.297 |
+| Women | 50-60 | 831 | 63.902 | 63.637 | 64.130 |
+| Women | 60-70 | 775 | 64.254 | 64.006 | 64.513 |
+| Women | 70-80 | 749 | 64.002 | 63.728 | 64.251 |
+| Women | 80-90 | 670 | 64.270 | 64.013 | 64.519 |
+| Women | 90-95 | 302 | 64.295 | 63.891 | 64.645 |
+| Women | 95-99 | 224 | 64.008 | 63.628 | 64.307 |
+| Women | 99-100 | 53 | 64.279 | 63.663 | 65.093 |
+
 ## Notes and caveats
 
 # Caveats: sex differences, mean gaps, tails, and height equivalents
@@ -132,6 +309,12 @@ Unwatermarked graphs/Gender differences/.
   which raises male-higher ratios and lowers female-higher ones further out.
 - **Real-world tails** (billionaires, top earners, homicide, VC deals) are outcomes, shaped by hours, choices and
   opportunity as well as traits. Top-earner shares are 2014 head counts (Guvenen, Kaplan & Song).
+- **Add Health correlations** are for ages 24–32 in 2007–09. Sex partners and one-time partners are weak proxies
+  for sex drive; "things-oriented job" is a proxy for mechanical interests and is itself shaped by sex. Fights are
+  rare at these ages, so those correlations rest on a small violent minority.
+- **PSID heights** are reported, often by one family member for both spouses, and run ~1.1 in tall for men. They
+  are rank-mapped onto NHANES measured heights; this fixes the scale but cannot fix rank errors in the reports, which
+  attenuate the height–earnings correlation somewhat. The top 1% rung has ~50 people per sex.
 
 ## Code
 
@@ -790,6 +973,409 @@ def main():
         fontsize=8.3, color=MUTED, ha="left", va="top")
     fig.subplots_adjust(left=.02, right=.98, top=.9, bottom=.1)
     save(fig, "sex_gaps_rarity_silhouettes.png")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### `sex_gaps_addhealth_corr.py`
+
+```python
+"""Do the male-typical traits travel together in the same people, and more so in men or women? Add Health Wave IV.
+
+Data: Add Health (ICPSR 21600) Wave IV public-use in-home survey (DS0022, 2007-09, ages 24-32, N = 5,114) and its
+cross-sectional weight GSWGT4_2 (DS0031); sample clusters CLUSTER2.
+Measures (all within the respondent's own sex):
+  height        measured height, cm (H4HGT; 996+ missing)
+  earnings      personal earnings last year (H4EC2; DK/refused filled from the bracket H4EC3 at bracket midpoint;
+                restricted to earnings > 0, i.e. people who worked)
+  partners      lifetime opposite-sex vaginal-sex partners (H4SE8)
+  casual        partners had sex with only once (H4SE25)
+  fights        past-12-month violence index: serious fight (H4DS11) + group fight (H4DS7) + hurt someone badly
+                enough to need care (H4DS12, legit skip = 0) + used/threatened a weapon to get something (H4DS4);
+                each 0 never ... 3 five+ times
+  anger         trait anger, 4 items: get angry easily, lose my temper (+); rarely irritated, keep my cool (-)
+  agreeable     Mini-IPIP agreeableness: sympathize, feel others' emotions (+); not interested in others' problems,
+                uninterested in others (-)
+  neurotic      Mini-IPIP neuroticism: mood swings, upset easily (+); relaxed most of the time, seldom blue (-)
+  things job   current/most recent job in a things-oriented SOC major group: 17 architecture/engineering,
+                45 farming/fishing/forestry, 47 construction/extraction, 49 installation/maintenance/repair,
+                51 production, 53 transportation/material moving (H4LM18) -- a proxy for mechanical interests
+Personality items run 1 strongly agree .. 5 strongly disagree and are flipped so higher = more of the trait; scale =
+mean of available items (at least 3 of 4).
+Statistic: weighted Spearman correlation computed separately for men and women: within-sex ranks (ties averaged),
+then a weighted Pearson correlation with GSWGT4_2, pairwise-complete. 95% intervals from a cluster bootstrap
+(resample CLUSTER2 with replacement, 400 draws).
+Bundle index: orient every measure so the male-typical direction is positive (agreeableness and neuroticism
+reversed, because men average lower), then average the 36 pairwise correlations within each sex.
+Run:  uv run --with matplotlib,scipy,fonttools,pandas,pillow python notebooks/sex_gaps_addhealth_corr.py
+Writes sex_gaps_addhealth_corr.csv next to this script, and the chart's _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+"""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+from sex_gaps_tails_chart import INK, MUTED, pb  # noqa: E402
+from sex_gaps_height_chart import save  # noqa: E402
+
+AH = HERE / "us_public_data" / "Add Health - ICPSR_21600"
+CSV = HERE / "sex_gaps_addhealth_corr.csv"
+B = 400
+RNG = np.random.default_rng(7)
+
+VARS = ["height", "earnings", "partners", "casual", "fights", "anger", "things_job", "agreeable", "neurotic"]
+NAMES = {"height": "Height", "earnings": "Earnings", "partners": "Sex partners", "casual": "One-time partners",
+         "fights": "Fights / violence", "anger": "Trait anger", "things_job": "Things-oriented job",
+         "agreeable": "Agreeableness", "neurotic": "Neuroticism"}
+MALE_DIR = {v: (-1 if v in ("agreeable", "neurotic") else 1) for v in VARS}
+THINGS_SOC = {"17", "45", "47", "49", "51", "53"}
+EC3_MID = {1: 2500, 2: 7500, 3: 12500, 4: 17500, 5: 22500, 6: 27500, 7: 35000, 8: 45000, 9: 62500, 10: 87500,
+           11: 125000, 12: 175000}
+
+
+def scale(d, pos, neg):
+    items = pd.concat([d[c].where(d[c].between(1, 5)) for c in pos + neg], axis=1)
+    items.columns = pos + neg
+    for c in pos:
+        items[c] = 6 - items[c]           # 1 strongly agree -> 5
+    return items.mean(axis=1).where(items.notna().sum(axis=1) >= 3)
+
+
+def load():
+    cols = ["AID", "BIO_SEX4", "H4HGT", "H4EC2", "H4EC3", "H4SE8", "H4SE25", "H4DS4", "H4DS7", "H4DS11", "H4DS12",
+            "H4LM18"] + [f"H4PE{i}" for i in (2, 4, 8, 10, 12, 16, 18, 20, 24, 26, 28, 32)]
+    d = pd.read_stata(AH / "DS0022" / "21600-0022-Data.dta", columns=cols, convert_categoricals=False)
+    w = pd.read_stata(AH / "DS0031" / "21600-0031-Data.dta", columns=["AID", "GSWGT4_2", "CLUSTER2"])
+    d = d.merge(w, on="AID")
+    out = pd.DataFrame({"sex": d.BIO_SEX4.map({1: "Men", 2: "Women"}), "w": d.GSWGT4_2, "cl": d.CLUSTER2})
+    out["height"] = d.H4HGT.where(d.H4HGT < 996)
+    earn = d.H4EC2.where(d.H4EC2 < 9999996).astype(float)
+    earn = earn.fillna(d.H4EC3.map(EC3_MID))
+    out["earnings"] = earn.where(earn > 0)
+    out["partners"] = d.H4SE8.where(d.H4SE8 < 9996)
+    out["casual"] = d.H4SE25.where(d.H4SE25 < 996)
+    f = pd.concat([d[c].replace(7, 0).where(lambda s: s.between(0, 3)) for c in ("H4DS4", "H4DS7", "H4DS11", "H4DS12")],
+                  axis=1)
+    out["fights"] = f.sum(axis=1, min_count=4)
+    out["anger"] = scale(d, ["H4PE8", "H4PE24"], ["H4PE16", "H4PE32"])
+    out["agreeable"] = scale(d, ["H4PE2", "H4PE18"], ["H4PE10", "H4PE26"])
+    out["neurotic"] = scale(d, ["H4PE4", "H4PE20"], ["H4PE12", "H4PE28"])
+    soc = d.H4LM18.astype(str).str.extract(r"^(\d\d)-")[0]
+    out["things_job"] = soc.isin(THINGS_SOC).astype(float).where(soc.notna())
+    return out.dropna(subset=["sex", "w"])
+
+
+def wcorr_matrix(g):
+    """Weighted Spearman matrix, pairwise complete."""
+    r = g[VARS].rank()
+    w = g.w.to_numpy()
+    k = len(VARS)
+    m = np.eye(k)
+    for i in range(k):
+        for j in range(i + 1, k):
+            ok = r.iloc[:, i].notna().to_numpy() & r.iloc[:, j].notna().to_numpy()
+            x, y, ww = r.iloc[:, i].to_numpy()[ok], r.iloc[:, j].to_numpy()[ok], w[ok]
+            x, y = x - np.average(x, weights=ww), y - np.average(y, weights=ww)
+            m[i, j] = m[j, i] = np.average(x * y, weights=ww) / np.sqrt(np.average(x * x, weights=ww) *
+                                                                         np.average(y * y, weights=ww))
+    return m
+
+
+def bundle(m):
+    s = np.array([MALE_DIR[v] for v in VARS])
+    o = m * np.outer(s, s)
+    return o[np.triu_indices(len(VARS), 1)].mean()
+
+
+def boot(g):
+    cls = g.cl.unique()
+    by = {c: idx for c, idx in g.groupby("cl").indices.items()}
+    mats = []
+    for _ in range(B):
+        pick = RNG.choice(cls, len(cls))
+        mats.append(wcorr_matrix(g.iloc[np.concatenate([by[c] for c in pick])]))
+    return np.array(mats)
+
+
+def main():
+    d = load()
+    res, rows = {}, []
+    for sex, g in d.groupby("sex"):
+        m, bs = wcorr_matrix(g), boot(g)
+        lo, hi = np.percentile(bs, [2.5, 97.5], axis=0)
+        bl = np.percentile([bundle(x) for x in bs], [2.5, 97.5])
+        res[sex] = (m, lo, hi, bundle(m), bl)
+        for i, a in enumerate(VARS):
+            for j, b in enumerate(VARS):
+                if i < j:
+                    n = int((g[a].notna() & g[b].notna()).sum())
+                    rows.append(dict(sex=sex, a=a, b=b, r=m[i, j], lo=lo[i, j], hi=hi[i, j], n=n))
+        print(f"{sex}: n = {len(g):,}; bundle mean r = {bundle(m):.3f} [{bl[0]:.3f}, {bl[1]:.3f}]")
+    t = pd.DataFrame(rows)
+    t.round(4).to_csv(CSV, index=False)
+    wide = t.pivot_table(index=["a", "b"], columns="sex", values="r").round(3)
+    wide["diff"] = (wide.Men - wide.Women).round(3)
+    print(wide.sort_values("diff", key=abs, ascending=False).to_string())
+    chart(res, d)
+
+
+def chart(res, d):
+    from matplotlib.colors import LinearSegmentedColormap
+    cmap = LinearSegmentedColormap.from_list("div", [pb.RED, "#f0efec", pb.NAVY])
+    fig, axes = plt.subplots(1, 2, figsize=(15, 7.6))
+    k = len(VARS)
+    for a, sex in zip(axes, ["Men", "Women"]):
+        m, lo, hi, bm, bl = res[sex]
+        show = np.where(np.tril(np.ones((k, k)), -1) > 0, m, np.nan)
+        a.imshow(show, cmap=cmap, vmin=-.35, vmax=.35)
+        for i in range(k):
+            for j in range(i):
+                sig = lo[i, j] > 0 or hi[i, j] < 0
+                a.text(j, i, f"{m[i, j]:+.2f}".replace("+0.", "+.").replace("-0.", "−."), ha="center", va="center",
+                       fontsize=10, fontweight="bold" if sig else "normal",
+                       color=("white" if abs(m[i, j]) > .22 else INK) if sig else MUTED)
+        a.set_xticks(range(k - 1))
+        a.set_xticklabels([NAMES[v] for v in VARS[:-1]], rotation=40, ha="right", fontsize=10)
+        a.set_yticks(range(1, k))
+        a.set_yticklabels([NAMES[v] for v in VARS[1:]], fontsize=10)
+        a.set_xlim(-.5, k - 1.5)
+        a.set_ylim(k - .5, .5)
+        a.grid(False)
+        for sp in a.spines.values():
+            sp.set_visible(False)
+        a.tick_params(length=0)
+        n = int((d.sex == sex).sum())
+        a.set_title(f"{'A' if sex == 'Men' else 'B'}  {sex} (n = {n:,})", loc="left", fontsize=13,
+                    fontweight="bold", color=INK)
+        a.text(k - 1.5, 1.2, f"Male-typical bundle,\naverage r = {bm:+.3f}\n95% CI {bl[0]:+.3f} to {bl[1]:+.3f}",
+               ha="right", va="top", fontsize=10.5, color=INK, linespacing=1.3)
+
+    mm, mw = res["Men"][3], res["Women"][3]
+    fig.suptitle("The male-typical traits barely travel together, in men or women",
+                 x=.04, ha="left", y=.99, fontsize=17, fontweight="bold", color=INK)
+    fig.text(.04, .935, ("Within-sex correlations among US adults aged 24–32. Bold = 95% interval excludes zero; navy = "
+                         "go together, red = opposite"), ha="left", fontsize=11.5, color=MUTED)
+    fig.text(.04, .03, (
+        "Add Health Wave IV public-use sample (2007–09), weighted (GSWGT4_2); weighted Spearman correlations within each "
+        "sex, pairwise complete; cluster-bootstrap 95% intervals (400 draws). Height measured. Earnings: last year, "
+        "workers only.\nFights: past-year serious fights, group fights, hurting someone, weapon use. Anger, "
+        "agreeableness, neuroticism: Mini-IPIP-style 4-item scales. Things-oriented job: engineering, construction, "
+        "repair, production, transport, farming (a proxy for\nmechanical interests). Bundle: all measures oriented so "
+        "the male-typical direction is positive (agreeableness and neuroticism reversed), mean of the 36 pairwise "
+        f"correlations (men {mm:+.3f}, women {mw:+.3f}). Sex partners is a weak proxy for sex drive."),
+        fontsize=8.3, color=MUTED, ha="left", va="top")
+    fig.subplots_adjust(left=.1, right=.98, top=.88, bottom=.2, wspace=.32)
+    save(fig, "sex_gaps_addhealth_corr.png")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### `psid_height_earnings_chart.py`
+
+```python
+"""How tall are people at each rung of the earnings ladder, up to the top 1%? PSID 2011-2021, by sex.
+
+Data: PSID via the SHELF extract notebooks/us_public_data/psid_slim.parquet. Waves 2011-2021 (biennial), reference
+persons and spouses (the only people PSID asks height about: REL 1 and 2), ages 25-60. Earnings = own total labor
+income, real 2024 USD (EARN_TOT_RD_RP for reference persons, EARN_TOT_RD_SP for spouses). One row per person: mean
+of their positive-earnings waves (averaging cuts year-to-year noise), median reported height, mean IW_CROSS weight.
+
+Height correction: PSID heights are self- or family-reported and run tall. Men 25-60 report 70.4 in on average with
+38% at 6'0"+, against 69.2 in and 21% in NHANES 2017-March 2020 measured heights (adults 25-60, MEC-weighted). Part of
+any gap could be real, because PSID's reference persons and spouses are mostly married or partnered and married men
+are measurably taller; but in NHANES that is worth only ~0.1 in (married/partnered men 69.3 in, others 69.0). So
+reported heights are quantile-mapped onto NHANES measured heights, within sex, with NHANES reweighted to the PSID
+person sample's mix of married/partnered vs not and of age 25-39 vs 40-60. Each person keeps their rank; the scale,
+and the heaping at round numbers like 6'0", come from measured data. Ties take their mid-rank.
+
+Statistics: earnings rungs are weighted within-sex percentiles of person mean earnings (deciles, then 90-95, 95-99,
+top 1%). Plotted: weighted mean corrected height per rung, 95% interval from a person-level bootstrap (500 draws;
+PSID's family clustering ignored, so intervals are a bit narrow). Also reported: weighted Spearman correlation of
+height with earnings, and the per-inch earnings premium from a weighted regression of log earnings on corrected
+height, age and age squared.
+Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_earnings_chart.py
+Writes psid_height_earnings.csv next to this script; chart _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+"""
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+from sex_gaps_tails_chart import INK, MUTED, GRID, pb  # noqa: E402
+from sex_gaps_height_chart import save  # noqa: E402
+
+PSID = HERE / "us_public_data" / "psid_slim.parquet"
+NHANES = HERE / "nhanes_p_data"
+CSV = HERE / "psid_height_earnings.csv"
+RUNGS = [(0, 10), (10, 20), (20, 30), (30, 40), (40, 50), (50, 60), (60, 70), (70, 80), (80, 90), (90, 95), (95, 99),
+         (99, 100)]
+RNG = np.random.default_rng(11)
+B = 500
+
+
+def wquant_rank(x, w):
+    """Weighted mid-rank CDF position of each value (ties share their mid-rank)."""
+    s = pd.DataFrame({"x": x, "w": w}).groupby("x").w.sum().sort_index()
+    cum = s.cumsum() / s.sum()
+    mid = cum - s / s.sum() / 2
+    return pd.Series(x).map(mid).to_numpy()
+
+
+def wquantile(x, w, q):
+    o = np.argsort(x)
+    x, w = np.asarray(x)[o], np.asarray(w)[o]
+    c = (np.cumsum(w) - w / 2) / w.sum()
+    return np.interp(q, c, x)
+
+
+def persons():
+    d = pd.read_parquet(PSID, columns=["ID", "YEAR", "REL", "DEMO_SEX", "DEMO_AGE_GEN", "BODY_HGHT_CM",
+                                       "EARN_TOT_RD_RP", "EARN_TOT_RD_SP", "IW_CROSS", "FAM_MARRIED",
+                                       "FAM_PARTNERED"])
+    d = d[(d.YEAR >= 2011) & d.REL.isin([1, 2]) & d.DEMO_AGE_GEN.between(25, 60) & d.BODY_HGHT_CM.between(130, 220)]
+    d["earn"] = np.where(d.REL == 1, d.EARN_TOT_RD_RP, d.EARN_TOT_RD_SP)
+    d["partnered"] = ((d.FAM_MARRIED == 1) | (d.FAM_PARTNERED == 1)).astype(float)
+    d = d[d.earn > 0]
+    p = d.groupby("ID").agg(sex=("DEMO_SEX", "first"), ht=("BODY_HGHT_CM", "median"), earn=("earn", "mean"),
+                            age=("DEMO_AGE_GEN", "mean"), w=("IW_CROSS", "mean"), partnered=("partnered", "mean"),
+                            waves=("YEAR", "size"))
+    p = p[p.w > 0]
+    p["sex"] = p.sex.map({1: "Men", 2: "Women"})
+    p["ht_in"] = p.ht / 2.54
+    return p.dropna(subset=["sex"])
+
+
+def nhanes():
+    b = pd.read_sas(NHANES / "P_BMX.XPT")[["SEQN", "BMXHT"]]
+    d = pd.read_sas(NHANES / "P_DEMO.XPT")[["SEQN", "RIAGENDR", "RIDAGEYR", "DMDMARTZ", "WTMECPRP"]]
+    m = b.merge(d, on="SEQN")
+    m = m[m.RIDAGEYR.between(25, 60) & m.BMXHT.notna() & m.DMDMARTZ.isin([1, 2, 3])]
+    return pd.DataFrame({"sex": m.RIAGENDR.map({1: "Men", 2: "Women"}), "in": m.BMXHT / 2.54,
+                         "partnered": (m.DMDMARTZ == 1).astype(int), "old": (m.RIDAGEYR >= 40).astype(int),
+                         "w": m.WTMECPRP})
+
+
+def correct(p, nh):
+    """Quantile-map reported heights onto NHANES measured heights, NHANES reweighted to PSID's partnered x age mix."""
+    out = pd.Series(index=p.index, dtype=float)
+    for sex, g in p.groupby("sex"):
+        n = nh[nh.sex == sex].copy()
+        cell_p = g.assign(partnered=(g.partnered >= .5).astype(int), old=(g.age >= 40).astype(int)) \
+            .groupby(["partnered", "old"]).w.sum()
+        cell_n = n.groupby(["partnered", "old"]).w.sum()
+        share = (cell_p / cell_p.sum()) / (cell_n / cell_n.sum())
+        n["w2"] = n.w * n.set_index(["partnered", "old"]).index.map(share).to_numpy()
+        q = wquant_rank(g.ht_in.round(1).to_numpy(), g.w.to_numpy())
+        out[g.index] = wquantile(n["in"].to_numpy(), n.w2.to_numpy(), q)
+        print(f"{sex}: reported {np.average(g.ht_in, weights=g.w):.2f} in, "
+              f"{np.average(g.ht_in >= 71.5, weights=g.w):.1%} 6'0\"+  ->  measured-mapped "
+              f"{np.average(out[g.index], weights=g.w):.2f} in, {np.average(out[g.index] >= 71.5, weights=g.w):.1%}")
+    return out
+
+
+def wspear(x, y, w):
+    rx, ry = pd.Series(x).rank().to_numpy(), pd.Series(y).rank().to_numpy()
+    rx, ry = rx - np.average(rx, weights=w), ry - np.average(ry, weights=w)
+    return np.average(rx * ry, weights=w) / np.sqrt(np.average(rx ** 2, weights=w) * np.average(ry ** 2, weights=w))
+
+
+def premium(g):
+    X = np.column_stack([np.ones(len(g)), g.hc, g.age, g.age ** 2])
+    W = g.w.to_numpy()
+    beta = np.linalg.lstsq(X * np.sqrt(W)[:, None], np.log(g.earn) * np.sqrt(W), rcond=None)[0]
+    return np.expm1(beta[1])
+
+
+def rung_means(g):
+    pct = wquant_rank(g.earn.to_numpy(), g.w.to_numpy()) * 100
+    lab = np.full(len(g), -1)
+    for k, (a, b) in enumerate(RUNGS):
+        lab[(pct >= a) & (pct < b) if b < 100 else (pct >= a)] = k
+    df = pd.DataFrame({"k": lab, "h": g.hc.to_numpy(), "w": g.w.to_numpy()})
+    return df.groupby("k").apply(lambda s: np.average(s.h, weights=s.w), include_groups=False).reindex(
+        range(len(RUNGS))).to_numpy(), np.bincount(lab, minlength=len(RUNGS))
+
+
+def main():
+    p = persons()
+    p["hc"] = correct(p, nhanes())
+    rows, res = [], {}
+    for sex, g in p.groupby("sex"):
+        mean, n = rung_means(g)
+        bs = np.array([rung_means(g.iloc[RNG.integers(0, len(g), len(g))])[0] for _ in range(B)])
+        lo, hi = np.nanpercentile(bs, [2.5, 97.5], axis=0)
+        r, prem = wspear(g.hc, g.earn, g.w.to_numpy()), premium(g)
+        top = g[wquant_rank(g.earn.to_numpy(), g.w.to_numpy()) >= .99]
+        six = (np.average(g.hc >= 71.5, weights=g.w), np.average(top.hc >= 71.5, weights=top.w))
+        res[sex] = dict(mean=mean, lo=lo, hi=hi, n=n, r=r, prem=prem, avg=np.average(g.hc, weights=g.w),
+                        N=len(g), six=six)
+        print(f"{sex}: N = {len(g):,}, Spearman r = {r:.3f}, premium {prem:+.2%} per inch, "
+              f"6ft+ overall {six[0]:.1%} vs top 1% {six[1]:.1%}")
+        for k, (a, b) in enumerate(RUNGS):
+            rows.append(dict(sex=sex, rung=f"{a}-{b}", n=n[k], mean_in=mean[k], lo=lo[k], hi=hi[k]))
+    pd.DataFrame(rows).round(3).to_csv(CSV, index=False)
+    print(pd.DataFrame(rows).round(2).to_string())
+    chart(res)
+
+
+def chart(res):
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6.6), sharey=False)
+    labels = [f"{a}–{b}" if b < 100 else "Top 1%" for a, b in RUNGS]
+    labels[0] = "Bottom 10%"
+    for a, sex in zip(axes, ["Men", "Women"]):
+        r = res[sex]
+        x = np.arange(len(RUNGS))
+        a.axhline(r["avg"], color=GRID, lw=1.2, zorder=0)
+        a.text(-.4, r["avg"] + .05, f"average {r['avg']:.1f} in", fontsize=9, color=MUTED, va="bottom")
+        a.vlines(x, r["lo"], r["hi"], color=pb.NAVY, lw=1.4, alpha=.5)
+        a.plot(x[:-1], r["mean"][:-1], "o-", color=pb.NAVY, ms=7, lw=1.6)
+        a.plot(x[-2:], r["mean"][-2:], "-", color=pb.NAVY, lw=1.6)
+        a.plot(x[-1], r["mean"][-1], "o", color=pb.RED, ms=9, zorder=3)
+        a.vlines(x[-1], r["lo"][-1], r["hi"][-1], color=pb.RED, lw=1.6)
+        top = r["mean"][-1]
+        a.annotate(f"top 1%: {top:.1f} in\n(+{top - r['avg']:.1f} in; n = {r['n'][-1]})", (x[-1], top),
+                   xytext=(-30, -62), textcoords="offset points", ha="right", fontsize=10, fontweight="bold",
+                   color=INK)
+        a.set_xticks(x)
+        a.set_xticklabels(labels, rotation=40, ha="right", fontsize=9.5)
+        a.set_xlabel(f"Own earnings percentile among {sex.lower()}", fontsize=10)
+        a.set_ylabel("Average height, inches (measured-scale)", fontsize=10)
+        a.grid(axis="y", color=GRID, lw=.6)
+        a.set_title(f"{'A' if sex == 'Men' else 'B'}  {sex}: r = {r['r']:.2f}, {r['prem']:+.1%} earnings per inch "
+                    f"(N = {r['N']:,})", loc="left", fontsize=12.5, fontweight="bold", color=INK)
+        lo_y = np.nanmin(r["lo"]) - .4
+        a.set_ylim(lo_y, lo_y + 3.6)
+    m, w = res["Men"], res["Women"]
+    fig.suptitle(f"Each inch pays ~{(m['prem'] + w['prem']) / 2:.1%} more, for men and women alike, "
+                 f"but the top 1% aren't clearly taller", x=.04, ha="left", y=.99, fontsize=16.5, fontweight="bold",
+                 color=INK)
+    fig.text(.04, .925, (f"Average height at each rung of the earnings ladder, US adults 25–60, PSID 2011–21. "
+                         f"Men 6′0″+: {m['six'][0]:.0%} overall, {m['six'][1]:.0%} of the top 1%"),
+             ha="left", fontsize=11.5, color=MUTED)
+    fig.text(.04, .02, (
+        "PSID reference persons and spouses with positive earnings; person mean of real (2024 $) labor earnings over "
+        "2011–2021 waves; weighted. Reported heights run ~1.2 in tall (men: 38% claim 6′0″+ vs 21% measured), so each "
+        "person's\nreported height is mapped by rank onto NHANES 2017–20 measured heights, reweighted to PSID's mix of "
+        "partnered vs not and age 25–39 vs 40–60 (married men are measurably taller, but only by ~0.1 in). "
+        "Bars: 95% bootstrap\nintervals. r: weighted Spearman. Premium: weighted regression of log earnings on height, "
+        "age, age². Heights are often reported by one family member for both spouses."),
+        fontsize=8.3, color=MUTED, ha="left", va="top")
+    fig.subplots_adjust(left=.06, right=.98, top=.86, bottom=.22, wspace=.18)
+    save(fig, "psid_height_earnings.png")
 
 
 if __name__ == "__main__":
