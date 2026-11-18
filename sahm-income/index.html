@@ -325,7 +325,7 @@ def chart(t, allk, alln, n_fw, n_fam):
                fontsize=10.5, fontweight=&quot;bold&quot;, color=pb.INK)
     a.text(x[0] - .2, t.not_working.iloc[0] * 100 + 2.2, &quot;Wife not working (any reason)&quot;, fontsize=10,
            color=pb.GRAYS[1], ha=&quot;left&quot;)
-    a.text(x[0] - .2, t.keeping_house.iloc[0] * 100 - 3.6, &quot;Wife \&quot;keeping house\&quot;&quot;, fontsize=10.5,
+    a.text(x[0] - .2, t.keeping_house.iloc[0] * 100 - 7.5, &quot;Wife \&quot;keeping house\&quot;&quot;, fontsize=10.5,
            fontweight=&quot;bold&quot;, color=pb.NAVY, ha=&quot;left&quot;)
     labs = [&quot;Bottom 10%&quot;] + [f&quot;{a}–{b}&quot; for a, b in RUNGS[1:-1]] + [&quot;Top 1%&quot;]
     a.set_xticks(x)

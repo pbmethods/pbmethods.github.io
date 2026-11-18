@@ -180,7 +180,7 @@ def chart(t, allk, alln, n_fw, n_fam):
                fontsize=10.5, fontweight="bold", color=pb.INK)
     a.text(x[0] - .2, t.not_working.iloc[0] * 100 + 2.2, "Wife not working (any reason)", fontsize=10,
            color=pb.GRAYS[1], ha="left")
-    a.text(x[0] - .2, t.keeping_house.iloc[0] * 100 - 3.6, "Wife \"keeping house\"", fontsize=10.5,
+    a.text(x[0] - .2, t.keeping_house.iloc[0] * 100 - 7.5, "Wife \"keeping house\"", fontsize=10.5,
            fontweight="bold", color=pb.NAVY, ha="left")
     labs = ["Bottom 10%"] + [f"{a}–{b}" for a, b in RUNGS[1:-1]] + ["Top 1%"]
     a.set_xticks(x)
