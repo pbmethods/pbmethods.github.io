@@ -207,8 +207,8 @@ A: weighted mean corrected height for each own-sex earnings rung (deciles, 90-95
 bootstrap intervals (500 draws).
 B: weighted share at or above the tall cutoff (corrected height >= 73.5 in for men, 67.5 in for women, i.e. rounds
 to 6'2"+ / 5'8"+) within broader own-sex earnings bands -- bottom 50%, 50-80, 80-90, 90-97, top 3% -- because tall people are few: the top 3% band holds ~150 people per sex, ~20 of
-them tall. 95% intervals from 1,000 bootstrap draws within band. The dotted line is the share among all men in the
-sample of that sex (population incidence). 6'6"+ is not shown: NHANES has only 3 measured men that tall at 25-60, too few to
+them tall. 95% intervals from 1,000 bootstrap draws within band. The dotted line is the share among everyone of that
+sex in the sample (population incidence). 6'6"+ is not shown: NHANES has only 3 measured men that tall at 25-60, too few to
 correct reported heights against.
 Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_tall_chart.py
 Writes psid_height_tall.png (men) and psid_height_tall_women.png; _wm copies to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in
@@ -1430,8 +1430,8 @@ A: weighted mean corrected height for each own-sex earnings rung (deciles, 90-95
 bootstrap intervals (500 draws).
 B: weighted share at or above the tall cutoff (corrected height >= 73.5 in for men, 67.5 in for women, i.e. rounds
 to 6'2"+ / 5'8"+) within broader own-sex earnings bands -- bottom 50%, 50-80, 80-90, 90-97, top 3% -- because tall people are few: the top 3% band holds ~150 people per sex, ~20 of
-them tall. 95% intervals from 1,000 bootstrap draws within band. The dotted line is the share among all men in the
-sample of that sex (population incidence). 6'6"+ is not shown: NHANES has only 3 measured men that tall at 25-60, too few to
+them tall. 95% intervals from 1,000 bootstrap draws within band. The dotted line is the share among everyone of that
+sex in the sample (population incidence). 6'6"+ is not shown: NHANES has only 3 measured men that tall at 25-60, too few to
 correct reported heights against.
 Run:  uv run --with matplotlib,pandas,pyarrow,fonttools,pillow python notebooks/psid_height_tall_chart.py
 Writes psid_height_tall.png (men) and psid_height_tall_women.png; _wm copies to ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in
@@ -1523,7 +1523,10 @@ def main(sex):
     a2.set_ylim(0, max(s[3] for s in shares) * 100 + 3)
     a2.grid(axis="y", color=GRID, lw=.6)
     top = shares[-1]
-    a2.set_title(f"B  {c['tall_lab']}+ {c['noun']} are {top[1] / base:.1f}× as common in the top 3%", loc="left",
+    btitle = (f"B  {c['tall_lab']}+ {c['noun']} are {top[1] / base:.1f}× as common in the top 3%"
+              if top[1] / base >= 1.15 else
+              f"B  {c['tall_lab']}+ {c['noun']} are scarcer below the median, not over-represented at the top")
+    a2.set_title(btitle, loc="left",
                  fontsize=12.5, fontweight="bold", color=INK)
 
     fig.suptitle(c["title"], x=.04, ha="left", y=.99, fontsize=16.5, fontweight="bold", color=INK)
