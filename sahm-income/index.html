@@ -885,7 +885,7 @@ def chart(t, n_fw, n_w):
     a1.plot(x + off, A.sahm, &quot;o-&quot;, color=pb.NAVY, ms=8, lw=2)
     a1.text(x[0] + off + .12, A.sahm[0] - .12, &quot;Stay-at-home wives&quot;, fontsize=10.5, fontweight=&quot;bold&quot;,
             color=pb.NAVY, va=&quot;top&quot;)
-    a1.text(x[0] - off - .1, A.other[0] + .14, &quot;Working (other) wives&quot;, fontsize=10.5, color=pb.GRAYS[1], va=&quot;bottom&quot;)
+    a1.text(x[0] - off - .1, A.other[0] + .32, &quot;Working (other) wives&quot;, fontsize=10.5, color=pb.GRAYS[1], va=&quot;bottom&quot;)
     a1.set_xticks(x)
     a1.set_xticklabels(A.band, fontsize=10)
     a1.set_xlabel(&quot;Husband's earnings band&quot;, fontsize=10.5)
@@ -902,7 +902,7 @@ def chart(t, n_fw, n_w):
     a2.axhline(0, color=pb.INK, lw=1)
     for xi, r in Bp.iterrows():
         y = r.gap_hi + .06 if r.gap &gt;= 0 else r.gap_lo - .06
-        a2.text(xi, y, f&quot;{r.gap:+.1f} in&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot; if r.gap &gt;= 0 else &quot;top&quot;, fontsize=12,
+        a2.text(xi, y, &quot;0.0 in&quot; if abs(r.gap) &lt; .05 else f&quot;{r.gap:+.1f} in&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot; if r.gap &gt;= 0 else &quot;top&quot;, fontsize=12,
                 fontweight=&quot;bold&quot;, color=pb.INK)
         a2.text(xi, -1.42, f&quot;{r.n_sahm:,} stay-home\nfamily-years&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=8.5,
                 color=pb.MUTED, linespacing=1.1)
@@ -918,8 +918,8 @@ def chart(t, n_fw, n_w):
     top = Bp.iloc[-1]
     fig.suptitle(f&quot;Rich men's stay-at-home wives are taller; poorer men's are shorter&quot;,
                  x=.05, ha=&quot;left&quot;, y=.985, fontsize=17, fontweight=&quot;bold&quot;, color=pb.INK)
-    fig.text(.05, .925, (f&quot;Married mothers, US, PSID 2011–21. In the top 10% of husbands, wives who keep house are &quot;
-                         f&quot;{top.gap:+.1f} in vs those who work (95% CI {top.gap_lo:+.1f} to {top.gap_hi:+.1f})&quot;),
+    fig.text(.05, .925, (f&quot;Married mothers, US, PSID 2011–21. Among the top 10% of husbands, wives who keep house are &quot;
+                         f&quot;{top.gap:.1f} in taller than wives who work (95% CI {top.gap_lo:+.1f} to {top.gap_hi:+.1f})&quot;),
              ha=&quot;left&quot;, fontsize=11.5, color=pb.MUTED)
     fig.text(.05, .02, (
         f&quot;PSID 2011–2021, {n_fw:,} family-years ({n_w:,} wives): legally married, husband aged 25–60 with positive &quot;

@@ -606,7 +606,7 @@ def chart(t, n_fw, n_w):
     a1.plot(x + off, A.sahm, "o-", color=pb.NAVY, ms=8, lw=2)
     a1.text(x[0] + off + .12, A.sahm[0] - .12, "Stay-at-home wives", fontsize=10.5, fontweight="bold",
             color=pb.NAVY, va="top")
-    a1.text(x[0] - off - .1, A.other[0] + .14, "Working (other) wives", fontsize=10.5, color=pb.GRAYS[1], va="bottom")
+    a1.text(x[0] - off - .1, A.other[0] + .32, "Working (other) wives", fontsize=10.5, color=pb.GRAYS[1], va="bottom")
     a1.set_xticks(x)
     a1.set_xticklabels(A.band, fontsize=10)
     a1.set_xlabel("Husband's earnings band", fontsize=10.5)
@@ -623,7 +623,7 @@ def chart(t, n_fw, n_w):
     a2.axhline(0, color=pb.INK, lw=1)
     for xi, r in Bp.iterrows():
         y = r.gap_hi + .06 if r.gap >= 0 else r.gap_lo - .06
-        a2.text(xi, y, f"{r.gap:+.1f} in", ha="center", va="bottom" if r.gap >= 0 else "top", fontsize=12,
+        a2.text(xi, y, "0.0 in" if abs(r.gap) < .05 else f"{r.gap:+.1f} in", ha="center", va="bottom" if r.gap >= 0 else "top", fontsize=12,
                 fontweight="bold", color=pb.INK)
         a2.text(xi, -1.42, f"{r.n_sahm:,} stay-home\nfamily-years", ha="center", va="bottom", fontsize=8.5,
                 color=pb.MUTED, linespacing=1.1)
@@ -639,8 +639,8 @@ def chart(t, n_fw, n_w):
     top = Bp.iloc[-1]
     fig.suptitle(f"Rich men's stay-at-home wives are taller; poorer men's are shorter",
                  x=.05, ha="left", y=.985, fontsize=17, fontweight="bold", color=pb.INK)
-    fig.text(.05, .925, (f"Married mothers, US, PSID 2011–21. In the top 10% of husbands, wives who keep house are "
-                         f"{top.gap:+.1f} in vs those who work (95% CI {top.gap_lo:+.1f} to {top.gap_hi:+.1f})"),
+    fig.text(.05, .925, (f"Married mothers, US, PSID 2011–21. Among the top 10% of husbands, wives who keep house are "
+                         f"{top.gap:.1f} in taller than wives who work (95% CI {top.gap_lo:+.1f} to {top.gap_hi:+.1f})"),
              ha="left", fontsize=11.5, color=pb.MUTED)
     fig.text(.05, .02, (
         f"PSID 2011–2021, {n_fw:,} family-years ({n_w:,} wives): legally married, husband aged 25–60 with positive "
