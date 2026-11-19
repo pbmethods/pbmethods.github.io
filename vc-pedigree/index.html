@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-19.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/vc-pedigree/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>vc_pedigree_chart.py</code></h3>
+<pre><code class="language-text">Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds.
+
+Question: VC is known to favour Ivy / top-20 founders at seed and Series A. Once a startup has revenue and
+growth, is the founder pool at Series B/C less elite than at seed?
+
+No public dataset reports the elite-school share of founders by round (seed vs A vs B vs C), so this chart
+pieces the answer together from stage-specific measurements. It is inference, not a direct count.
+
+Panel A (measured): founders of unicorns vs a random sample of VC-backed company founders, by school, as an
+  over-representation ratio (1.0 = the school is as common among unicorn founders as among all VC-backed
+  founders). Source: Ilya Strebulaev, Stanford GSB Venture Capital Initiative, unicorn founder database.
+  MIT 1.93x, Stanford ~1.65x, Harvard 1.13x, Penn 0.80x. The technical schools are over-represented at the
+  end of the pipeline; Harvard and Penn sit near their base rate, so &quot;Ivy&quot; is the wrong grouping.
+
+Panel B (model): if a share s of seed-stage founders are elite-school alumni, and elite-founder startups go on
+  to raise the next round r times as often as others, the elite share among later-round companies is
+      s_later = s*r / (s*r + 1 - s).
+  Two seed shares are shown:
+    s = 25%: Crunchbase, share of U.S. seed / pre-seed investment 2020-23 going to startups founded by alumni
+             of a short list of top schools (led by Stanford, Harvard, MIT).
+    s = 50%: Crunchbase 2026, of ~4,400 rounds of $500k+ to founders with U.S. university affiliations,
+             about half went to startups with at least one founder from the top seven schools.
+  The plausible range r = 1.0-1.6 comes from the unicorn odds ratios in panel A for top schools as a group,
+  and from Tamaseb (via Beta Boom): top-10 schools' founders get ~35% of investment and build ~35% of
+  unicorns, i.e. roughly fair pricing, not a large fall-off for elite founders after seed.
+  r = 2.0 is shown for scale (Mode/Crunchbase found elite-founder startups acquired about twice as often).
+
+Context for the headline (not plotted): Mode's analysis of Crunchbase found a median seed round of $1.2M for
+Stanford founders vs $530K for others, while later rounds were not much larger for Stanford founders. That is,
+the school name raises round size at seed, when investors lack information, and matters less once there is
+revenue. Beta Boom (843 seed deals at top-10 firms): 51% to top-10-university founders.
+
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/vc_pedigree/vc_pedigree_chart.py
+Writes the original to ~/Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Ivy elites/ and the _wm
+copy to ~/Desktop/Recent Projects/Substack Notes/Ivy elites/:
+  vc_pedigree_by_round.png
+</code></pre>
+<h2>Notes and caveats</h2>
+<h1>Caveats: elite-school founders by VC round</h1>
+<ul>
+<li><strong>No direct measurement.</strong> No public dataset reports the elite-school share of founders by round (seed vs A vs B vs C). Panel B is a model built on stage-specific studies, not a count.</li>
+<li><strong>Figures are taken from published secondary sources</strong> (Crunchbase News, Beta Boom, Mode, Strebulaev/Stanford GSB, Tamaseb). They were not recomputed from microdata.</li>
+<li><strong>Crunchbase education fields are self-reported and not missing at random.</strong> Top-school founders may be more likely to list their education, which inflates the elite share at every stage.</li>
+<li><strong>The two seed shares measure different things:</strong> 25% is a share of U.S. seed/pre-seed <em>dollars</em> to top-school alumni (2020–23); 50% is a share of $500k+ <em>rounds</em> among founders with a U.S. university affiliation that had a top-7 founder.</li>
+<li><strong>r is not measured.</strong> The plausible range (1.0–1.6) is inferred from unicorn over-representation ratios and from Tamaseb's finding that top-10 founders get ~35% of investment and build ~35% of unicorns. A real estimate needs PitchBook or Crunchbase Pro data following a seed cohort to Series C.</li>
+<li><strong>Survivorship and selection can't be separated.</strong> A higher elite share at Series B fits both "elite founders are better" and "elite founders got more runway and connections."</li>
+<li><strong>Counter-evidence:</strong> in ~800 Southeast Asian startups, an elite-postgraduate funding effect appears only at later stages, not at seed.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>vc_pedigree_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds.
+
+Question: VC is known to favour Ivy / top-20 founders at seed and Series A. Once a startup has revenue and
+growth, is the founder pool at Series B/C less elite than at seed?
+
+No public dataset reports the elite-school share of founders by round (seed vs A vs B vs C), so this chart
+pieces the answer together from stage-specific measurements. It is inference, not a direct count.
+
+Panel A (measured): founders of unicorns vs a random sample of VC-backed company founders, by school, as an
+  over-representation ratio (1.0 = the school is as common among unicorn founders as among all VC-backed
+  founders). Source: Ilya Strebulaev, Stanford GSB Venture Capital Initiative, unicorn founder database.
+  MIT 1.93x, Stanford ~1.65x, Harvard 1.13x, Penn 0.80x. The technical schools are over-represented at the
+  end of the pipeline; Harvard and Penn sit near their base rate, so &quot;Ivy&quot; is the wrong grouping.
+
+Panel B (model): if a share s of seed-stage founders are elite-school alumni, and elite-founder startups go on
+  to raise the next round r times as often as others, the elite share among later-round companies is
+      s_later = s*r / (s*r + 1 - s).
+  Two seed shares are shown:
+    s = 25%: Crunchbase, share of U.S. seed / pre-seed investment 2020-23 going to startups founded by alumni
+             of a short list of top schools (led by Stanford, Harvard, MIT).
+    s = 50%: Crunchbase 2026, of ~4,400 rounds of $500k+ to founders with U.S. university affiliations,
+             about half went to startups with at least one founder from the top seven schools.
+  The plausible range r = 1.0-1.6 comes from the unicorn odds ratios in panel A for top schools as a group,
+  and from Tamaseb (via Beta Boom): top-10 schools' founders get ~35% of investment and build ~35% of
+  unicorns, i.e. roughly fair pricing, not a large fall-off for elite founders after seed.
+  r = 2.0 is shown for scale (Mode/Crunchbase found elite-founder startups acquired about twice as often).
+
+Context for the headline (not plotted): Mode's analysis of Crunchbase found a median seed round of $1.2M for
+Stanford founders vs $530K for others, while later rounds were not much larger for Stanford founders. That is,
+the school name raises round size at seed, when investors lack information, and matters less once there is
+revenue. Beta Boom (843 seed deals at top-10 firms): 51% to top-10-university founders.
+
+Run:  uv run --with matplotlib,pillow,fonttools python notebooks/vc_pedigree/vc_pedigree_chart.py
+Writes the original to ~/Desktop/Recent Projects/Substack Notes/Unwatermarked graphs/Ivy elites/ and the _wm
+copy to ~/Desktop/Recent Projects/Substack Notes/Ivy elites/:
+  vc_pedigree_by_round.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUBDIR = &quot;Ivy elites&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED, GRID, SURFACE = pb.INK, pb.INK2, pb.MUTED, pb.GRID, pb.SURFACE
+
+UNICORN_RATIO = [  # school, over-representation among unicorn founders vs all VC-backed founders
+    (&quot;MIT&quot;, 1.93),
+    (&quot;Stanford&quot;, 1.65),
+    (&quot;Harvard&quot;, 1.13),
+    (&quot;Penn&quot;, 0.80),
+]
+SEED_SHARES = [(0.25, &quot;Seed share 25%&quot;, &quot;Crunchbase U.S. seed, top schools&quot;),
+               (0.50, &quot;Seed share 50%&quot;, &quot;Crunchbase, top 7 of univ.-affiliated&quot;)]
+R_LO, R_HI = 1.0, 1.6
+
+FOOTNOTE = (
+    &quot;No public dataset reports the elite-school share of founders by funding round; this combines stage-specific &quot;
+    &quot;studies and is inference, not a direct count.\n&quot;
+    &quot;A: I. Strebulaev, Stanford GSB, unicorn founders vs a random sample of VC-backed founders. &quot;
+    &quot;B: later-round share = s·r / (s·r + 1 − s), where s = elite share at seed (Crunchbase 2020–23: ~25% of U.S. seed &quot;
+    &quot;money to top-school\nfounders; Crunchbase 2026: ~50% of $500k+ rounds to univ.-affiliated founders had a top-7 founder) &quot;
+    &quot;and r = how often elite-founder startups raise the next round, relative to others. Plausible r from the unicorn\n&quot;
+    &quot;ratios and Tamaseb (top-10 founders get ~35% of investment, build ~35% of unicorns). Seed premium: Mode/Crunchbase, &quot;
+    &quot;median seed \\$1.2M Stanford founders vs \\$530K others. Crunchbase education fields are self-reported.&quot;
+)
+
+
+def later_share(s, r):
+    return s * r / (s * r + 1 - s)
+
+
+def main():
+    fig = plt.figure(figsize=(13.5, 7.2), facecolor=SURFACE)
+    gs = fig.add_gridspec(1, 2, width_ratios=[0.85, 1.15], wspace=0.28, left=0.1, right=0.86, top=0.72, bottom=0.24)
+    ax, bx = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
+
+    # --- A: unicorn over-representation by school
+    ys = np.arange(len(UNICORN_RATIO))
+    vals = [v for _, v in UNICORN_RATIO]
+    colors = [pb.NAVY if v &gt;= 1.5 else pb.GRAYS[0] for v in vals]
+    ax.barh(ys, vals, height=0.58, color=colors)
+    for y, v in zip(ys, vals):
+        ax.text(v + 0.04, y, f&quot;{v:.2f}×&quot;, va=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;, color=INK,
+                bbox=dict(facecolor=SURFACE, edgecolor=&quot;none&quot;, pad=1.5), zorder=5)
+    ax.axvline(1.0, color=INK2, linewidth=1.1, linestyle=(0, (3, 2)))
+    ax.text(1.04, -0.62, &quot;1.0 = same rate as all\nVC-backed founders&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=9.5, color=INK2)
+    ax.set_yticks(ys)
+    ax.set_yticklabels([s for s, _ in UNICORN_RATIO], fontsize=12, color=INK)
+    ax.invert_yaxis()
+    ax.set_ylim(3.5, -1.05)
+    ax.set_xlim(0, 2.3)
+    ax.set_xticks([0, 0.5, 1.0, 1.5, 2.0])
+    ax.set_xticklabels([&quot;0&quot;, &quot;0.5×&quot;, &quot;1×&quot;, &quot;1.5×&quot;, &quot;2×&quot;], fontsize=10)
+    ax.xaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.yaxis.grid(False)
+    ax.set_title(&quot;A   Unicorn founders vs all VC-backed founders&quot;, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK,
+                 loc=&quot;left&quot;, pad=12, x=-0.16)
+
+    # --- B: modelled later-round elite share
+    r = np.linspace(1.0, 2.0, 101)
+    band = (r &gt;= R_LO) &amp; (r &lt;= R_HI + 1e-9)
+    bx.axvspan(R_LO, R_HI, color=&quot;#f0efec&quot;, zorder=0)
+    bx.text((R_LO + R_HI) / 2, 0.735, &quot;Plausible range&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=10.5, fontweight=&quot;bold&quot;,
+            color=INK)
+    for s, label, _ in SEED_SHARES:
+        y = later_share(s, r)
+        bx.plot(r, y, color=pb.MUTE, linewidth=2.2, zorder=2)
+        bx.plot(r[band], y[band], color=pb.RED, linewidth=3.4, solid_capstyle=&quot;round&quot;, zorder=3)
+        bx.axhline(s, xmin=0, xmax=1, color=pb.NAVY, linewidth=1.1, linestyle=(0, (3, 2)), zorder=1)
+        lo, hi = later_share(s, R_LO), later_share(s, R_HI)
+        bx.scatter([R_LO, R_HI], [lo, hi], color=pb.RED, s=34, zorder=4)
+        bx.text(R_HI + 0.02, hi - 0.012, f&quot;{hi:.0%}&quot;, va=&quot;top&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=INK)
+        bx.text(2.03, later_share(s, 2.0), f&quot;{label}\n→ {lo:.0%} to {hi:.0%} at\nSeries B/C&quot;, va=&quot;center&quot;,
+                fontsize=10, color=INK, linespacing=1.3)
+        bx.text(1.985, s - 0.012, f&quot;seed level, {s:.0%}&quot;, ha=&quot;right&quot;, va=&quot;top&quot;, fontsize=9.5, color=pb.NAVY)
+    bx.set_xlim(0.97, 2.0)
+    bx.set_ylim(0.15, 0.78)
+    bx.set_xticks([1.0, 1.2, 1.4, 1.6, 1.8, 2.0])
+    bx.set_xticklabels([&quot;1.0×&quot;, &quot;1.2×&quot;, &quot;1.4×&quot;, &quot;1.6×&quot;, &quot;1.8×&quot;, &quot;2.0×&quot;], fontsize=10)
+    bx.set_yticks([0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+    bx.set_yticklabels([f&quot;{v:.0%}&quot; for v in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7]], fontsize=10)
+    bx.set_xlabel(&quot;How often elite-founder startups raise the next round, relative to others (r)&quot;, fontsize=10,
+                  color=INK2, labelpad=8)
+    bx.set_title(&quot;B   Modelled elite-school share of founders at Series B/C&quot;, fontsize=11.5, fontweight=&quot;bold&quot;,
+                 color=INK, loc=&quot;left&quot;, pad=12, x=-0.1)
+
+    fig.text(0.03, 0.925, &quot;Revenue shrinks the pedigree premium, not the elite share&quot;, fontsize=18,
+             fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.03, 0.875, &quot;A top-school name buys bigger seed rounds (Stanford founders' median: \\$1.2M vs \\$530K), but &quot;
+             &quot;the edge per deal fades once there's revenue. Elite-founder startups keep\nraising at least as often, so &quot;
+             &quot;the Series B/C pool is about as elite as seed, or up to ~10 points more. And it's the technical schools, &quot;
+             &quot;not the Ivies, that stay over-represented.&quot;, fontsize=11, color=INK2, va=&quot;top&quot;, linespacing=1.4)
+    fig.text(0.03, 0.035, FOOTNOTE, fontsize=7.8, color=MUTED, linespacing=1.55)
+
+    out = NOTES / &quot;Unwatermarked graphs&quot; / SUBDIR / &quot;vc_pedigree_by_round.png&quot;
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    wm = NOTES / SUBDIR / (out.stem + &quot;_wm.png&quot;)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(out), str(wm)], check=True)
+    print(out, wm, sep=&quot;\n&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
