@@ -3,6 +3,7 @@
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
 - [Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds](vc-pedigree/) (2026-11-19)
+- [Clark's heritability and assortment parameters vs estimates for a status composite](clark-status/) (2026-11-19)
 - [Stay-at-home mothers by husband's earnings, up to the top 1%](sahm-income/) (2026-11-18)
 - [Sex differences: modest average gaps, lopsided tails, and the same gaps in inches of height](sex-gaps/) (2026-11-18)
 - [If LLMs can teach robots: a self-collecting fleet and the road to general robotics](robot-flywheel/) (2026-11-17)
