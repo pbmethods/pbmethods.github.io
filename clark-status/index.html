@@ -490,7 +490,7 @@ def h2_rows():
     # (label, thin lo, thin hi, thick lo, thick hi, composite?)
     return [
         (&quot;Education, twin studies&quot;, .35, .45, .40, .40, False),
-        (&quot;Earnings, Nordic twin studies&quot;, .20, .50, .20, .50, False),
+        (&quot;Earnings, Nordic twin studies&quot;, .20, .50, None, None, False),
         (&quot;Education, within-family genomic\n(direct genetic effect only)&quot;, .17, .17, .17, .17, False),
         (&quot;Composite of 4, generic\nshared environment (c² .25 each)&quot;, min(generic), max(generic),
          min(generic), min(generic), True),
@@ -515,12 +515,15 @@ def panel(ax, rows, target, target_lab, title, xlab):
         col = pb.NAVY if comp else pb.GRAYS[0]
         if hi &gt; lo:
             ax.plot([lo, hi], [y, y], color=col, linewidth=2.2, solid_capstyle=&quot;round&quot;, zorder=3)
-        if thi &gt; tlo:
+        if tlo is None:
+            pass  # a literature range with no central estimate: thin bar only
+        elif thi &gt; tlo:
             ax.plot([tlo, thi], [y, y], color=col, linewidth=8, solid_capstyle=&quot;round&quot;, zorder=4)
         else:
             ax.scatter([tlo], [y], s=70, color=col, zorder=4, edgecolor=SURFACE, linewidth=1.5)
         txt = f&quot;{lo:.2f}&quot; if abs(hi - lo) &lt; 0.005 else f&quot;{lo:.2f}–{hi:.2f}&quot;
-        ax.text(hi + 0.025, y, txt, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, zorder=5)
+        ax.text(hi + 0.025, y, txt, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, zorder=5,
+                bbox=dict(facecolor=SURFACE, edgecolor=&quot;none&quot;, pad=1.5))
         ax.text(-0.03, y, lab, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=10.5, color=INK, linespacing=1.15,
                 fontweight=&quot;bold&quot; if comp else &quot;normal&quot;, transform=ax.get_yaxis_transform())
     ax.axvline(target, color=pb.RED, linewidth=1.6, zorder=2)
@@ -551,7 +554,7 @@ FOOTNOTE = (
 
 def main():
     fig = plt.figure(figsize=(13.5, 7.6), facecolor=SURFACE)
-    gs = fig.add_gridspec(1, 2, wspace=0.78, left=0.215, right=0.965, top=0.735, bottom=0.2)
+    gs = fig.add_gridspec(1, 2, wspace=0.78, left=0.215, right=0.965, top=0.76, bottom=0.2)
     ax, bx = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
     panel(ax, h2_rows(), H2_TARGET, &quot;Clark needs ≈0.7&quot;, &quot;A   Heritability of status&quot;,
           &quot;Share of variance from genes (h²)&quot;)
