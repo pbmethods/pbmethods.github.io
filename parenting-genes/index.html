@@ -458,7 +458,7 @@ def main():
         txt = pct(r.lo) if r.hi == r.lo else f&quot;{pct(r.lo)}–{pct(r.hi)}&quot;
         xt = r.hi + 0.012
         ax.text(xt, y, txt, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, zorder=5)
-        ax.text(xt + 0.0085 * len(txt) + 0.012, y, r.source, va=&quot;center&quot;, fontsize=9.3, color=INK2, zorder=5)
+        ax.text(xt + 0.0098 * len(txt) + 0.014, y, r.source, va=&quot;center&quot;, fontsize=9.3, color=INK2, zorder=5)
         ax.text(-0.012, y, r.outcome, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=10.5, color=INK, linespacing=1.1,
                 transform=ax.get_yaxis_transform())
         y += 1

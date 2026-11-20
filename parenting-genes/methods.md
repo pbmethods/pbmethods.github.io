@@ -276,7 +276,7 @@ def main():
         txt = pct(r.lo) if r.hi == r.lo else f"{pct(r.lo)}–{pct(r.hi)}"
         xt = r.hi + 0.012
         ax.text(xt, y, txt, va="center", fontsize=10.5, fontweight="bold", color=INK, zorder=5)
-        ax.text(xt + 0.0085 * len(txt) + 0.012, y, r.source, va="center", fontsize=9.3, color=INK2, zorder=5)
+        ax.text(xt + 0.0098 * len(txt) + 0.014, y, r.source, va="center", fontsize=9.3, color=INK2, zorder=5)
         ax.text(-0.012, y, r.outcome, va="center", ha="right", fontsize=10.5, color=INK, linespacing=1.1,
                 transform=ax.get_yaxis_transform())
         y += 1
