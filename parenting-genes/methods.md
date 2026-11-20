@@ -247,6 +247,8 @@ GROUPS = {
 def pct(v):
     if v == 0:
         return "≈0%"
+    if v < 0.001:
+        return f"{v * 100:.2f}%"
     return f"{v * 100:.1f}%" if v < 0.1 else f"{v * 100:.0f}%"
 
 
@@ -256,7 +258,7 @@ def main():
                                                                 float_format="%.4f")
 
     fig, ax = plt.subplots(figsize=(13, 13.2))
-    fig.subplots_adjust(left=0.27, right=0.97, top=0.885, bottom=0.085)
+    fig.subplots_adjust(left=0.27, right=0.97, top=0.885, bottom=0.11)
     y, prev = 0.0, None
     for r in df.itertuples():
         col, head = GROUPS[r.group]
@@ -280,7 +282,7 @@ def main():
         y += 1
     ax.set_ylim(y - 0.4, -0.6)
     ax.set_yticks([])
-    ax.set_xlim(0, 0.8)
+    ax.set_xlim(-0.008, 0.93)
     ax.set_xticks([0, .1, .2, .3, .4, .5, .6, .7, .8])
     ax.set_xticklabels(["0", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%"], fontsize=10)
     ax.xaxis.grid(True, color=GRID, linewidth=0.8)
