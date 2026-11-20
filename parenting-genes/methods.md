@@ -216,7 +216,7 @@ ROWS = [
     ("twin_c", "IQ", "Cognitive ability", cog[1], cog[1], "Polderman et al. 2015"),
     ("twin_c", "Person-\nality", "Personality", per[1], per[1], "Polderman et al. 2015"),
     ("twin_c", "Depres-\nsion", "Depression", dep[1], dep[1], "Polderman et al. 2015"),
-    ("twin_c", "Earnings", "Lifetime earnings", 0, 0, "Hyytinen et al. 2019"),
+    ("twin_c", "Earn-\nings", "Lifetime earnings", 0, 0, "Hyytinen et al. 2019"),
     ("lever", "Better\nneighbor-\nhood", "Neighbourhood: 1 SD better county for all of childhood, adult income",
      (0.10 / SIG_LNEARN) ** 2, (0.10 / SIG_LNEARN) ** 2, "Chetty & Hendren 2018"),
     ("lever", "Tutoring", "Intensive math tutoring, short-run test scores", d2var(.16), d2var(.37),
@@ -235,7 +235,7 @@ ROWS = [
     ("gene", "Weight", "Weight", weight[0], weight[0], "Polderman et al. 2015"),
     ("gene", "Height", "Height", height[0], height[0], "Polderman et al. 2015"),
     ("gene", "IQ", "Cognitive ability", cog[0], cog[0], "Polderman et al. 2015"),
-    ("gene", "Earnings", "Lifetime earnings (women, men)", .39, .54, "Hyytinen et al. 2019"),
+    ("gene", "Earn-\nings", "Lifetime earnings (women, men)", .39, .54, "Hyytinen et al. 2019"),
     ("gene", "Person-\nality", "Personality", per[0], per[0], "Polderman et al. 2015"),
     ("gene", "Alcohol", "Alcohol use disorders", alc[0], alc[0], "Polderman et al. 2015"),
     ("gene", "Educa-\ntion", "Educational attainment", .400, .400, "Branigan et al. 2013"),
@@ -282,8 +282,8 @@ def main():
     df = pd.DataFrame(ROWS, columns=["group", "short", "outcome", "lo", "hi", "source"])
     df.drop(columns="short").to_csv(HERE / "parenting_vs_genes.csv", index=False, float_format="%.4f")
 
-    fig, ax = plt.subplots(figsize=(17, 8.6))
-    fig.subplots_adjust(left=0.045, right=0.99, top=0.835, bottom=0.2)
+    fig, ax = plt.subplots(figsize=(19.5, 8.8))
+    fig.subplots_adjust(left=0.04, right=0.99, top=0.835, bottom=0.2)
     GAP, TOP, PAD = 0.7, 0.86, 0.25
     x, xs, spans = 0.0, [], {}
     for g in df.group:
@@ -309,14 +309,14 @@ def main():
             ax.bar(r.x, r.hi - r.lo, bottom=r.lo, width=1.0, color=col, alpha=0.45, edgecolor=SURFACE,
                    linewidth=1.5, zorder=3)
         ax.annotate(label(r.lo, r.hi), (r.x, r.hi), xytext=(0, 5), textcoords="offset points",
-                    ha="center", va="bottom", fontsize=13 if big else 10.5, fontweight="bold", color=INK, zorder=5)
-        ax.text(r.x, -0.018, r.short, ha="center", va="top", fontsize=9.6, color=INK, linespacing=1.05)
+                    ha="center", va="bottom", fontsize=12.5 if big else 10.5, fontweight="bold", color=INK, zorder=5)
+        ax.text(r.x, -0.018, r.short, ha="center", va="top", fontsize=9.4, color=INK, linespacing=1.05)
 
     # the one outcome measured both ways: adoption vs twins on education
     xa = df.loc[(df.group == "adopt") & df.outcome.str.startswith("Years of education"), "x"].item()
     xt = df.loc[(df.group == "twin_c") & df.outcome.str.startswith("Educational"), "x"].item()
     yb = 0.45
-    ax.plot([xa, xa, xt, xt], [0.09, yb, yb, 0.405], color=INK2, linewidth=1.1, zorder=4)
+    ax.plot([xa, xa, xt, xt], [0.10, yb, yb, 0.405], color=INK2, linewidth=1.1, zorder=4)
     ax.text((xa + xt) / 2, yb + 0.012, "Education measured two ways: 5% by adoption, 36% in twins.\n"
             "The twin number is inflated by assortative mating†", ha="center", va="bottom", fontsize=10,
             color=INK, linespacing=1.3, zorder=5, bbox=dict(facecolor=SURFACE, edgecolor="none", pad=2))
