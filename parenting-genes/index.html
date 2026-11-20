@@ -388,8 +388,8 @@ weight, height, alc = fal(.810, .437), fal(.908, .543), fal(.630, .409)
 
 # group, short label (chart), full outcome (csv), lo, hi, source; † marks a footnoted exception
 ROWS = [
-    (&quot;adopt&quot;, &quot;Education&quot;, &quot;Years of education&quot;, .053, .053, &quot;Sacerdote 2004&quot;),
-    (&quot;adopt&quot;, &quot;College\ndegree&quot;, &quot;College degree&quot;, .060, .060, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;Educa-\ntion&quot;, &quot;Years of education&quot;, .053, .053, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;College&quot;, &quot;College degree&quot;, .060, .060, &quot;Sacerdote 2004&quot;),
     (&quot;adopt&quot;, &quot;Income&quot;, &quot;Household income (level, log)&quot;, .069, .113, &quot;Sacerdote 2004&quot;),
     (&quot;adopt&quot;, &quot;Smoking&quot;, &quot;Smoking&quot;, .024, .024, &quot;Sacerdote 2004&quot;),
     (&quot;adopt&quot;, &quot;Height&quot;, &quot;Height&quot;, .016, .016, &quot;Sacerdote 2004&quot;),
@@ -404,9 +404,9 @@ ROWS = [
     (&quot;lever&quot;, &quot;Tutoring&quot;, &quot;Intensive math tutoring, short-run test scores&quot;, d2var(.16), d2var(.37),
      &quot;Guryan et al. 2023&quot;),
     (&quot;lever&quot;, &quot;SAT\nprep&quot;, &quot;Premium SAT prep, SAT score&quot;, d2var(.14), d2var(.19), &quot;Buchmann et al. 2010&quot;),
-    (&quot;lever&quot;, &quot;Pre-K\n(HS grad)&quot;, &quot;Universal pre-K, high-school graduation&quot;, pp2var(.06, .6), pp2var(.06, .8),
+    (&quot;lever&quot;, &quot;Pre-K:\ngrad&quot;, &quot;Universal pre-K, high-school graduation&quot;, pp2var(.06, .6), pp2var(.06, .8),
      &quot;Gray-Lobe et al. 2023&quot;),
-    (&quot;lever&quot;, &quot;Pre-K\n(college)&quot;, &quot;Universal pre-K, ever attends 4-year college&quot;, pp2var(.059, .5),
+    (&quot;lever&quot;, &quot;Pre-K:\ncollege&quot;, &quot;Universal pre-K, ever attends 4-year college&quot;, pp2var(.059, .5),
      pp2var(.059, .5), &quot;Gray-Lobe et al. 2023&quot;),
     (&quot;lever&quot;, &quot;Choice\nschool&quot;, &quot;First-choice school, test scores&quot;, d2var(.07), d2var(.07),
      &quot;Abdulkadiroglu et al. 2020&quot;),
@@ -442,20 +442,21 @@ def pct(v):
 
 def label(lo, hi):
     a, b = pct(lo), pct(hi)
-    return f&quot;{a}%&quot; if a == b else f&quot;{a}–{b}%&quot;
+    if a == b:
+        return f&quot;{a}%&quot;
+    return f&quot;≤{b}%&quot; if a == &quot;&lt;1&quot; else f&quot;{a}–{b}%&quot;
 
 
 FOOTNOTE = (
-    &quot;Each column is the share of the variation between people in an outcome that the source explains (0 to 80%). &quot;
-    &quot;Ranges are shown as a solid segment.\n&quot;
-    &quot;1. Korean American adoptees placed with US families by waiting list (Sacerdote 2004, NBER WP 10894): share of &quot;
-    &quot;adult outcomes explained by the adoptive family's education, income, size, habits and body size.\n&quot;
-    &quot;2. Twins: shared family environment, c² = 2rDZ − rMZ (Polderman et al. 2015, Nature Genetics; earnings: Hyytinen &quot;
-    &quot;et al. 2019; education: Branigan et al. 2013). †Twin designs inflate this\n&quot;
-    &quot;    when spouses match on education; the adoption estimate is about 5%.  &quot;
-    &quot;3. Effects reviewed by Caplan (Bet On It), converted to a share of variance as if half of children got each one; &quot;
-    &quot;tutoring and SAT prep are\n    short-run test scores.  &quot;
-    &quot;4. Heritability, h² = 2(rMZ − rDZ), from the same twin studies. Full sources and conversions: methods page.&quot;
+    &quot;Each column: the share of the variation between people in that outcome explained by the source. Solid segments &quot;
+    &quot;show a range of estimates.\n&quot;
+    &quot;1. Korean American adoptees placed with US families by waiting list (Sacerdote 2004, NBER WP 10894): adult &quot;
+    &quot;outcomes explained by the adoptive family's education, income, size, habits and body size.\n&quot;
+    &quot;2. Twins raised together: shared family environment, c² = 2rDZ − rMZ (Polderman et al. 2015; earnings: Hyytinen &quot;
+    &quot;et al. 2019; education: Branigan et al. 2013). †Inflated when spouses match on education; adoption puts it near &quot;
+    &quot;5%.\n&quot;
+    &quot;3. Effects reviewed by Bryan Caplan, converted to a share of variance as if half of children got each one; &quot;
+    &quot;tutoring and SAT prep are short-run test scores.   4. Heritability, h² = 2(rMZ − rDZ), from the same twin studies.&quot;
 )
 
 
@@ -464,7 +465,7 @@ def main():
     df.drop(columns=&quot;short&quot;).to_csv(HERE / &quot;parenting_vs_genes.csv&quot;, index=False, float_format=&quot;%.4f&quot;)
 
     fig, ax = plt.subplots(figsize=(17, 8.6))
-    fig.subplots_adjust(left=0.045, right=0.99, top=0.80, bottom=0.215)
+    fig.subplots_adjust(left=0.045, right=0.99, top=0.835, bottom=0.215)
     GAP, TOP = 1.0, 0.86
     x, xs, spans = 0.0, [], {}
     for g in df.group:

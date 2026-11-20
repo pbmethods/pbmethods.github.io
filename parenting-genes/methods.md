@@ -206,8 +206,8 @@ weight, height, alc = fal(.810, .437), fal(.908, .543), fal(.630, .409)
 
 # group, short label (chart), full outcome (csv), lo, hi, source; † marks a footnoted exception
 ROWS = [
-    ("adopt", "Education", "Years of education", .053, .053, "Sacerdote 2004"),
-    ("adopt", "College\ndegree", "College degree", .060, .060, "Sacerdote 2004"),
+    ("adopt", "Educa-\ntion", "Years of education", .053, .053, "Sacerdote 2004"),
+    ("adopt", "College", "College degree", .060, .060, "Sacerdote 2004"),
     ("adopt", "Income", "Household income (level, log)", .069, .113, "Sacerdote 2004"),
     ("adopt", "Smoking", "Smoking", .024, .024, "Sacerdote 2004"),
     ("adopt", "Height", "Height", .016, .016, "Sacerdote 2004"),
@@ -222,9 +222,9 @@ ROWS = [
     ("lever", "Tutoring", "Intensive math tutoring, short-run test scores", d2var(.16), d2var(.37),
      "Guryan et al. 2023"),
     ("lever", "SAT\nprep", "Premium SAT prep, SAT score", d2var(.14), d2var(.19), "Buchmann et al. 2010"),
-    ("lever", "Pre-K\n(HS grad)", "Universal pre-K, high-school graduation", pp2var(.06, .6), pp2var(.06, .8),
+    ("lever", "Pre-K:\ngrad", "Universal pre-K, high-school graduation", pp2var(.06, .6), pp2var(.06, .8),
      "Gray-Lobe et al. 2023"),
-    ("lever", "Pre-K\n(college)", "Universal pre-K, ever attends 4-year college", pp2var(.059, .5),
+    ("lever", "Pre-K:\ncollege", "Universal pre-K, ever attends 4-year college", pp2var(.059, .5),
      pp2var(.059, .5), "Gray-Lobe et al. 2023"),
     ("lever", "Choice\nschool", "First-choice school, test scores", d2var(.07), d2var(.07),
      "Abdulkadiroglu et al. 2020"),
@@ -260,20 +260,21 @@ def pct(v):
 
 def label(lo, hi):
     a, b = pct(lo), pct(hi)
-    return f"{a}%" if a == b else f"{a}–{b}%"
+    if a == b:
+        return f"{a}%"
+    return f"≤{b}%" if a == "<1" else f"{a}–{b}%"
 
 
 FOOTNOTE = (
-    "Each column is the share of the variation between people in an outcome that the source explains (0 to 80%). "
-    "Ranges are shown as a solid segment.\n"
-    "1. Korean American adoptees placed with US families by waiting list (Sacerdote 2004, NBER WP 10894): share of "
-    "adult outcomes explained by the adoptive family's education, income, size, habits and body size.\n"
-    "2. Twins: shared family environment, c² = 2rDZ − rMZ (Polderman et al. 2015, Nature Genetics; earnings: Hyytinen "
-    "et al. 2019; education: Branigan et al. 2013). †Twin designs inflate this\n"
-    "    when spouses match on education; the adoption estimate is about 5%.  "
-    "3. Effects reviewed by Caplan (Bet On It), converted to a share of variance as if half of children got each one; "
-    "tutoring and SAT prep are\n    short-run test scores.  "
-    "4. Heritability, h² = 2(rMZ − rDZ), from the same twin studies. Full sources and conversions: methods page."
+    "Each column: the share of the variation between people in that outcome explained by the source. Solid segments "
+    "show a range of estimates.\n"
+    "1. Korean American adoptees placed with US families by waiting list (Sacerdote 2004, NBER WP 10894): adult "
+    "outcomes explained by the adoptive family's education, income, size, habits and body size.\n"
+    "2. Twins raised together: shared family environment, c² = 2rDZ − rMZ (Polderman et al. 2015; earnings: Hyytinen "
+    "et al. 2019; education: Branigan et al. 2013). †Inflated when spouses match on education; adoption puts it near "
+    "5%.\n"
+    "3. Effects reviewed by Bryan Caplan, converted to a share of variance as if half of children got each one; "
+    "tutoring and SAT prep are short-run test scores.   4. Heritability, h² = 2(rMZ − rDZ), from the same twin studies."
 )
 
 
@@ -282,7 +283,7 @@ def main():
     df.drop(columns="short").to_csv(HERE / "parenting_vs_genes.csv", index=False, float_format="%.4f")
 
     fig, ax = plt.subplots(figsize=(17, 8.6))
-    fig.subplots_adjust(left=0.045, right=0.99, top=0.80, bottom=0.215)
+    fig.subplots_adjust(left=0.045, right=0.99, top=0.835, bottom=0.215)
     GAP, TOP = 1.0, 0.86
     x, xs, spans = 0.0, [], {}
     for g in df.group:
