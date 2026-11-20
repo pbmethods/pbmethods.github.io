@@ -31,17 +31,17 @@ li{margin:.2rem 0}
 <h3><code>parenting_vs_genes_chart.py</code></h3>
 <pre><code class="language-text">Parenting and schooling levers explain a few percent of how kids turn out; genes explain 40-75%.
 
-What it shows. Every row is a share of the variation (variance) in an outcome among adults or older children,
+What it shows. Every column is a share of the variation (variance) in an outcome among adults or older children,
 from 0 to 80%, so the levers parents pull and the genes they pass on are on one scale. Four groups:
 
-1. Adoption: what the adoptive family explains (red). Sacerdote (2004), NBER WP 10894, &quot;What Happens When We
+1. Adoption: what the adoptive family explains (navy). Sacerdote (2004), NBER WP 10894, &quot;What Happens When We
    Randomly Assign Children to Families?&quot;, Appendix 3: R-squared from regressing Korean American adoptees' adult
    outcomes on the adoptive family's observables (mother's and father's education, college status, smoking and
    drinking, number of children, family income, parents' height, weight and obesity). Adoptees were assigned to
    families by a queue, so these are causal effects of the family environment that was measured. In-sample R-squared
    with about 15 regressors, so if anything biased up. Household income shows the family-income and log-income rows
    (6.9% and 11.3%).
-2. Twins: shared family environment (c2) (red). The part of twin similarity not explained by genes, which includes
+2. Twins: shared family environment (c2) (light navy). The part of twin similarity not explained by genes, which includes
    everything twins raised together share (parents, home, schools, neighbourhood). Cognitive ability, personality
    and depression: Falconer c2 = 2 rDZ - rMZ from the weighted twin correlations in Polderman et al. (2015), Nature
    Genetics 47:702-709, Table 2 (cognitive domain rMZ .646, rDZ .371; temperament and personality functions .470,
@@ -64,7 +64,7 @@ from 0 to 80%, so the levers parents pull and the genes they pass on are on one 
      - Intensive math tutoring: +.16 to +.37 SD, short-run test scores (Guryan et al. 2023, AER).
      - Neighbourhood: each childhood year in a 1 SD better county +0.5% adult income for low-income children
        (Chetty &amp; Hendren 2018, QJE); 20 years gives +10% per SD of county quality.
-4. Genes: heritability (h2) (navy). Falconer h2 = 2 (rMZ - rDZ) from Polderman et al. (2015) Table 2 (cognitive
+4. Genes: heritability (h2) (red, the point of the chart). Falconer h2 = 2 (rMZ - rDZ) from Polderman et al. (2015) Table 2 (cognitive
    .55, temperament and personality .47, depressive episode .40, weight maintenance .75, height .73, alcohol use
    disorders .44); educational attainment .40 (Branigan et al. 2013 grand mean); lifetime earnings .39 women to
    .54 men (Hyytinen et al. 2019).
@@ -92,189 +92,189 @@ script. Run with:
 <td>Years of education</td>
 <td>0.053</td>
 <td>0.053</td>
-<td>Sacerdote, Korean adoptees</td>
+<td>Sacerdote 2004</td>
 </tr>
 <tr>
 <td>adopt</td>
 <td>College degree</td>
 <td>0.060</td>
 <td>0.060</td>
-<td>Sacerdote</td>
+<td>Sacerdote 2004</td>
 </tr>
 <tr>
 <td>adopt</td>
-<td>Household income</td>
+<td>Household income (level, log)</td>
 <td>0.069</td>
 <td>0.113</td>
-<td>Sacerdote (income, log income)</td>
+<td>Sacerdote 2004</td>
 </tr>
 <tr>
 <td>adopt</td>
 <td>Smoking</td>
 <td>0.024</td>
 <td>0.024</td>
-<td>Sacerdote</td>
+<td>Sacerdote 2004</td>
 </tr>
 <tr>
 <td>adopt</td>
 <td>Height</td>
 <td>0.016</td>
 <td>0.016</td>
-<td>Sacerdote</td>
+<td>Sacerdote 2004</td>
 </tr>
 <tr>
 <td>adopt</td>
 <td>Body mass index</td>
 <td>0.012</td>
 <td>0.012</td>
-<td>Sacerdote</td>
+<td>Sacerdote 2004</td>
 </tr>
 <tr>
 <td>twin_c</td>
 <td>Cognitive ability</td>
 <td>0.096</td>
 <td>0.096</td>
-<td>Polderman twin meta-analysis</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>twin_c</td>
 <td>Personality</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>twin_c</td>
 <td>Depression</td>
 <td>0.052</td>
 <td>0.052</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>twin_c</td>
 <td>Lifetime earnings</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>Hyytinen, Finnish register twins</td>
+<td>Hyytinen et al. 2019</td>
 </tr>
 <tr>
 <td>twin_c</td>
 <td>Educational attainment</td>
 <td>0.361</td>
 <td>0.361</td>
-<td>Branigan meta-analysis (inflated by assortative mating)</td>
+<td>Branigan et al. 2013</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>Neighbourhood, 1 SD better county, all childhood: adult income</td>
+<td>Neighbourhood: 1 SD better county for all of childhood, adult income</td>
 <td>0.016</td>
 <td>0.016</td>
 <td>Chetty &amp; Hendren 2018</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>Tutoring: math tests (short-run)</td>
+<td>Intensive math tutoring, short-run test scores</td>
 <td>0.006</td>
 <td>0.033</td>
 <td>Guryan et al. 2023</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>Premium SAT prep: SAT score</td>
+<td>Premium SAT prep, SAT score</td>
 <td>0.005</td>
 <td>0.009</td>
 <td>Buchmann et al. 2010</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>Pre-K: high-school graduation</td>
+<td>Universal pre-K, high-school graduation</td>
 <td>0.004</td>
 <td>0.006</td>
 <td>Gray-Lobe et al. 2023</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>Pre-K: ever attends 4-year college</td>
+<td>Universal pre-K, ever attends 4-year college</td>
 <td>0.004</td>
 <td>0.004</td>
 <td>Gray-Lobe et al. 2023</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>First-choice school: test scores</td>
+<td>First-choice school, test scores</td>
 <td>0.001</td>
 <td>0.001</td>
-<td>Abdulkadiroğlu et al. 2020</td>
+<td>Abdulkadiroglu et al. 2020</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>1 SD better teacher, one year: earnings</td>
+<td>1 SD better teacher for one year, adult earnings</td>
 <td>0.000</td>
 <td>0.000</td>
 <td>Chetty, Friedman &amp; Rockoff 2014</td>
 </tr>
 <tr>
 <td>lever</td>
-<td>Small classes (STAR): earnings at 27</td>
+<td>Small classes (Project STAR), earnings at 27 (not detectable)</td>
 <td>0.000</td>
 <td>0.000</td>
-<td>Chetty et al. 2011, not detectable</td>
+<td>Chetty et al. 2011</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Weight</td>
 <td>0.746</td>
 <td>0.746</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Height</td>
 <td>0.730</td>
 <td>0.730</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Cognitive ability</td>
 <td>0.550</td>
 <td>0.550</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>gene</td>
-<td>Lifetime earnings</td>
+<td>Lifetime earnings (women, men)</td>
 <td>0.390</td>
 <td>0.540</td>
-<td>Hyytinen (women, men)</td>
+<td>Hyytinen et al. 2019</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Personality</td>
 <td>0.472</td>
 <td>0.472</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Alcohol use disorders</td>
 <td>0.442</td>
 <td>0.442</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Educational attainment</td>
 <td>0.400</td>
 <td>0.400</td>
-<td>Branigan</td>
+<td>Branigan et al. 2013</td>
 </tr>
 <tr>
 <td>gene</td>
 <td>Depression</td>
 <td>0.402</td>
 <td>0.402</td>
-<td>Polderman</td>
+<td>Polderman et al. 2015</td>
 </tr>
 </tbody>
 </table>
@@ -310,17 +310,17 @@ script. Run with:
 <h3><code>parenting_vs_genes_chart.py</code></h3>
 <pre><code class="language-python">&quot;&quot;&quot;Parenting and schooling levers explain a few percent of how kids turn out; genes explain 40-75%.
 
-What it shows. Every row is a share of the variation (variance) in an outcome among adults or older children,
+What it shows. Every column is a share of the variation (variance) in an outcome among adults or older children,
 from 0 to 80%, so the levers parents pull and the genes they pass on are on one scale. Four groups:
 
-1. Adoption: what the adoptive family explains (red). Sacerdote (2004), NBER WP 10894, &quot;What Happens When We
+1. Adoption: what the adoptive family explains (navy). Sacerdote (2004), NBER WP 10894, &quot;What Happens When We
    Randomly Assign Children to Families?&quot;, Appendix 3: R-squared from regressing Korean American adoptees' adult
    outcomes on the adoptive family's observables (mother's and father's education, college status, smoking and
    drinking, number of children, family income, parents' height, weight and obesity). Adoptees were assigned to
    families by a queue, so these are causal effects of the family environment that was measured. In-sample R-squared
    with about 15 regressors, so if anything biased up. Household income shows the family-income and log-income rows
    (6.9% and 11.3%).
-2. Twins: shared family environment (c2) (red). The part of twin similarity not explained by genes, which includes
+2. Twins: shared family environment (c2) (light navy). The part of twin similarity not explained by genes, which includes
    everything twins raised together share (parents, home, schools, neighbourhood). Cognitive ability, personality
    and depression: Falconer c2 = 2 rDZ - rMZ from the weighted twin correlations in Polderman et al. (2015), Nature
    Genetics 47:702-709, Table 2 (cognitive domain rMZ .646, rDZ .371; temperament and personality functions .470,
@@ -343,7 +343,7 @@ from 0 to 80%, so the levers parents pull and the genes they pass on are on one 
      - Intensive math tutoring: +.16 to +.37 SD, short-run test scores (Guryan et al. 2023, AER).
      - Neighbourhood: each childhood year in a 1 SD better county +0.5% adult income for low-income children
        (Chetty &amp; Hendren 2018, QJE); 20 years gives +10% per SD of county quality.
-4. Genes: heritability (h2) (navy). Falconer h2 = 2 (rMZ - rDZ) from Polderman et al. (2015) Table 2 (cognitive
+4. Genes: heritability (h2) (red, the point of the chart). Falconer h2 = 2 (rMZ - rDZ) from Polderman et al. (2015) Table 2 (cognitive
    .55, temperament and personality .47, depressive episode .40, weight maintenance .75, height .73, alcohol use
    disorders .44); educational attainment .40 (Branigan et al. 2013 grand mean); lifetime earnings .39 women to
    .54 men (Hyytinen et al. 2019).
@@ -386,107 +386,127 @@ def fal(rmz, rdz):
 cog, per, dep = fal(.646, .371), fal(.470, .234), fal(.454, .253)
 weight, height, alc = fal(.810, .437), fal(.908, .543), fal(.630, .409)
 
-# group, outcome label, lo, hi, source
+# group, short label (chart), full outcome (csv), lo, hi, source; † marks a footnoted exception
 ROWS = [
-    (&quot;adopt&quot;, &quot;Years of education&quot;, .053, .053, &quot;Sacerdote, Korean adoptees&quot;),
-    (&quot;adopt&quot;, &quot;College degree&quot;, .060, .060, &quot;Sacerdote&quot;),
-    (&quot;adopt&quot;, &quot;Household income&quot;, .069, .113, &quot;Sacerdote (income, log income)&quot;),
-    (&quot;adopt&quot;, &quot;Smoking&quot;, .024, .024, &quot;Sacerdote&quot;),
-    (&quot;adopt&quot;, &quot;Height&quot;, .016, .016, &quot;Sacerdote&quot;),
-    (&quot;adopt&quot;, &quot;Body mass index&quot;, .012, .012, &quot;Sacerdote&quot;),
-    (&quot;twin_c&quot;, &quot;Cognitive ability&quot;, cog[1], cog[1], &quot;Polderman twin meta-analysis&quot;),
-    (&quot;twin_c&quot;, &quot;Personality&quot;, per[1], per[1], &quot;Polderman&quot;),
-    (&quot;twin_c&quot;, &quot;Depression&quot;, dep[1], dep[1], &quot;Polderman&quot;),
-    (&quot;twin_c&quot;, &quot;Lifetime earnings&quot;, 0, 0, &quot;Hyytinen, Finnish register twins&quot;),
-    (&quot;twin_c&quot;, &quot;Educational attainment&quot;, .361, .361, &quot;Branigan meta-analysis (inflated by assortative mating)&quot;),
-    (&quot;lever&quot;, &quot;Neighbourhood, 1 SD better county,\nall childhood: adult income&quot;, (0.10 / SIG_LNEARN) ** 2,
-     (0.10 / SIG_LNEARN) ** 2, &quot;Chetty &amp; Hendren 2018&quot;),
-    (&quot;lever&quot;, &quot;Tutoring: math tests (short-run)&quot;, d2var(.16), d2var(.37), &quot;Guryan et al. 2023&quot;),
-    (&quot;lever&quot;, &quot;Premium SAT prep: SAT score&quot;, d2var(.14), d2var(.19), &quot;Buchmann et al. 2010&quot;),
-    (&quot;lever&quot;, &quot;Pre-K: high-school graduation&quot;, pp2var(.06, .6), pp2var(.06, .8), &quot;Gray-Lobe et al. 2023&quot;),
-    (&quot;lever&quot;, &quot;Pre-K: ever attends 4-year college&quot;, pp2var(.059, .5), pp2var(.059, .5), &quot;Gray-Lobe et al. 2023&quot;),
-    (&quot;lever&quot;, &quot;First-choice school: test scores&quot;, d2var(.07), d2var(.07), &quot;Abdulkadiroğlu et al. 2020&quot;),
-    (&quot;lever&quot;, &quot;1 SD better teacher, one year: earnings&quot;, (0.013 / SIG_LNEARN) ** 2, (0.013 / SIG_LNEARN) ** 2,
-     &quot;Chetty, Friedman &amp; Rockoff 2014&quot;),
-    (&quot;lever&quot;, &quot;Small classes (STAR): earnings at 27&quot;, 0, 0, &quot;Chetty et al. 2011, not detectable&quot;),
-    (&quot;gene&quot;, &quot;Weight&quot;, weight[0], weight[0], &quot;Polderman&quot;),
-    (&quot;gene&quot;, &quot;Height&quot;, height[0], height[0], &quot;Polderman&quot;),
-    (&quot;gene&quot;, &quot;Cognitive ability&quot;, cog[0], cog[0], &quot;Polderman&quot;),
-    (&quot;gene&quot;, &quot;Lifetime earnings&quot;, .39, .54, &quot;Hyytinen (women, men)&quot;),
-    (&quot;gene&quot;, &quot;Personality&quot;, per[0], per[0], &quot;Polderman&quot;),
-    (&quot;gene&quot;, &quot;Alcohol use disorders&quot;, alc[0], alc[0], &quot;Polderman&quot;),
-    (&quot;gene&quot;, &quot;Educational attainment&quot;, .400, .400, &quot;Branigan&quot;),
-    (&quot;gene&quot;, &quot;Depression&quot;, dep[0], dep[0], &quot;Polderman&quot;),
+    (&quot;adopt&quot;, &quot;Education&quot;, &quot;Years of education&quot;, .053, .053, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;College\ndegree&quot;, &quot;College degree&quot;, .060, .060, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;Income&quot;, &quot;Household income (level, log)&quot;, .069, .113, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;Smoking&quot;, &quot;Smoking&quot;, .024, .024, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;Height&quot;, &quot;Height&quot;, .016, .016, &quot;Sacerdote 2004&quot;),
+    (&quot;adopt&quot;, &quot;Weight\n(BMI)&quot;, &quot;Body mass index&quot;, .012, .012, &quot;Sacerdote 2004&quot;),
+    (&quot;twin_c&quot;, &quot;IQ&quot;, &quot;Cognitive ability&quot;, cog[1], cog[1], &quot;Polderman et al. 2015&quot;),
+    (&quot;twin_c&quot;, &quot;Person-\nality&quot;, &quot;Personality&quot;, per[1], per[1], &quot;Polderman et al. 2015&quot;),
+    (&quot;twin_c&quot;, &quot;Depres-\nsion&quot;, &quot;Depression&quot;, dep[1], dep[1], &quot;Polderman et al. 2015&quot;),
+    (&quot;twin_c&quot;, &quot;Earnings&quot;, &quot;Lifetime earnings&quot;, 0, 0, &quot;Hyytinen et al. 2019&quot;),
+    (&quot;twin_c&quot;, &quot;Educa-\ntion†&quot;, &quot;Educational attainment&quot;, .361, .361, &quot;Branigan et al. 2013&quot;),
+    (&quot;lever&quot;, &quot;Better\nneighbor-\nhood&quot;, &quot;Neighbourhood: 1 SD better county for all of childhood, adult income&quot;,
+     (0.10 / SIG_LNEARN) ** 2, (0.10 / SIG_LNEARN) ** 2, &quot;Chetty &amp; Hendren 2018&quot;),
+    (&quot;lever&quot;, &quot;Tutoring&quot;, &quot;Intensive math tutoring, short-run test scores&quot;, d2var(.16), d2var(.37),
+     &quot;Guryan et al. 2023&quot;),
+    (&quot;lever&quot;, &quot;SAT\nprep&quot;, &quot;Premium SAT prep, SAT score&quot;, d2var(.14), d2var(.19), &quot;Buchmann et al. 2010&quot;),
+    (&quot;lever&quot;, &quot;Pre-K\n(HS grad)&quot;, &quot;Universal pre-K, high-school graduation&quot;, pp2var(.06, .6), pp2var(.06, .8),
+     &quot;Gray-Lobe et al. 2023&quot;),
+    (&quot;lever&quot;, &quot;Pre-K\n(college)&quot;, &quot;Universal pre-K, ever attends 4-year college&quot;, pp2var(.059, .5),
+     pp2var(.059, .5), &quot;Gray-Lobe et al. 2023&quot;),
+    (&quot;lever&quot;, &quot;Choice\nschool&quot;, &quot;First-choice school, test scores&quot;, d2var(.07), d2var(.07),
+     &quot;Abdulkadiroglu et al. 2020&quot;),
+    (&quot;lever&quot;, &quot;Great\nteacher&quot;, &quot;1 SD better teacher for one year, adult earnings&quot;, (0.013 / SIG_LNEARN) ** 2,
+     (0.013 / SIG_LNEARN) ** 2, &quot;Chetty, Friedman &amp; Rockoff 2014&quot;),
+    (&quot;lever&quot;, &quot;Small\nclasses&quot;, &quot;Small classes (Project STAR), earnings at 27 (not detectable)&quot;, 0, 0,
+     &quot;Chetty et al. 2011&quot;),
+    (&quot;gene&quot;, &quot;Weight&quot;, &quot;Weight&quot;, weight[0], weight[0], &quot;Polderman et al. 2015&quot;),
+    (&quot;gene&quot;, &quot;Height&quot;, &quot;Height&quot;, height[0], height[0], &quot;Polderman et al. 2015&quot;),
+    (&quot;gene&quot;, &quot;IQ&quot;, &quot;Cognitive ability&quot;, cog[0], cog[0], &quot;Polderman et al. 2015&quot;),
+    (&quot;gene&quot;, &quot;Earnings&quot;, &quot;Lifetime earnings (women, men)&quot;, .39, .54, &quot;Hyytinen et al. 2019&quot;),
+    (&quot;gene&quot;, &quot;Person-\nality&quot;, &quot;Personality&quot;, per[0], per[0], &quot;Polderman et al. 2015&quot;),
+    (&quot;gene&quot;, &quot;Alcohol&quot;, &quot;Alcohol use disorders&quot;, alc[0], alc[0], &quot;Polderman et al. 2015&quot;),
+    (&quot;gene&quot;, &quot;Educa-\ntion&quot;, &quot;Educational attainment&quot;, .400, .400, &quot;Branigan et al. 2013&quot;),
+    (&quot;gene&quot;, &quot;Depres-\nsion&quot;, &quot;Depression&quot;, dep[0], dep[0], &quot;Polderman et al. 2015&quot;),
 ]
+# group -&gt; mark color, band tint, section title (superscript = footnote)
 GROUPS = {
-    &quot;adopt&quot;: (pb.RED, &quot;Adoption: how much the family that raised them explains&quot;),
-    &quot;twin_c&quot;: (pb.RED, &quot;Twins: how much growing up in the same home explains&quot;),
-    &quot;lever&quot;: (pb.GRAYS[1], &quot;Schools, programs and neighbourhoods: a typical lever, if half of kids got it&quot;),
-    &quot;gene&quot;: (pb.NAVY, &quot;Genes: heritability, from twin studies&quot;),
+    &quot;adopt&quot;: (pb.NAVY, &quot;#eef1f6&quot;, &quot;The family that\nadopted them¹&quot;),
+    &quot;twin_c&quot;: (&quot;#4a6ea3&quot;, &quot;#f1f4f9&quot;, &quot;Growing up in\nthe same home²&quot;),
+    &quot;lever&quot;: (pb.GRAYS[1], &quot;#f3f2ef&quot;, &quot;Schools, programs,\nneighborhoods³&quot;),
+    &quot;gene&quot;: (pb.RED, &quot;#fcefee&quot;, &quot;Genes⁴&quot;),
 }
 
 
 def pct(v):
     if v == 0:
-        return &quot;≈0%&quot;
-    if v &lt; 0.001:
-        return f&quot;{v * 100:.2f}%&quot;
-    return f&quot;{v * 100:.1f}%&quot; if v &lt; 0.1 else f&quot;{v * 100:.0f}%&quot;
+        return &quot;0&quot;
+    if v &lt; 0.01:
+        return &quot;&lt;1&quot;
+    return f&quot;{v * 100:.0f}&quot;
+
+
+def label(lo, hi):
+    a, b = pct(lo), pct(hi)
+    return f&quot;{a}%&quot; if a == b else f&quot;{a}–{b}%&quot;
+
+
+FOOTNOTE = (
+    &quot;Each column is the share of the variation between people in an outcome that the source explains (0 to 80%). &quot;
+    &quot;Ranges are shown as a solid segment.\n&quot;
+    &quot;1. Korean American adoptees placed with US families by waiting list (Sacerdote 2004, NBER WP 10894): share of &quot;
+    &quot;adult outcomes explained by the adoptive family's education, income, size, habits and body size.\n&quot;
+    &quot;2. Twins: shared family environment, c² = 2rDZ − rMZ (Polderman et al. 2015, Nature Genetics; earnings: Hyytinen &quot;
+    &quot;et al. 2019; education: Branigan et al. 2013). †Twin designs inflate this\n&quot;
+    &quot;    when spouses match on education; the adoption estimate is about 5%.  &quot;
+    &quot;3. Effects reviewed by Caplan (Bet On It), converted to a share of variance as if half of children got each one; &quot;
+    &quot;tutoring and SAT prep are\n    short-run test scores.  &quot;
+    &quot;4. Heritability, h² = 2(rMZ − rDZ), from the same twin studies. Full sources and conversions: methods page.&quot;
+)
 
 
 def main():
-    df = pd.DataFrame(ROWS, columns=[&quot;group&quot;, &quot;outcome&quot;, &quot;lo&quot;, &quot;hi&quot;, &quot;source&quot;])
-    df.assign(outcome=df.outcome.str.replace(&quot;\n&quot;, &quot; &quot;)).to_csv(HERE / &quot;parenting_vs_genes.csv&quot;, index=False,
-                                                                float_format=&quot;%.4f&quot;)
+    df = pd.DataFrame(ROWS, columns=[&quot;group&quot;, &quot;short&quot;, &quot;outcome&quot;, &quot;lo&quot;, &quot;hi&quot;, &quot;source&quot;])
+    df.drop(columns=&quot;short&quot;).to_csv(HERE / &quot;parenting_vs_genes.csv&quot;, index=False, float_format=&quot;%.4f&quot;)
 
-    fig, ax = plt.subplots(figsize=(13, 13.2))
-    fig.subplots_adjust(left=0.27, right=0.97, top=0.885, bottom=0.11)
-    y, prev = 0.0, None
+    fig, ax = plt.subplots(figsize=(17, 8.6))
+    fig.subplots_adjust(left=0.045, right=0.99, top=0.80, bottom=0.215)
+    GAP, TOP = 1.0, 0.86
+    x, xs, spans = 0.0, [], {}
+    for g in df.group:
+        if spans and g not in spans:
+            x += GAP
+        spans.setdefault(g, [x, x])[1] = x
+        xs.append(x)
+        x += 1
+    df[&quot;x&quot;] = xs
+
+    for g, (x0, x1) in spans.items():
+        col, tint, title = GROUPS[g]
+        ax.add_patch(plt.Rectangle((x0 - 0.5, 0), x1 - x0 + 1, TOP, facecolor=tint, edgecolor=col,
+                                   linewidth=1.1, zorder=0))
+        ax.text(x0 - 0.3, TOP - 0.02, title, ha=&quot;left&quot;, va=&quot;top&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, color=INK,
+                linespacing=1.15, zorder=5)
+
     for r in df.itertuples():
-        col, head = GROUPS[r.group]
-        if r.group != prev:
-            if prev is not None:
-                y += 0.9
-            ax.text(-0.005, y, head, fontsize=11.5, fontweight=&quot;bold&quot;, color=INK, va=&quot;center&quot;, ha=&quot;left&quot;,
-                    transform=ax.get_yaxis_transform())
-            y += 1.0
-            prev = r.group
+        col = GROUPS[r.group][0]
+        big = r.group == &quot;gene&quot;
+        ax.plot([r.x, r.x], [0, r.hi], color=col, linewidth=2.6 if big else 1.6, linestyle=(0, (1.2, 1.6)),
+                dash_capstyle=&quot;round&quot;, zorder=2)
         if r.hi &gt; r.lo:
-            ax.plot([r.lo, r.hi], [y, y], color=col, linewidth=8, solid_capstyle=&quot;round&quot;, zorder=3)
-        else:
-            ax.scatter([r.lo], [y], s=75, color=col, zorder=3, edgecolor=SURFACE, linewidth=1.5)
-        txt = pct(r.lo) if r.hi == r.lo else f&quot;{pct(r.lo)}–{pct(r.hi)}&quot;
-        xt = r.hi + 0.012
-        ax.text(xt, y, txt, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, zorder=5)
-        ax.text(xt + 0.0098 * len(txt) + 0.014, y, r.source, va=&quot;center&quot;, fontsize=9.3, color=INK2, zorder=5)
-        ax.text(-0.012, y, r.outcome, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=10.5, color=INK, linespacing=1.1,
-                transform=ax.get_yaxis_transform())
-        y += 1
-    ax.set_ylim(y - 0.4, -0.6)
-    ax.set_yticks([])
-    ax.set_xlim(-0.008, 0.93)
-    ax.set_xticks([0, .1, .2, .3, .4, .5, .6, .7, .8])
-    ax.set_xticklabels([&quot;0&quot;, &quot;10%&quot;, &quot;20%&quot;, &quot;30%&quot;, &quot;40%&quot;, &quot;50%&quot;, &quot;60%&quot;, &quot;70%&quot;, &quot;80%&quot;], fontsize=10)
-    ax.xaxis.grid(True, color=GRID, linewidth=0.8)
-    ax.yaxis.grid(False)
-    ax.set_xlabel(&quot;Share of the variation in the outcome explained&quot;, fontsize=10.5, color=INK2, labelpad=8)
+            ax.plot([r.x, r.x], [r.lo, r.hi], color=col, linewidth=7, solid_capstyle=&quot;round&quot;, zorder=3)
+        ax.scatter([r.x], [r.hi], s=170 if big else 80, color=col, zorder=4, edgecolor=SURFACE, linewidth=1.5)
+        ax.annotate(label(r.lo, r.hi), (r.x, r.hi), xytext=(0, 10 if big else 8), textcoords=&quot;offset points&quot;,
+                    ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=12.5 if big else 10, fontweight=&quot;bold&quot;, color=INK, zorder=5)
+        ax.text(r.x, -0.018, r.short, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=9.6, color=INK, linespacing=1.05)
 
-    fig.text(0.03, 0.955, &quot;The family that raises a child explains a few percent of how they turn out. Genes &quot;
-             &quot;explain 40–75%&quot;, fontsize=17, fontweight=&quot;bold&quot;, color=INK)
-    fig.text(0.03, 0.935, &quot;Share of the variation in adult outcomes explained by the adoptive family, by growing up &quot;
-             &quot;in the same home (twins), by school and neighbourhood levers,\nand by genes. Being raised by a richer, &quot;
-             &quot;more educated family moves education and income a few percent; height and weight, almost nothing.&quot;,
-             fontsize=11, color=INK2, va=&quot;top&quot;, linespacing=1.4)
-    fig.text(0.03, 0.012,
-             &quot;Adoption: Sacerdote (2004, NBER WP 10894), Korean American adoptees assigned to families by queue; &quot;
-             &quot;R² of adult outcomes on the adoptive family's education, income, size, habits and body size.\n&quot;
-             &quot;Twins: shared environment c² = 2rDZ − rMZ and heritability h² = 2(rMZ − rDZ) from Polderman et al. &quot;
-             &quot;(2015, Nature Genetics) Table 2; earnings from Hyytinen et al. (2019); education from Branigan et\n&quot;
-             &quot;al. (2013), whose twin c² is inflated when spouses match on education (adoption puts it near 5%). &quot;
-             &quot;Levers: effects reviewed in Caplan (Bet On It), converted to a share of variance assuming half of children\n&quot;
-             &quot;get the lever (d²/4 ÷ (1 + d²/4) for d SD; earnings effects in log points ÷ 0.8, the SD of US log &quot;
-             &quot;earnings, squared). Tutoring and SAT prep are short-run test scores, not adult outcomes.&quot;,
-             fontsize=7.8, color=MUTED, linespacing=1.55)
+    ax.set_xlim(-0.6, x - 0.4)
+    ax.set_ylim(0, TOP)
+    ax.set_xticks([])
+    ax.set_yticks([0, .2, .4, .6, .8])
+    ax.set_yticklabels([&quot;0&quot;, &quot;20%&quot;, &quot;40%&quot;, &quot;60%&quot;, &quot;80%&quot;], fontsize=10)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8, zorder=1)
+    ax.set_axisbelow(False)
+
+    fig.text(0.03, 0.945, &quot;Parents and schools explain a few percent of how kids turn out. Genes explain 40–75%&quot;,
+             fontsize=19, fontweight=&quot;bold&quot;, color=INK)
+    fig.text(0.03, 0.895, &quot;How much of the differences between adults each one explains, for the outcomes parents &quot;
+             &quot;care about&quot;, fontsize=12, color=INK2, va=&quot;top&quot;)
+    fig.text(0.03, 0.018, FOOTNOTE, fontsize=8, color=MUTED, linespacing=1.55)
 
     out = NOTES / &quot;Unwatermarked graphs&quot; / SUBDIR / &quot;parenting_vs_genes.png&quot;
     out.parent.mkdir(parents=True, exist_ok=True)
