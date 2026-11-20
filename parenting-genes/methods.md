@@ -63,17 +63,17 @@ script. Run with:
 
 | group | outcome | lo | hi | source |
 |---|---|---|---|---|
-| adopt | Years of education | 0.053 | 0.053 | Sacerdote 2004 |
 | adopt | College degree | 0.060 | 0.060 | Sacerdote 2004 |
 | adopt | Household income (level, log) | 0.069 | 0.113 | Sacerdote 2004 |
 | adopt | Smoking | 0.024 | 0.024 | Sacerdote 2004 |
 | adopt | Height | 0.016 | 0.016 | Sacerdote 2004 |
 | adopt | Body mass index | 0.012 | 0.012 | Sacerdote 2004 |
+| adopt | Years of education | 0.053 | 0.053 | Sacerdote 2004 |
+| twin_c | Educational attainment | 0.361 | 0.361 | Branigan et al. 2013 |
 | twin_c | Cognitive ability | 0.096 | 0.096 | Polderman et al. 2015 |
 | twin_c | Personality | 0.000 | 0.000 | Polderman et al. 2015 |
 | twin_c | Depression | 0.052 | 0.052 | Polderman et al. 2015 |
 | twin_c | Lifetime earnings | 0.000 | 0.000 | Hyytinen et al. 2019 |
-| twin_c | Educational attainment | 0.361 | 0.361 | Branigan et al. 2013 |
 | lever | Neighbourhood: 1 SD better county for all of childhood, adult income | 0.016 | 0.016 | Chetty & Hendren 2018 |
 | lever | Intensive math tutoring, short-run test scores | 0.006 | 0.033 | Guryan et al. 2023 |
 | lever | Premium SAT prep, SAT score | 0.005 | 0.009 | Buchmann et al. 2010 |
@@ -206,17 +206,17 @@ weight, height, alc = fal(.810, .437), fal(.908, .543), fal(.630, .409)
 
 # group, short label (chart), full outcome (csv), lo, hi, source; † marks a footnoted exception
 ROWS = [
-    ("adopt", "Educa-\ntion", "Years of education", .053, .053, "Sacerdote 2004"),
     ("adopt", "College", "College degree", .060, .060, "Sacerdote 2004"),
     ("adopt", "Income", "Household income (level, log)", .069, .113, "Sacerdote 2004"),
     ("adopt", "Smoking", "Smoking", .024, .024, "Sacerdote 2004"),
     ("adopt", "Height", "Height", .016, .016, "Sacerdote 2004"),
     ("adopt", "Weight\n(BMI)", "Body mass index", .012, .012, "Sacerdote 2004"),
+    ("adopt", "Educa-\ntion", "Years of education", .053, .053, "Sacerdote 2004"),
+    ("twin_c", "Educa-\ntion†", "Educational attainment", .361, .361, "Branigan et al. 2013"),
     ("twin_c", "IQ", "Cognitive ability", cog[1], cog[1], "Polderman et al. 2015"),
     ("twin_c", "Person-\nality", "Personality", per[1], per[1], "Polderman et al. 2015"),
     ("twin_c", "Depres-\nsion", "Depression", dep[1], dep[1], "Polderman et al. 2015"),
     ("twin_c", "Earnings", "Lifetime earnings", 0, 0, "Hyytinen et al. 2019"),
-    ("twin_c", "Educa-\ntion†", "Educational attainment", .361, .361, "Branigan et al. 2013"),
     ("lever", "Better\nneighbor-\nhood", "Neighbourhood: 1 SD better county for all of childhood, adult income",
      (0.10 / SIG_LNEARN) ** 2, (0.10 / SIG_LNEARN) ** 2, "Chetty & Hendren 2018"),
     ("lever", "Tutoring", "Intensive math tutoring, short-run test scores", d2var(.16), d2var(.37),
@@ -266,13 +266,13 @@ def label(lo, hi):
 
 
 FOOTNOTE = (
-    "Each column: the share of the variation between people in that outcome explained by the source. Solid segments "
-    "show a range of estimates.\n"
+    "Each bar: the share of the variation between people in that outcome explained by the source. A lighter top "
+    "shows a range of estimates.\n"
     "1. Korean American adoptees placed with US families by waiting list (Sacerdote 2004, NBER WP 10894): adult "
     "outcomes explained by the adoptive family's education, income, size, habits and body size.\n"
     "2. Twins raised together: shared family environment, c² = 2rDZ − rMZ (Polderman et al. 2015; earnings: Hyytinen "
-    "et al. 2019; education: Branigan et al. 2013). †Inflated when spouses match on education; adoption puts it near "
-    "5%.\n"
+    "et al. 2019; education: Branigan et al. 2013). †Spouses who match on education make fraternal twins more alike, which twin models count as shared home; "
+    "adoption, which has no such bias, puts it near 5%.\n"
     "3. Effects reviewed by Bryan Caplan, converted to a share of variance as if half of children got each one; "
     "tutoring and SAT prep are short-run test scores.   4. Heritability, h² = 2(rMZ − rDZ), from the same twin studies."
 )
@@ -283,12 +283,12 @@ def main():
     df.drop(columns="short").to_csv(HERE / "parenting_vs_genes.csv", index=False, float_format="%.4f")
 
     fig, ax = plt.subplots(figsize=(17, 8.6))
-    fig.subplots_adjust(left=0.045, right=0.99, top=0.835, bottom=0.215)
-    GAP, TOP = 1.0, 0.86
+    fig.subplots_adjust(left=0.045, right=0.99, top=0.835, bottom=0.2)
+    GAP, TOP, PAD = 0.7, 0.86, 0.25
     x, xs, spans = 0.0, [], {}
     for g in df.group:
         if spans and g not in spans:
-            x += GAP
+            x += GAP + 2 * PAD
         spans.setdefault(g, [x, x])[1] = x
         xs.append(x)
         x += 1
@@ -296,24 +296,32 @@ def main():
 
     for g, (x0, x1) in spans.items():
         col, tint, title = GROUPS[g]
-        ax.add_patch(plt.Rectangle((x0 - 0.5, 0), x1 - x0 + 1, TOP, facecolor=tint, edgecolor=col,
+        ax.add_patch(plt.Rectangle((x0 - 0.5 - PAD, 0), x1 - x0 + 1 + 2 * PAD, TOP, facecolor=tint, edgecolor=col,
                                    linewidth=1.1, zorder=0))
-        ax.text(x0 - 0.3, TOP - 0.02, title, ha="left", va="top", fontsize=12.5, fontweight="bold", color=INK,
+        ax.text(x0 - 0.5, TOP - 0.02, title, ha="left", va="top", fontsize=12.5, fontweight="bold", color=INK,
                 linespacing=1.15, zorder=5)
 
     for r in df.itertuples():
         col = GROUPS[r.group][0]
         big = r.group == "gene"
-        ax.plot([r.x, r.x], [0, r.hi], color=col, linewidth=2.6 if big else 1.6, linestyle=(0, (1.2, 1.6)),
-                dash_capstyle="round", zorder=2)
-        if r.hi > r.lo:
-            ax.plot([r.x, r.x], [r.lo, r.hi], color=col, linewidth=7, solid_capstyle="round", zorder=3)
-        ax.scatter([r.x], [r.hi], s=170 if big else 80, color=col, zorder=4, edgecolor=SURFACE, linewidth=1.5)
-        ax.annotate(label(r.lo, r.hi), (r.x, r.hi), xytext=(0, 10 if big else 8), textcoords="offset points",
-                    ha="center", va="bottom", fontsize=12.5 if big else 10, fontweight="bold", color=INK, zorder=5)
+        ax.bar(r.x, r.lo, width=1.0, color=col, edgecolor=SURFACE, linewidth=1.5, zorder=3)
+        if r.hi > r.lo:  # range: lighter cap from the low to the high estimate
+            ax.bar(r.x, r.hi - r.lo, bottom=r.lo, width=1.0, color=col, alpha=0.45, edgecolor=SURFACE,
+                   linewidth=1.5, zorder=3)
+        ax.annotate(label(r.lo, r.hi), (r.x, r.hi), xytext=(0, 5), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=13 if big else 10.5, fontweight="bold", color=INK, zorder=5)
         ax.text(r.x, -0.018, r.short, ha="center", va="top", fontsize=9.6, color=INK, linespacing=1.05)
 
-    ax.set_xlim(-0.6, x - 0.4)
+    # the one outcome measured both ways: adoption vs twins on education
+    xa = df.loc[(df.group == "adopt") & df.outcome.str.startswith("Years of education"), "x"].item()
+    xt = df.loc[(df.group == "twin_c") & df.outcome.str.startswith("Educational"), "x"].item()
+    yb = 0.45
+    ax.plot([xa, xa, xt, xt], [0.09, yb, yb, 0.405], color=INK2, linewidth=1.1, zorder=4)
+    ax.text((xa + xt) / 2, yb + 0.012, "Education measured two ways: 5% by adoption, 36% in twins.\n"
+            "The twin number is inflated by assortative mating†", ha="center", va="bottom", fontsize=10,
+            color=INK, linespacing=1.3, zorder=5, bbox=dict(facecolor=SURFACE, edgecolor="none", pad=2))
+
+    ax.set_xlim(-0.5 - PAD - 0.1, x - 0.5 + PAD + 0.1)
     ax.set_ylim(0, TOP)
     ax.set_xticks([])
     ax.set_yticks([0, .2, .4, .6, .8])

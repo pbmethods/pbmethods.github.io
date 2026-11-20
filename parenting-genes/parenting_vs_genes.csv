@@ -1,15 +1,15 @@
 group,outcome,lo,hi,source
-adopt,Years of education,0.0530,0.0530,Sacerdote 2004
 adopt,College degree,0.0600,0.0600,Sacerdote 2004
 adopt,"Household income (level, log)",0.0690,0.1130,Sacerdote 2004
 adopt,Smoking,0.0240,0.0240,Sacerdote 2004
 adopt,Height,0.0160,0.0160,Sacerdote 2004
 adopt,Body mass index,0.0120,0.0120,Sacerdote 2004
+adopt,Years of education,0.0530,0.0530,Sacerdote 2004
+twin_c,Educational attainment,0.3610,0.3610,Branigan et al. 2013
 twin_c,Cognitive ability,0.0960,0.0960,Polderman et al. 2015
 twin_c,Personality,0.0000,0.0000,Polderman et al. 2015
 twin_c,Depression,0.0520,0.0520,Polderman et al. 2015
 twin_c,Lifetime earnings,0.0000,0.0000,Hyytinen et al. 2019
-twin_c,Educational attainment,0.3610,0.3610,Branigan et al. 2013
 lever,"Neighbourhood: 1 SD better county for all of childhood, adult income",0.0156,0.0156,Chetty & Hendren 2018
 lever,"Intensive math tutoring, short-run test scores",0.0064,0.0331,Guryan et al. 2023
 lever,"Premium SAT prep, SAT score",0.0049,0.0089,Buchmann et al. 2010
