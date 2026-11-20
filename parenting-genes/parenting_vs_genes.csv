@@ -1,0 +1,28 @@
+group,outcome,lo,hi,source
+adopt,Years of education,0.0530,0.0530,"Sacerdote, Korean adoptees"
+adopt,College degree,0.0600,0.0600,Sacerdote
+adopt,Household income,0.0690,0.1130,"Sacerdote (income, log income)"
+adopt,Smoking,0.0240,0.0240,Sacerdote
+adopt,Height,0.0160,0.0160,Sacerdote
+adopt,Body mass index,0.0120,0.0120,Sacerdote
+twin_c,Cognitive ability,0.0960,0.0960,Polderman twin meta-analysis
+twin_c,Personality,0.0000,0.0000,Polderman
+twin_c,Depression,0.0520,0.0520,Polderman
+twin_c,Lifetime earnings,0.0000,0.0000,"Hyytinen, Finnish register twins"
+twin_c,Educational attainment,0.3610,0.3610,Branigan meta-analysis (inflated by assortative mating)
+lever,"Neighbourhood, 1 SD better county, all childhood: adult income",0.0156,0.0156,Chetty & Hendren 2018
+lever,Tutoring: math tests (short-run),0.0064,0.0331,Guryan et al. 2023
+lever,Premium SAT prep: SAT score,0.0049,0.0089,Buchmann et al. 2010
+lever,Pre-K: high-school graduation,0.0037,0.0056,Gray-Lobe et al. 2023
+lever,Pre-K: ever attends 4-year college,0.0035,0.0035,Gray-Lobe et al. 2023
+lever,First-choice school: test scores,0.0012,0.0012,Abdulkadiroğlu et al. 2020
+lever,"1 SD better teacher, one year: earnings",0.0003,0.0003,"Chetty, Friedman & Rockoff 2014"
+lever,Small classes (STAR): earnings at 27,0.0000,0.0000,"Chetty et al. 2011, not detectable"
+gene,Weight,0.7460,0.7460,Polderman
+gene,Height,0.7300,0.7300,Polderman
+gene,Cognitive ability,0.5500,0.5500,Polderman
+gene,Lifetime earnings,0.3900,0.5400,"Hyytinen (women, men)"
+gene,Personality,0.4720,0.4720,Polderman
+gene,Alcohol use disorders,0.4420,0.4420,Polderman
+gene,Educational attainment,0.4000,0.4000,Branigan
+gene,Depression,0.4020,0.4020,Polderman

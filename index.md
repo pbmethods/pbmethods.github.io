@@ -2,6 +2,7 @@
 
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
+- [Parenting vs genes: what adoptive families, shared homes, school levers and genes explain about how kids turn out](parenting-genes/) (2026-11-20)
 - [Clark's heritability and assortment parameters vs estimates for a status composite](clark-status/) (2026-11-19)
 - [Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds](vc-pedigree/) (2026-11-19)
 - [Stay-at-home mothers by husband's earnings, up to the top 1%](sahm-income/) (2026-11-18)
