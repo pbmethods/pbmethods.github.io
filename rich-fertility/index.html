@@ -1,0 +1,1672 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>America&#x27;s richest couples went from the fewest babies to the most: births by couple income, 1940–2024 (IPUMS census and ACS)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>America's richest couples went from the fewest babies to the most: births by couple income, 1940–2024 (IPUMS census and ACS)</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/rich-fertility/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>ownchild_fertility_by_income.py</code></h3>
+<pre><code class="language-text">US fertility by couple income percentile, 1940-2024, with one consistent &quot;own-children&quot; measure.
+
+Why this measure: the ACS asks about births in the past year (FER) only from 2000; the decennial
+census never did, and IPUMS extract usa_00006 lacks YNGCH/MOMLOC. So for every year we use the
+classic own-children approach, restricted to women aged 15-49 who are the householder or the
+householder's spouse:
+    birth in past year := a child of the householder aged 0 lives in the household.
+(Census RELATE 3 = child of householder incl. adopted/step; ACS RELP 2/3/4 through 2018, RELSHIPP
+25/26/27 from 2019.) A married householder's child is attributed to the wife whether she's the
+householder or the spouse. This misses infants not living with their mother (deaths, adoption out,
+living with grandparents) and mothers who aren't householder/spouse (e.g. daughters in a parent's
+home); both are more common at low incomes, so the bottom group's level is understated. That bias
+is roughly constant within this definition across years, which is what the trend needs. Check
+against FER in the ACS years is printed and saved.
+
+Income: the woman's own total income plus her spouse's (INCTOT + INCTOT_SP in the census; ACS
+PINCP of householder + spouse, ADJINC-adjusted), i.e. couple income, or own income for unmarried
+householders. 1940 has wages only (INCWAGE), so 1940 uses couple wage income. Percentiles are formed
+within each year among the women in the sample, with random tie-breaking (census top codes create
+ties at the top). Groups: bottom 20%, middle 20%, 80-95th, 95-99th, top 1%.
+
+TFR-style rate = sum over age groups 15-19, ..., 45-49 of (weighted share with an own child aged 0)
+x 5. Weights PERWT / PWGTP. Census years 1940-2000 (IPUMS usa_00006), ACS 2005-2024 every year
+(pooled 2005-09, 2010-14, 2015-19, 2021-24 for the period table).
+
+Output: data/ownchild_fertility_by_income.csv (year, group, rate, n), data/ownchild_vs_fer.csv.
+</code></pre>
+<h3><code>census_chborn_by_income.py</code></h3>
+<pre><code class="language-text">Completed fertility by couple income, US censuses 1940-1990 (IPUMS usa_00006, CHBORN).
+
+Checks that the own-children period results (ownchild_fertility_by_income.py) aren't just a timing
+effect (richer women having births later). CHBORN = children ever born (code 1 = none, k+1 = k
+children, 13 = 12+); asked of ever-married women in 1940-1950 (sample-line persons in 1950) and of
+all women from 1960 (not asked in 2000). Sample: married women with spouse present (SPLOC &gt; 0),
+aged 40-49, so the measure is close to completed fertility and comparable across years. Income =
+own + spouse's total income (wages only in 1940; in 1950 the missing one of the two counted as 0,
+as in the period script). Percentiles within year, weighted by PERWT, random tie-breaks.
+
+Output: data/census_chborn_by_income.csv (year, group, mean children, n), ratios printed.
+</code></pre>
+<h3><code>us_longrun_chart.py</code></h3>
+<pre><code class="language-text">US: the richest couples went from the fewest births to the most, 1940-2024.
+
+Reads the outputs of ownchild_fertility_by_income.py (period births, all census years 1940-2000 and
+ACS 2005-2024) and census_chborn_by_income.py (completed fertility, 1940-1990); see those scripts'
+docstrings for the full method. In short:
+
+- Births: women 15-49 who are householder or householder's wife; &quot;birth in past year&quot; = a child of
+  the householder aged 0 in the household (own-children method, validated against the ACS FER
+  question in 2005-24). Each income group's births are divided by those expected from its age mix
+  at that year's national single-year-of-age rates (indirect standardisation), so 1.0 = average.
+- Income: couple income (own + spouse's total income; wages only in 1940), ranked within year.
+- Panel A plots top 1% / bottom 20% of these standardised ratios, for married couples (spouse
+  present) and for all wives and female householders. ACS years are pooled 2005-09, 2010-14,
+  2015-19, 2021-24 and plotted at their midpoints. Hollow dots: completed fertility (children ever
+  born) of married women 40-49, top 1% / bottom 20%, censuses 1940-1990.
+- Panel B: the married-couple standardised ratio for each income group, 1940, 1980 and 2021-24.
+
+Data: IPUMS USA census samples (usa_00006: 1940 1%, 1950 1%, 1960 5%, 1970 3x1%, 1980 5%, 1990 5%,
+2000 5%) and ACS 1-year PUMS 2005-2024 (no 2020).
+</code></pre>
+<h2>Results</h2>
+<h3><code>ownchild_fertility_by_income.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>slot</th>
+<th>year</th>
+<th>group</th>
+<th>sfr</th>
+<th>rate</th>
+<th>n</th>
+<th>births</th>
+<th>sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1940</td>
+<td>1940.000</td>
+<td>bottom 20%</td>
+<td>1.195</td>
+<td>3.866</td>
+<td>44550</td>
+<td>3184</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>1940.000</td>
+<td>80-95th</td>
+<td>0.735</td>
+<td>2.378</td>
+<td>32717</td>
+<td>1555</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>1940.000</td>
+<td>top 1%</td>
+<td>0.738</td>
+<td>2.386</td>
+<td>2180</td>
+<td>67</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>1950.000</td>
+<td>middle 20%</td>
+<td>0.780</td>
+<td>2.500</td>
+<td>28293</td>
+<td>2557</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>1950.000</td>
+<td>95-99th</td>
+<td>1.188</td>
+<td>3.806</td>
+<td>6398</td>
+<td>494</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>1960.000</td>
+<td>bottom 20%</td>
+<td>1.070</td>
+<td>5.830</td>
+<td>310197</td>
+<td>42206</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>1960.000</td>
+<td>80-95th</td>
+<td>0.814</td>
+<td>4.437</td>
+<td>232648</td>
+<td>17272</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>1960.000</td>
+<td>top 1%</td>
+<td>1.089</td>
+<td>5.933</td>
+<td>15510</td>
+<td>997</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>1970.000</td>
+<td>middle 20%</td>
+<td>1.053</td>
+<td>4.064</td>
+<td>205164</td>
+<td>20001</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>1970.000</td>
+<td>95-99th</td>
+<td>0.987</td>
+<td>3.809</td>
+<td>41032</td>
+<td>1782</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>1980.000</td>
+<td>bottom 20%</td>
+<td>0.889</td>
+<td>2.788</td>
+<td>407193</td>
+<td>33830</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>1980.000</td>
+<td>80-95th</td>
+<td>1.020</td>
+<td>3.198</td>
+<td>305395</td>
+<td>15628</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>1980.000</td>
+<td>top 1%</td>
+<td>1.206</td>
+<td>3.781</td>
+<td>20360</td>
+<td>825</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>1990.000</td>
+<td>middle 20%</td>
+<td>0.994</td>
+<td>2.805</td>
+<td>460110</td>
+<td>27011</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>1990.000</td>
+<td>95-99th</td>
+<td>1.578</td>
+<td>4.452</td>
+<td>90063</td>
+<td>4415</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2000</td>
+<td>2000.000</td>
+<td>bottom 20%</td>
+<td>0.843</td>
+<td>2.683</td>
+<td>483142</td>
+<td>32071</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2000</td>
+<td>2000.000</td>
+<td>80-95th</td>
+<td>1.295</td>
+<td>4.120</td>
+<td>347516</td>
+<td>18905</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2000</td>
+<td>2000.000</td>
+<td>top 1%</td>
+<td>1.931</td>
+<td>6.146</td>
+<td>23457</td>
+<td>1482</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>2006.972</td>
+<td>middle 20%</td>
+<td>0.936</td>
+<td>2.871</td>
+<td>470835</td>
+<td>25872</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>2006.972</td>
+<td>95-99th</td>
+<td>1.758</td>
+<td>5.390</td>
+<td>102280</td>
+<td>6187</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>2011.962</td>
+<td>bottom 20%</td>
+<td>0.875</td>
+<td>2.398</td>
+<td>378200</td>
+<td>22880</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>2011.962</td>
+<td>80-95th</td>
+<td>1.392</td>
+<td>3.816</td>
+<td>331607</td>
+<td>19247</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>2011.962</td>
+<td>top 1%</td>
+<td>2.072</td>
+<td>5.680</td>
+<td>23791</td>
+<td>1406</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>2016.999</td>
+<td>middle 20%</td>
+<td>0.924</td>
+<td>2.298</td>
+<td>406142</td>
+<td>22873</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>2016.999</td>
+<td>95-99th</td>
+<td>1.672</td>
+<td>4.160</td>
+<td>89326</td>
+<td>5533</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>2022.513</td>
+<td>bottom 20%</td>
+<td>0.824</td>
+<td>1.788</td>
+<td>273474</td>
+<td>13191</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>2022.513</td>
+<td>80-95th</td>
+<td>1.410</td>
+<td>3.061</td>
+<td>270481</td>
+<td>16872</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>2022.513</td>
+<td>top 1%</td>
+<td>2.071</td>
+<td>4.497</td>
+<td>19985</td>
+<td>1353</td>
+<td>all</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>1940.000</td>
+<td>middle 20%</td>
+<td>1.019</td>
+<td>3.430</td>
+<td>40136</td>
+<td>3667</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>1940.000</td>
+<td>95-99th</td>
+<td>0.657</td>
+<td>2.212</td>
+<td>7917</td>
+<td>290</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>1950.000</td>
+<td>bottom 20%</td>
+<td>1.252</td>
+<td>4.157</td>
+<td>31842</td>
+<td>3750</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>1950.000</td>
+<td>80-95th</td>
+<td>1.014</td>
+<td>3.367</td>
+<td>22221</td>
+<td>2040</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>1950.000</td>
+<td>top 1%</td>
+<td>1.042</td>
+<td>3.461</td>
+<td>1498</td>
+<td>90</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>1960.000</td>
+<td>middle 20%</td>
+<td>0.989</td>
+<td>5.647</td>
+<td>279002</td>
+<td>36949</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>1960.000</td>
+<td>95-99th</td>
+<td>0.931</td>
+<td>5.315</td>
+<td>55800</td>
+<td>3738</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>1970.000</td>
+<td>bottom 20%</td>
+<td>1.133</td>
+<td>4.732</td>
+<td>176072</td>
+<td>24634</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>1970.000</td>
+<td>80-95th</td>
+<td>0.820</td>
+<td>3.424</td>
+<td>132054</td>
+<td>6888</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>1970.000</td>
+<td>top 1%</td>
+<td>1.090</td>
+<td>4.553</td>
+<td>8804</td>
+<td>397</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>1980.000</td>
+<td>middle 20%</td>
+<td>0.945</td>
+<td>3.551</td>
+<td>315555</td>
+<td>26892</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>1980.000</td>
+<td>95-99th</td>
+<td>1.067</td>
+<td>4.012</td>
+<td>63111</td>
+<td>2866</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>1990.000</td>
+<td>bottom 20%</td>
+<td>1.052</td>
+<td>3.544</td>
+<td>361817</td>
+<td>34200</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>1990.000</td>
+<td>80-95th</td>
+<td>1.102</td>
+<td>3.714</td>
+<td>253013</td>
+<td>12369</td>
+<td>married</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>1990.000</td>
+<td>top 1%</td>
+<td>1.520</td>
+<td>5.123</td>
+<td>17196</td>
+<td>808</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2000</td>
+<td>2000.000</td>
+<td>middle 20%</td>
+<td>0.906</td>
+<td>3.734</td>
+<td>363308</td>
+<td>23503</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2000</td>
+<td>2000.000</td>
+<td>95-99th</td>
+<td>1.479</td>
+<td>6.093</td>
+<td>68233</td>
+<td>4233</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>2006.961</td>
+<td>bottom 20%</td>
+<td>1.027</td>
+<td>4.488</td>
+<td>289262</td>
+<td>26562</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>2006.961</td>
+<td>80-95th</td>
+<td>1.211</td>
+<td>5.291</td>
+<td>247868</td>
+<td>15269</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>2006.961</td>
+<td>top 1%</td>
+<td>1.835</td>
+<td>8.020</td>
+<td>17085</td>
+<td>1149</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>2011.960</td>
+<td>middle 20%</td>
+<td>0.918</td>
+<td>3.740</td>
+<td>283044</td>
+<td>18677</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>2011.960</td>
+<td>95-99th</td>
+<td>1.476</td>
+<td>6.014</td>
+<td>58022</td>
+<td>3448</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>2017.001</td>
+<td>bottom 20%</td>
+<td>1.011</td>
+<td>3.970</td>
+<td>248842</td>
+<td>21282</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>2017.001</td>
+<td>80-95th</td>
+<td>1.168</td>
+<td>4.585</td>
+<td>207373</td>
+<td>13113</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>2017.001</td>
+<td>top 1%</td>
+<td>1.661</td>
+<td>6.525</td>
+<td>15105</td>
+<td>971</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>2022.517</td>
+<td>middle 20%</td>
+<td>0.924</td>
+<td>3.331</td>
+<td>216773</td>
+<td>15038</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>2022.517</td>
+<td>95-99th</td>
+<td>1.420</td>
+<td>5.119</td>
+<td>47430</td>
+<td>3251</td>
+<td>married</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 2th row of 110 shown; full file: <a href="ownchild_fertility_by_income.csv">ownchild_fertility_by_income.csv</a>.</em></p>
+<h3><code>census_chborn_by_income.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>year</th>
+<th>group</th>
+<th>children</th>
+<th>childless</th>
+<th>n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1940</td>
+<td>bottom 20%</td>
+<td>2.434</td>
+<td>0.220</td>
+<td>3440</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>middle 20%</td>
+<td>2.263</td>
+<td>0.253</td>
+<td>3431</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>80-95th</td>
+<td>1.654</td>
+<td>0.271</td>
+<td>2553</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>95-99th</td>
+<td>1.478</td>
+<td>0.291</td>
+<td>679</td>
+</tr>
+<tr>
+<td>1940</td>
+<td>top 1%</td>
+<td>1.371</td>
+<td>0.324</td>
+<td>170</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>bottom 20%</td>
+<td>2.003</td>
+<td>0.235</td>
+<td>4765</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>middle 20%</td>
+<td>2.042</td>
+<td>0.229</td>
+<td>4820</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>80-95th</td>
+<td>1.456</td>
+<td>0.382</td>
+<td>3109</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>95-99th</td>
+<td>1.013</td>
+<td>0.502</td>
+<td>784</td>
+</tr>
+<tr>
+<td>1950</td>
+<td>top 1%</td>
+<td>1.462</td>
+<td>0.333</td>
+<td>204</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>bottom 20%</td>
+<td>3.201</td>
+<td>0.156</td>
+<td>91886</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>middle 20%</td>
+<td>2.434</td>
+<td>0.138</td>
+<td>91887</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>80-95th</td>
+<td>2.028</td>
+<td>0.180</td>
+<td>68916</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>95-99th</td>
+<td>2.162</td>
+<td>0.150</td>
+<td>18377</td>
+</tr>
+<tr>
+<td>1960</td>
+<td>top 1%</td>
+<td>2.208</td>
+<td>0.151</td>
+<td>4595</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>bottom 20%</td>
+<td>3.511</td>
+<td>0.100</td>
+<td>58973</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>middle 20%</td>
+<td>2.894</td>
+<td>0.082</td>
+<td>58974</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>80-95th</td>
+<td>2.665</td>
+<td>0.098</td>
+<td>44230</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>95-99th</td>
+<td>2.781</td>
+<td>0.087</td>
+<td>11795</td>
+</tr>
+<tr>
+<td>1970</td>
+<td>top 1%</td>
+<td>2.898</td>
+<td>0.071</td>
+<td>2949</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>bottom 20%</td>
+<td>3.596</td>
+<td>0.072</td>
+<td>88414</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>middle 20%</td>
+<td>3.063</td>
+<td>0.061</td>
+<td>88415</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>80-95th</td>
+<td>2.773</td>
+<td>0.079</td>
+<td>66312</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>95-99th</td>
+<td>2.861</td>
+<td>0.071</td>
+<td>17683</td>
+</tr>
+<tr>
+<td>1980</td>
+<td>top 1%</td>
+<td>2.626</td>
+<td>0.099</td>
+<td>4421</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>bottom 20%</td>
+<td>2.828</td>
+<td>0.085</td>
+<td>125436</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>middle 20%</td>
+<td>2.320</td>
+<td>0.086</td>
+<td>119307</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>80-95th</td>
+<td>2.010</td>
+<td>0.132</td>
+<td>86155</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>95-99th</td>
+<td>2.061</td>
+<td>0.130</td>
+<td>23366</td>
+</tr>
+<tr>
+<td>1990</td>
+<td>top 1%</td>
+<td>1.971</td>
+<td>0.145</td>
+<td>5865</td>
+</tr>
+</tbody>
+</table>
+<h3><code>ownchild_vs_fer.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>slot</th>
+<th>group</th>
+<th>sfr_ownchild</th>
+<th>sfr_fer</th>
+<th>tfr_ownchild_all</th>
+<th>tfr_fer_all</th>
+<th>sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2005–09</td>
+<td>bottom 20%</td>
+<td>0.892</td>
+<td>0.924</td>
+<td>3.067</td>
+<td>3.334</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>middle 20%</td>
+<td>0.936</td>
+<td>0.942</td>
+<td>3.067</td>
+<td>3.334</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>80-95th</td>
+<td>1.379</td>
+<td>1.320</td>
+<td>3.067</td>
+<td>3.334</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>95-99th</td>
+<td>1.758</td>
+<td>1.656</td>
+<td>3.067</td>
+<td>3.334</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>top 1%</td>
+<td>2.104</td>
+<td>1.977</td>
+<td>3.067</td>
+<td>3.334</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>bottom 20%</td>
+<td>0.875</td>
+<td>0.904</td>
+<td>2.740</td>
+<td>3.020</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>middle 20%</td>
+<td>0.920</td>
+<td>0.925</td>
+<td>2.740</td>
+<td>3.020</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>80-95th</td>
+<td>1.392</td>
+<td>1.335</td>
+<td>2.740</td>
+<td>3.020</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>95-99th</td>
+<td>1.767</td>
+<td>1.633</td>
+<td>2.740</td>
+<td>3.020</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>top 1%</td>
+<td>2.072</td>
+<td>1.917</td>
+<td>2.740</td>
+<td>3.020</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>bottom 20%</td>
+<td>0.853</td>
+<td>0.907</td>
+<td>2.488</td>
+<td>2.794</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>middle 20%</td>
+<td>0.924</td>
+<td>0.921</td>
+<td>2.488</td>
+<td>2.794</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>80-95th</td>
+<td>1.369</td>
+<td>1.303</td>
+<td>2.488</td>
+<td>2.794</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>95-99th</td>
+<td>1.672</td>
+<td>1.537</td>
+<td>2.488</td>
+<td>2.794</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>top 1%</td>
+<td>1.938</td>
+<td>1.733</td>
+<td>2.488</td>
+<td>2.794</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>bottom 20%</td>
+<td>0.824</td>
+<td>0.895</td>
+<td>2.171</td>
+<td>2.573</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>middle 20%</td>
+<td>0.942</td>
+<td>0.948</td>
+<td>2.171</td>
+<td>2.573</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>80-95th</td>
+<td>1.410</td>
+<td>1.302</td>
+<td>2.171</td>
+<td>2.573</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>95-99th</td>
+<td>1.735</td>
+<td>1.524</td>
+<td>2.171</td>
+<td>2.573</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>top 1%</td>
+<td>2.071</td>
+<td>1.740</td>
+<td>2.171</td>
+<td>2.573</td>
+<td>all</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>bottom 20%</td>
+<td>1.027</td>
+<td>1.042</td>
+<td>4.370</td>
+<td>4.745</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>middle 20%</td>
+<td>0.909</td>
+<td>0.905</td>
+<td>4.370</td>
+<td>4.745</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>80-95th</td>
+<td>1.211</td>
+<td>1.170</td>
+<td>4.370</td>
+<td>4.745</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>95-99th</td>
+<td>1.475</td>
+<td>1.409</td>
+<td>4.370</td>
+<td>4.745</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2005–09</td>
+<td>top 1%</td>
+<td>1.835</td>
+<td>1.764</td>
+<td>4.370</td>
+<td>4.745</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>bottom 20%</td>
+<td>0.985</td>
+<td>1.003</td>
+<td>4.074</td>
+<td>4.514</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>middle 20%</td>
+<td>0.918</td>
+<td>0.922</td>
+<td>4.074</td>
+<td>4.514</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>80-95th</td>
+<td>1.205</td>
+<td>1.163</td>
+<td>4.074</td>
+<td>4.514</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>95-99th</td>
+<td>1.476</td>
+<td>1.388</td>
+<td>4.074</td>
+<td>4.514</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2010–14</td>
+<td>top 1%</td>
+<td>1.681</td>
+<td>1.586</td>
+<td>4.074</td>
+<td>4.514</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>bottom 20%</td>
+<td>1.011</td>
+<td>1.047</td>
+<td>3.927</td>
+<td>4.294</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>middle 20%</td>
+<td>0.934</td>
+<td>0.931</td>
+<td>3.927</td>
+<td>4.294</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>80-95th</td>
+<td>1.168</td>
+<td>1.120</td>
+<td>3.927</td>
+<td>4.294</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>95-99th</td>
+<td>1.384</td>
+<td>1.301</td>
+<td>3.927</td>
+<td>4.294</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2015–19</td>
+<td>top 1%</td>
+<td>1.661</td>
+<td>1.507</td>
+<td>3.927</td>
+<td>4.294</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>bottom 20%</td>
+<td>0.987</td>
+<td>1.048</td>
+<td>3.605</td>
+<td>4.170</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>middle 20%</td>
+<td>0.924</td>
+<td>0.920</td>
+<td>3.605</td>
+<td>4.170</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>80-95th</td>
+<td>1.186</td>
+<td>1.107</td>
+<td>3.605</td>
+<td>4.170</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>95-99th</td>
+<td>1.420</td>
+<td>1.280</td>
+<td>3.605</td>
+<td>4.170</td>
+<td>married</td>
+</tr>
+<tr>
+<td>2021–24</td>
+<td>top 1%</td>
+<td>1.708</td>
+<td>1.481</td>
+<td>3.605</td>
+<td>4.170</td>
+<td>married</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats: US richest couples' fertility, 1940–2024</h1>
+<ul>
+<li><strong>Births are counted by the own-children method.</strong> The census never asked about births in the past year, so a
+  "birth" is a child of the householder aged under 1 living in the household. This misses infants who died, were
+  adopted out or live apart from their mother, and mothers who aren't the householder or the householder's wife
+  (e.g. daughters living in a parent's home). Those cases are more common at low incomes, so the bottom group's
+  births are understated. That bias is roughly constant across years. In the ACS years, where the births question
+  (FER) exists, the two measures agree to within about 10% (<code>ownchild_vs_fer.csv</code>).</li>
+<li><strong>Couple income, ranked within year.</strong> Own plus spouse's total income, or own income for unmarried
+  householders. 1940 counts wages only. 1950 treats a missing spouse income as 0. Census top-codes create ties at
+  the top, broken at random.</li>
+<li><strong>Income is measured after the birth</strong>, so it includes any fall in the mother's earnings. That pushes new
+  mothers down the ranking and works against the top group.</li>
+<li><strong>Small top-1% cells in 1940 and 1950</strong>: under 100 top-1% births each, so those points are noisy.</li>
+<li><strong>Period vs completed fertility.</strong> The red and gray lines are births in the past year (adjusted for age), so
+  part of the change could be timing: richer women having children later. The hollow dots (children ever born,
+  married women 40–49) are a check on that. They stay below 1× through 1990, for women born before 1950, so the
+  flip in completed fertility had not yet happened in those cohorts. The census stopped asking after 1990.</li>
+<li><strong>Age adjustment is indirect standardisation</strong>: each group's births divided by those expected from its age mix at
+  that year's national single-year-of-age rates. It does not adjust for marital status within the "all wives and
+  female householders" line: that line mixes married and unmarried women, whose fertility and incomes differ.</li>
+<li><strong>ACS years are pooled</strong> (2005–09, 2010–14, 2015–19, 2021–24; no 2020 1-year file) and plotted at their midpoints.</li>
+<li>Descriptive only: richer couples differ from poorer ones in age at marriage, education, region and much else.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>ownchild_fertility_by_income.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;US fertility by couple income percentile, 1940-2024, with one consistent &quot;own-children&quot; measure.
+
+Why this measure: the ACS asks about births in the past year (FER) only from 2000; the decennial
+census never did, and IPUMS extract usa_00006 lacks YNGCH/MOMLOC. So for every year we use the
+classic own-children approach, restricted to women aged 15-49 who are the householder or the
+householder's spouse:
+    birth in past year := a child of the householder aged 0 lives in the household.
+(Census RELATE 3 = child of householder incl. adopted/step; ACS RELP 2/3/4 through 2018, RELSHIPP
+25/26/27 from 2019.) A married householder's child is attributed to the wife whether she's the
+householder or the spouse. This misses infants not living with their mother (deaths, adoption out,
+living with grandparents) and mothers who aren't householder/spouse (e.g. daughters in a parent's
+home); both are more common at low incomes, so the bottom group's level is understated. That bias
+is roughly constant within this definition across years, which is what the trend needs. Check
+against FER in the ACS years is printed and saved.
+
+Income: the woman's own total income plus her spouse's (INCTOT + INCTOT_SP in the census; ACS
+PINCP of householder + spouse, ADJINC-adjusted), i.e. couple income, or own income for unmarried
+householders. 1940 has wages only (INCWAGE), so 1940 uses couple wage income. Percentiles are formed
+within each year among the women in the sample, with random tie-breaking (census top codes create
+ties at the top). Groups: bottom 20%, middle 20%, 80-95th, 95-99th, top 1%.
+
+TFR-style rate = sum over age groups 15-19, ..., 45-49 of (weighted share with an own child aged 0)
+x 5. Weights PERWT / PWGTP. Census years 1940-2000 (IPUMS usa_00006), ACS 2005-2024 every year
+(pooled 2005-09, 2010-14, 2015-19, 2021-24 for the period table).
+
+Output: data/ownchild_fertility_by_income.csv (year, group, rate, n), data/ownchild_vs_fer.csv.
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pyarrow.dataset as ds
+import pyarrow.parquet as pq
+
+HERE = Path(__file__).resolve().parent
+PUB = HERE.parents[0] / &quot;us_public_data&quot;
+IPUMS = PUB / &quot;ipums&quot; / &quot;usa_00006&quot;
+ACS = PUB / &quot;acs_full&quot;
+OUT = HERE / &quot;data&quot; / &quot;ownchild_fertility_by_income.csv&quot;
+OUT_CHECK = HERE / &quot;data&quot; / &quot;ownchild_vs_fer.csv&quot;
+CENSUS_YEARS = [1940, 1950, 1960, 1970, 1980, 1990, 2000]
+ACS_YEARS = [y for y in range(2005, 2025) if y != 2020]
+AGE_EDGES = [15, 20, 25, 30, 35, 40, 45, 50]
+GROUPS = [(0, .2, &quot;bottom 20%&quot;), (.4, .6, &quot;middle 20%&quot;), (.8, .95, &quot;80-95th&quot;), (.95, .99, &quot;95-99th&quot;),
+          (.99, 1.0001, &quot;top 1%&quot;)]
+RNG = np.random.default_rng(1)
+
+
+def pctile(inc, w):
+    jitter = RNG.random(len(inc))
+    o = np.lexsort((jitter, inc.values))
+    cw = np.cumsum(w.values[o]) / w.values.sum()
+    out = np.empty(len(inc))
+    out[o] = cw
+    return out
+
+
+def rate(d, col=&quot;birth&quot;):
+    widths = np.diff(AGE_EDGES)
+    g = d.groupby(&quot;agegrp&quot;, observed=False).apply(
+        lambda s: np.average(s[col], weights=s.w) if len(s) else np.nan, include_groups=False)
+    return float((g.values * widths).sum())
+
+
+def census(year):
+    cols = [&quot;SAMPLE&quot;, &quot;SERIAL&quot;, &quot;RELATE&quot;, &quot;SPLOC&quot;, &quot;SEX&quot;, &quot;AGE&quot;, &quot;PERWT&quot;, &quot;INCTOT&quot;, &quot;INCTOT_SP&quot;, &quot;INCWAGE&quot;, &quot;INCWAGE_SP&quot;]
+    t = pq.read_table(IPUMS / f&quot;YEAR={year}&quot; / &quot;part-0.parquet&quot;, columns=cols).to_pandas()
+    t[&quot;SERIAL&quot;] = t.SAMPLE.astype(str) + &quot;_&quot; + t.SERIAL.astype(str)  # 1970 etc. pool several samples
+    infant = t[(t.RELATE == 3) &amp; (t.AGE == 0)].SERIAL.unique()
+    w = t[(t.SEX == 2) &amp; t.AGE.between(15, 49) &amp; t.RELATE.isin([1, 2])].copy()
+    if year == 1940:
+        own, sp = w.INCWAGE, w.INCWAGE_SP
+        bad = 999998
+    else:
+        own, sp = w.INCTOT, w.INCTOT_SP
+        bad = 9999999
+    own = own.where(own &lt; bad)
+    sp = sp.where(sp &lt; bad)
+    if year == 1950:
+        # income was asked of sample-line persons only: keep women whose own or spouse's income is
+        # observed and count the unobserved one as 0 (mostly wives, whose 1950 incomes were small)
+        keep = own.notna() | sp.notna()
+        w = w[keep]
+        w[&quot;inc&quot;] = own[keep].fillna(0) + sp[keep].fillna(0)
+    else:
+        w = w[own.notna()]
+        w[&quot;inc&quot;] = own[own.notna()] + sp[own.notna()].fillna(0)
+    w[&quot;birth&quot;] = w.SERIAL.isin(infant).astype(float)
+    return pd.DataFrame({&quot;year&quot;: year, &quot;age&quot;: w.AGE, &quot;w&quot;: w.PERWT, &quot;inc&quot;: w.inc, &quot;birth&quot;: w.birth, &quot;fer&quot;: np.nan,
+                         &quot;married&quot;: (w.SPLOC &gt; 0).values})
+
+
+def acs(year):
+    rel = &quot;RELSHIPP&quot; if year &gt;= 2019 else (&quot;RELP&quot; if year &gt;= 2010 else &quot;REL&quot;)  # REL (2005-09) uses RELP codes
+    cols = [&quot;SERIALNO&quot;, &quot;SEX&quot;, &quot;AGEP&quot;, &quot;PWGTP&quot;, &quot;PINCP&quot;, &quot;FER&quot;, rel] + ([&quot;ADJINC&quot;] if year &gt;= 2008 else [])
+    dset = ds.dataset(ACS / &quot;persons&quot; / f&quot;year={year}&quot;)
+    names = {n.upper(): n for n in dset.schema.names}  # some years have lower-case column names
+    cols = [c for c in cols if c in names]
+    t = dset.to_table(columns=[names[c] for c in cols]).to_pandas()
+    t.columns = cols
+    for c in cols[1:]:
+        t[c] = pd.to_numeric(t[c], errors=&quot;coerce&quot;)
+    t[&quot;SERIALNO&quot;] = t.SERIALNO.astype(str)
+    head, spouse, kids = ([20], [21, 23], [25, 26, 27]) if year &gt;= 2019 else ([0], [1], [2, 3, 4])
+    t[&quot;inc_p&quot;] = t.PINCP * (t.ADJINC / 1e6 if &quot;ADJINC&quot; in t else 1.0)
+    if &quot;FER&quot; not in t:
+        t[&quot;FER&quot;] = np.nan
+    couple = t[t[rel].isin(head + spouse)].groupby(&quot;SERIALNO&quot;).inc_p.sum(min_count=1)
+    infant = t[t[rel].isin(kids) &amp; (t.AGEP == 0)].SERIALNO.unique()
+    w = t[(t.SEX == 2) &amp; t.AGEP.between(15, 49) &amp; t[rel].isin(head + spouse)].copy()
+    w[&quot;inc&quot;] = w.SERIALNO.map(couple)
+    has_sp = set(t[t[rel].isin(spouse)].SERIALNO)
+    w[&quot;married&quot;] = w.SERIALNO.isin(has_sp)
+    w = w[w.inc.notna()]
+    return pd.DataFrame({&quot;year&quot;: year, &quot;age&quot;: w.AGEP, &quot;w&quot;: w.PWGTP, &quot;inc&quot;: w.inc,
+                         &quot;birth&quot;: w.SERIALNO.isin(infant).astype(float), &quot;fer&quot;: (w.FER == 1).astype(float),
+                         &quot;married&quot;: w.married.values})
+
+
+def main():
+    frames = []
+    for y in CENSUS_YEARS:
+        frames.append(census(y))
+        print(y, len(frames[-1]))
+    for y in ACS_YEARS:
+        frames.append(acs(y))
+        print(y, len(frames[-1]))
+    full = pd.concat(frames, ignore_index=True)
+    allrows, allcheck = [], []
+    for sample in [&quot;all&quot;, &quot;married&quot;]:
+        d = (full if sample == &quot;all&quot; else full[full.married]).copy()
+        rows, check = analyse(d)
+        allrows += [dict(r, sample=sample) for r in rows]
+        allcheck += [dict(r, sample=sample) for r in check]
+    report(pd.DataFrame(allrows), pd.DataFrame(allcheck))
+
+
+def analyse(d):
+    d[&quot;agegrp&quot;] = pd.cut(d.age, AGE_EDGES, right=False)
+    # indirect age standardisation: expected births from the year's single-year-of-age rates among
+    # all women in the sample; a group's standardised ratio is observed / expected births
+    for col in [&quot;birth&quot;, &quot;fer&quot;]:
+        wb = (d[col] * d.w).groupby([d.year, d.age]).transform(&quot;sum&quot;)
+        ww = d.w.groupby([d.year, d.age]).transform(&quot;sum&quot;)
+        d[f&quot;exp_{col}&quot;] = wb / ww
+    d[&quot;pct&quot;] = np.nan
+    for y, idx in d.groupby(&quot;year&quot;).groups.items():
+        d.loc[idx, &quot;pct&quot;] = pctile(d.loc[idx, &quot;inc&quot;], d.loc[idx, &quot;w&quot;])
+    d[&quot;slot&quot;] = d.year.astype(str)
+    for lo, hi, lab in [(2005, 2009, &quot;2005–09&quot;), (2010, 2014, &quot;2010–14&quot;), (2015, 2019, &quot;2015–19&quot;), (2021, 2024, &quot;2021–24&quot;)]:
+        d.loc[d.year.between(lo, hi), &quot;slot&quot;] = lab
+
+    rows, check = [], []
+    for slot, s in d.groupby(&quot;slot&quot;, sort=False):
+        for lo, hi, lab in GROUPS:
+            g = s[(s.pct &gt;= lo) &amp; (s.pct &lt; hi)]
+            sfr = (g.birth * g.w).sum() / (g.exp_birth * g.w).sum()
+            # level: standardised ratio x the whole sample's own-child TFR-style rate for that slot
+            r = dict(slot=slot, year=s.year.mean(), group=lab, sfr=sfr, rate=sfr * rate(s), n=len(g),
+                     births=int(g.birth.sum()))
+            rows.append(r)
+            if s.fer.notna().any():
+                sfr_f = (g.fer * g.w).sum() / (g.exp_fer * g.w).sum()
+                check.append(dict(slot=slot, group=lab, sfr_ownchild=sfr, sfr_fer=sfr_f,
+                                  tfr_ownchild_all=rate(s), tfr_fer_all=rate(s, &quot;fer&quot;)))
+    return rows, check
+
+
+def report(out, c):
+    OUT.parent.mkdir(exist_ok=True)
+    out.to_csv(OUT, index=False, float_format=&quot;%.4f&quot;)
+    c.to_csv(OUT_CHECK, index=False, float_format=&quot;%.4f&quot;)
+    for sample, o in out.groupby(&quot;sample&quot;):
+        t = o.pivot(index=&quot;slot&quot;, columns=&quot;group&quot;, values=&quot;sfr&quot;).loc[o.slot.unique()]
+        t = t[[g for _, _, g in GROUPS]]
+        t[&quot;top1/bottom20&quot;] = t[&quot;top 1%&quot;] / t[&quot;bottom 20%&quot;]
+        t[&quot;top1/middle&quot;] = t[&quot;top 1%&quot;] / t[&quot;middle 20%&quot;]
+        t[&quot;births_top1&quot;] = o[o.group == &quot;top 1%&quot;].set_index(&quot;slot&quot;).births
+        print(&quot;==&quot;, sample)
+        print(t.round(2).to_string())
+    print(c[c.group.isin([&quot;bottom 20%&quot;, &quot;top 1%&quot;])].round(2).to_string())
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>census_chborn_by_income.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Completed fertility by couple income, US censuses 1940-1990 (IPUMS usa_00006, CHBORN).
+
+Checks that the own-children period results (ownchild_fertility_by_income.py) aren't just a timing
+effect (richer women having births later). CHBORN = children ever born (code 1 = none, k+1 = k
+children, 13 = 12+); asked of ever-married women in 1940-1950 (sample-line persons in 1950) and of
+all women from 1960 (not asked in 2000). Sample: married women with spouse present (SPLOC &gt; 0),
+aged 40-49, so the measure is close to completed fertility and comparable across years. Income =
+own + spouse's total income (wages only in 1940; in 1950 the missing one of the two counted as 0,
+as in the period script). Percentiles within year, weighted by PERWT, random tie-breaks.
+
+Output: data/census_chborn_by_income.csv (year, group, mean children, n), ratios printed.
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pyarrow.parquet as pq
+
+HERE = Path(__file__).resolve().parent
+IPUMS = HERE.parents[0] / &quot;us_public_data&quot; / &quot;ipums&quot; / &quot;usa_00006&quot;
+OUT = HERE / &quot;data&quot; / &quot;census_chborn_by_income.csv&quot;
+GROUPS = [(0, .2, &quot;bottom 20%&quot;), (.4, .6, &quot;middle 20%&quot;), (.8, .95, &quot;80-95th&quot;), (.95, .99, &quot;95-99th&quot;),
+          (.99, 1.0001, &quot;top 1%&quot;)]
+RNG = np.random.default_rng(2)
+
+
+def main():
+    rows = []
+    for year in [1940, 1950, 1960, 1970, 1980, 1990]:
+        cols = [&quot;SPLOC&quot;, &quot;SEX&quot;, &quot;AGE&quot;, &quot;PERWT&quot;, &quot;CHBORN&quot;, &quot;INCTOT&quot;, &quot;INCTOT_SP&quot;, &quot;INCWAGE&quot;, &quot;INCWAGE_SP&quot;]
+        t = pq.read_table(IPUMS / f&quot;YEAR={year}&quot; / &quot;part-0.parquet&quot;, columns=cols).to_pandas()
+        w = t[(t.SEX == 2) &amp; t.AGE.between(40, 49) &amp; (t.SPLOC &gt; 0) &amp; t.CHBORN.between(1, 13)].copy()
+        own, sp, bad = (w.INCWAGE, w.INCWAGE_SP, 999998) if year == 1940 else (w.INCTOT, w.INCTOT_SP, 9999999)
+        own, sp = own.where(own &lt; bad), sp.where(sp &lt; bad)
+        keep = (own.notna() | sp.notna()) if year == 1950 else (own.notna() &amp; sp.notna())
+        w = w[keep]
+        w[&quot;inc&quot;] = own[keep].fillna(0) + sp[keep].fillna(0)
+        w[&quot;ch&quot;] = w.CHBORN - 1
+        o = np.lexsort((RNG.random(len(w)), w.inc.values))
+        cw = np.cumsum(w.PERWT.values[o]) / w.PERWT.sum()
+        pct = np.empty(len(w))
+        pct[o] = cw
+        w[&quot;pct&quot;] = pct
+        for lo, hi, lab in GROUPS:
+            g = w[(w.pct &gt;= lo) &amp; (w.pct &lt; hi)]
+            rows.append(dict(year=year, group=lab, children=np.average(g.ch, weights=g.PERWT),
+                             childless=np.average(g.ch == 0, weights=g.PERWT), n=len(g)))
+    out = pd.DataFrame(rows)
+    OUT.parent.mkdir(exist_ok=True)
+    out.to_csv(OUT, index=False, float_format=&quot;%.4f&quot;)
+    t = out.pivot(index=&quot;year&quot;, columns=&quot;group&quot;, values=&quot;children&quot;)[[g for _, _, g in GROUPS]]
+    t[&quot;top1/bottom20&quot;] = t[&quot;top 1%&quot;] / t[&quot;bottom 20%&quot;]
+    t[&quot;top1/middle&quot;] = t[&quot;top 1%&quot;] / t[&quot;middle 20%&quot;]
+    t[&quot;n_top1&quot;] = out[out.group == &quot;top 1%&quot;].set_index(&quot;year&quot;).n
+    print(t.round(2).to_string())
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>us_longrun_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;US: the richest couples went from the fewest births to the most, 1940-2024.
+
+Reads the outputs of ownchild_fertility_by_income.py (period births, all census years 1940-2000 and
+ACS 2005-2024) and census_chborn_by_income.py (completed fertility, 1940-1990); see those scripts'
+docstrings for the full method. In short:
+
+- Births: women 15-49 who are householder or householder's wife; &quot;birth in past year&quot; = a child of
+  the householder aged 0 in the household (own-children method, validated against the ACS FER
+  question in 2005-24). Each income group's births are divided by those expected from its age mix
+  at that year's national single-year-of-age rates (indirect standardisation), so 1.0 = average.
+- Income: couple income (own + spouse's total income; wages only in 1940), ranked within year.
+- Panel A plots top 1% / bottom 20% of these standardised ratios, for married couples (spouse
+  present) and for all wives and female householders. ACS years are pooled 2005-09, 2010-14,
+  2015-19, 2021-24 and plotted at their midpoints. Hollow dots: completed fertility (children ever
+  born) of married women 40-49, top 1% / bottom 20%, censuses 1940-1990.
+- Panel B: the married-couple standardised ratio for each income group, 1940, 1980 and 2021-24.
+
+Data: IPUMS USA census samples (usa_00006: 1940 1%, 1950 1%, 1960 5%, 1970 3x1%, 1980 5%, 1990 5%,
+2000 5%) and ACS 1-year PUMS 2005-2024 (no 2020).
+&quot;&quot;&quot;
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.ticker import FixedLocator, NullLocator
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop/Recent Projects/Substack Notes&quot;
+OUT = NOTES / &quot;Unwatermarked graphs/us_rich_fertility_1940_2024.png&quot;
+OUT_WM = NOTES / &quot;us_rich_fertility_1940_2024_wm.png&quot;
+SLOT_X = {&quot;2005–09&quot;: 2007, &quot;2010–14&quot;: 2012, &quot;2015–19&quot;: 2017, &quot;2021–24&quot;: 2022.5}
+GROUPS = [&quot;bottom 20%&quot;, &quot;middle 20%&quot;, &quot;80-95th&quot;, &quot;95-99th&quot;, &quot;top 1%&quot;]
+GROUP_LABELS = [&quot;Bottom\n20%&quot;, &quot;Middle\n20%&quot;, &quot;80th–\n95th&quot;, &quot;95th–\n99th&quot;, &quot;Top\n1%&quot;]
+
+
+def main():
+    pb.apply()
+    own = pd.read_csv(HERE / &quot;data/ownchild_fertility_by_income.csv&quot;)
+    own[&quot;x&quot;] = own.slot.map(lambda s: SLOT_X.get(s, None) or float(s))
+    ch = pd.read_csv(HERE / &quot;data/census_chborn_by_income.csv&quot;)
+
+    def ratio(sample):
+        t = own[own[&quot;sample&quot;] == sample].pivot(index=&quot;x&quot;, columns=&quot;group&quot;, values=&quot;sfr&quot;)
+        return t[&quot;top 1%&quot;] / t[&quot;bottom 20%&quot;]
+
+    married, allw = ratio(&quot;married&quot;), ratio(&quot;all&quot;)
+    cf = ch.pivot(index=&quot;year&quot;, columns=&quot;group&quot;, values=&quot;children&quot;)
+    cf = cf[&quot;top 1%&quot;] / cf[&quot;bottom 20%&quot;]
+    print(pd.DataFrame({&quot;married&quot;: married, &quot;all&quot;: allw}).round(2), cf.round(2), sep=&quot;\n&quot;)
+
+    fig = plt.figure(figsize=(13, 6.8))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.65, 1], wspace=0.16, left=0.06, right=0.975, top=0.71, bottom=0.17)
+    axA, axB = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
+
+    # --- A
+    axA.set_yscale(&quot;log&quot;)
+    axA.set_ylim(0.45, 3.2)
+    axA.yaxis.set_major_locator(FixedLocator([0.5, 0.75, 1, 1.5, 2, 3]))
+    axA.yaxis.set_minor_locator(NullLocator())
+    axA.set_yticklabels([&quot;0.5×&quot;, &quot;0.75×&quot;, &quot;1×&quot;, &quot;1.5×&quot;, &quot;2×&quot;, &quot;3×&quot;])
+    axA.axhline(1, color=pb.INK2, lw=1, zorder=1)
+    axA.axvspan(1980, 1990, color=pb.GRID, alpha=0.6, lw=0, zorder=0)
+    axA.text(1985, 2.95, &quot;Flip&quot;, ha=&quot;center&quot;, fontsize=9, color=pb.INK2)
+    axA.plot(allw.index, allw.values, color=pb.MUTE, lw=2.2, marker=&quot;o&quot;, ms=4, zorder=2)
+    axA.plot(married.index, married.values, color=pb.RED, lw=2.6, marker=&quot;o&quot;, ms=5, zorder=3)
+    axA.plot(cf.index, cf.values, ls=&quot;none&quot;, marker=&quot;o&quot;, ms=7, mfc=pb.SURFACE, mec=pb.NAVY, mew=1.8, zorder=4)
+    lab = dict(fontsize=10, fontweight=&quot;bold&quot;, color=pb.INK, textcoords=&quot;offset points&quot;, va=&quot;center&quot;)
+    axA.annotate(f&quot;Married couples\n{married.iloc[-1]:.2f}×&quot;, (married.index[-1], married.iloc[-1]), xytext=(8, -4), ha=&quot;left&quot;, **lab)
+    axA.annotate(f&quot;All wives and\nfemale householders\n{allw.iloc[-1]:.2f}×&quot;, (allw.index[-1], allw.iloc[-1]), xytext=(8, 4), ha=&quot;left&quot;,
+                 fontsize=9.5, color=pb.INK2, textcoords=&quot;offset points&quot;, va=&quot;center&quot;)
+    axA.annotate(f&quot;{married.iloc[0]:.2f}×&quot;, (married.index[0], married.iloc[0]), xytext=(-9, 0), ha=&quot;right&quot;, **lab)
+    axA.annotate(&quot;Completed families (children ever born,\nwives 40–49), only measured to 1990:\nstill below 1× for women born in the 1940s&quot;,
+                 (1990, cf.loc[1990]), xytext=(1958, 0.53), textcoords=&quot;data&quot;, fontsize=9, color=pb.INK2,
+                 va=&quot;center&quot;, ha=&quot;left&quot;, arrowprops=dict(arrowstyle=&quot;-&quot;, color=pb.MUTED, lw=0.8))
+    axA.set_xlim(1935, 2045)
+    axA.set_xticks([1940, 1960, 1980, 2000, 2020])
+    axA.tick_params(labelsize=10)
+
+    # --- B
+    m = own[own[&quot;sample&quot;] == &quot;married&quot;].pivot(index=&quot;slot&quot;, columns=&quot;group&quot;, values=&quot;sfr&quot;)[GROUPS]
+    xs = np.arange(len(GROUPS))
+    axB.set_yscale(&quot;log&quot;)
+    axB.set_ylim(0.45, 3.2)
+    axB.yaxis.set_major_locator(FixedLocator([0.5, 0.75, 1, 1.5, 2, 3]))
+    axB.yaxis.set_minor_locator(NullLocator())
+    axB.set_yticklabels([&quot;0.5×&quot;, &quot;0.75×&quot;, &quot;1×&quot;, &quot;1.5×&quot;, &quot;2×&quot;, &quot;3×&quot;])
+    axB.axhline(1, color=pb.INK2, lw=1, zorder=1)
+    for slot, col, name in [(&quot;1940&quot;, pb.NAVY, &quot;1940&quot;), (&quot;1980&quot;, pb.GRAYS[0], &quot;1980&quot;), (&quot;2021–24&quot;, pb.RED, &quot;2021–24&quot;)]:
+        v = m.loc[slot].values
+        axB.plot(xs, v, color=col, lw=2.4, marker=&quot;o&quot;, ms=5, zorder=3)
+        axB.annotate(name, (xs[-1], v[-1]), xytext=(8, 0), textcoords=&quot;offset points&quot;, va=&quot;center&quot;,
+                     fontsize=10, fontweight=&quot;bold&quot;, color=pb.INK)
+    axB.set_xticks(xs)
+    axB.set_xticklabels(GROUP_LABELS, fontsize=9.5)
+    axB.set_xlim(-0.3, 4.9)
+    axB.tick_params(labelsize=10)
+
+    for ax, t, sub in [
+        (axA, &quot;A  Top 1% of couples vs bottom 20%, 1940–2024&quot;, &quot;Births in the past year, adjusted for mothers' ages.\nHollow dots: completed families (see note)&quot;),
+        (axB, &quot;B  Births by income group, married couples&quot;, &quot;Age-adjusted births by couple income, ranked within\nyear (1× = that year's average)&quot;),
+    ]:
+        ax.text(0, 1.15, t, transform=ax.transAxes, fontsize=12, fontweight=&quot;bold&quot;, va=&quot;bottom&quot;)
+        ax.text(0, 1.04, sub, transform=ax.transAxes, fontsize=9.5, color=pb.INK2, va=&quot;bottom&quot;)
+
+    fig.text(0.06, 0.965, &quot;America's richest couples went from the fewest babies to the most&quot;,
+             fontsize=20, fontweight=&quot;bold&quot;, va=&quot;top&quot;)
+    fig.text(0.06, 0.905,
+             &quot;In 1940 the top 1% of couples by income had about 40% fewer births than the bottom fifth, age for age. The order flipped in the 1980s;\n&quot;
+             &quot;today the top 1% of married couples have about 1.7× the births of the poorest and 1.85× those of the middle (log scale).&quot;,
+             fontsize=11, color=pb.INK2, va=&quot;top&quot;, linespacing=1.4)
+    fig.text(0.06, 0.035,
+             &quot;Data: IPUMS USA census samples 1940–2000 and ACS 1-year PUMS 2005–2024 (ACS years pooled in 4–5 year groups). Women 15–49 who are householder or wife; a birth = own infant\n&quot;
+             &quot;under 1 in the household, matching the ACS births question to within ~10% where both exist. Couple income = own + spouse's (wages only in 1940); 1940 and 1950 rest on\n&quot;
+             &quot;under 100 top-1% births each. Completed families: children ever born to married women 40–49 (census, last asked 1990).&quot;,
+             fontsize=8.3, color=pb.MUTED, va=&quot;bottom&quot;, linespacing=1.45)
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUT, dpi=150)
+    print(&quot;wrote&quot;, OUT)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark/watermark.py&quot;), &quot;7&quot;, str(OUT), str(OUT_WM)],
+                   check=True, env=dict(os.environ))
+    print(&quot;wrote&quot;, OUT_WM)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
