@@ -1,0 +1,46 @@
+panel,source,table,series,label,x,estimate,se,unit
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,Year of change,0,1.3,3.4,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,1-2 years,1.5,-1.4,3.5,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,3-4 years,3.5,-1.1,3.1,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,5-6 years,5.5,-2.0,2.9,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,7-8 years,7.5,-6.6,3.0,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,9-10 years,9.5,-8.5,3.0,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,11-12 years,11.5,-10.2,3.2,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,13-14 years,13.5,-11.1,3.1,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,15-16 years,15.5,-11.7,3.6,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,17-18 years,17.5,-13.9,3.6,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2f,women,19+ years,19.5,-16.4,3.3,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,Year of change,0,2.2,3.2,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,1-2 years,1.5,-0.4,3.7,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,3-4 years,3.5,0.3,4.0,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,5-6 years,5.5,-0.3,4.2,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,7-8 years,7.5,-4.8,4.8,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,9-10 years,9.5,-6.2,5.3,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,11-12 years,11.5,-7.0,6.1,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,13-14 years,13.5,-7.3,6.9,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,15-16 years,15.5,-7.3,7.7,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,17-18 years,17.5,-9.5,8.7,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 4f,women_trends,19+ years,19.5,-11.2,9.6,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,Year of change,0,-1.4,2.1,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,1-2 years,1.5,0.5,1.4,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,3-4 years,3.5,-0.9,1.5,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,5-6 years,5.5,-0.2,1.5,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,7-8 years,7.5,-1.3,1.8,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,9-10 years,9.5,-3.9,1.7,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,11-12 years,11.5,-2.6,2.0,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,13-14 years,13.5,-3.6,2.0,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,15-16 years,15.5,-2.0,1.9,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,17-18 years,17.5,-1.9,2.0,pct
+A,Stevenson & Wolfers 2004 NBER w10175,Table 2 col 2m,men,19+ years,19.5,-4.3,2.0,pct
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 1,spec,Baseline two-way fixed effects,,-3.08,1.27,per_million
+B,Goodman-Bacon 2018 NBER w25018,Section III.A,spec,Drop the biased later-vs-earlier comparisons,,-5.44,,per_million
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 6,spec,Subtract each group's 1964-68 trend,,-6.52,2.98,per_million
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 7,spec,Region-by-year fixed effects,,-1.16,1.37,per_million
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 3,spec,Weight states by population,,-0.35,1.97,per_million
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 5,spec,State-specific linear trends,,0.59,1.35,per_million
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 4,spec,Propensity-score weights (1960 traits),,1.04,1.78,per_million
+B,Goodman-Bacon 2018 NBER w25018,Table 2 col 2,spec,Reform states only (timing variation),,2.42,1.81,per_million
+C,Stevenson & Wolfers 2004 NBER w10175,Table 3 panel A,outcome,Husband-to-wife violence,,-36,16.0,pct
+C,Stevenson & Wolfers 2004 NBER w10175,Table 3 panel B,outcome,Wife-to-husband violence,,-24,16.0,pct
+C,Stevenson & Wolfers 2004 NBER w10175,Table 5 col 2,outcome,Women killed by a spouse,,-12.6,6.0,pct
+C,Stevenson & Wolfers 2004 NBER w10175,Table 5 col 2,outcome,Men killed by a spouse,,3.9,9.0,pct

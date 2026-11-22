@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>When either spouse could leave: unilateral divorce laws and women&#x27;s suicide, violence and spousal homicide</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>When either spouse could leave: unilateral divorce laws and women's suicide, violence and spousal homicide</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/divorce-exit/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>unilateral_divorce_chart.py</code></h3>
+<pre><code class="language-text">When US states let either spouse end a marriage alone, did fewer women die? Stevenson &amp; Wolfers, and a reanalysis.
+
+What this chart shows. No new estimation: every number is transcribed from two papers' tables into
+`unilateral_divorce_estimates.csv` (one row per coefficient, with source table and column), and plotted.
+
+The natural experiment. Between 1969 and 1985, 37 US states moved from fault-based or mutual-consent divorce to
+unilateral divorce, where either spouse can end the marriage without the other's agreement. Each state switched in a
+different year (some before 1964, some never), so states that have not yet switched serve as the comparison for
+states that have. Stevenson &amp; Wolfers ask whether the law change, which gave the unhappy spouse an exit and shifted
+bargaining power inside every marriage, changed the rate of suicide, domestic violence and spousal homicide.
+
+A. Female and male suicide, by years since the reform. Stevenson &amp; Wolfers (2004, NBER w10175; published as
+&quot;Bargaining in the Shadow of the Law&quot;, QJE 2006), Table 2. State-by-year panel 1964-96 (n = 1,683 state-years),
+NCHS suicide counts. Dependent variable: aggregate state suicide rate for all women (or all men), married or not;
+mean 54 per million women, 202 per million men. Regressors: dummies for 0, 1-2, 3-4, ... 17-18, 19+ years since the
+state adopted unilateral divorce, state and year fixed effects, plus state controls (AFDC maximum, log income per
+capita, unemployment, female/male employment ratio, age and race shares). Coefficients are percent changes at the
+cell mean. Solid line: column 2f (the authors' preferred specification, OLS with controls; average over 20 years
+-8.3%, SE 2.3). Dashed line: column 4f, which adds state-specific linear time trends (average -5.4%, SE 5.6; the
+joint test of the dummies has p = 0.82). Gray: men, column 2m (average -2.0%, SE 1.3). Bands are +/-1.96 SE (the
+paper plots +/-1 SE). The paper's figure also shows pre-reform leads, flat, which its tables do not list; they are not
+plotted here.
+
+B. The same question under other reasonable models. Goodman-Bacon (2018, NBER w25018; published in J. Econometrics
+2021), Table 2 and Section III. He replicates the female-suicide result in levels (suicides per million women,
+age-adjusted; his mean 52 per million, 1964-96, 48 states excluding Alaska and Hawaii, unweighted, no covariates):
+two-way fixed effects estimate -3.08 (about -6%). He then shows that a third of that estimate comes from comparing
+states that reformed later with states that reformed earlier, comparisons that are biased when the effect grows over
+time (as in panel A); removing them gives -5.44. The other rows are his alternative specifications: population
+weights, inverse propensity-score weights on 1960 sex ratio, income, fertility and infant mortality, state-specific
+linear trends, group pre-trends from 1964-68, region-by-year fixed effects, and dropping never-reform and pre-1964
+states. Bars are +/-1.96 times his reported standard errors; the -5.44 has no reported SE. Percent labels divide by
+his mean of 52.
+
+C. Other outcomes, Stevenson &amp; Wolfers. Domestic violence: 1976 and 1985 National Family Violence Surveys, any
+violent act between spouses in the past year (Gelles-Straus conflict tactics), difference-in-differences between
+states that adopted unilateral divorce between the surveys and states that did not (Table 3). The paper reports
+-4.3 points (SE 1.9) husband-to-wife and -2.7 (SE 1.8) wife-to-husband, which it converts to -36% and -24% at the
+cell mean; the SEs here are converted the same way (1.9/11.9 and 1.8/11.25, both about 16%). Intimate homicide: FBI
+Supplementary Homicide Reports 1968-94 (Illinois and DC excluded), percent change in the rate of women and men killed
+by a spouse, with controls (Table 5, column 2). In the paper's triple difference against non-intimate homicide the
+women's estimate is -7.2% (SE 6.9), not significant.
+
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/unilateral_divorce_chart.py
+</code></pre>
+<h2>Results</h2>
+<h3><code>unilateral_divorce_estimates.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>panel</th>
+<th>source</th>
+<th>table</th>
+<th>series</th>
+<th>label</th>
+<th>x</th>
+<th>estimate</th>
+<th>se</th>
+<th>unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>Year of change</td>
+<td>0</td>
+<td>1.300</td>
+<td>3.400</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>1-2 years</td>
+<td>1.500</td>
+<td>-1.400</td>
+<td>3.500</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>3-4 years</td>
+<td>3.500</td>
+<td>-1.100</td>
+<td>3.100</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>5-6 years</td>
+<td>5.500</td>
+<td>-2.000</td>
+<td>2.900</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>7-8 years</td>
+<td>7.500</td>
+<td>-6.600</td>
+<td>3.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>9-10 years</td>
+<td>9.500</td>
+<td>-8.500</td>
+<td>3.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>11-12 years</td>
+<td>11.500</td>
+<td>-10.200</td>
+<td>3.200</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>13-14 years</td>
+<td>13.500</td>
+<td>-11.100</td>
+<td>3.100</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>15-16 years</td>
+<td>15.500</td>
+<td>-11.700</td>
+<td>3.600</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>17-18 years</td>
+<td>17.500</td>
+<td>-13.900</td>
+<td>3.600</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2f</td>
+<td>women</td>
+<td>19+ years</td>
+<td>19.500</td>
+<td>-16.400</td>
+<td>3.300</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>Year of change</td>
+<td>0</td>
+<td>2.200</td>
+<td>3.200</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>1-2 years</td>
+<td>1.500</td>
+<td>-0.400</td>
+<td>3.700</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>3-4 years</td>
+<td>3.500</td>
+<td>0.300</td>
+<td>4.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>5-6 years</td>
+<td>5.500</td>
+<td>-0.300</td>
+<td>4.200</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>7-8 years</td>
+<td>7.500</td>
+<td>-4.800</td>
+<td>4.800</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>9-10 years</td>
+<td>9.500</td>
+<td>-6.200</td>
+<td>5.300</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>11-12 years</td>
+<td>11.500</td>
+<td>-7.000</td>
+<td>6.100</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>13-14 years</td>
+<td>13.500</td>
+<td>-7.300</td>
+<td>6.900</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>15-16 years</td>
+<td>15.500</td>
+<td>-7.300</td>
+<td>7.700</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>17-18 years</td>
+<td>17.500</td>
+<td>-9.500</td>
+<td>8.700</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 4f</td>
+<td>women_trends</td>
+<td>19+ years</td>
+<td>19.500</td>
+<td>-11.200</td>
+<td>9.600</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>Year of change</td>
+<td>0</td>
+<td>-1.400</td>
+<td>2.100</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>1-2 years</td>
+<td>1.500</td>
+<td>0.500</td>
+<td>1.400</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>3-4 years</td>
+<td>3.500</td>
+<td>-0.900</td>
+<td>1.500</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>5-6 years</td>
+<td>5.500</td>
+<td>-0.200</td>
+<td>1.500</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>7-8 years</td>
+<td>7.500</td>
+<td>-1.300</td>
+<td>1.800</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>9-10 years</td>
+<td>9.500</td>
+<td>-3.900</td>
+<td>1.700</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>11-12 years</td>
+<td>11.500</td>
+<td>-2.600</td>
+<td>2.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>13-14 years</td>
+<td>13.500</td>
+<td>-3.600</td>
+<td>2.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>15-16 years</td>
+<td>15.500</td>
+<td>-2.000</td>
+<td>1.900</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>17-18 years</td>
+<td>17.500</td>
+<td>-1.900</td>
+<td>2.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>A</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 2 col 2m</td>
+<td>men</td>
+<td>19+ years</td>
+<td>19.500</td>
+<td>-4.300</td>
+<td>2.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 1</td>
+<td>spec</td>
+<td>Baseline two-way fixed effects</td>
+<td></td>
+<td>-3.080</td>
+<td>1.270</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Section III.A</td>
+<td>spec</td>
+<td>Drop the biased later-vs-earlier comparisons</td>
+<td></td>
+<td>-5.440</td>
+<td></td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 6</td>
+<td>spec</td>
+<td>Subtract each group's 1964-68 trend</td>
+<td></td>
+<td>-6.520</td>
+<td>2.980</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 7</td>
+<td>spec</td>
+<td>Region-by-year fixed effects</td>
+<td></td>
+<td>-1.160</td>
+<td>1.370</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 3</td>
+<td>spec</td>
+<td>Weight states by population</td>
+<td></td>
+<td>-0.350</td>
+<td>1.970</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 5</td>
+<td>spec</td>
+<td>State-specific linear trends</td>
+<td></td>
+<td>0.590</td>
+<td>1.350</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 4</td>
+<td>spec</td>
+<td>Propensity-score weights (1960 traits)</td>
+<td></td>
+<td>1.040</td>
+<td>1.780</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Goodman-Bacon 2018 NBER w25018</td>
+<td>Table 2 col 2</td>
+<td>spec</td>
+<td>Reform states only (timing variation)</td>
+<td></td>
+<td>2.420</td>
+<td>1.810</td>
+<td>per_million</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 3 panel A</td>
+<td>outcome</td>
+<td>Husband-to-wife violence</td>
+<td></td>
+<td>-36</td>
+<td>16.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 3 panel B</td>
+<td>outcome</td>
+<td>Wife-to-husband violence</td>
+<td></td>
+<td>-24</td>
+<td>16.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 5 col 2</td>
+<td>outcome</td>
+<td>Women killed by a spouse</td>
+<td></td>
+<td>-12.600</td>
+<td>6.000</td>
+<td>pct</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Stevenson &amp; Wolfers 2004 NBER w10175</td>
+<td>Table 5 col 2</td>
+<td>outcome</td>
+<td>Men killed by a spouse</td>
+<td></td>
+<td>3.900</td>
+<td>9.000</td>
+<td>pct</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 1th row of 45 shown; full file: <a href="unilateral_divorce_estimates.csv">unilateral_divorce_estimates.csv</a>.</em></p>
+<h2>Notes and caveats</h2>
+<h1>Caveats: unilateral divorce and female suicide</h1>
+<ul>
+<li><strong>Transcribed, not re-estimated.</strong> Every number on the chart comes from the published tables of Stevenson &amp; Wolfers
+  (NBER w10175; QJE 2006) and Goodman-Bacon (NBER w25018; J. Econometrics 2021). The working-paper versions were used;
+  check the journal versions before quoting a figure as final.</li>
+<li><strong>The outcome is all women in the state, not married women.</strong> The suicide rate covers every woman, married or not,
+  so the estimated effect per affected (married, unhappily married) woman is larger than the percentages shown, but
+  the data cannot say by how much.</li>
+<li><strong>The headline result is sensitive to the model.</strong> Adding state-specific linear trends leaves the women's
+  coefficients negative but no longer jointly significant (p = 0.82). In Goodman-Bacon's reanalysis, the two-way fixed
+  effects estimate (-3.08 per million, about -6%) moves to between -6.52 and +2.42 under reasonable alternatives:
+  population weighting, propensity-score weights and state trends all push it to about zero. His decomposition shows
+  part of this comes from a known bias in staggered-timing difference-in-differences when the effect grows over time
+  (removing the biased comparisons gives -5.44, about -10%), and part from California's influence and imperfect
+  balance between early and late reform states (1960 income and sex ratio).</li>
+<li><strong>Modern staggered-adoption estimators</strong> (Callaway-Sant'Anna, Sun-Abraham, de Chaisemartin-D'Haultfoeuille) are
+  designed for exactly this problem. A re-estimation with one of them on the NCHS data would settle more than either
+  paper's numbers; none is shown here.</li>
+<li><strong>Domestic violence</strong> rests on two survey waves (1976, 1985), around 6,000 households, and self-reported violence;
+  the wife-to-husband estimate is not significant. <strong>Spousal homicide</strong> of women falls 12.6% (marginally significant),
+  but in the paper's triple difference against non-intimate homicide the drop is 7.2% and not significant.</li>
+<li><strong>Mechanism.</strong> The law could lower suicide by letting people leave bad marriages, or by improving marriages that
+  continue (more bargaining power for the spouse who could now leave). The paper argues the steady decline without a
+  divorce spike favors the second, but the data cannot cleanly separate them.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>unilateral_divorce_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;When US states let either spouse end a marriage alone, did fewer women die? Stevenson &amp; Wolfers, and a reanalysis.
+
+What this chart shows. No new estimation: every number is transcribed from two papers' tables into
+`unilateral_divorce_estimates.csv` (one row per coefficient, with source table and column), and plotted.
+
+The natural experiment. Between 1969 and 1985, 37 US states moved from fault-based or mutual-consent divorce to
+unilateral divorce, where either spouse can end the marriage without the other's agreement. Each state switched in a
+different year (some before 1964, some never), so states that have not yet switched serve as the comparison for
+states that have. Stevenson &amp; Wolfers ask whether the law change, which gave the unhappy spouse an exit and shifted
+bargaining power inside every marriage, changed the rate of suicide, domestic violence and spousal homicide.
+
+A. Female and male suicide, by years since the reform. Stevenson &amp; Wolfers (2004, NBER w10175; published as
+&quot;Bargaining in the Shadow of the Law&quot;, QJE 2006), Table 2. State-by-year panel 1964-96 (n = 1,683 state-years),
+NCHS suicide counts. Dependent variable: aggregate state suicide rate for all women (or all men), married or not;
+mean 54 per million women, 202 per million men. Regressors: dummies for 0, 1-2, 3-4, ... 17-18, 19+ years since the
+state adopted unilateral divorce, state and year fixed effects, plus state controls (AFDC maximum, log income per
+capita, unemployment, female/male employment ratio, age and race shares). Coefficients are percent changes at the
+cell mean. Solid line: column 2f (the authors' preferred specification, OLS with controls; average over 20 years
+-8.3%, SE 2.3). Dashed line: column 4f, which adds state-specific linear time trends (average -5.4%, SE 5.6; the
+joint test of the dummies has p = 0.82). Gray: men, column 2m (average -2.0%, SE 1.3). Bands are +/-1.96 SE (the
+paper plots +/-1 SE). The paper's figure also shows pre-reform leads, flat, which its tables do not list; they are not
+plotted here.
+
+B. The same question under other reasonable models. Goodman-Bacon (2018, NBER w25018; published in J. Econometrics
+2021), Table 2 and Section III. He replicates the female-suicide result in levels (suicides per million women,
+age-adjusted; his mean 52 per million, 1964-96, 48 states excluding Alaska and Hawaii, unweighted, no covariates):
+two-way fixed effects estimate -3.08 (about -6%). He then shows that a third of that estimate comes from comparing
+states that reformed later with states that reformed earlier, comparisons that are biased when the effect grows over
+time (as in panel A); removing them gives -5.44. The other rows are his alternative specifications: population
+weights, inverse propensity-score weights on 1960 sex ratio, income, fertility and infant mortality, state-specific
+linear trends, group pre-trends from 1964-68, region-by-year fixed effects, and dropping never-reform and pre-1964
+states. Bars are +/-1.96 times his reported standard errors; the -5.44 has no reported SE. Percent labels divide by
+his mean of 52.
+
+C. Other outcomes, Stevenson &amp; Wolfers. Domestic violence: 1976 and 1985 National Family Violence Surveys, any
+violent act between spouses in the past year (Gelles-Straus conflict tactics), difference-in-differences between
+states that adopted unilateral divorce between the surveys and states that did not (Table 3). The paper reports
+-4.3 points (SE 1.9) husband-to-wife and -2.7 (SE 1.8) wife-to-husband, which it converts to -36% and -24% at the
+cell mean; the SEs here are converted the same way (1.9/11.9 and 1.8/11.25, both about 16%). Intimate homicide: FBI
+Supplementary Homicide Reports 1968-94 (Illinois and DC excluded), percent change in the rate of women and men killed
+by a spouse, with controls (Table 5, column 2). In the paper's triple difference against non-intimate homicide the
+women's estimate is -7.2% (SE 6.9), not significant.
+
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/unilateral_divorce_chart.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot; / &quot;unilateral_divorce.png&quot;
+Z = 1.96
+GB_MEAN = 52  # Goodman-Bacon's mean female suicide rate, per million
+
+est = pd.read_csv(HERE / &quot;unilateral_divorce_estimates.csv&quot;)
+A = {s: d for s, d in est[est.panel == &quot;A&quot;].groupby(&quot;series&quot;)}
+B = est[est.panel == &quot;B&quot;].reset_index(drop=True)
+C = est[est.panel == &quot;C&quot;].reset_index(drop=True)
+
+pb.apply()
+fig = plt.figure(figsize=(14, 11.6))
+axA = fig.add_axes([0.07, 0.53, 0.90, 0.30])
+axB = fig.add_axes([0.285, 0.13, 0.26, 0.28])
+axC = fig.add_axes([0.765, 0.13, 0.175, 0.28])
+
+fig.text(0.03, 0.955, &quot;When either spouse could leave, women's suicides fell. How much is less certain&quot;,
+         fontsize=21, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.03, 0.918, &quot;US states adopted unilateral divorce at different times, 1969–85. Female suicide fell in &quot;
+         &quot;reform states, gradually, by up to 16% after 19 years; men's barely moved.\nA later reanalysis of the &quot;
+         &quot;same data finds the estimate swings from clearly negative to zero depending on reasonable modeling choices.&quot;,
+         fontsize=12.5, color=pb.INK2, va=&quot;top&quot;, linespacing=1.45)
+
+
+def title(ax, text, x, y=1.1):
+    from matplotlib.transforms import blended_transform_factory
+    ax.text(x, y, text, transform=blended_transform_factory(fig.transFigure, ax.transAxes), fontsize=14,
+            fontweight=&quot;bold&quot;, color=pb.INK, ha=&quot;left&quot;)
+
+
+# A: event study
+title(axA, &quot;A  Change in suicide rate, by years since the state allowed unilateral divorce&quot;, 0.03, y=1.07)
+axA.axhline(0, color=pb.MUTED, lw=1)
+for key, color, ls, lw in [(&quot;men&quot;, pb.GRAYS[0], &quot;-&quot;, 2), (&quot;women_trends&quot;, pb.RED, (0, (4, 3)), 1.6),
+                           (&quot;women&quot;, pb.RED, &quot;-&quot;, 2.8)]:
+    d = A[key]
+    if key == &quot;women&quot;:
+        axA.fill_between(d.x, d.estimate - Z * d.se, d.estimate + Z * d.se, color=pb.RED, alpha=0.12, lw=0)
+    axA.plot(d.x, d.estimate, color=color, ls=ls, lw=lw, marker=&quot;o&quot; if key == &quot;women&quot; else None, ms=5)
+w, wt, m = A[&quot;women&quot;].iloc[-1], A[&quot;women_trends&quot;].iloc[-1], A[&quot;men&quot;].iloc[-1]
+axA.text(19.9, w.estimate, f&quot;Women: {w.estimate:+.0f}%&quot;, color=pb.INK, fontweight=&quot;bold&quot;, va=&quot;center&quot;, fontsize=12)
+axA.text(19.9, wt.estimate, f&quot;Women, with state trends: {wt.estimate:+.0f}%\n(not significant)&quot;, color=pb.INK2,
+         va=&quot;center&quot;, fontsize=11)
+axA.text(19.9, m.estimate, f&quot;Men: {m.estimate:+.0f}%&quot;, color=pb.INK2, va=&quot;center&quot;, fontsize=11.5)
+axA.text(9.6, -24.5, &quot;Shaded: 95% interval for women (preferred model)&quot;, color=pb.MUTED, fontsize=10.5)
+axA.set_xlim(-0.5, 26)
+axA.set_ylim(-26, 10)
+axA.set_xticks(A[&quot;women&quot;].x)
+axA.set_xticklabels([&quot;0&quot;, &quot;1–2&quot;, &quot;3–4&quot;, &quot;5–6&quot;, &quot;7–8&quot;, &quot;9–10&quot;, &quot;11–12&quot;, &quot;13–14&quot;, &quot;15–16&quot;, &quot;17–18&quot;, &quot;19+&quot;])
+axA.set_xlabel(&quot;Years since reform&quot;, color=pb.INK2)
+axA.yaxis.set_major_formatter(lambda v, _: f&quot;{v:+.0f}%&quot; if v else &quot;0&quot;)
+axA.grid(axis=&quot;y&quot;)
+axA.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+# B: specification curve
+title(axB, &quot;B  Female suicide under other reasonable models (reanalysis)&quot;, 0.03)
+axB.axvline(0, color=pb.MUTED, lw=1)
+ys = range(len(B))[::-1]
+for y, (_, r) in zip(ys, B.iterrows()):
+    base = r.label.startswith(&quot;Baseline&quot;)
+    color = pb.NAVY if base else pb.GRAYS[1]
+    if pd.notna(r.se):
+        axB.plot([r.estimate - Z * r.se, r.estimate + Z * r.se], [y, y], color=color, lw=2, alpha=0.55)
+    axB.plot(r.estimate, y, &quot;o&quot;, color=color, ms=8 if base else 7)
+    axB.text(-11.4, y, r.label, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11, color=pb.INK,
+             fontweight=&quot;bold&quot; if base else &quot;normal&quot;)
+    axB.text(9.2, y, f&quot;{r.estimate / GB_MEAN * 100:+.0f}%&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11,
+             color=pb.INK, fontweight=&quot;bold&quot;)
+axB.set_xlim(-11, 9.5)
+axB.set_ylim(-0.7, len(B) - 0.3)
+axB.set_yticks([])
+axB.set_xlabel(&quot;Suicides per million women per year (mean 52)&quot;, color=pb.INK2)
+axB.grid(axis=&quot;x&quot;)
+axB.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+# C: other outcomes
+title(axC, &quot;C  Other outcomes in reform states&quot;, 0.60)
+axC.axvline(0, color=pb.MUTED, lw=1)
+ys = range(len(C))[::-1]
+for y, (_, r) in zip(ys, C.iterrows()):
+    women = r.label.startswith((&quot;Husband&quot;, &quot;Women&quot;))
+    color = pb.NAVY if women else pb.GRAYS[0]
+    axC.barh(y, r.estimate, color=color, height=0.55)
+    axC.plot([r.estimate - Z * r.se, r.estimate + Z * r.se], [y, y], color=pb.INK, lw=1.2)
+    axC.text(-73, y, r.label, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11, color=pb.INK)
+    axC.text(42, y, f&quot;{r.estimate:+.0f}%&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11, color=pb.INK, fontweight=&quot;bold&quot;)
+axC.set_xlim(-70, 43)
+axC.set_ylim(-0.6, len(C) - 0.4)
+axC.set_yticks([])
+axC.xaxis.set_major_formatter(lambda v, _: f&quot;{v:+.0f}%&quot; if v else &quot;0&quot;)
+axC.set_xlabel(&quot;Change after reform (95% interval)&quot;, color=pb.INK2)
+axC.grid(axis=&quot;x&quot;)
+axC.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+fig.text(0.03, 0.045,
+         &quot;Sources: A and C, Stevenson &amp; Wolfers, NBER w10175 (QJE 2006), Tables 2, 3 and 5. Suicide rates are for all &quot;
+         &quot;women or men in the state, married or not, 1964–96; dashed line adds state-specific trends.\nB, Goodman-Bacon, &quot;
+         &quot;NBER w25018 (J. Econometrics 2021), Table 2 and section III; same suicide data in levels. Violence: 1976 vs &quot;
+         &quot;1985 family violence surveys; homicide: FBI reports 1968–94. Intervals are ±1.96 SE.&quot;,
+         fontsize=9.5, color=pb.MUTED, linespacing=1.5)
+
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+</code></pre>
+</main></body></html>
