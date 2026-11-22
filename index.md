@@ -7,6 +7,7 @@ Methodology, results and code behind charts from <a href="https://performativeba
 - [Elite fertility reversal: rich vs poor fertility in history (Skirbekk 2008), Norway and the Netherlands](elite-fertility/) (2026-11-22)
 - [Does waiting to marry pay off? Divorce within 10 years by age at first marriage, and by college degree (SIPP 2025)](marry-later/) (2026-11-22)
 - [America's richest couples went from the fewest babies to the most: births by couple income, 1940–2024 (IPUMS census and ACS)](rich-fertility/) (2026-11-22)
+- [Heaven, hell and the exit: five years in the lives of happily and unhappily married people, by whether and on whose initiative the marriage ended (NSFH 1987-88 to 1992-94)](heaven-hell-exit/) (2026-11-22)
 - [Parenting vs genes: what adoptive families, shared homes, school levers and genes explain about how kids turn out](parenting-genes/) (2026-11-20)
 - [Clark's heritability and assortment parameters vs estimates for a status composite](clark-status/) (2026-11-19)
 - [Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds](vc-pedigree/) (2026-11-19)
