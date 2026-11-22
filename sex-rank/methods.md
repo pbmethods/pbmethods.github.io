@@ -57,6 +57,7 @@ A: bars = "couple" lens (both spouses' average rating of each part -> their aver
    bootstrap interval; markers = the same decomposition using only the other spouse's ratings ("partner" lens) and
    using who separated or divorced by 2001-03 ("split" lens, logistic, McFadden pseudo-R^2).
 B: share of couples separated or divorced by Wave 3, by the couple's average rating of the sexual relationship.
+Also writes a panel-A-only version (nsfh_sex_rank_panel_a).
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_sex_rank_chart.py
 ```
 
@@ -446,6 +447,7 @@ A: bars = "couple" lens (both spouses' average rating of each part -> their aver
    bootstrap interval; markers = the same decomposition using only the other spouse's ratings ("partner" lens) and
    using who separated or divorced by 2001-03 ("split" lens, logistic, McFadden pseudo-R^2).
 B: share of couples separated or divorced by Wave 3, by the couple's average rating of the sexual relationship.
+Also writes a panel-A-only version (nsfh_sex_rank_panel_a).
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_sex_rank_chart.py
 """
 import subprocess
@@ -463,6 +465,7 @@ import pb_style as pb  # noqa: E402
 HERE = Path(__file__).resolve().parent
 NOTES = Path.home() / "Desktop" / "Recent Projects" / "Substack Notes" / "Sex"
 OUT = NOTES.parent / "Unwatermarked graphs" / "Sex" / "nsfh_sex_rank.png"
+OUT_A = OUT.with_name("nsfh_sex_rank_panel_a.png")
 
 pb.apply()
 sh = pd.read_csv(HERE / "nsfh_sex_rank_shares.csv")
@@ -473,39 +476,43 @@ part_of = sh[sh.lens == "partner"].set_index("part")
 split = sh[sh.lens == "split"].set_index("part")
 n_couples, n_followed, n_split = int(cpl.n.iloc[0]), int(split.n.iloc[0]), int(split.events.iloc[0])
 
+def panel_a(axA):
+    y = np.arange(len(order))
+    colors = [pb.RED if p == "Sex" else pb.MUTE for p in order]
+    axA.barh(y, cpl.share * 100, color=colors, height=0.62, zorder=2)
+    axA.errorbar(cpl.share * 100, y, xerr=[(cpl.share - cpl.lo) * 100, (cpl.hi - cpl.share) * 100], fmt="none",
+                 ecolor=pb.INK2, elinewidth=1, capsize=3, zorder=3)
+    axA.scatter(part_of.loc[order, "share"] * 100, y, marker="o", s=46, facecolor=pb.SURFACE, edgecolor=pb.INK,
+                linewidth=1.4, zorder=4)
+    axA.scatter(split.loc[order, "share"] * 100, y, marker="D", s=40, color=pb.INK, zorder=4)
+    for yi, (p, v) in enumerate(zip(order, cpl.share)):
+        axA.text(1.0, yi, f"{v * 100:.0f}%", va="center", ha="left", fontsize=11, fontweight="bold",
+                 color="white" if p == "Sex" else pb.INK, zorder=5)
+    axA.set_yticks(y, order, fontsize=12)
+    for t in axA.get_yticklabels():
+        if t.get_text() == "Sex":
+            t.set_fontweight("bold")
+    axA.set_xlim(0, 34)
+    axA.set_xlabel("Share of the explained variation in the overall rating (%)", fontsize=10.5)
+    axA.grid(axis="x", color=pb.GRID, linewidth=0.8, zorder=0)
+    axA.grid(axis="y", visible=False)
+    axA.tick_params(axis="y", length=0)
+    axA.legend(handles=[
+        Line2D([], [], color=pb.MUTE, linewidth=9, label="Both spouses' ratings averaged (bar, 95% interval)"),
+        Line2D([], [], marker="o", linestyle="none", markerfacecolor=pb.SURFACE, markeredgecolor=pb.INK, markersize=7.5,
+               markeredgewidth=1.4, label="Other spouse's ratings only"),
+        Line2D([], [], marker="D", linestyle="none", color=pb.INK, markersize=6.5,
+               label="Who split by 2001–03")],
+        loc="lower left", bbox_to_anchor=(-0.01, 1.0), ncol=3, fontsize=9.5, frameon=False, handlelength=1.6,
+        columnspacing=1.4)
+
+
 fig = plt.figure(figsize=(14, 9.2))
 gs = fig.add_gridspec(1, 2, width_ratios=[1.45, 1], left=0.165, right=0.97, top=0.73, bottom=0.17, wspace=0.28)
 axA, axB = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
 
 # A
-y = np.arange(len(order))
-colors = [pb.RED if p == "Sex" else pb.MUTE for p in order]
-axA.barh(y, cpl.share * 100, color=colors, height=0.62, zorder=2)
-axA.errorbar(cpl.share * 100, y, xerr=[(cpl.share - cpl.lo) * 100, (cpl.hi - cpl.share) * 100], fmt="none",
-             ecolor=pb.INK2, elinewidth=1, capsize=3, zorder=3)
-axA.scatter(part_of.loc[order, "share"] * 100, y, marker="o", s=46, facecolor=pb.SURFACE, edgecolor=pb.INK,
-            linewidth=1.4, zorder=4)
-axA.scatter(split.loc[order, "share"] * 100, y, marker="D", s=40, color=pb.INK, zorder=4)
-for yi, (p, v) in enumerate(zip(order, cpl.share)):
-    axA.text(1.0, yi, f"{v * 100:.0f}%", va="center", ha="left", fontsize=11, fontweight="bold",
-             color="white" if p == "Sex" else pb.INK, zorder=5)
-axA.set_yticks(y, order, fontsize=12)
-for t in axA.get_yticklabels():
-    if t.get_text() == "Sex":
-        t.set_fontweight("bold")
-axA.set_xlim(0, 34)
-axA.set_xlabel("Share of the explained variation in the overall rating (%)", fontsize=10.5)
-axA.grid(axis="x", color=pb.GRID, linewidth=0.8, zorder=0)
-axA.grid(axis="y", visible=False)
-axA.tick_params(axis="y", length=0)
-axA.legend(handles=[
-    Line2D([], [], color=pb.MUTE, linewidth=9, label="Both spouses' ratings averaged (bar, 95% interval)"),
-    Line2D([], [], marker="o", linestyle="none", markerfacecolor=pb.SURFACE, markeredgecolor=pb.INK, markersize=7.5,
-           markeredgewidth=1.4, label="Other spouse's ratings only"),
-    Line2D([], [], marker="D", linestyle="none", color=pb.INK, markersize=6.5,
-           label="Who split by 2001–03")],
-    loc="lower left", bbox_to_anchor=(-0.01, 1.0), ncol=3, fontsize=9.5, frameon=False, handlelength=1.6,
-    columnspacing=1.4)
+panel_a(axA)
 fig.text(0.03, 0.80, "A  How much each part of the marriage explains, net of the others", fontsize=12.5,
          fontweight="bold")
 
@@ -546,4 +553,23 @@ fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
 subprocess.run([sys.executable, str(Path.home() / "_watermark" / "watermark.py"), "7", str(OUT),
                 str(NOTES / (OUT.stem + "_wm.png"))], check=True)
 print(OUT, NOTES / (OUT.stem + "_wm.png"))
+
+
+# panel A on its own
+figA = plt.figure(figsize=(11, 8.6))
+axA1 = figA.add_axes([0.2, 0.17, 0.75, 0.6])
+panel_a(axA1)
+figA.text(0.035, 0.935, "Sex is the third-biggest part of a happy marriage", fontsize=21, fontweight="bold")
+figA.text(0.035, 0.865, f"How much each part explains of how {n_couples:,} US couples rated their marriage, net of "
+          "the others (1992–94). Husband\nand wife rated separately; sex ranks third in every view, behind love "
+          "and understanding.", fontsize=12, color=pb.INK2, linespacing=1.45)
+figA.text(0.035, 0.035, "Source: National Survey of Families and Households, Wave 2 (1992–94) self-administered "
+          "questionnaires of both spouses, followed to\nWave 3 (2001–03). Shapley decomposition of R² over all 128 "
+          f"subsets of the seven parts; split = logistic pseudo-R² ({n_followed:,} couples followed,\n{n_split} split; "
+          "Wave 3 re-interviewed about half). Unweighted. Associations, not causes.", fontsize=8.8, color=pb.MUTED,
+          linespacing=1.45)
+figA.savefig(OUT_A, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / "_watermark" / "watermark.py"), "7", str(OUT_A),
+                str(NOTES / (OUT_A.stem + "_wm.png"))], check=True)
+print(OUT_A, NOTES / (OUT_A.stem + "_wm.png"))
 ```

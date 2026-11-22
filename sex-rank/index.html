@@ -72,6 +72,7 @@ A: bars = &quot;couple&quot; lens (both spouses' average rating of each part -&g
    bootstrap interval; markers = the same decomposition using only the other spouse's ratings (&quot;partner&quot; lens) and
    using who separated or divorced by 2001-03 (&quot;split&quot; lens, logistic, McFadden pseudo-R^2).
 B: share of couples separated or divorced by Wave 3, by the couple's average rating of the sexual relationship.
+Also writes a panel-A-only version (nsfh_sex_rank_panel_a).
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_sex_rank_chart.py
 </code></pre>
 <h2>Results</h2>
@@ -1416,6 +1417,7 @@ A: bars = &quot;couple&quot; lens (both spouses' average rating of each part -&g
    bootstrap interval; markers = the same decomposition using only the other spouse's ratings (&quot;partner&quot; lens) and
    using who separated or divorced by 2001-03 (&quot;split&quot; lens, logistic, McFadden pseudo-R^2).
 B: share of couples separated or divorced by Wave 3, by the couple's average rating of the sexual relationship.
+Also writes a panel-A-only version (nsfh_sex_rank_panel_a).
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_sex_rank_chart.py
 &quot;&quot;&quot;
 import subprocess
@@ -1433,6 +1435,7 @@ import pb_style as pb  # noqa: E402
 HERE = Path(__file__).resolve().parent
 NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Sex&quot;
 OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Sex&quot; / &quot;nsfh_sex_rank.png&quot;
+OUT_A = OUT.with_name(&quot;nsfh_sex_rank_panel_a.png&quot;)
 
 pb.apply()
 sh = pd.read_csv(HERE / &quot;nsfh_sex_rank_shares.csv&quot;)
@@ -1443,39 +1446,43 @@ part_of = sh[sh.lens == &quot;partner&quot;].set_index(&quot;part&quot;)
 split = sh[sh.lens == &quot;split&quot;].set_index(&quot;part&quot;)
 n_couples, n_followed, n_split = int(cpl.n.iloc[0]), int(split.n.iloc[0]), int(split.events.iloc[0])
 
+def panel_a(axA):
+    y = np.arange(len(order))
+    colors = [pb.RED if p == &quot;Sex&quot; else pb.MUTE for p in order]
+    axA.barh(y, cpl.share * 100, color=colors, height=0.62, zorder=2)
+    axA.errorbar(cpl.share * 100, y, xerr=[(cpl.share - cpl.lo) * 100, (cpl.hi - cpl.share) * 100], fmt=&quot;none&quot;,
+                 ecolor=pb.INK2, elinewidth=1, capsize=3, zorder=3)
+    axA.scatter(part_of.loc[order, &quot;share&quot;] * 100, y, marker=&quot;o&quot;, s=46, facecolor=pb.SURFACE, edgecolor=pb.INK,
+                linewidth=1.4, zorder=4)
+    axA.scatter(split.loc[order, &quot;share&quot;] * 100, y, marker=&quot;D&quot;, s=40, color=pb.INK, zorder=4)
+    for yi, (p, v) in enumerate(zip(order, cpl.share)):
+        axA.text(1.0, yi, f&quot;{v * 100:.0f}%&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=11, fontweight=&quot;bold&quot;,
+                 color=&quot;white&quot; if p == &quot;Sex&quot; else pb.INK, zorder=5)
+    axA.set_yticks(y, order, fontsize=12)
+    for t in axA.get_yticklabels():
+        if t.get_text() == &quot;Sex&quot;:
+            t.set_fontweight(&quot;bold&quot;)
+    axA.set_xlim(0, 34)
+    axA.set_xlabel(&quot;Share of the explained variation in the overall rating (%)&quot;, fontsize=10.5)
+    axA.grid(axis=&quot;x&quot;, color=pb.GRID, linewidth=0.8, zorder=0)
+    axA.grid(axis=&quot;y&quot;, visible=False)
+    axA.tick_params(axis=&quot;y&quot;, length=0)
+    axA.legend(handles=[
+        Line2D([], [], color=pb.MUTE, linewidth=9, label=&quot;Both spouses' ratings averaged (bar, 95% interval)&quot;),
+        Line2D([], [], marker=&quot;o&quot;, linestyle=&quot;none&quot;, markerfacecolor=pb.SURFACE, markeredgecolor=pb.INK, markersize=7.5,
+               markeredgewidth=1.4, label=&quot;Other spouse's ratings only&quot;),
+        Line2D([], [], marker=&quot;D&quot;, linestyle=&quot;none&quot;, color=pb.INK, markersize=6.5,
+               label=&quot;Who split by 2001–03&quot;)],
+        loc=&quot;lower left&quot;, bbox_to_anchor=(-0.01, 1.0), ncol=3, fontsize=9.5, frameon=False, handlelength=1.6,
+        columnspacing=1.4)
+
+
 fig = plt.figure(figsize=(14, 9.2))
 gs = fig.add_gridspec(1, 2, width_ratios=[1.45, 1], left=0.165, right=0.97, top=0.73, bottom=0.17, wspace=0.28)
 axA, axB = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
 
 # A
-y = np.arange(len(order))
-colors = [pb.RED if p == &quot;Sex&quot; else pb.MUTE for p in order]
-axA.barh(y, cpl.share * 100, color=colors, height=0.62, zorder=2)
-axA.errorbar(cpl.share * 100, y, xerr=[(cpl.share - cpl.lo) * 100, (cpl.hi - cpl.share) * 100], fmt=&quot;none&quot;,
-             ecolor=pb.INK2, elinewidth=1, capsize=3, zorder=3)
-axA.scatter(part_of.loc[order, &quot;share&quot;] * 100, y, marker=&quot;o&quot;, s=46, facecolor=pb.SURFACE, edgecolor=pb.INK,
-            linewidth=1.4, zorder=4)
-axA.scatter(split.loc[order, &quot;share&quot;] * 100, y, marker=&quot;D&quot;, s=40, color=pb.INK, zorder=4)
-for yi, (p, v) in enumerate(zip(order, cpl.share)):
-    axA.text(1.0, yi, f&quot;{v * 100:.0f}%&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=11, fontweight=&quot;bold&quot;,
-             color=&quot;white&quot; if p == &quot;Sex&quot; else pb.INK, zorder=5)
-axA.set_yticks(y, order, fontsize=12)
-for t in axA.get_yticklabels():
-    if t.get_text() == &quot;Sex&quot;:
-        t.set_fontweight(&quot;bold&quot;)
-axA.set_xlim(0, 34)
-axA.set_xlabel(&quot;Share of the explained variation in the overall rating (%)&quot;, fontsize=10.5)
-axA.grid(axis=&quot;x&quot;, color=pb.GRID, linewidth=0.8, zorder=0)
-axA.grid(axis=&quot;y&quot;, visible=False)
-axA.tick_params(axis=&quot;y&quot;, length=0)
-axA.legend(handles=[
-    Line2D([], [], color=pb.MUTE, linewidth=9, label=&quot;Both spouses' ratings averaged (bar, 95% interval)&quot;),
-    Line2D([], [], marker=&quot;o&quot;, linestyle=&quot;none&quot;, markerfacecolor=pb.SURFACE, markeredgecolor=pb.INK, markersize=7.5,
-           markeredgewidth=1.4, label=&quot;Other spouse's ratings only&quot;),
-    Line2D([], [], marker=&quot;D&quot;, linestyle=&quot;none&quot;, color=pb.INK, markersize=6.5,
-           label=&quot;Who split by 2001–03&quot;)],
-    loc=&quot;lower left&quot;, bbox_to_anchor=(-0.01, 1.0), ncol=3, fontsize=9.5, frameon=False, handlelength=1.6,
-    columnspacing=1.4)
+panel_a(axA)
 fig.text(0.03, 0.80, &quot;A  How much each part of the marriage explains, net of the others&quot;, fontsize=12.5,
          fontweight=&quot;bold&quot;)
 
@@ -1516,5 +1523,24 @@ fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
 subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
                 str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
 print(OUT, NOTES / (OUT.stem + &quot;_wm.png&quot;))
+
+
+# panel A on its own
+figA = plt.figure(figsize=(11, 8.6))
+axA1 = figA.add_axes([0.2, 0.17, 0.75, 0.6])
+panel_a(axA1)
+figA.text(0.035, 0.935, &quot;Sex is the third-biggest part of a happy marriage&quot;, fontsize=21, fontweight=&quot;bold&quot;)
+figA.text(0.035, 0.865, f&quot;How much each part explains of how {n_couples:,} US couples rated their marriage, net of &quot;
+          &quot;the others (1992–94). Husband\nand wife rated separately; sex ranks third in every view, behind love &quot;
+          &quot;and understanding.&quot;, fontsize=12, color=pb.INK2, linespacing=1.45)
+figA.text(0.035, 0.035, &quot;Source: National Survey of Families and Households, Wave 2 (1992–94) self-administered &quot;
+          &quot;questionnaires of both spouses, followed to\nWave 3 (2001–03). Shapley decomposition of R² over all 128 &quot;
+          f&quot;subsets of the seven parts; split = logistic pseudo-R² ({n_followed:,} couples followed,\n{n_split} split; &quot;
+          &quot;Wave 3 re-interviewed about half). Unweighted. Associations, not causes.&quot;, fontsize=8.8, color=pb.MUTED,
+          linespacing=1.45)
+figA.savefig(OUT_A, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT_A),
+                str(NOTES / (OUT_A.stem + &quot;_wm.png&quot;))], check=True)
+print(OUT_A, NOTES / (OUT_A.stem + &quot;_wm.png&quot;))
 </code></pre>
 </main></body></html>
