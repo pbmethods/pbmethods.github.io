@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Heaven, hell and the exit: five years in the lives of happily and unhappily married people, by whether and on whose initiative the marriage ended (NSFH 1987-88 to 1992-94)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Heaven, hell and the exit: happily and unhappily married people over 5 and 14 years, by whether, when and on whose initiative the marriage ended (NSFH 1987-88, 1992-94, 2001-03)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
 :root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
 @media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
 --grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
@@ -21,11 +21,12 @@ th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white
 th{color:var(--ink2)}
 li{margin:.2rem 0}
 </style></head><body><main>
-<h1>Heaven, hell and the exit: five years in the lives of happily and unhappily married people, by whether and on whose initiative the marriage ended (NSFH 1987-88 to 1992-94)</h1>
+<h1>Heaven, hell and the exit: happily and unhappily married people over 5 and 14 years, by whether, when and on whose initiative the marriage ended (NSFH 1987-88, 1992-94, 2001-03)</h1>
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
 
 <p><img alt="chart 1" src="chart.png" /></p>
 <p><img alt="chart 2" src="chart2.png" /></p>
+<p><img alt="chart 3" src="chart3.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/heaven-hell-exit/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -91,6 +92,27 @@ B, C. Change from 1987-88 to 1992-94 in the main respondent's personal happiness
    Changes are descriptive: people who split differ from those who stayed in ways the ratings do not capture.
 Output: nsfh_where_divorces_come_from.csv, then the chart.
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_where_divorces_come_from.py
+</code></pre>
+<h3><code>nsfh_divorce_trajectory.py</code></h3>
+<pre><code class="language-text">The fall and the recovery: happiness and depression across three NSFH waves (1987-88, 1992-94, 2001-03) for people
+whose marriage lasted, ended by 1992-94, or ended between 1992-94 and 2001-03, by how they rated it in 1987-88.
+
+Sample. NSFH Wave 1 (ICPSR 6041) married main respondents who rated their marriage (E701, 1 very unhappy - 7 very
+happy), re-interviewed at Wave 2 (ICPSR 6906) and Wave 3 (main3RandS12222015; Wave 3 re-interviewed only part of the
+sample), with the outcome measured at all three waves (a balanced panel, so each line is the same people throughout).
+Weighted by the Wave 1 weight AWEIGHT.
+Rating groups: happy = 6-7, unhappy = 1-4 (the respondent's own 1987-88 rating; 5 not shown).
+Paths:
+  stayed married      married to the Wave 1 spouse at Wave 2 (MUT1UTRA 7-8) and still at Wave 3 (Wave 3 marital
+                      history marhist111605 + status file, the same rule as nsfh_unhappy_persistence.py)
+  split by 1992-94    separated or divorced by Wave 2 (MUT1UTRA 3-4)
+  split later         married at Wave 2, separated or divorced by Wave 3
+Outcomes: personal happiness, &quot;Taking things all together, how would you say things are these days?&quot; 1-7 (E201,
+MT201, RT201); depression, CES-D, sum over 12 items of days in the past week (0-84), at least 10 answered (E202A-L,
+MT206A-L, RT206A-L). Points are weighted means; bars are 95% intervals (weighted SE, Kish effective n).
+Descriptive: the groups differ in ways the 1987-88 rating does not capture.
+Output: nsfh_divorce_trajectory.csv, then the chart.
+Run:  uv run --with pandas,pyreadstat,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_divorce_trajectory.py
 </code></pre>
 <h2>Results</h2>
 <h3><code>nsfh_heaven_hell_exit.csv</code></h3>
@@ -612,6 +634,346 @@ Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_
 </tr>
 </tbody>
 </table>
+<h3><code>nsfh_divorce_trajectory.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>rating</th>
+<th>path</th>
+<th>outcome</th>
+<th>wave</th>
+<th>n</th>
+<th>mean</th>
+<th>ci</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>happy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>hap</td>
+<td>1</td>
+<td>64</td>
+<td>6.118</td>
+<td>0.269</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>hap</td>
+<td>2</td>
+<td>64</td>
+<td>5.244</td>
+<td>0.367</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>hap</td>
+<td>3</td>
+<td>64</td>
+<td>5.326</td>
+<td>0.383</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>dep</td>
+<td>1</td>
+<td>93</td>
+<td>10.522</td>
+<td>3.263</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>dep</td>
+<td>2</td>
+<td>93</td>
+<td>13.316</td>
+<td>3.205</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>dep</td>
+<td>3</td>
+<td>93</td>
+<td>14.762</td>
+<td>3.599</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split by 1992–94</td>
+<td>hap</td>
+<td>1</td>
+<td>87</td>
+<td>5.867</td>
+<td>0.262</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split by 1992–94</td>
+<td>hap</td>
+<td>2</td>
+<td>87</td>
+<td>5.089</td>
+<td>0.309</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split by 1992–94</td>
+<td>hap</td>
+<td>3</td>
+<td>87</td>
+<td>5.694</td>
+<td>0.244</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split by 1992–94</td>
+<td>dep</td>
+<td>1</td>
+<td>98</td>
+<td>13.900</td>
+<td>3.587</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split by 1992–94</td>
+<td>dep</td>
+<td>2</td>
+<td>98</td>
+<td>17.313</td>
+<td>4.143</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Split by 1992–94</td>
+<td>dep</td>
+<td>3</td>
+<td>98</td>
+<td>14.982</td>
+<td>4.251</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Stayed married</td>
+<td>hap</td>
+<td>1</td>
+<td>1120</td>
+<td>5.917</td>
+<td>0.071</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Stayed married</td>
+<td>hap</td>
+<td>2</td>
+<td>1120</td>
+<td>5.716</td>
+<td>0.073</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Stayed married</td>
+<td>hap</td>
+<td>3</td>
+<td>1120</td>
+<td>5.899</td>
+<td>0.067</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Stayed married</td>
+<td>dep</td>
+<td>1</td>
+<td>1408</td>
+<td>8.879</td>
+<td>0.697</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Stayed married</td>
+<td>dep</td>
+<td>2</td>
+<td>1408</td>
+<td>8.980</td>
+<td>0.635</td>
+</tr>
+<tr>
+<td>happy</td>
+<td>Stayed married</td>
+<td>dep</td>
+<td>3</td>
+<td>1408</td>
+<td>9.372</td>
+<td>0.690</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>hap</td>
+<td>1</td>
+<td>25</td>
+<td>4.745</td>
+<td>0.538</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>hap</td>
+<td>2</td>
+<td>25</td>
+<td>4.451</td>
+<td>0.612</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>hap</td>
+<td>3</td>
+<td>25</td>
+<td>5.104</td>
+<td>0.868</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>dep</td>
+<td>1</td>
+<td>30</td>
+<td>14.021</td>
+<td>5.809</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>dep</td>
+<td>2</td>
+<td>30</td>
+<td>21.604</td>
+<td>8.082</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split 1992–94 to 2001–03</td>
+<td>dep</td>
+<td>3</td>
+<td>30</td>
+<td>19.023</td>
+<td>9.333</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split by 1992–94</td>
+<td>hap</td>
+<td>1</td>
+<td>41</td>
+<td>4.248</td>
+<td>0.470</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split by 1992–94</td>
+<td>hap</td>
+<td>2</td>
+<td>41</td>
+<td>5.066</td>
+<td>0.481</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split by 1992–94</td>
+<td>hap</td>
+<td>3</td>
+<td>41</td>
+<td>5.565</td>
+<td>0.370</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split by 1992–94</td>
+<td>dep</td>
+<td>1</td>
+<td>60</td>
+<td>16.866</td>
+<td>4.102</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split by 1992–94</td>
+<td>dep</td>
+<td>2</td>
+<td>60</td>
+<td>14.819</td>
+<td>4.640</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Split by 1992–94</td>
+<td>dep</td>
+<td>3</td>
+<td>60</td>
+<td>9.703</td>
+<td>2.649</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Stayed married</td>
+<td>hap</td>
+<td>1</td>
+<td>158</td>
+<td>4.484</td>
+<td>0.228</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Stayed married</td>
+<td>hap</td>
+<td>2</td>
+<td>158</td>
+<td>5.062</td>
+<td>0.201</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Stayed married</td>
+<td>hap</td>
+<td>3</td>
+<td>158</td>
+<td>5.506</td>
+<td>0.196</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Stayed married</td>
+<td>dep</td>
+<td>1</td>
+<td>193</td>
+<td>15.174</td>
+<td>2.609</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Stayed married</td>
+<td>dep</td>
+<td>2</td>
+<td>193</td>
+<td>12.346</td>
+<td>2.227</td>
+</tr>
+<tr>
+<td>unhappy</td>
+<td>Stayed married</td>
+<td>dep</td>
+<td>3</td>
+<td>193</td>
+<td>10.770</td>
+<td>1.995</td>
+</tr>
+</tbody>
+</table>
 <h2>Code</h2>
 <p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
 <h3><code>nsfh_heaven_hell_exit_data.py</code></h3>
@@ -990,6 +1352,179 @@ fig.text(0.03, 0.035,
          &quot;marriage (1–7), followed to 1992–94; weighted. Split = separated or divorced.\nChanges are the main &quot;
          &quot;respondent's own; whiskers are 95% intervals. Descriptive comparisons, not causal effects: people whose &quot;
          &quot;marriages ended differ from those whose did not.&quot;,
+         fontsize=9.5, color=pb.MUTED, linespacing=1.5)
+
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+</code></pre>
+<h3><code>nsfh_divorce_trajectory.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;The fall and the recovery: happiness and depression across three NSFH waves (1987-88, 1992-94, 2001-03) for people
+whose marriage lasted, ended by 1992-94, or ended between 1992-94 and 2001-03, by how they rated it in 1987-88.
+
+Sample. NSFH Wave 1 (ICPSR 6041) married main respondents who rated their marriage (E701, 1 very unhappy - 7 very
+happy), re-interviewed at Wave 2 (ICPSR 6906) and Wave 3 (main3RandS12222015; Wave 3 re-interviewed only part of the
+sample), with the outcome measured at all three waves (a balanced panel, so each line is the same people throughout).
+Weighted by the Wave 1 weight AWEIGHT.
+Rating groups: happy = 6-7, unhappy = 1-4 (the respondent's own 1987-88 rating; 5 not shown).
+Paths:
+  stayed married      married to the Wave 1 spouse at Wave 2 (MUT1UTRA 7-8) and still at Wave 3 (Wave 3 marital
+                      history marhist111605 + status file, the same rule as nsfh_unhappy_persistence.py)
+  split by 1992-94    separated or divorced by Wave 2 (MUT1UTRA 3-4)
+  split later         married at Wave 2, separated or divorced by Wave 3
+Outcomes: personal happiness, &quot;Taking things all together, how would you say things are these days?&quot; 1-7 (E201,
+MT201, RT201); depression, CES-D, sum over 12 items of days in the past week (0-84), at least 10 answered (E202A-L,
+MT206A-L, RT206A-L). Points are weighted means; bars are 95% intervals (weighted SE, Kish effective n).
+Descriptive: the groups differ in ways the 1987-88 rating does not capture.
+Output: nsfh_divorce_trajectory.csv, then the chart.
+Run:  uv run --with pandas,pyreadstat,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_divorce_trajectory.py
+&quot;&quot;&quot;
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pyreadstat
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NSFH = HERE.parent / &quot;us_public_data&quot; / &quot;nsfh&quot;
+W2, W3 = NSFH / &quot;wave2&quot; / &quot;ICPSR_06906&quot;, NSFH / &quot;wave3&quot;
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot; / &quot;nsfh_divorce_trajectory.png&quot;
+CES = &quot;ABCDEFGHIJKL&quot;
+X = [1987.5, 1993, 2002]
+
+
+def w2(ds, cols):
+    return pd.read_stata(W2 / f&quot;DS{ds}&quot; / f&quot;06906-{ds}-Data.dta&quot;, convert_categoricals=False, columns=cols)
+
+
+def cesd(df, prefix):
+    it = df[[f&quot;{prefix}{c}&quot; for c in CES]]
+    it = it.where((it &gt;= 0) &amp; (it &lt;= 7))
+    return (it.mean(axis=1) * 12).where(it.notna().sum(axis=1) &gt;= 10)
+
+
+w1 = pd.read_stata(NSFH / &quot;wave1&quot; / &quot;ICPSR_06041&quot; / &quot;DS0001&quot; / &quot;06041-0001-Data.dta&quot;, convert_categoricals=False,
+                   columns=[&quot;MCASEID&quot;, &quot;E701&quot;, &quot;AWEIGHT&quot;, &quot;E201&quot;] + [f&quot;E202{c}&quot; for c in CES])
+t2 = w2(&quot;0004&quot;, [&quot;CASEID&quot;, &quot;MCASEID&quot;, &quot;MT201&quot;] + [f&quot;MT206{c}&quot; for c in CES]).merge(w2(&quot;0007&quot;, [&quot;CASEID&quot;, &quot;MUT1UTRA&quot;]))
+d = w1[w1.E701.between(1, 7)].merge(t2, on=&quot;MCASEID&quot;)
+d = d[d.MUT1UTRA.isin([3, 4, 7, 8])].copy()
+
+mh, _ = pyreadstat.read_sav(W3 / &quot;marhist111605.sav&quot;)
+st, _ = pyreadstat.read_sav(W3 / &quot;statusfile_010307.sav&quot;, usecols=[&quot;caseid&quot;, &quot;r2intyr&quot;, &quot;r2intmo&quot;, &quot;r3intyr_&quot;, &quot;r3intmo_&quot;])
+st[&quot;cm2&quot;] = st.r2intyr * 12 + st.r2intmo
+st[&quot;cm3&quot;] = (st.r3intyr_ - 1900) * 12 + st.r3intmo_
+mh = mh.merge(st, left_on=&quot;case&quot;, right_on=&quot;caseid&quot;)
+slots = sorted({m.group(1) for c in mh.columns if (m := re.match(r&quot;howend(\d+)&quot;, c))})
+
+
+def w3_outcome(r):
+    for k in slots:
+        md, how, end = r[f&quot;mardat{k}&quot;], r[f&quot;howend{k}&quot;], r[f&quot;enddat{k}&quot;]
+        if pd.isna(md) or md &gt;= 9999 or pd.isna(how) or md &gt; r.cm2:
+            continue
+        if how == 8 or (0 &lt; end &lt; 9999 and end &gt; r.cm2):
+            if how == 8 or end &gt; r.cm3:
+                return &quot;intact&quot;
+            return {2: &quot;split&quot;, 3: &quot;split&quot;, 4: &quot;widowed&quot;}.get(how)
+    return None
+
+
+mh[&quot;w3&quot;] = mh.apply(w3_outcome, axis=1)
+m3, _ = pyreadstat.read_sav(W3 / &quot;main3RandS12222015.sav&quot;, usecols=[&quot;TYPE&quot;, &quot;CASEID&quot;, &quot;RT201&quot;] + [f&quot;RT206{c}&quot; for c in CES])
+m3 = m3[m3.TYPE == &quot;R&quot;].copy()
+m3[&quot;MCASEID&quot;] = pd.to_numeric(m3.CASEID.str[:-1])
+d = d.merge(mh[[&quot;case&quot;, &quot;w3&quot;]].rename(columns={&quot;case&quot;: &quot;MCASEID&quot;}), how=&quot;left&quot;).merge(
+    m3.drop(columns=[&quot;TYPE&quot;, &quot;CASEID&quot;]), on=&quot;MCASEID&quot;, how=&quot;left&quot;)
+d[&quot;hap1&quot;], d[&quot;hap2&quot;], d[&quot;hap3&quot;] = [d[c].where(d[c].between(1, 7)) for c in [&quot;E201&quot;, &quot;MT201&quot;, &quot;RT201&quot;]]
+d[&quot;dep1&quot;], d[&quot;dep2&quot;], d[&quot;dep3&quot;] = cesd(d, &quot;E202&quot;), cesd(d, &quot;MT206&quot;), cesd(d, &quot;RT206&quot;)
+d[&quot;rating&quot;] = np.select([d.E701 &gt;= 6, d.E701 &lt;= 4], [&quot;happy&quot;, &quot;unhappy&quot;], &quot;&quot;)
+married2 = d.MUT1UTRA.isin([7, 8])
+d[&quot;path&quot;] = np.select([married2 &amp; (d.w3 == &quot;intact&quot;), d.MUT1UTRA.isin([3, 4]), married2 &amp; (d.w3 == &quot;split&quot;)],
+                      [&quot;Stayed married&quot;, &quot;Split by 1992–94&quot;, &quot;Split 1992–94 to 2001–03&quot;], &quot;&quot;)
+
+rows = []
+for (rating, path), g in d[(d.rating != &quot;&quot;) &amp; (d.path != &quot;&quot;)].groupby([&quot;rating&quot;, &quot;path&quot;]):
+    for v in [&quot;hap&quot;, &quot;dep&quot;]:
+        s = g.dropna(subset=[f&quot;{v}1&quot;, f&quot;{v}2&quot;, f&quot;{v}3&quot;])
+        n_eff = s.AWEIGHT.sum() ** 2 / (s.AWEIGHT ** 2).sum()
+        for i in (1, 2, 3):
+            m = np.average(s[f&quot;{v}{i}&quot;], weights=s.AWEIGHT)
+            se = np.sqrt(np.average((s[f&quot;{v}{i}&quot;] - m) ** 2, weights=s.AWEIGHT) / n_eff)
+            rows.append(dict(rating=rating, path=path, outcome=v, wave=i, n=len(s), mean=m, ci=1.96 * se))
+res = pd.DataFrame(rows)
+res.to_csv(HERE / &quot;nsfh_divorce_trajectory.csv&quot;, index=False, float_format=&quot;%.4f&quot;)
+print(res.pivot_table(index=[&quot;rating&quot;, &quot;path&quot;, &quot;outcome&quot;, &quot;n&quot;], columns=&quot;wave&quot;, values=&quot;mean&quot;).round(2))
+
+# ---- chart ----
+OFFSET = {&quot;Stayed married&quot;: 0, &quot;Split by 1992–94&quot;: -0.35, &quot;Split 1992–94 to 2001–03&quot;: 0.35}
+STYLE = {&quot;Stayed married&quot;: (pb.NAVY, &quot;-&quot;, &quot;o&quot;), &quot;Split by 1992–94&quot;: (pb.RED, &quot;-&quot;, &quot;o&quot;),
+         &quot;Split 1992–94 to 2001–03&quot;: (pb.RED, (0, (4, 2.5)), &quot;s&quot;)}
+pb.apply()
+fig = plt.figure(figsize=(14, 10.6))
+axes = {(&quot;happy&quot;, &quot;hap&quot;): fig.add_axes([0.07, 0.48, 0.37, 0.24]),
+        (&quot;unhappy&quot;, &quot;hap&quot;): fig.add_axes([0.56, 0.48, 0.37, 0.24]),
+        (&quot;happy&quot;, &quot;dep&quot;): fig.add_axes([0.07, 0.13, 0.37, 0.24]),
+        (&quot;unhappy&quot;, &quot;dep&quot;): fig.add_axes([0.56, 0.13, 0.37, 0.24])}
+
+fig.text(0.03, 0.955, &quot;The fall from a happy marriage starts before the divorce; happiness mostly recovers after it&quot;,
+         fontsize=20, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.03, 0.918, &quot;The same US married people interviewed in 1987–88, 1992–94 and 2001–03. People whose happy &quot;
+         &quot;marriage would end were already less happy while still married.\nAfter the split, happiness came back &quot;
+         &quot;close to the stayers' level, but depression stayed higher (and was higher from the start).\nPeople who &quot;
+         &quot;left unhappy marriages did at least as well as those who stayed.&quot;, fontsize=12.5, color=pb.INK2, va=&quot;top&quot;, linespacing=1.45)
+fig.text(0.07, 0.81, &quot;Marriage rated happy (6–7 of 7) in 1987–88&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.56, 0.81, &quot;Marriage rated unhappy (1–4 of 7) in 1987–88&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=pb.INK)
+
+for (rating, v), ax in axes.items():
+    sub = res[(res.rating == rating) &amp; (res.outcome == v)]
+    title = &quot;Personal happiness (1–7; higher = happier)&quot; if v == &quot;hap&quot; else \
+        &quot;Depression symptoms (CES-D; lower = better)&quot;
+    letter = {&quot;happy&quot;: &quot;AC&quot;, &quot;unhappy&quot;: &quot;BD&quot;}[rating][0 if v == &quot;hap&quot; else 1]
+    ax.text(0, 1.08, f&quot;{letter}  {title}&quot;, transform=ax.transAxes, fontsize=12.5, fontweight=&quot;bold&quot;, color=pb.INK)
+    for path, (color, ls, mk) in STYLE.items():
+        s = sub[sub.path == path].sort_values(&quot;wave&quot;)
+        if s.empty:
+            continue
+        lw = 2.6 if path != &quot;Stayed married&quot; else 2.2
+        ax.errorbar([x + OFFSET[path] for x in X], s[&quot;mean&quot;], yerr=s.ci, color=color, ls=ls, lw=lw, marker=mk, ms=7, capsize=0,
+                    elinewidth=1, ecolor=color, alpha=0.95)
+        last = s.iloc[-1]
+        ax.text(X[-1] + 1.0, last[&quot;mean&quot;], f&quot;{path}\n(n = {int(last.n)})&quot;, fontsize=9.5, va=&quot;center&quot;,
+                color=pb.INK if path != &quot;Stayed married&quot; else pb.INK2,
+                fontweight=&quot;bold&quot; if path == &quot;Split by 1992–94&quot; else &quot;normal&quot;)
+    ax.set_xticks(X)
+    ax.set_xticklabels([&quot;1987–88&quot;, &quot;1992–94&quot;, &quot;2001–03&quot;])
+    ax.set_xlim(1986.3, 2008.5)
+    if v == &quot;hap&quot;:
+        ax.set_ylim(3.9, 6.5)
+    else:
+        ax.set_ylim(6, 24)
+    ax.grid(axis=&quot;y&quot;)
+    ax.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+# de-overlap end labels where lines finish close together
+for ax in axes.values():
+    texts = sorted([t for t in ax.texts if &quot;\n(n =&quot; in t.get_text()], key=lambda t: t.get_position()[1])
+    lo, hi = ax.get_ylim()
+    gap = (hi - lo) * 0.13
+    for a, b in zip(texts, texts[1:]):
+        if b.get_position()[1] - a.get_position()[1] &lt; gap:
+            b.set_y(a.get_position()[1] + gap)
+
+fig.text(0.03, 0.035,
+         &quot;Source: National Survey of Families and Households, married main respondents in 1987–88 followed to 1992–94 &quot;
+         &quot;and 2001–03 (only part of the sample was re-interviewed in 2001–03); weighted.\nEach line is the same people &quot;
+         &quot;at all three interviews. Split = separated or divorced from the 1987–88 spouse. Bars are 95% intervals. &quot;
+         &quot;Descriptive, not causal: the groups differ in other ways too.&quot;,
          fontsize=9.5, color=pb.MUTED, linespacing=1.5)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,37 @@
+rating,path,outcome,wave,n,mean,ci
+happy,Split 1992–94 to 2001–03,hap,1,64,6.1179,0.2685
+happy,Split 1992–94 to 2001–03,hap,2,64,5.2443,0.3673
+happy,Split 1992–94 to 2001–03,hap,3,64,5.3256,0.3828
+happy,Split 1992–94 to 2001–03,dep,1,93,10.5219,3.2626
+happy,Split 1992–94 to 2001–03,dep,2,93,13.3158,3.2053
+happy,Split 1992–94 to 2001–03,dep,3,93,14.7616,3.5989
+happy,Split by 1992–94,hap,1,87,5.8673,0.2621
+happy,Split by 1992–94,hap,2,87,5.0890,0.3094
+happy,Split by 1992–94,hap,3,87,5.6938,0.2443
+happy,Split by 1992–94,dep,1,98,13.9004,3.5872
+happy,Split by 1992–94,dep,2,98,17.3126,4.1433
+happy,Split by 1992–94,dep,3,98,14.9818,4.2506
+happy,Stayed married,hap,1,1120,5.9173,0.0711
+happy,Stayed married,hap,2,1120,5.7156,0.0726
+happy,Stayed married,hap,3,1120,5.8987,0.0674
+happy,Stayed married,dep,1,1408,8.8789,0.6971
+happy,Stayed married,dep,2,1408,8.9803,0.6349
+happy,Stayed married,dep,3,1408,9.3724,0.6896
+unhappy,Split 1992–94 to 2001–03,hap,1,25,4.7446,0.5380
+unhappy,Split 1992–94 to 2001–03,hap,2,25,4.4508,0.6123
+unhappy,Split 1992–94 to 2001–03,hap,3,25,5.1038,0.8678
+unhappy,Split 1992–94 to 2001–03,dep,1,30,14.0212,5.8087
+unhappy,Split 1992–94 to 2001–03,dep,2,30,21.6037,8.0820
+unhappy,Split 1992–94 to 2001–03,dep,3,30,19.0227,9.3330
+unhappy,Split by 1992–94,hap,1,41,4.2478,0.4701
+unhappy,Split by 1992–94,hap,2,41,5.0656,0.4814
+unhappy,Split by 1992–94,hap,3,41,5.5650,0.3701
+unhappy,Split by 1992–94,dep,1,60,16.8655,4.1018
+unhappy,Split by 1992–94,dep,2,60,14.8194,4.6398
+unhappy,Split by 1992–94,dep,3,60,9.7030,2.6491
+unhappy,Stayed married,hap,1,158,4.4842,0.2279
+unhappy,Stayed married,hap,2,158,5.0623,0.2010
+unhappy,Stayed married,hap,3,158,5.5057,0.1961
+unhappy,Stayed married,dep,1,193,15.1743,2.6094
+unhappy,Stayed married,dep,2,193,12.3462,2.2269
+unhappy,Stayed married,dep,3,193,10.7704,1.9946
