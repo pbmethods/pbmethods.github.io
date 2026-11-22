@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>When either spouse could leave: unilateral divorce laws and women&#x27;s suicide, violence and spousal homicide</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>When either spouse could leave: unilateral divorce laws and women&#x27;s suicide, violence and spousal homicide, with a staggered-adoption re-estimate</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
 :root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
 @media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
 --grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
@@ -21,10 +21,11 @@ th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white
 th{color:var(--ink2)}
 li{margin:.2rem 0}
 </style></head><body><main>
-<h1>When either spouse could leave: unilateral divorce laws and women's suicide, violence and spousal homicide</h1>
+<h1>When either spouse could leave: unilateral divorce laws and women's suicide, violence and spousal homicide, with a staggered-adoption re-estimate</h1>
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
 
 <p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/divorce-exit/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -73,6 +74,42 @@ by a spouse, with controls (Table 5, column 2). In the paper's triple difference
 women's estimate is -7.2% (SE 6.9), not significant.
 
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/unilateral_divorce_chart.py
+</code></pre>
+<h3><code>unilateral_divorce_csdid.R</code></h3>
+<pre><code class="language-text">Unilateral divorce and female suicide, re-estimated with a staggered-adoption estimator (Callaway &amp; Sant'Anna 2021).
+
+Specification fixed before the first run (written after reading Stevenson &amp; Wolfers 2006 and Goodman-Bacon 2021, so
+not blind to their results, but before any estimate below was seen):
+  Data      bacondecomp::divorce, the Stevenson &amp; Wolfers state panel, 1964-96, 50 states + DC.
+  Treatment divyear (the reform coding both papers use). States reformed before 1964 (coded 1950: AK LA MD NC OK UT
+            VA VT WV) are dropped: always treated, so they cannot be a clean comparison. Never-reform states (coded
+            2000: AR DE MS NY TN) and not-yet-reformed states are the comparison group.
+  Outcome   log female suicide rate (suiciderate_jag, suicides per woman), so effects read as approximate % changes.
+  Estimator did::att_gt, unconditional (no covariates), not-yet-treated controls, universal base period (each
+            cohort compared with the year before its reform), multiplier bootstrap clustered by state, 999 draws.
+  Weights   PRIMARY: female population in 1964 (the effect per woman). Also unweighted (the effect per state).
+  Summary   event study e = -10..+20; headline = average of e = 0..19 (the 20 years after reform, as in S&amp;W Table 2).
+  Checks    (a) men, same spec (placebo-ish: S&amp;W find no male effect); (b) the stricter lfdivlaw coding;
+            (c) Sun &amp; Abraham (fixest::sunab) with never-treated as the reference; (d) secular-trend check: fit a
+            line through the pre-reform event-study estimates (e = -10..-2, anchored at 0 at e = -1), extend it
+            through the post period and subtract it, with the full covariance of the estimates carried through.
+            This is the M = 0 case of Rambachan &amp; Roth's smoothness restriction (HonestDiD would not compile here).
+Output: unilateral_divorce_csdid_eventstudy.csv, unilateral_divorce_csdid_summary.csv
+Run:  R_LIBS_USER=~/R/library Rscript notebooks/marital_happiness/unilateral_divorce_csdid.R
+</code></pre>
+<h3><code>unilateral_divorce_csdid_chart.py</code></h3>
+<pre><code class="language-text">Chart for the Callaway &amp; Sant'Anna re-estimate of unilateral divorce and suicide (unilateral_divorce_csdid.R).
+
+Reads unilateral_divorce_csdid_eventstudy.csv and unilateral_divorce_csdid_summary.csv, written by the R script, whose
+header holds the full method: Stevenson &amp; Wolfers' state panel (bacondecomp::divorce, 1964-96), states reformed before
+1964 dropped, not-yet-reformed and never-reformed states as controls, log suicide rate, universal base period (the year
+before reform = 0), state-clustered bootstrap. Estimates are in log points; shown here as percent changes,
+100 * (exp(b) - 1).
+A and B: event-study estimates for women and men, weighted by each state's 1964 female population (the effect per
+woman), with 95% simultaneous (uniform) bands, and unweighted (the effect per state) as a line.
+C: the average over the 20 years after reform under every specification, grouped as specified before the first run,
+added after seeing results (post hoc), and with the pre-reform differential trend extended and subtracted.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/unilateral_divorce_csdid_chart.py
 </code></pre>
 <h2>Results</h2>
 <h3><code>unilateral_divorce_estimates.csv</code></h3>
@@ -589,6 +626,453 @@ Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_
 </tbody>
 </table>
 <p><em>Every 1th row of 45 shown; full file: <a href="unilateral_divorce_estimates.csv">unilateral_divorce_estimates.csv</a>.</em></p>
+<h3><code>unilateral_divorce_csdid_summary.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>spec</th>
+<th>estimate</th>
+<th>se</th>
+<th>lo</th>
+<th>hi</th>
+<th>pretrend_slope</th>
+<th>pretrend_slope_se</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>-0.090</td>
+<td>0.057</td>
+<td>-0.202</td>
+<td>0.022</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>-0.115</td>
+<td>0.069</td>
+<td>-0.250</td>
+<td>0.020</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>-0.106</td>
+<td>0.063</td>
+<td>-0.229</td>
+<td>0.018</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>-0.012</td>
+<td>0.036</td>
+<td>-0.082</td>
+<td>0.058</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>-0.064</td>
+<td>0.035</td>
+<td>-0.133</td>
+<td>0.005</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women, Sun &amp; Abraham, weighted</td>
+<td>-0.023</td>
+<td>0.022</td>
+<td>-0.066</td>
+<td>0.020</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women, Sun &amp; Abraham, unweighted</td>
+<td>-0.010</td>
+<td>0.046</td>
+<td>-0.102</td>
+<td>0.081</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>-0.078</td>
+<td>0.033</td>
+<td>-0.144</td>
+<td>-0.012</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>-0.051</td>
+<td>0.070</td>
+<td>-0.188</td>
+<td>0.085</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary), minus extrapolated pre-trend</td>
+<td>-0.233</td>
+<td>0.101</td>
+<td>-0.432</td>
+<td>-0.035</td>
+<td>0.014</td>
+<td>0.009</td>
+</tr>
+<tr>
+<td>Women, unweighted, minus extrapolated pre-trend</td>
+<td>-0.148</td>
+<td>0.130</td>
+<td>-0.402</td>
+<td>0.106</td>
+<td>0.003</td>
+<td>0.008</td>
+</tr>
+<tr>
+<td>Men, weighted by population, minus extrapolated pre-trend</td>
+<td>-0.038</td>
+<td>0.076</td>
+<td>-0.187</td>
+<td>0.110</td>
+<td>0.002</td>
+<td>0.006</td>
+</tr>
+</tbody>
+</table>
+<h3><code>unilateral_divorce_csdid_eventstudy.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>spec</th>
+<th>e</th>
+<th>att</th>
+<th>se</th>
+<th>crit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>-10</td>
+<td>-0.121</td>
+<td>0.087</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>-5</td>
+<td>-0.055</td>
+<td>0.048</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>0</td>
+<td>-0.008</td>
+<td>0.029</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>5</td>
+<td>-0.055</td>
+<td>0.060</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>10</td>
+<td>-0.137</td>
+<td>0.083</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>15</td>
+<td>-0.083</td>
+<td>0.123</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, weighted by population (primary)</td>
+<td>20</td>
+<td>-0.230</td>
+<td>0.129</td>
+<td>2.489</td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>-6</td>
+<td>0.003</td>
+<td>0.053</td>
+<td>2.741</td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>-1</td>
+<td>0</td>
+<td></td>
+<td>2.741</td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>4</td>
+<td>-0.004</td>
+<td>0.090</td>
+<td>2.741</td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>9</td>
+<td>-0.085</td>
+<td>0.080</td>
+<td>2.741</td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>14</td>
+<td>-0.174</td>
+<td>0.098</td>
+<td>2.741</td>
+</tr>
+<tr>
+<td>Women, unweighted</td>
+<td>19</td>
+<td>-0.292</td>
+<td>0.094</td>
+<td>2.741</td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>-7</td>
+<td>-0.065</td>
+<td>0.050</td>
+<td>2.585</td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>-2</td>
+<td>-0.024</td>
+<td>0.034</td>
+<td>2.585</td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>3</td>
+<td>-0.037</td>
+<td>0.037</td>
+<td>2.585</td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>8</td>
+<td>-0.122</td>
+<td>0.082</td>
+<td>2.585</td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>13</td>
+<td>-0.140</td>
+<td>0.115</td>
+<td>2.585</td>
+</tr>
+<tr>
+<td>Women, weighted, stricter no-fault coding</td>
+<td>18</td>
+<td>-0.253</td>
+<td>0.172</td>
+<td>2.585</td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>-8</td>
+<td>-0.034</td>
+<td>0.050</td>
+<td>2.464</td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>-3</td>
+<td>0.024</td>
+<td>0.019</td>
+<td>2.464</td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>2</td>
+<td>0.016</td>
+<td>0.027</td>
+<td>2.464</td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>7</td>
+<td>-0.043</td>
+<td>0.046</td>
+<td>2.464</td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>12</td>
+<td>0.001</td>
+<td>0.051</td>
+<td>2.464</td>
+</tr>
+<tr>
+<td>Men, weighted by population</td>
+<td>17</td>
+<td>-0.029</td>
+<td>0.055</td>
+<td>2.464</td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>-9</td>
+<td>-0.046</td>
+<td>0.051</td>
+<td>2.733</td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>-4</td>
+<td>-0.015</td>
+<td>0.033</td>
+<td>2.733</td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>1</td>
+<td>0.014</td>
+<td>0.024</td>
+<td>2.733</td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>6</td>
+<td>-0.044</td>
+<td>0.029</td>
+<td>2.733</td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>11</td>
+<td>-0.069</td>
+<td>0.052</td>
+<td>2.733</td>
+</tr>
+<tr>
+<td>Men, unweighted</td>
+<td>16</td>
+<td>-0.083</td>
+<td>0.057</td>
+<td>2.733</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>-10</td>
+<td>-0.060</td>
+<td>0.045</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>-5</td>
+<td>-0.059</td>
+<td>0.026</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>0</td>
+<td>-0.032</td>
+<td>0.029</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>5</td>
+<td>-0.040</td>
+<td>0.029</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>10</td>
+<td>-0.099</td>
+<td>0.042</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>15</td>
+<td>-0.111</td>
+<td>0.071</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), weighted</td>
+<td>20</td>
+<td>-0.096</td>
+<td>0.077</td>
+<td>2.639</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>-6</td>
+<td>0.008</td>
+<td>0.047</td>
+<td>2.725</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>-1</td>
+<td>0</td>
+<td></td>
+<td>2.725</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>4</td>
+<td>0.055</td>
+<td>0.098</td>
+<td>2.725</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>9</td>
+<td>0.008</td>
+<td>0.110</td>
+<td>2.725</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>14</td>
+<td>-0.130</td>
+<td>0.070</td>
+<td>2.725</td>
+</tr>
+<tr>
+<td>Women-to-men ratio (post hoc), unweighted</td>
+<td>19</td>
+<td>-0.190</td>
+<td>0.088</td>
+<td>2.725</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 5th row of 217 shown; full file: <a href="unilateral_divorce_csdid_eventstudy.csv">unilateral_divorce_csdid_eventstudy.csv</a>.</em></p>
 <h2>Notes and caveats</h2>
 <h1>Caveats: unilateral divorce and female suicide</h1>
 <ul>
@@ -614,6 +1098,26 @@ Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_
 <li><strong>Mechanism.</strong> The law could lower suicide by letting people leave bad marriages, or by improving marriages that
   continue (more bargaining power for the spouse who could now leave). The paper argues the steady decline without a
   divorce spike favors the second, but the data cannot cleanly separate them.</li>
+</ul>
+<h2>Re-estimate with a staggered-adoption estimator (second chart)</h2>
+<ul>
+<li><strong>Not blind.</strong> The specification was written down before the first run, but after reading both papers, so the
+  choices were made knowing the published answers. The women-to-men ratio check was added after seeing results and
+  is labelled post hoc.</li>
+<li><strong>By the rule set in advance, the effect is not shown.</strong> The primary estimate (Callaway &amp; Sant'Anna, weighted by
+  1964 female population) is -9% averaged over 20 years, 95% interval about -20% to +2%.</li>
+<li><strong>Weighted pre-trend.</strong> In the weighted version, women's suicide in reform states rises relative to comparison states
+  over the decade before reform. The post-reform fall could partly be that rise reversing.</li>
+<li><strong>Men move too.</strong> In the unweighted version men's suicide also falls (-6%, interval -13% to +1%), which weakens the
+  case that the drop is specific to women.</li>
+<li><strong>Thin comparison group late on.</strong> Estimates 15-20 years after reform compare about a dozen early-reform states with
+  the few states not yet reformed by the late 1980s (one 1985 state and five never-reform states).</li>
+<li><strong>Sun &amp; Abraham's pooled estimate is much smaller</strong> (-2%) because it weights years by how many state-years exist at
+  each horizon, so it leans on the early years when nothing has happened yet; it also uses only never-reform states as
+  controls.</li>
+<li><strong>Trend extrapolation is fragile.</strong> Extending the pre-reform line 20 years forward makes the weighted estimate -21%
+  and significant, but a 10-year pre-period is a thin basis for a 20-year projection. HonestDiD, which bounds how far
+  that trend may bend, would not compile here; the line is its M = 0 case.</li>
 </ul>
 <h2>Code</h2>
 <p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
@@ -773,6 +1277,276 @@ fig.text(0.03, 0.045,
          &quot;women or men in the state, married or not, 1964–96; dashed line adds state-specific trends.\nB, Goodman-Bacon, &quot;
          &quot;NBER w25018 (J. Econometrics 2021), Table 2 and section III; same suicide data in levels. Violence: 1976 vs &quot;
          &quot;1985 family violence surveys; homicide: FBI reports 1968–94. Intervals are ±1.96 SE.&quot;,
+         fontsize=9.5, color=pb.MUTED, linespacing=1.5)
+
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+</code></pre>
+<h3><code>unilateral_divorce_csdid.R</code></h3>
+<pre><code class="language-r"># Unilateral divorce and female suicide, re-estimated with a staggered-adoption estimator (Callaway &amp; Sant'Anna 2021).
+#
+# Specification fixed before the first run (written after reading Stevenson &amp; Wolfers 2006 and Goodman-Bacon 2021, so
+# not blind to their results, but before any estimate below was seen):
+#   Data      bacondecomp::divorce, the Stevenson &amp; Wolfers state panel, 1964-96, 50 states + DC.
+#   Treatment divyear (the reform coding both papers use). States reformed before 1964 (coded 1950: AK LA MD NC OK UT
+#             VA VT WV) are dropped: always treated, so they cannot be a clean comparison. Never-reform states (coded
+#             2000: AR DE MS NY TN) and not-yet-reformed states are the comparison group.
+#   Outcome   log female suicide rate (suiciderate_jag, suicides per woman), so effects read as approximate % changes.
+#   Estimator did::att_gt, unconditional (no covariates), not-yet-treated controls, universal base period (each
+#             cohort compared with the year before its reform), multiplier bootstrap clustered by state, 999 draws.
+#   Weights   PRIMARY: female population in 1964 (the effect per woman). Also unweighted (the effect per state).
+#   Summary   event study e = -10..+20; headline = average of e = 0..19 (the 20 years after reform, as in S&amp;W Table 2).
+#   Checks    (a) men, same spec (placebo-ish: S&amp;W find no male effect); (b) the stricter lfdivlaw coding;
+#             (c) Sun &amp; Abraham (fixest::sunab) with never-treated as the reference; (d) secular-trend check: fit a
+#             line through the pre-reform event-study estimates (e = -10..-2, anchored at 0 at e = -1), extend it
+#             through the post period and subtract it, with the full covariance of the estimates carried through.
+#             This is the M = 0 case of Rambachan &amp; Roth's smoothness restriction (HonestDiD would not compile here).
+# Output: unilateral_divorce_csdid_eventstudy.csv, unilateral_divorce_csdid_summary.csv
+# Run:  R_LIBS_USER=~/R/library Rscript notebooks/marital_happiness/unilateral_divorce_csdid.R
+
+suppressPackageStartupMessages({
+  library(did); library(bacondecomp); library(fixest); library(data.table)
+})
+set.seed(20261122)
+here &lt;- &quot;notebooks/marital_happiness&quot;
+
+data(divorce)
+d &lt;- as.data.table(divorce)
+d[, id := as.integer(factor(st))]
+d[, ly := log(suiciderate_jag)]
+d[, pop64 := stpopgender[year == 1964], by = .(st, sex)]
+
+prep &lt;- function(sexcode, timing = &quot;divyear&quot;) {
+  x &lt;- d[sex == sexcode &amp; get(timing) != 1950]
+  x[, g := ifelse(get(timing) &gt;= 2000, 0L, as.integer(get(timing)))]
+  x[]
+}
+
+run_cs &lt;- function(x, w = NULL) {
+  att_gt(yname = &quot;ly&quot;, tname = &quot;year&quot;, idname = &quot;id&quot;, gname = &quot;g&quot;, data = x, weightsname = w,
+         control_group = &quot;notyettreated&quot;, base_period = &quot;universal&quot;, bstrap = TRUE, biters = 999,
+         clustervars = &quot;id&quot;, est_method = &quot;reg&quot;, allow_unbalanced_panel = FALSE)
+}
+
+summ &lt;- list(); es_out &lt;- list()
+headline &lt;- function(es, label) {
+  keep &lt;- es$egt &gt;= 0 &amp; es$egt &lt;= 19
+  b &lt;- es$att.egt[keep]
+  # average of e = 0..19 with its influence-function SE
+  inf &lt;- es$inf.function$dynamic.inf.func.e[, keep, drop = FALSE]
+  avg &lt;- mean(b); se &lt;- sd(rowMeans(inf)) / sqrt(nrow(inf))
+  data.table(spec = label, estimate = avg, se = se, lo = avg - 1.96 * se, hi = avg + 1.96 * se)
+}
+
+specs &lt;- list(
+  list(label = &quot;Women, weighted by population (primary)&quot;, sex = 2, timing = &quot;divyear&quot;, w = &quot;pop64&quot;),
+  list(label = &quot;Women, unweighted&quot;, sex = 2, timing = &quot;divyear&quot;, w = NULL),
+  list(label = &quot;Women, weighted, stricter no-fault coding&quot;, sex = 2, timing = &quot;lfdivlaw&quot;, w = &quot;pop64&quot;),
+  list(label = &quot;Men, weighted by population&quot;, sex = 1, timing = &quot;divyear&quot;, w = &quot;pop64&quot;),
+  list(label = &quot;Men, unweighted&quot;, sex = 1, timing = &quot;divyear&quot;, w = NULL)
+)
+es_primary &lt;- NULL; es_all &lt;- list()
+for (s in specs) {
+  x &lt;- prep(s$sex, s$timing)
+  cs &lt;- run_cs(x, s$w)
+  es &lt;- aggte(cs, type = &quot;dynamic&quot;, min_e = -10, max_e = 20, na.rm = TRUE, cband = TRUE)
+  es_out[[s$label]] &lt;- data.table(spec = s$label, e = es$egt, att = es$att.egt, se = es$se.egt,
+                                  crit = es$crit.val.egt)
+  summ[[s$label]] &lt;- headline(es, s$label)
+  if (is.null(es_primary)) es_primary &lt;- es
+  es_all[[s$label]] &lt;- es
+  cat(s$label, &quot;: average e=0..19 =&quot;, round(summ[[s$label]]$estimate, 4), &quot;SE&quot;, round(summ[[s$label]]$se, 4),
+      &quot;| pre-period mean e=-10..-2 =&quot;, round(mean(es$att.egt[es$egt &lt; -1]), 4), &quot;\n&quot;)
+}
+
+# Sun &amp; Abraham, women, weighted and unweighted (never-treated as reference cohort)
+for (w in c(TRUE, FALSE)) {
+  x &lt;- prep(2)
+  x[, g_sa := ifelse(g == 0, 10000L, g)]
+  f &lt;- feols(ly ~ sunab(g_sa, year, ref.p = -1) | id + year, data = x, cluster = ~id,
+             weights = if (w) ~pop64 else NULL)
+  # fixest's own aggregation: cohort-by-year effects for e = 0..19 pooled into one ATT, weighted by cell shares
+  a &lt;- aggregate(f, c(&quot;post&quot; = &quot;year::([0-9]|1[0-9]):cohort&quot;))
+  avg &lt;- a[1, &quot;Estimate&quot;]; se &lt;- a[1, &quot;Std. Error&quot;]
+  lab &lt;- paste0(&quot;Women, Sun &amp; Abraham, &quot;, if (w) &quot;weighted&quot; else &quot;unweighted&quot;)
+  summ[[lab]] &lt;- data.table(spec = lab, estimate = avg, se = se, lo = avg - 1.96 * se, hi = avg + 1.96 * se)
+  cat(lab, &quot;: average e=0..19 =&quot;, round(avg, 4), &quot;SE&quot;, round(se, 4), &quot;\n&quot;)
+}
+
+# Secular-trend check: subtract the extrapolated pre-reform differential trend (anchored at e = -1)
+trend_adjust &lt;- function(es, label) {
+  sel &lt;- es$egt &gt;= -10 &amp; es$egt &lt;= 19 &amp; es$egt != -1
+  e &lt;- es$egt[sel]; b &lt;- es$att.egt[sel]
+  V &lt;- cov(es$inf.function$dynamic.inf.func.e[, sel]) / nrow(es$inf.function$dynamic.inf.func.e)
+  pre &lt;- e &lt; 0; post &lt;- e &gt;= 0
+  x &lt;- e[pre] + 1                                  # slope through the origin at e = -1
+  S &lt;- matrix(0, sum(pre), length(b)); S[cbind(seq_len(sum(pre)), which(pre))] &lt;- 1
+  slope_w &lt;- (x / sum(x^2)) %*% S                  # slope = slope_w %*% b
+  A &lt;- matrix(0, 1, length(b)); A[1, post] &lt;- 1 / sum(post)
+  A &lt;- A - mean(e[post] + 1) * slope_w             # average post effect minus extrapolated trend
+  est &lt;- drop(A %*% b); se &lt;- sqrt(drop(A %*% V %*% t(A)))
+  slope &lt;- drop(slope_w %*% b); slope_se &lt;- sqrt(drop(slope_w %*% V %*% t(slope_w)))
+  cat(label, &quot;: pre-trend slope&quot;, round(slope, 5), &quot;SE&quot;, round(slope_se, 5), &quot;per year | trend-adjusted average&quot;,
+      round(est, 4), &quot;SE&quot;, round(se, 4), &quot;\n&quot;)
+  data.table(spec = paste0(label, &quot;, minus extrapolated pre-trend&quot;), estimate = est, se = se,
+             lo = est - 1.96 * se, hi = est + 1.96 * se, pretrend_slope = slope, pretrend_slope_se = slope_se)
+}
+# POST HOC (added after seeing the results above): log of the women-to-men suicide ratio, which cancels state-level
+# shocks common to both sexes. Same estimator and weights.
+w &lt;- dcast(d[divyear != 1950], st + year + divyear ~ sex, value.var = c(&quot;suiciderate_jag&quot;, &quot;stpopgender&quot;))
+w[, ly := log(suiciderate_jag_2 / suiciderate_jag_1)]
+w[, id := as.integer(factor(st))][, g := ifelse(divyear &gt;= 2000, 0L, as.integer(divyear))]
+w[, pop64 := stpopgender_2[year == 1964], by = st]
+for (wt in c(&quot;pop64&quot;, &quot;none&quot;)) {
+  lab &lt;- paste0(&quot;Women-to-men ratio (post hoc), &quot;, if (wt == &quot;none&quot;) &quot;unweighted&quot; else &quot;weighted&quot;)
+  cs &lt;- run_cs(w, if (wt == &quot;none&quot;) NULL else wt)
+  es &lt;- aggte(cs, type = &quot;dynamic&quot;, min_e = -10, max_e = 20, na.rm = TRUE, cband = TRUE)
+  summ[[lab]] &lt;- headline(es, lab)
+  es_out[[lab]] &lt;- data.table(spec = lab, e = es$egt, att = es$att.egt, se = es$se.egt, crit = es$crit.val.egt)
+}
+for (lab in names(es_all)[c(1, 2, 4)]) summ[[paste(lab, &quot;trend&quot;)]] &lt;- trend_adjust(es_all[[lab]], lab)
+fwrite(rbindlist(es_out), file.path(here, &quot;unilateral_divorce_csdid_eventstudy.csv&quot;))
+fwrite(rbindlist(summ, fill = TRUE), file.path(here, &quot;unilateral_divorce_csdid_summary.csv&quot;))
+print(rbindlist(summ, fill = TRUE))
+</code></pre>
+<h3><code>unilateral_divorce_csdid_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Chart for the Callaway &amp; Sant'Anna re-estimate of unilateral divorce and suicide (unilateral_divorce_csdid.R).
+
+Reads unilateral_divorce_csdid_eventstudy.csv and unilateral_divorce_csdid_summary.csv, written by the R script, whose
+header holds the full method: Stevenson &amp; Wolfers' state panel (bacondecomp::divorce, 1964-96), states reformed before
+1964 dropped, not-yet-reformed and never-reformed states as controls, log suicide rate, universal base period (the year
+before reform = 0), state-clustered bootstrap. Estimates are in log points; shown here as percent changes,
+100 * (exp(b) - 1).
+A and B: event-study estimates for women and men, weighted by each state's 1964 female population (the effect per
+woman), with 95% simultaneous (uniform) bands, and unweighted (the effect per state) as a line.
+C: the average over the 20 years after reform under every specification, grouped as specified before the first run,
+added after seeing results (post hoc), and with the pre-reform differential trend extended and subtracted.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/unilateral_divorce_csdid_chart.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot; / &quot;unilateral_divorce_reestimate.png&quot;
+pct = lambda b: 100 * (np.exp(b) - 1)  # noqa: E731
+
+es = pd.read_csv(HERE / &quot;unilateral_divorce_csdid_eventstudy.csv&quot;)
+sm = pd.read_csv(HERE / &quot;unilateral_divorce_csdid_summary.csv&quot;).set_index(&quot;spec&quot;)
+
+pb.apply()
+fig = plt.figure(figsize=(14, 12.4))
+axA = fig.add_axes([0.07, 0.56, 0.40, 0.25])
+axB = fig.add_axes([0.57, 0.56, 0.40, 0.25])
+axC = fig.add_axes([0.40, 0.12, 0.43, 0.33])
+
+fig.text(0.03, 0.955, &quot;Re-estimated with a modern method, the drop in women's suicide is plausible, not proven&quot;,
+         fontsize=20, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.03, 0.92, &quot;Same state data as Stevenson &amp; Wolfers (1964–96), re-run with an estimator built for states &quot;
+         &quot;adopting a law in different years (Callaway &amp; Sant'Anna 2021),\nwith the specification written down &quot;
+         &quot;before the first run. Women's suicide falls in every version, but the main estimate's 95% interval &quot;
+         &quot;includes zero.&quot;, fontsize=12.5, color=pb.INK2, va=&quot;top&quot;, linespacing=1.45)
+
+
+def title(ax, text, x, y=1.1):
+    from matplotlib.transforms import blended_transform_factory
+    ax.text(x, y, text, transform=blended_transform_factory(fig.transFigure, ax.transAxes), fontsize=14,
+            fontweight=&quot;bold&quot;, color=pb.INK, ha=&quot;left&quot;)
+
+
+def event_panel(ax, weighted, unweighted, color, label_x):
+    w = es[es.spec == weighted].sort_values(&quot;e&quot;)
+    u = es[es.spec == unweighted].sort_values(&quot;e&quot;)
+    ax.axhline(0, color=pb.MUTED, lw=1)
+    ax.axvline(-0.5, color=pb.MUTE, lw=1, ls=(0, (2, 3)))
+    ax.fill_between(w.e, pct(w.att - w.crit * w.se), pct(w.att + w.crit * w.se), color=color, alpha=0.13, lw=0)
+    ax.plot(u.e, pct(u.att), color=pb.NAVY, lw=1.8)
+    ax.plot(w.e, pct(w.att), color=color, lw=2.6, marker=&quot;o&quot;, ms=3.5)
+    ax.plot([9.5, 11.5], [34, 34], color=color, lw=2.6)
+    ax.text(12, 34, &quot;weighted (per person)&quot;, color=pb.INK, fontsize=10.5, va=&quot;center&quot;, fontweight=&quot;bold&quot;)
+    ax.plot([9.5, 11.5], [26, 26], color=pb.NAVY, lw=1.8)
+    ax.text(12, 26, &quot;unweighted (per state)&quot;, color=pb.INK2, fontsize=10.5, va=&quot;center&quot;)
+    ax.text(-9.6, 33, &quot;Before reform&quot;, color=pb.MUTED, fontsize=10)
+    ax.text(0.3, 33, &quot;After reform&quot;, color=pb.MUTED, fontsize=10)
+    ax.set_xlim(-10.5, 21)
+    ax.set_ylim(-60, 40)
+    ax.set_xticks([-10, -5, 0, 5, 10, 15, 20])
+    ax.set_xlabel(&quot;Years since the state allowed unilateral divorce&quot;, color=pb.INK2)
+    ax.yaxis.set_major_formatter(lambda v, _: f&quot;{v:+.0f}%&quot; if v else &quot;0&quot;)
+    ax.grid(axis=&quot;y&quot;)
+    ax.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+
+title(axA, &quot;A  Women's suicide rate vs comparison states&quot;, 0.03)
+event_panel(axA, &quot;Women, weighted by population (primary)&quot;, &quot;Women, unweighted&quot;, pb.RED, 0)
+title(axB, &quot;B  Men's suicide rate (should not move)&quot;, 0.53)
+event_panel(axB, &quot;Men, weighted by population&quot;, &quot;Men, unweighted&quot;, pb.GRAYS[1], 0)
+fig.text(0.07, 0.505, &quot;Shaded: 95% band for the weighted estimate, holding across all years at once. Weighted = &quot;
+         &quot;effect per person (big states count more); unweighted = effect per state. Year before reform = 0.&quot;,
+         fontsize=10, color=pb.MUTED)
+
+# C: every specification
+title(axC, &quot;C  Average change over the 20 years after reform, every version&quot;, 0.03, y=1.08)
+GROUPS = [
+    (&quot;Specified before the first run&quot;, [
+        (&quot;Women, weighted by population (primary)&quot;, &quot;Women, weighted (primary)&quot;),
+        (&quot;Women, unweighted&quot;, &quot;Women, unweighted&quot;),
+        (&quot;Women, weighted, stricter no-fault coding&quot;, &quot;Women, stricter reform-date coding&quot;),
+        (&quot;Women, Sun &amp; Abraham, weighted&quot;, &quot;Women, Sun &amp; Abraham estimator, weighted&quot;),
+        (&quot;Women, Sun &amp; Abraham, unweighted&quot;, &quot;Women, Sun &amp; Abraham estimator, unweighted&quot;),
+        (&quot;Men, weighted by population&quot;, &quot;Men, weighted&quot;),
+        (&quot;Men, unweighted&quot;, &quot;Men, unweighted&quot;)]),
+    (&quot;Added after seeing results&quot;, [
+        (&quot;Women-to-men ratio (post hoc), weighted&quot;, &quot;Women relative to men, weighted&quot;),
+        (&quot;Women-to-men ratio (post hoc), unweighted&quot;, &quot;Women relative to men, unweighted&quot;)]),
+    (&quot;Pre-reform trend extended and subtracted&quot;, [
+        (&quot;Women, weighted by population (primary), minus extrapolated pre-trend&quot;, &quot;Women, weighted&quot;),
+        (&quot;Women, unweighted, minus extrapolated pre-trend&quot;, &quot;Women, unweighted&quot;),
+        (&quot;Men, weighted by population, minus extrapolated pre-trend&quot;, &quot;Men, weighted&quot;)]),
+]
+y = 0
+ticks = []
+for gname, items in GROUPS:
+    axC.text(-0.02, y, gname, transform=axC.get_yaxis_transform(), ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11,
+             fontweight=&quot;bold&quot;, color=pb.INK2)
+    y -= 1
+    for key, label in items:
+        r = sm.loc[key]
+        primary = &quot;primary&quot; in label
+        men = label.startswith(&quot;Men&quot;)
+        color = pb.RED if primary else (pb.GRAYS[0] if men else pb.NAVY)
+        axC.plot([pct(r.lo), pct(r.hi)], [y, y], color=color, lw=2.2, alpha=0.6)
+        axC.plot(pct(r.estimate), y, &quot;o&quot;, color=color, ms=8 if primary else 6.5)
+        axC.text(-0.02, y, label, transform=axC.get_yaxis_transform(), ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=10.5,
+                 color=pb.INK, fontweight=&quot;bold&quot; if primary else &quot;normal&quot;)
+        axC.text(1.01, y, f&quot;{pct(r.estimate):+.0f}%&quot;, transform=axC.get_yaxis_transform(), ha=&quot;left&quot;, va=&quot;center&quot;,
+                 fontsize=10.5, color=pb.INK, fontweight=&quot;bold&quot;)
+        y -= 1
+    y -= 0.5
+axC.axvline(0, color=pb.MUTED, lw=1)
+axC.set_ylim(y + 0.5, 0.7)
+axC.set_yticks([])
+axC.set_xlim(-45, 15)
+axC.xaxis.set_major_formatter(lambda v, _: f&quot;{v:+.0f}%&quot; if v else &quot;0&quot;)
+axC.set_xlabel(&quot;Change in suicide rate (95% interval)&quot;, color=pb.INK2)
+axC.grid(axis=&quot;x&quot;)
+axC.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+fig.text(0.03, 0.04,
+         &quot;Data: Stevenson &amp; Wolfers' state panel as distributed in the bacondecomp R package; 42 states that reformed &quot;
+         &quot;1969–85 or never (AR DE MS NY TN), 9 states reformed before 1964 dropped.\nEstimator: did package &quot;
+         &quot;(Callaway &amp; Sant'Anna), comparison = not-yet- and never-reformed states, bootstrap clustered by state. &quot;
+         &quot;Sun &amp; Abraham via fixest. Most reform years have only 1–3 states.&quot;,
          fontsize=9.5, color=pb.MUTED, linespacing=1.5)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
