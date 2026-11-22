@@ -119,6 +119,10 @@
   "title": "US spam calls vs the world, and what share of your calls are spam",
   "updated": "2026-11-11"
  },
+ "substack-network": {
+  "title": "Who in my Substack audience connects with whom: the Notes network, the writers among my readers, and whether readers split by topic",
+  "updated": "2026-11-22"
+ },
  "substack-topics": {
   "title": "Which Substack topics get read and bring in subscribers: views adjusted for list growth, and attributed signups by topic",
   "updated": "2026-11-22"

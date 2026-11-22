@@ -10,6 +10,7 @@ Methodology, results and code behind charts from <a href="https://performativeba
 - [America's richest couples went from the fewest babies to the most: births by couple income, 1940–2024 (IPUMS census and ACS)](rich-fertility/) (2026-11-22)
 - [How much the sex life matters to a marriage: seven parts of a marriage ranked by both spouses, and by who split nine years later (NSFH)](sex-rank/) (2026-11-22)
 - [Which Substack topics get read and bring in subscribers: views adjusted for list growth, and attributed signups by topic](substack-topics/) (2026-11-22)
+- [Who in my Substack audience connects with whom: the Notes network, the writers among my readers, and whether readers split by topic](substack-network/) (2026-11-22)
 - [Parenting vs genes: what adoptive families, shared homes, school levers and genes explain about how kids turn out](parenting-genes/) (2026-11-20)
 - [Clark's heritability and assortment parameters vs estimates for a status composite](clark-status/) (2026-11-19)
 - [Revenue shrinks the pedigree premium, not the elite share: elite-school founders at later VC rounds](vc-pedigree/) (2026-11-19)
