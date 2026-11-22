@@ -386,11 +386,12 @@ def main():
     gs = fig.add_gridspec(1, 2, left=0.055, right=0.975, top=0.80, bottom=0.215, wspace=0.13, width_ratios=[1.15, 1])
     a, c = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
 
-    fig.text(0.055, 0.945, f"Waiting to marry pays off until about 28, then stops: divorce risk falls from {young_p:.0f}% to "
-             f"{plat:.0f}% and stays there", fontsize=18.5, fontweight="bold", ha="left")
-    fig.text(0.055, 0.905, "Share of US first marriages that ended in divorce within 10 years, by age at the wedding "
-             "(not age today). A degree lowers the risk through the 20s; by the 30s it barely matters.",
-             fontsize=11.5, color=INK2, ha="left")
+    fig.text(0.055, 0.945, "Waiting to marry pays off until about 28, then stops", fontsize=19, fontweight="bold",
+             ha="left")
+    fig.text(0.055, 0.88, f"Share of US first marriages that ended in divorce within 10 years, by age at the wedding (not age "
+             f"today): {young_p:.0f}% for weddings at 20 or younger,\n{plat:.0f}% at 27–28, and no lower after that. A "
+             f"degree lowers the risk through the 20s; by the 30s it barely matters.", fontsize=11.5, color=INK2,
+             ha="left", linespacing=1.4)
 
     # A: bars by age at marriage
     x = np.arange(len(al))
@@ -402,8 +403,8 @@ def main():
     for xi, yi, hi in zip(x, y, al.hi * 100):
         a.text(xi, hi + 1.2, f"{yi:.0f}%", ha="center", va="bottom", fontsize=10, fontweight="bold", color=INK)
     a.axhline(plat, xmin=(PLATEAU + 0.1) / len(al), xmax=1, color=pb.RED, lw=1, ls=(0, (3, 3)), zorder=1)
-    a.text(len(al) - 0.6, plat - 2.2, f"27–28 onward: {later.min():.0f}–{later.max():.0f}%, no further gain",
-           ha="right", va="top", fontsize=10, color=INK2)
+    a.text(PLATEAU - 0.35, 31, f"From 27–28 on: {later.min():.0f}–{later.max():.0f}%, no further gain",
+           ha="left", va="bottom", fontsize=10.5, color=INK2)
     a.set_xticks(x)
     a.set_xticklabels(al.label, fontsize=9.5)
     a.set_xlim(-0.6, len(al) - 0.4)
@@ -414,13 +415,13 @@ def main():
     a.set_title("A  Divorced within 10 years, all first marriages", loc="left", fontsize=12.5, fontweight="bold", pad=10)
 
     # B: degree vs no degree
-    for g, col, lab, dy in [(ba, pb.NAVY, "Bachelor's degree", -3.5), (no, pb.GRAYS[1], "No bachelor's degree", 3.5)]:
+    for g, col, lab, xy in [(ba, pb.NAVY, "Bachelor's degree", (4.7, 8)), (no, pb.GRAYS[1], "No bachelor's degree",
+                                                                             (3.1, 37.5))]:
         xb = g.bin.to_numpy()
         yb = g.share.to_numpy() * 100
         c.fill_between(xb, g.lo * 100, g.hi * 100, color=col, alpha=0.12, lw=0, zorder=1)
         c.plot(xb, yb, color=col, lw=2.2, marker="o", ms=5.5, mec=pb.SURFACE, mew=1.2, zorder=3)
-        c.text(3.1, yb[xb == 3][0] + dy, lab, fontsize=10.5, fontweight="bold", color=INK, ha="left",
-               va="bottom" if dy > 0 else "top")
+        c.text(*xy, lab, fontsize=10.5, fontweight="bold", color=INK, ha="left", va="center")
     c.set_xticks(ba.bin)
     c.set_xticklabels(ba.label, fontsize=9.5)
     c.set_xlim(B_FIRST - 0.4, len(al) - 0.6)
