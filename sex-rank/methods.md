@@ -512,16 +512,16 @@ fig.text(0.03, 0.80, "A  How much each part of the marriage explains, net of the
 # B
 s = lv[lv.part == "Sex"].reset_index(drop=True)
 shares = s.couples / s.couples.sum() * 100
-labels = [f"{b}\n{sh:.0f}% of couples" for b, sh in
-          zip(["1–3 (unhappy)", "3.5–4.5", "5–5.5", "6–6.5", "7 (very happy)"], shares)]
+labels = [f"{b}\n({sh:.0f}%)" for b, sh in zip(["1–3", "3.5–4.5", "5–5.5", "6–6.5", "7"], shares)]
 xb = np.arange(len(s))
 axB.bar(xb, s.split_pct, color=[pb.RED] + [pb.NAVY] * (len(s) - 1), width=0.66, zorder=2)
 for xi, v in enumerate(s.split_pct):
     axB.text(xi, v + 0.6, f"{v:.0f}%", ha="center", va="bottom", fontsize=12, fontweight="bold")
-axB.set_xticks(xb, labels, fontsize=9.5)
+axB.set_xticks(xb, labels, fontsize=10.5)
 axB.set_ylim(0, 26)
 axB.set_yticks([0, 5, 10, 15, 20, 25], [f"{v}%" for v in [0, 5, 10, 15, 20, 25]])
-axB.set_xlabel("Couple's average rating of their sexual relationship (1–7)", fontsize=10.5, labelpad=8)
+axB.set_xlabel("Couple's average rating of their sexual relationship\n(1 = very unhappy, 7 = very happy; share of couples in brackets)",
+               fontsize=10.5, labelpad=8, linespacing=1.4)
 axB.grid(axis="y", color=pb.GRID, linewidth=0.8, zorder=0)
 axB.grid(axis="x", visible=False)
 axB.tick_params(axis="x", length=0)
