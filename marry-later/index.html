@@ -1,0 +1,1528 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Does waiting to marry pay off? Divorce within 10 years by age at first marriage, and by college degree (SIPP 2025)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Does waiting to marry pay off? Divorce within 10 years by age at first marriage, and by college degree (SIPP 2025)</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/marry-later/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>divorce_by_marriage_age_data.py</code></h3>
+<pre><code class="language-text">Share of first marriages ending in divorce within 10 years, by age at first marriage, from SIPP 2025.
+
+Run:  uv run --with polars,pandas,pyarrow python notebooks/divorce/divorce_by_marriage_age_data.py
+Input: notebooks/us_public_data/sipp/raw/pu2025.csv (SIPP 2025 public-use file, reference year 2024, panels
+  2022-2025, from https://www2.census.gov/programs-surveys/sipp/data/datasets/2025/). The marital-history columns
+  come from sipp/sipp2025_marhist.parquet (built by sipp_divorce_by_age_data.py); education (EEDUC) is pulled from
+  the raw file on first run into sipp/sipp2025_educ.parquet.
+Writes notebooks/divorce/divorce_by_marriage_age.csv: one row per (group, age at first marriage) with the weighted
+  10-year divorce share, a 95% interval, and unweighted counts.
+
+Why this cut: published &quot;divorce rate by age&quot; tables (e.g. NCFMR's first-divorce rate per 1,000 married women)
+group women by their age in the survey year, not their age when they married, so they mostly show that
+marriages stabilise with duration. To ask whether marrying later pays off, the grouping has to be age at marriage
+and the outcome has to be observed for the same length of time for everyone.
+
+Method:
+  - One record per person (December, MONTHCODE 12), men and women, weighted by the person weight WPFINWGT.
+  - Birth year = 2024 - age in December 2024, so ages at marriage are +/-1 year.
+  - Sample: people whose first marriage (TMAR1_YR) began 1980-2014, so every marriage has 10 full years observed by
+    December 2024. Same-sex and opposite-sex marriages are both included (SIPP does not separate them here).
+  - Outcome: the first marriage ended in divorce (EWIDIV1 = 2) and the couple separated (TSEP1_YR) within 10 years
+    of the wedding year (TSEP1_YR - TMAR1_YR &lt;= 10). SIPP dates the separation, not the decree, which is the better
+    date for when the marriage actually ended. Marriages ended by widowhood, or separated but not divorced by 2024,
+    count as not divorced.
+  - Ages at first marriage 16-45 are kept; under 18 is pooled with 18 as &quot;18 or younger&quot; because the cells are tiny.
+  - Interval: normal approximation on the weighted share, with Kish's effective sample size (sum w)^2 / sum w^2.
+  - Education is the highest level by December 2024 (EEDUC), split at a bachelor's degree (code 43+). It is
+    measured at the survey, not at the wedding, so for people who married young some degrees came later.
+  - The chart uses age bins (BINS) of two to six years; the single-year table is written too.
+  - Groups: all; BA+ ; no BA; and a robustness cut of marriages begun 1995-2014 only.
+Retrospective histories cover only people alive and in the US in 2022-2025; recall of separation years is imperfect.
+</code></pre>
+<h3><code>divorce_by_marriage_age_chart.py</code></h3>
+<pre><code class="language-text">Share of US first marriages ending in divorce within 10 years, by age at the wedding, and by college degree.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/divorce/divorce_by_marriage_age_chart.py
+Data: notebooks/divorce/divorce_by_marriage_age_bins.csv, built by divorce_by_marriage_age_data.py from the US Census
+  Bureau's Survey of Income and Program Participation 2025 (reference year 2024, panels 2022-2025) retrospective
+  marital histories. See that script's docstring for the full method; in short:
+  - Sample: men and women whose first marriage began 1980-2014, so each marriage has 10 full years observed by 2024
+    (9,725 people), weighted by the SIPP person weight.
+  - Outcome: the first marriage ended in divorce and the couple separated within 10 years of the wedding year.
+  - Grouped by age at the first wedding (birth year from age in December 2024, so +/-1 year), in bins of two to six
+    years; under-18 weddings are pooled with 18.
+  - Panel B splits by whether the person held a bachelor's degree by 2024 (measured at the survey, not the wedding).
+    The BA &quot;18 or younger&quot; cell (54 people) is left out of B.
+  - Whiskers and bands are 95% intervals using Kish's effective sample size.
+Point of the chart: NCFMR-style &quot;first divorce rate by age&quot; tables group women by current age, which mostly measures
+marriage duration. Grouping by age at marriage shows the payoff to waiting is large through the mid-20s and
+roughly zero after about 28; a degree lowers risk at every age in the 20s, and the gap closes by the 30s.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/:
+  divorce_by_marriage_age.png
+</code></pre>
+<h2>Results</h2>
+<h3><code>divorce_by_marriage_age_bins.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>bin</th>
+<th>label</th>
+<th>age_lo</th>
+<th>age_hi</th>
+<th>share</th>
+<th>lo</th>
+<th>hi</th>
+<th>n</th>
+<th>n_div</th>
+<th>neff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>all</td>
+<td>0</td>
+<td>18 or younger</td>
+<td>18</td>
+<td>18</td>
+<td>0.486</td>
+<td>0.426</td>
+<td>0.545</td>
+<td>396</td>
+<td>179</td>
+<td>272.300</td>
+</tr>
+<tr>
+<td>all</td>
+<td>1</td>
+<td>19–20</td>
+<td>19</td>
+<td>20</td>
+<td>0.500</td>
+<td>0.461</td>
+<td>0.540</td>
+<td>883</td>
+<td>421</td>
+<td>613.900</td>
+</tr>
+<tr>
+<td>all</td>
+<td>2</td>
+<td>21–22</td>
+<td>21</td>
+<td>22</td>
+<td>0.356</td>
+<td>0.324</td>
+<td>0.388</td>
+<td>1245</td>
+<td>449</td>
+<td>866.500</td>
+</tr>
+<tr>
+<td>all</td>
+<td>3</td>
+<td>23–24</td>
+<td>23</td>
+<td>24</td>
+<td>0.283</td>
+<td>0.257</td>
+<td>0.310</td>
+<td>1482</td>
+<td>405</td>
+<td>1084.200</td>
+</tr>
+<tr>
+<td>all</td>
+<td>4</td>
+<td>25–26</td>
+<td>25</td>
+<td>26</td>
+<td>0.207</td>
+<td>0.182</td>
+<td>0.233</td>
+<td>1404</td>
+<td>303</td>
+<td>965.400</td>
+</tr>
+<tr>
+<td>all</td>
+<td>5</td>
+<td>27–28</td>
+<td>27</td>
+<td>28</td>
+<td>0.169</td>
+<td>0.144</td>
+<td>0.195</td>
+<td>1182</td>
+<td>197</td>
+<td>826.800</td>
+</tr>
+<tr>
+<td>all</td>
+<td>6</td>
+<td>29–30</td>
+<td>29</td>
+<td>30</td>
+<td>0.166</td>
+<td>0.136</td>
+<td>0.195</td>
+<td>877</td>
+<td>149</td>
+<td>615.500</td>
+</tr>
+<tr>
+<td>all</td>
+<td>7</td>
+<td>31–32</td>
+<td>31</td>
+<td>32</td>
+<td>0.184</td>
+<td>0.149</td>
+<td>0.220</td>
+<td>627</td>
+<td>115</td>
+<td>449.800</td>
+</tr>
+<tr>
+<td>all</td>
+<td>8</td>
+<td>33–35</td>
+<td>33</td>
+<td>35</td>
+<td>0.166</td>
+<td>0.134</td>
+<td>0.199</td>
+<td>711</td>
+<td>126</td>
+<td>501.900</td>
+</tr>
+<tr>
+<td>all</td>
+<td>9</td>
+<td>36–39</td>
+<td>36</td>
+<td>39</td>
+<td>0.165</td>
+<td>0.126</td>
+<td>0.203</td>
+<td>522</td>
+<td>86</td>
+<td>349.000</td>
+</tr>
+<tr>
+<td>all</td>
+<td>10</td>
+<td>40–45</td>
+<td>40</td>
+<td>45</td>
+<td>0.194</td>
+<td>0.146</td>
+<td>0.241</td>
+<td>396</td>
+<td>81</td>
+<td>266.100</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>0</td>
+<td>18 or younger</td>
+<td>18</td>
+<td>18</td>
+<td>0.608</td>
+<td>0.454</td>
+<td>0.762</td>
+<td>54</td>
+<td>28</td>
+<td>38.600</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>1</td>
+<td>19–20</td>
+<td>19</td>
+<td>20</td>
+<td>0.558</td>
+<td>0.470</td>
+<td>0.646</td>
+<td>183</td>
+<td>96</td>
+<td>122.100</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>2</td>
+<td>21–22</td>
+<td>21</td>
+<td>22</td>
+<td>0.271</td>
+<td>0.217</td>
+<td>0.324</td>
+<td>371</td>
+<td>108</td>
+<td>262.400</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>3</td>
+<td>23–24</td>
+<td>23</td>
+<td>24</td>
+<td>0.213</td>
+<td>0.175</td>
+<td>0.250</td>
+<td>626</td>
+<td>134</td>
+<td>462.500</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>4</td>
+<td>25–26</td>
+<td>25</td>
+<td>26</td>
+<td>0.151</td>
+<td>0.120</td>
+<td>0.182</td>
+<td>694</td>
+<td>110</td>
+<td>509.300</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>5</td>
+<td>27–28</td>
+<td>27</td>
+<td>28</td>
+<td>0.127</td>
+<td>0.096</td>
+<td>0.158</td>
+<td>601</td>
+<td>72</td>
+<td>432.300</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>6</td>
+<td>29–30</td>
+<td>29</td>
+<td>30</td>
+<td>0.138</td>
+<td>0.100</td>
+<td>0.176</td>
+<td>446</td>
+<td>59</td>
+<td>319.400</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>7</td>
+<td>31–32</td>
+<td>31</td>
+<td>32</td>
+<td>0.171</td>
+<td>0.122</td>
+<td>0.220</td>
+<td>312</td>
+<td>49</td>
+<td>227.600</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>8</td>
+<td>33–35</td>
+<td>33</td>
+<td>35</td>
+<td>0.150</td>
+<td>0.106</td>
+<td>0.193</td>
+<td>355</td>
+<td>53</td>
+<td>258.500</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>9</td>
+<td>36–39</td>
+<td>36</td>
+<td>39</td>
+<td>0.157</td>
+<td>0.101</td>
+<td>0.212</td>
+<td>232</td>
+<td>36</td>
+<td>164.900</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>10</td>
+<td>40–45</td>
+<td>40</td>
+<td>45</td>
+<td>0.165</td>
+<td>0.095</td>
+<td>0.234</td>
+<td>157</td>
+<td>23</td>
+<td>109.500</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>0</td>
+<td>18 or younger</td>
+<td>18</td>
+<td>18</td>
+<td>0.465</td>
+<td>0.401</td>
+<td>0.529</td>
+<td>342</td>
+<td>151</td>
+<td>233.700</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>1</td>
+<td>19–20</td>
+<td>19</td>
+<td>20</td>
+<td>0.485</td>
+<td>0.441</td>
+<td>0.529</td>
+<td>700</td>
+<td>325</td>
+<td>493.100</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>2</td>
+<td>21–22</td>
+<td>21</td>
+<td>22</td>
+<td>0.395</td>
+<td>0.356</td>
+<td>0.434</td>
+<td>874</td>
+<td>341</td>
+<td>604.500</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>3</td>
+<td>23–24</td>
+<td>23</td>
+<td>24</td>
+<td>0.335</td>
+<td>0.298</td>
+<td>0.372</td>
+<td>856</td>
+<td>271</td>
+<td>621.800</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>4</td>
+<td>25–26</td>
+<td>25</td>
+<td>26</td>
+<td>0.263</td>
+<td>0.223</td>
+<td>0.303</td>
+<td>710</td>
+<td>193</td>
+<td>459.200</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>5</td>
+<td>27–28</td>
+<td>27</td>
+<td>28</td>
+<td>0.217</td>
+<td>0.177</td>
+<td>0.258</td>
+<td>581</td>
+<td>125</td>
+<td>394.700</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>6</td>
+<td>29–30</td>
+<td>29</td>
+<td>30</td>
+<td>0.195</td>
+<td>0.150</td>
+<td>0.240</td>
+<td>431</td>
+<td>90</td>
+<td>296.200</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>7</td>
+<td>31–32</td>
+<td>31</td>
+<td>32</td>
+<td>0.199</td>
+<td>0.146</td>
+<td>0.251</td>
+<td>315</td>
+<td>66</td>
+<td>222.300</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>8</td>
+<td>33–35</td>
+<td>33</td>
+<td>35</td>
+<td>0.182</td>
+<td>0.134</td>
+<td>0.230</td>
+<td>356</td>
+<td>73</td>
+<td>244.800</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>9</td>
+<td>36–39</td>
+<td>36</td>
+<td>39</td>
+<td>0.171</td>
+<td>0.117</td>
+<td>0.226</td>
+<td>290</td>
+<td>50</td>
+<td>184.200</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>10</td>
+<td>40–45</td>
+<td>40</td>
+<td>45</td>
+<td>0.213</td>
+<td>0.149</td>
+<td>0.277</td>
+<td>239</td>
+<td>58</td>
+<td>156.900</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>0</td>
+<td>18 or younger</td>
+<td>18</td>
+<td>18</td>
+<td>0.552</td>
+<td>0.460</td>
+<td>0.645</td>
+<td>164</td>
+<td>84</td>
+<td>110.300</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>1</td>
+<td>19–20</td>
+<td>19</td>
+<td>20</td>
+<td>0.471</td>
+<td>0.409</td>
+<td>0.533</td>
+<td>356</td>
+<td>160</td>
+<td>246.800</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>2</td>
+<td>21–22</td>
+<td>21</td>
+<td>22</td>
+<td>0.336</td>
+<td>0.288</td>
+<td>0.383</td>
+<td>553</td>
+<td>182</td>
+<td>379.400</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>3</td>
+<td>23–24</td>
+<td>23</td>
+<td>24</td>
+<td>0.257</td>
+<td>0.218</td>
+<td>0.297</td>
+<td>649</td>
+<td>155</td>
+<td>476.200</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>4</td>
+<td>25–26</td>
+<td>25</td>
+<td>26</td>
+<td>0.181</td>
+<td>0.147</td>
+<td>0.215</td>
+<td>719</td>
+<td>133</td>
+<td>491.300</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>5</td>
+<td>27–28</td>
+<td>27</td>
+<td>28</td>
+<td>0.173</td>
+<td>0.139</td>
+<td>0.207</td>
+<td>669</td>
+<td>111</td>
+<td>468.100</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>6</td>
+<td>29–30</td>
+<td>29</td>
+<td>30</td>
+<td>0.139</td>
+<td>0.104</td>
+<td>0.175</td>
+<td>513</td>
+<td>72</td>
+<td>368.200</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>7</td>
+<td>31–32</td>
+<td>31</td>
+<td>32</td>
+<td>0.175</td>
+<td>0.131</td>
+<td>0.220</td>
+<td>380</td>
+<td>68</td>
+<td>279.300</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>8</td>
+<td>33–35</td>
+<td>33</td>
+<td>35</td>
+<td>0.148</td>
+<td>0.110</td>
+<td>0.186</td>
+<td>452</td>
+<td>74</td>
+<td>328.900</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>9</td>
+<td>36–39</td>
+<td>36</td>
+<td>39</td>
+<td>0.162</td>
+<td>0.117</td>
+<td>0.207</td>
+<td>385</td>
+<td>65</td>
+<td>262.400</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>10</td>
+<td>40–45</td>
+<td>40</td>
+<td>45</td>
+<td>0.208</td>
+<td>0.153</td>
+<td>0.263</td>
+<td>314</td>
+<td>69</td>
+<td>209.300</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 1th row of 44 shown; full file: <a href="divorce_by_marriage_age_bins.csv">divorce_by_marriage_age_bins.csv</a>.</em></p>
+<h3><code>divorce_by_marriage_age.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>age</th>
+<th>share</th>
+<th>lo</th>
+<th>hi</th>
+<th>n</th>
+<th>n_div</th>
+<th>neff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>all</td>
+<td>18</td>
+<td>0.486</td>
+<td>0.426</td>
+<td>0.545</td>
+<td>396</td>
+<td>179</td>
+<td>272.300</td>
+</tr>
+<tr>
+<td>all</td>
+<td>20</td>
+<td>0.498</td>
+<td>0.447</td>
+<td>0.548</td>
+<td>530</td>
+<td>251</td>
+<td>371.700</td>
+</tr>
+<tr>
+<td>all</td>
+<td>22</td>
+<td>0.348</td>
+<td>0.305</td>
+<td>0.391</td>
+<td>669</td>
+<td>235</td>
+<td>472.300</td>
+</tr>
+<tr>
+<td>all</td>
+<td>24</td>
+<td>0.287</td>
+<td>0.250</td>
+<td>0.325</td>
+<td>756</td>
+<td>204</td>
+<td>565.500</td>
+</tr>
+<tr>
+<td>all</td>
+<td>26</td>
+<td>0.204</td>
+<td>0.169</td>
+<td>0.240</td>
+<td>700</td>
+<td>136</td>
+<td>483.500</td>
+</tr>
+<tr>
+<td>all</td>
+<td>28</td>
+<td>0.141</td>
+<td>0.107</td>
+<td>0.175</td>
+<td>565</td>
+<td>84</td>
+<td>396.800</td>
+</tr>
+<tr>
+<td>all</td>
+<td>30</td>
+<td>0.158</td>
+<td>0.117</td>
+<td>0.199</td>
+<td>411</td>
+<td>67</td>
+<td>301.700</td>
+</tr>
+<tr>
+<td>all</td>
+<td>32</td>
+<td>0.148</td>
+<td>0.098</td>
+<td>0.198</td>
+<td>277</td>
+<td>45</td>
+<td>196.900</td>
+</tr>
+<tr>
+<td>all</td>
+<td>34</td>
+<td>0.148</td>
+<td>0.094</td>
+<td>0.202</td>
+<td>231</td>
+<td>37</td>
+<td>166.900</td>
+</tr>
+<tr>
+<td>all</td>
+<td>36</td>
+<td>0.231</td>
+<td>0.145</td>
+<td>0.317</td>
+<td>159</td>
+<td>37</td>
+<td>92.500</td>
+</tr>
+<tr>
+<td>all</td>
+<td>38</td>
+<td>0.115</td>
+<td>0.052</td>
+<td>0.178</td>
+<td>125</td>
+<td>16</td>
+<td>98.800</td>
+</tr>
+<tr>
+<td>all</td>
+<td>40</td>
+<td>0.220</td>
+<td>0.115</td>
+<td>0.325</td>
+<td>96</td>
+<td>23</td>
+<td>60.000</td>
+</tr>
+<tr>
+<td>all</td>
+<td>42</td>
+<td>0.136</td>
+<td>0.037</td>
+<td>0.236</td>
+<td>73</td>
+<td>9</td>
+<td>45.500</td>
+</tr>
+<tr>
+<td>all</td>
+<td>44</td>
+<td>0.178</td>
+<td>0.050</td>
+<td>0.306</td>
+<td>48</td>
+<td>8</td>
+<td>34.100</td>
+</tr>
+<tr>
+<td>all</td>
+<td>-1</td>
+<td>0.262</td>
+<td>0.251</td>
+<td>0.272</td>
+<td>9725</td>
+<td>2511</td>
+<td>6799.400</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>19</td>
+<td>0.577</td>
+<td>0.446</td>
+<td>0.708</td>
+<td>84</td>
+<td>46</td>
+<td>54.800</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>21</td>
+<td>0.287</td>
+<td>0.203</td>
+<td>0.371</td>
+<td>152</td>
+<td>48</td>
+<td>110.900</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>23</td>
+<td>0.197</td>
+<td>0.143</td>
+<td>0.251</td>
+<td>288</td>
+<td>60</td>
+<td>206.900</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>25</td>
+<td>0.146</td>
+<td>0.101</td>
+<td>0.192</td>
+<td>334</td>
+<td>56</td>
+<td>234.500</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>27</td>
+<td>0.138</td>
+<td>0.092</td>
+<td>0.184</td>
+<td>303</td>
+<td>36</td>
+<td>217.200</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>29</td>
+<td>0.134</td>
+<td>0.080</td>
+<td>0.187</td>
+<td>233</td>
+<td>33</td>
+<td>157.700</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>31</td>
+<td>0.224</td>
+<td>0.153</td>
+<td>0.295</td>
+<td>186</td>
+<td>36</td>
+<td>131.800</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>33</td>
+<td>0.192</td>
+<td>0.119</td>
+<td>0.265</td>
+<td>139</td>
+<td>26</td>
+<td>111.100</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>35</td>
+<td>0.123</td>
+<td>0.044</td>
+<td>0.202</td>
+<td>100</td>
+<td>12</td>
+<td>66.300</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>37</td>
+<td>0.190</td>
+<td>0.072</td>
+<td>0.308</td>
+<td>54</td>
+<td>11</td>
+<td>42.400</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>39</td>
+<td>0.095</td>
+<td>0.000</td>
+<td>0.196</td>
+<td>49</td>
+<td>4</td>
+<td>32.200</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>41</td>
+<td>0.076</td>
+<td>0.000</td>
+<td>0.176</td>
+<td>36</td>
+<td>3</td>
+<td>27.200</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>43</td>
+<td>0.263</td>
+<td>0.041</td>
+<td>0.484</td>
+<td>17</td>
+<td>5</td>
+<td>15.200</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>45</td>
+<td>0.228</td>
+<td>0.029</td>
+<td>0.428</td>
+<td>21</td>
+<td>4</td>
+<td>17.000</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>18</td>
+<td>0.465</td>
+<td>0.401</td>
+<td>0.529</td>
+<td>342</td>
+<td>151</td>
+<td>233.700</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>20</td>
+<td>0.488</td>
+<td>0.432</td>
+<td>0.544</td>
+<td>431</td>
+<td>201</td>
+<td>303.500</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>22</td>
+<td>0.396</td>
+<td>0.342</td>
+<td>0.449</td>
+<td>450</td>
+<td>175</td>
+<td>321.700</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>24</td>
+<td>0.339</td>
+<td>0.286</td>
+<td>0.392</td>
+<td>418</td>
+<td>130</td>
+<td>309.900</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>26</td>
+<td>0.253</td>
+<td>0.195</td>
+<td>0.312</td>
+<td>340</td>
+<td>82</td>
+<td>214.300</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>28</td>
+<td>0.173</td>
+<td>0.118</td>
+<td>0.228</td>
+<td>267</td>
+<td>48</td>
+<td>182.200</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>30</td>
+<td>0.177</td>
+<td>0.114</td>
+<td>0.241</td>
+<td>198</td>
+<td>41</td>
+<td>140.100</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>32</td>
+<td>0.192</td>
+<td>0.115</td>
+<td>0.269</td>
+<td>151</td>
+<td>32</td>
+<td>101.100</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>34</td>
+<td>0.172</td>
+<td>0.090</td>
+<td>0.253</td>
+<td>115</td>
+<td>22</td>
+<td>82.500</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>36</td>
+<td>0.267</td>
+<td>0.143</td>
+<td>0.391</td>
+<td>91</td>
+<td>25</td>
+<td>48.900</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>38</td>
+<td>0.079</td>
+<td>0.002</td>
+<td>0.155</td>
+<td>64</td>
+<td>7</td>
+<td>47.900</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>40</td>
+<td>0.252</td>
+<td>0.105</td>
+<td>0.399</td>
+<td>55</td>
+<td>16</td>
+<td>33.400</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>42</td>
+<td>0.176</td>
+<td>0.038</td>
+<td>0.314</td>
+<td>47</td>
+<td>8</td>
+<td>29.200</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>44</td>
+<td>0.110</td>
+<td>0.000</td>
+<td>0.240</td>
+<td>32</td>
+<td>5</td>
+<td>22.400</td>
+</tr>
+<tr>
+<td>no_ba</td>
+<td>-1</td>
+<td>0.311</td>
+<td>0.296</td>
+<td>0.325</td>
+<td>5694</td>
+<td>1743</td>
+<td>3902.000</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>19</td>
+<td>0.484</td>
+<td>0.389</td>
+<td>0.579</td>
+<td>151</td>
+<td>72</td>
+<td>106.700</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>21</td>
+<td>0.333</td>
+<td>0.262</td>
+<td>0.404</td>
+<td>250</td>
+<td>82</td>
+<td>168.000</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>23</td>
+<td>0.227</td>
+<td>0.170</td>
+<td>0.283</td>
+<td>295</td>
+<td>66</td>
+<td>210.100</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>25</td>
+<td>0.181</td>
+<td>0.131</td>
+<td>0.231</td>
+<td>343</td>
+<td>73</td>
+<td>228.500</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>27</td>
+<td>0.221</td>
+<td>0.169</td>
+<td>0.274</td>
+<td>350</td>
+<td>69</td>
+<td>241.600</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>29</td>
+<td>0.138</td>
+<td>0.089</td>
+<td>0.187</td>
+<td>274</td>
+<td>36</td>
+<td>189.300</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>31</td>
+<td>0.211</td>
+<td>0.148</td>
+<td>0.275</td>
+<td>212</td>
+<td>43</td>
+<td>159.500</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>33</td>
+<td>0.168</td>
+<td>0.103</td>
+<td>0.233</td>
+<td>165</td>
+<td>33</td>
+<td>126.800</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>35</td>
+<td>0.132</td>
+<td>0.063</td>
+<td>0.202</td>
+<td>134</td>
+<td>17</td>
+<td>92.300</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>37</td>
+<td>0.169</td>
+<td>0.084</td>
+<td>0.253</td>
+<td>95</td>
+<td>17</td>
+<td>75.300</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>39</td>
+<td>0.123</td>
+<td>0.035</td>
+<td>0.212</td>
+<td>78</td>
+<td>9</td>
+<td>53.400</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>41</td>
+<td>0.192</td>
+<td>0.068</td>
+<td>0.315</td>
+<td>53</td>
+<td>13</td>
+<td>39.100</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>43</td>
+<td>0.274</td>
+<td>0.128</td>
+<td>0.420</td>
+<td>46</td>
+<td>12</td>
+<td>35.700</td>
+</tr>
+<tr>
+<td>recent</td>
+<td>45</td>
+<td>0.234</td>
+<td>0.090</td>
+<td>0.378</td>
+<td>45</td>
+<td>11</td>
+<td>33.200</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 2th row of 116 shown; full file: <a href="divorce_by_marriage_age.csv">divorce_by_marriage_age.csv</a>.</em></p>
+<h2>Notes and caveats</h2>
+<h1>Caveats: divorce within 10 years by age at first marriage</h1>
+<ul>
+<li><strong>Age at marriage, not age now.</strong> The common NCFMR "first divorce rate by age" figures group married women by
+  their age in the survey year. That mostly measures how long they have been married. This chart groups by age at
+  the first wedding and follows every marriage for the same 10 years.</li>
+<li><strong>Separation, not decree.</strong> SIPP dates the separation from the spouse. A marriage counts as divorced if it ended in
+  divorce and the couple separated within 10 years. Couples separated but not yet divorced by 2024 count as intact.</li>
+<li><strong>Retrospective, survivor sample.</strong> Histories come from people alive and living in the US in 2022–2025. Recall of
+  old separation dates is imperfect, and people who died or emigrated are missing.</li>
+<li><strong>Mixed decades.</strong> Weddings span 1980–2014. Younger brides were more common in the earlier years, when divorce was
+  more common overall. A 1995–2014-only cut gives the same shape: about 50% at 20 or younger, 17% at 27–28 and flat
+  after that (see the <code>recent</code> rows in the CSV).</li>
+<li><strong>Age is ±1 year.</strong> Birth year is taken from age in December 2024.</li>
+<li><strong>Degree is measured in 2024</strong>, not at the wedding, so for early marriages some degrees came later. Panel B is a
+  description, not a causal split: age at marriage and education travel together, and neither is randomly assigned.
+  People who marry at 19 differ from people who marry at 28 in many ways besides age.</li>
+<li><strong>Small cells past the mid-30s.</strong> Bins widen to 3–6 years there; intervals are wide (Kish effective n).</li>
+<li><strong>Men and women pooled</strong>, by the respondent's own age at marriage.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>divorce_by_marriage_age_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Share of first marriages ending in divorce within 10 years, by age at first marriage, from SIPP 2025.
+
+Run:  uv run --with polars,pandas,pyarrow python notebooks/divorce/divorce_by_marriage_age_data.py
+Input: notebooks/us_public_data/sipp/raw/pu2025.csv (SIPP 2025 public-use file, reference year 2024, panels
+  2022-2025, from https://www2.census.gov/programs-surveys/sipp/data/datasets/2025/). The marital-history columns
+  come from sipp/sipp2025_marhist.parquet (built by sipp_divorce_by_age_data.py); education (EEDUC) is pulled from
+  the raw file on first run into sipp/sipp2025_educ.parquet.
+Writes notebooks/divorce/divorce_by_marriage_age.csv: one row per (group, age at first marriage) with the weighted
+  10-year divorce share, a 95% interval, and unweighted counts.
+
+Why this cut: published &quot;divorce rate by age&quot; tables (e.g. NCFMR's first-divorce rate per 1,000 married women)
+group women by their age in the survey year, not their age when they married, so they mostly show that
+marriages stabilise with duration. To ask whether marrying later pays off, the grouping has to be age at marriage
+and the outcome has to be observed for the same length of time for everyone.
+
+Method:
+  - One record per person (December, MONTHCODE 12), men and women, weighted by the person weight WPFINWGT.
+  - Birth year = 2024 - age in December 2024, so ages at marriage are +/-1 year.
+  - Sample: people whose first marriage (TMAR1_YR) began 1980-2014, so every marriage has 10 full years observed by
+    December 2024. Same-sex and opposite-sex marriages are both included (SIPP does not separate them here).
+  - Outcome: the first marriage ended in divorce (EWIDIV1 = 2) and the couple separated (TSEP1_YR) within 10 years
+    of the wedding year (TSEP1_YR - TMAR1_YR &lt;= 10). SIPP dates the separation, not the decree, which is the better
+    date for when the marriage actually ended. Marriages ended by widowhood, or separated but not divorced by 2024,
+    count as not divorced.
+  - Ages at first marriage 16-45 are kept; under 18 is pooled with 18 as &quot;18 or younger&quot; because the cells are tiny.
+  - Interval: normal approximation on the weighted share, with Kish's effective sample size (sum w)^2 / sum w^2.
+  - Education is the highest level by December 2024 (EEDUC), split at a bachelor's degree (code 43+). It is
+    measured at the survey, not at the wedding, so for people who married young some degrees came later.
+  - The chart uses age bins (BINS) of two to six years; the single-year table is written too.
+  - Groups: all; BA+ ; no BA; and a robustness cut of marriages begun 1995-2014 only.
+Retrospective histories cover only people alive and in the US in 2022-2025; recall of separation years is imperfect.
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import polars as pl
+
+HERE = Path(__file__).resolve().parent
+SIPP = HERE.parent / &quot;us_public_data&quot; / &quot;sipp&quot;
+MARHIST = SIPP / &quot;sipp2025_marhist.parquet&quot;
+EDUC = SIPP / &quot;sipp2025_educ.parquet&quot;
+OUT = HERE / &quot;divorce_by_marriage_age.csv&quot;
+OUT_BINS = HERE / &quot;divorce_by_marriage_age_bins.csv&quot;
+REF_YEAR = 2024
+FIRST_MAR, LAST_MAR = 1980, 2014
+HORIZON = 10
+AGE_LO, AGE_HI = 18, 45
+BA = 43
+# chart bins: (label, first age, last age); single years get noisy past the early 30s
+BINS = [(&quot;18 or\nyounger&quot;, 18, 18), (&quot;19–20&quot;, 19, 20), (&quot;21–22&quot;, 21, 22), (&quot;23–24&quot;, 23, 24), (&quot;25–26&quot;, 25, 26),
+        (&quot;27–28&quot;, 27, 28), (&quot;29–30&quot;, 29, 30), (&quot;31–32&quot;, 31, 32), (&quot;33–35&quot;, 33, 35), (&quot;36–39&quot;, 36, 39),
+        (&quot;40–45&quot;, 40, 45)]
+
+
+def extract_educ():
+    cols = [&quot;SSUID&quot;, &quot;PNUM&quot;, &quot;SPANEL&quot;, &quot;MONTHCODE&quot;, &quot;EEDUC&quot;]
+    df = (pl.scan_csv(SIPP / &quot;raw&quot; / &quot;pu2025.csv&quot;, separator=&quot;|&quot;, infer_schema=False).select(cols)
+          .filter(pl.col(&quot;MONTHCODE&quot;) == &quot;12&quot;).collect())
+    df = df.with_columns([pl.col(c).cast(pl.Int64, strict=False) for c in cols if c != &quot;SSUID&quot;]).drop(&quot;MONTHCODE&quot;)
+    df.write_parquet(EDUC)
+
+
+def share(g, col=&quot;div10&quot;):
+    w = g.WPFINWGT.to_numpy()
+    y = g[col].to_numpy().astype(float)
+    p = (w * y).sum() / w.sum()
+    neff = w.sum() ** 2 / (w ** 2).sum()
+    se = np.sqrt(p * (1 - p) / neff)
+    return p, max(p - 1.96 * se, 0), p + 1.96 * se, len(g), int(y.sum()), neff
+
+
+def main():
+    if not EDUC.exists():
+        extract_educ()
+    d = pd.read_parquet(MARHIST).merge(pd.read_parquet(EDUC), on=[&quot;SSUID&quot;, &quot;PNUM&quot;, &quot;SPANEL&quot;], how=&quot;left&quot;)
+    d = d[d.TMAR1_YR.between(FIRST_MAR, LAST_MAR)].copy()
+    d[&quot;birth&quot;] = REF_YEAR - d.TAGE
+    d[&quot;mar_age&quot;] = (d.TMAR1_YR - d.birth).clip(lower=AGE_LO)
+    d = d[d.mar_age &lt;= AGE_HI]
+    d[&quot;div10&quot;] = (d.EWIDIV1 == 2) &amp; ((d.TSEP1_YR - d.TMAR1_YR) &lt;= HORIZON)
+    d[&quot;ba&quot;] = d.EEDUC &gt;= BA
+    print(f&quot;{len(d)} first marriages {FIRST_MAR}-{LAST_MAR}; {d.EEDUC.isna().sum()} missing education&quot;)
+    groups = {&quot;all&quot;: d, &quot;ba&quot;: d[d.ba], &quot;no_ba&quot;: d[~d.ba &amp; d.EEDUC.notna()],
+              &quot;recent&quot;: d[d.TMAR1_YR &gt;= 1995]}
+    rows, bins = [], []
+    for name, g in groups.items():
+        for a, ga in g.groupby(&quot;mar_age&quot;):
+            p, lo, hi, n, k, neff = share(ga)
+            rows.append(dict(group=name, age=int(a), share=p, lo=lo, hi=hi, n=n, n_div=k, neff=round(neff, 1)))
+        p, lo, hi, n, k, neff = share(g)
+        rows.append(dict(group=name, age=-1, share=p, lo=lo, hi=hi, n=n, n_div=k, neff=round(neff, 1)))
+        for i, (lab, a0, a1) in enumerate(BINS):
+            p, lo, hi, n, k, neff = share(g[g.mar_age.between(a0, a1)])
+            bins.append(dict(group=name, bin=i, label=lab, age_lo=a0, age_hi=a1, share=p, lo=lo, hi=hi, n=n,
+                             n_div=k, neff=round(neff, 1)))
+    pd.DataFrame(bins).to_csv(OUT_BINS, index=False, float_format=&quot;%.4f&quot;)
+    print(pd.DataFrame(bins).pivot(index=&quot;bin&quot;, columns=&quot;group&quot;, values=&quot;share&quot;).round(3).to_string())
+    out = pd.DataFrame(rows)
+    out.to_csv(OUT, index=False, float_format=&quot;%.4f&quot;)
+    print(out[out.age == -1].to_string(index=False))
+    print(&quot;wrote&quot;, OUT)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>divorce_by_marriage_age_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Share of US first marriages ending in divorce within 10 years, by age at the wedding, and by college degree.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/divorce/divorce_by_marriage_age_chart.py
+Data: notebooks/divorce/divorce_by_marriage_age_bins.csv, built by divorce_by_marriage_age_data.py from the US Census
+  Bureau's Survey of Income and Program Participation 2025 (reference year 2024, panels 2022-2025) retrospective
+  marital histories. See that script's docstring for the full method; in short:
+  - Sample: men and women whose first marriage began 1980-2014, so each marriage has 10 full years observed by 2024
+    (9,725 people), weighted by the SIPP person weight.
+  - Outcome: the first marriage ended in divorce and the couple separated within 10 years of the wedding year.
+  - Grouped by age at the first wedding (birth year from age in December 2024, so +/-1 year), in bins of two to six
+    years; under-18 weddings are pooled with 18.
+  - Panel B splits by whether the person held a bachelor's degree by 2024 (measured at the survey, not the wedding).
+    The BA &quot;18 or younger&quot; cell (54 people) is left out of B.
+  - Whiskers and bands are 95% intervals using Kish's effective sample size.
+Point of the chart: NCFMR-style &quot;first divorce rate by age&quot; tables group women by current age, which mostly measures
+marriage duration. Grouping by age at marriage shows the payoff to waiting is large through the mid-20s and
+roughly zero after about 28; a degree lowers risk at every age in the 20s, and the gap closes by the 30s.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/:
+  divorce_by_marriage_age.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+NAME = &quot;divorce_by_marriage_age&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
+PLATEAU = 5  # bin index of 27-28, where the curve bottoms out
+B_FIRST = 1  # B starts at 19-20: the BA 18-or-younger cell has 54 people
+
+FOOTNOTE = (
+    &quot;Source: US Census Bureau, Survey of Income and Program Participation 2025 (panels 2022–2025), retrospective marital &quot;
+    &quot;histories; men and women whose first marriage began 1980–2014\n(n = 9,725), weighted. Divorced = first marriage ended in &quot;
+    &quot;divorce, with separation within 10 years of the wedding. Age at marriage ±1 year; under-18 weddings pooled with 18.\n&quot;
+    &quot;Degree = bachelor's or higher by 2024, not necessarily by the wedding. Whiskers and bands: 95% intervals.&quot;
+)
+
+
+def main():
+    b = pd.read_csv(HERE / &quot;divorce_by_marriage_age_bins.csv&quot;)
+    al = b[b.group == &quot;all&quot;].sort_values(&quot;bin&quot;)
+    ba = b[(b.group == &quot;ba&quot;) &amp; (b.bin &gt;= B_FIRST)].sort_values(&quot;bin&quot;)
+    no = b[(b.group == &quot;no_ba&quot;) &amp; (b.bin &gt;= B_FIRST)].sort_values(&quot;bin&quot;)
+    young = al[al.bin &lt;= 1]
+    young_p = np.average(young.share, weights=young.neff) * 100
+    plat = al[al.bin == PLATEAU].share.iloc[0] * 100
+    later = al[al.bin &gt; PLATEAU].share * 100
+
+    fig = plt.figure(figsize=(13, 7.6))
+    gs = fig.add_gridspec(1, 2, left=0.055, right=0.975, top=0.80, bottom=0.215, wspace=0.13, width_ratios=[1.15, 1])
+    a, c = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
+
+    fig.text(0.055, 0.945, f&quot;Waiting to marry pays off until about 28, then stops: divorce risk falls from {young_p:.0f}% to &quot;
+             f&quot;{plat:.0f}% and stays there&quot;, fontsize=18.5, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
+    fig.text(0.055, 0.905, &quot;Share of US first marriages that ended in divorce within 10 years, by age at the wedding &quot;
+             &quot;(not age today). A degree lowers the risk through the 20s; by the 30s it barely matters.&quot;,
+             fontsize=11.5, color=INK2, ha=&quot;left&quot;)
+
+    # A: bars by age at marriage
+    x = np.arange(len(al))
+    y = al.share.to_numpy() * 100
+    colors = [pb.RED if i == PLATEAU else pb.NAVY for i in al.bin]
+    a.bar(x, y, width=0.72, color=colors, zorder=2)
+    a.errorbar(x, y, yerr=[y - al.lo * 100, al.hi * 100 - y], fmt=&quot;none&quot;, ecolor=MUTED, elinewidth=1, capsize=0,
+               zorder=3)
+    for xi, yi, hi in zip(x, y, al.hi * 100):
+        a.text(xi, hi + 1.2, f&quot;{yi:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK)
+    a.axhline(plat, xmin=(PLATEAU + 0.1) / len(al), xmax=1, color=pb.RED, lw=1, ls=(0, (3, 3)), zorder=1)
+    a.text(len(al) - 0.6, plat - 2.2, f&quot;27–28 onward: {later.min():.0f}–{later.max():.0f}%, no further gain&quot;,
+           ha=&quot;right&quot;, va=&quot;top&quot;, fontsize=10, color=INK2)
+    a.set_xticks(x)
+    a.set_xticklabels(al.label, fontsize=9.5)
+    a.set_xlim(-0.6, len(al) - 0.4)
+    a.set_ylim(0, 70)
+    a.set_yticks(range(0, 71, 10))
+    a.set_yticklabels([f&quot;{v}%&quot; for v in range(0, 71, 10)])
+    a.set_xlabel(&quot;Age at first marriage&quot;, color=INK2)
+    a.set_title(&quot;A  Divorced within 10 years, all first marriages&quot;, loc=&quot;left&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, pad=10)
+
+    # B: degree vs no degree
+    for g, col, lab, dy in [(ba, pb.NAVY, &quot;Bachelor's degree&quot;, -3.5), (no, pb.GRAYS[1], &quot;No bachelor's degree&quot;, 3.5)]:
+        xb = g.bin.to_numpy()
+        yb = g.share.to_numpy() * 100
+        c.fill_between(xb, g.lo * 100, g.hi * 100, color=col, alpha=0.12, lw=0, zorder=1)
+        c.plot(xb, yb, color=col, lw=2.2, marker=&quot;o&quot;, ms=5.5, mec=pb.SURFACE, mew=1.2, zorder=3)
+        c.text(3.1, yb[xb == 3][0] + dy, lab, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, ha=&quot;left&quot;,
+               va=&quot;bottom&quot; if dy &gt; 0 else &quot;top&quot;)
+    c.set_xticks(ba.bin)
+    c.set_xticklabels(ba.label, fontsize=9.5)
+    c.set_xlim(B_FIRST - 0.4, len(al) - 0.6)
+    c.set_ylim(0, 70)
+    c.set_yticks(range(0, 71, 10))
+    c.set_yticklabels([f&quot;{v}%&quot; for v in range(0, 71, 10)])
+    c.set_xlabel(&quot;Age at first marriage&quot;, color=INK2)
+    c.set_title(&quot;B  Same, by college degree&quot;, loc=&quot;left&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, pad=10)
+    for ax in (a, c):
+        ax.grid(axis=&quot;x&quot;, visible=False)
+
+    fig.text(0.055, 0.025, FOOTNOTE, fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.45)
+
+    orig = NOTES / &quot;Unwatermarked graphs&quot; / f&quot;{NAME}.png&quot;
+    wm = NOTES / f&quot;{NAME}_wm.png&quot;
+    orig.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(orig, dpi=200)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(orig), str(wm)], check=True)
+    print(&quot;wrote&quot;, orig, &quot;and&quot;, wm)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
