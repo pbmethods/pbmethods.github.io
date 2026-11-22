@@ -1,0 +1,1177 @@
+figure,sex,panel,x,y,series,xkind
+Fig1,men,A,2.5000,0.5270,1951-53,earnings_rank
+Fig1,men,A,7.5000,0.3035,1951-53,earnings_rank
+Fig1,men,A,12.5000,0.2500,1951-53,earnings_rank
+Fig1,men,A,17.5000,0.2186,1951-53,earnings_rank
+Fig1,men,A,22.5000,0.2048,1951-53,earnings_rank
+Fig1,men,A,27.5000,0.1744,1951-53,earnings_rank
+Fig1,men,A,32.5000,0.1699,1951-53,earnings_rank
+Fig1,men,A,37.5000,0.1579,1951-53,earnings_rank
+Fig1,men,A,42.5000,0.1430,1951-53,earnings_rank
+Fig1,men,A,47.5000,0.1392,1951-53,earnings_rank
+Fig1,men,A,52.5000,0.1325,1951-53,earnings_rank
+Fig1,men,A,57.5000,0.1236,1951-53,earnings_rank
+Fig1,men,A,62.5000,0.1211,1951-53,earnings_rank
+Fig1,men,A,67.5000,0.1185,1951-53,earnings_rank
+Fig1,men,A,72.5000,0.1172,1951-53,earnings_rank
+Fig1,men,A,77.5000,0.1107,1951-53,earnings_rank
+Fig1,men,A,82.5000,0.1030,1951-53,earnings_rank
+Fig1,men,A,87.5000,0.0918,1951-53,earnings_rank
+Fig1,men,A,92.5000,0.0900,1951-53,earnings_rank
+Fig1,men,A,97.5000,0.0769,1951-53,earnings_rank
+Fig1,men,A,2.5000,0.5910,1964-66,earnings_rank
+Fig1,men,A,7.5000,0.3743,1964-66,earnings_rank
+Fig1,men,A,12.5000,0.3103,1964-66,earnings_rank
+Fig1,men,A,17.5000,0.2646,1964-66,earnings_rank
+Fig1,men,A,22.5000,0.2517,1964-66,earnings_rank
+Fig1,men,A,27.5000,0.2357,1964-66,earnings_rank
+Fig1,men,A,32.5000,0.2151,1964-66,earnings_rank
+Fig1,men,A,37.5000,0.2103,1964-66,earnings_rank
+Fig1,men,A,42.5000,0.1996,1964-66,earnings_rank
+Fig1,men,A,47.5000,0.1874,1964-66,earnings_rank
+Fig1,men,A,52.5000,0.1701,1964-66,earnings_rank
+Fig1,men,A,57.5000,0.1698,1964-66,earnings_rank
+Fig1,men,A,62.5000,0.1669,1964-66,earnings_rank
+Fig1,men,A,67.5000,0.1653,1964-66,earnings_rank
+Fig1,men,A,72.5000,0.1505,1964-66,earnings_rank
+Fig1,men,A,77.5000,0.1456,1964-66,earnings_rank
+Fig1,men,A,82.5000,0.1418,1964-66,earnings_rank
+Fig1,men,A,87.5000,0.1333,1964-66,earnings_rank
+Fig1,men,A,92.5000,0.1114,1964-66,earnings_rank
+Fig1,men,A,97.5000,0.1052,1964-66,earnings_rank
+Fig1,men,A,2.5000,0.7147,1977-79,earnings_rank
+Fig1,men,A,7.5000,0.5232,1977-79,earnings_rank
+Fig1,men,A,12.5000,0.4076,1977-79,earnings_rank
+Fig1,men,A,17.5000,0.3472,1977-79,earnings_rank
+Fig1,men,A,22.5000,0.3007,1977-79,earnings_rank
+Fig1,men,A,27.5000,0.2672,1977-79,earnings_rank
+Fig1,men,A,32.5000,0.2347,1977-79,earnings_rank
+Fig1,men,A,37.5000,0.2309,1977-79,earnings_rank
+Fig1,men,A,42.5000,0.2125,1977-79,earnings_rank
+Fig1,men,A,47.5000,0.2122,1977-79,earnings_rank
+Fig1,men,A,52.5000,0.1848,1977-79,earnings_rank
+Fig1,men,A,57.5000,0.1856,1977-79,earnings_rank
+Fig1,men,A,62.5000,0.1635,1977-79,earnings_rank
+Fig1,men,A,67.5000,0.1656,1977-79,earnings_rank
+Fig1,men,A,72.5000,0.1632,1977-79,earnings_rank
+Fig1,men,A,77.5000,0.1660,1977-79,earnings_rank
+Fig1,men,A,82.5000,0.1346,1977-79,earnings_rank
+Fig1,men,A,87.5000,0.1225,1977-79,earnings_rank
+Fig1,men,A,92.5000,0.1334,1977-79,earnings_rank
+Fig1,men,A,97.5000,0.1056,1977-79,earnings_rank
+Fig1,men,B,2.5000,0.2196,1951-53,earnings_rank
+Fig1,men,B,7.5000,0.2024,1951-53,earnings_rank
+Fig1,men,B,12.5000,0.1847,1951-53,earnings_rank
+Fig1,men,B,17.5000,0.1736,1951-53,earnings_rank
+Fig1,men,B,22.5000,0.1750,1951-53,earnings_rank
+Fig1,men,B,27.5000,0.1556,1951-53,earnings_rank
+Fig1,men,B,32.5000,0.1656,1951-53,earnings_rank
+Fig1,men,B,37.5000,0.1707,1951-53,earnings_rank
+Fig1,men,B,42.5000,0.1542,1951-53,earnings_rank
+Fig1,men,B,47.5000,0.1585,1951-53,earnings_rank
+Fig1,men,B,52.5000,0.1542,1951-53,earnings_rank
+Fig1,men,B,57.5000,0.1601,1951-53,earnings_rank
+Fig1,men,B,62.5000,0.1519,1951-53,earnings_rank
+Fig1,men,B,67.5000,0.1568,1951-53,earnings_rank
+Fig1,men,B,72.5000,0.1569,1951-53,earnings_rank
+Fig1,men,B,77.5000,0.1466,1951-53,earnings_rank
+Fig1,men,B,82.5000,0.1658,1951-53,earnings_rank
+Fig1,men,B,87.5000,0.1588,1951-53,earnings_rank
+Fig1,men,B,92.5000,0.1695,1951-53,earnings_rank
+Fig1,men,B,97.5000,0.1720,1951-53,earnings_rank
+Fig1,men,B,2.5000,0.2560,1964-66,earnings_rank
+Fig1,men,B,7.5000,0.2400,1964-66,earnings_rank
+Fig1,men,B,12.5000,0.2328,1964-66,earnings_rank
+Fig1,men,B,17.5000,0.2237,1964-66,earnings_rank
+Fig1,men,B,22.5000,0.2254,1964-66,earnings_rank
+Fig1,men,B,27.5000,0.2085,1964-66,earnings_rank
+Fig1,men,B,32.5000,0.2080,1964-66,earnings_rank
+Fig1,men,B,37.5000,0.2175,1964-66,earnings_rank
+Fig1,men,B,42.5000,0.2062,1964-66,earnings_rank
+Fig1,men,B,47.5000,0.2135,1964-66,earnings_rank
+Fig1,men,B,52.5000,0.2105,1964-66,earnings_rank
+Fig1,men,B,57.5000,0.2138,1964-66,earnings_rank
+Fig1,men,B,62.5000,0.2088,1964-66,earnings_rank
+Fig1,men,B,67.5000,0.2098,1964-66,earnings_rank
+Fig1,men,B,72.5000,0.1956,1964-66,earnings_rank
+Fig1,men,B,77.5000,0.2088,1964-66,earnings_rank
+Fig1,men,B,82.5000,0.2019,1964-66,earnings_rank
+Fig1,men,B,87.5000,0.2037,1964-66,earnings_rank
+Fig1,men,B,92.5000,0.2266,1964-66,earnings_rank
+Fig1,men,B,97.5000,0.2051,1964-66,earnings_rank
+Fig1,men,B,2.5000,0.3079,1977-79,earnings_rank
+Fig1,men,B,7.5000,0.2731,1977-79,earnings_rank
+Fig1,men,B,12.5000,0.2639,1977-79,earnings_rank
+Fig1,men,B,17.5000,0.2669,1977-79,earnings_rank
+Fig1,men,B,22.5000,0.2639,1977-79,earnings_rank
+Fig1,men,B,27.5000,0.2541,1977-79,earnings_rank
+Fig1,men,B,32.5000,0.2569,1977-79,earnings_rank
+Fig1,men,B,37.5000,0.2545,1977-79,earnings_rank
+Fig1,men,B,42.5000,0.2472,1977-79,earnings_rank
+Fig1,men,B,47.5000,0.2507,1977-79,earnings_rank
+Fig1,men,B,52.5000,0.2511,1977-79,earnings_rank
+Fig1,men,B,57.5000,0.2385,1977-79,earnings_rank
+Fig1,men,B,62.5000,0.2321,1977-79,earnings_rank
+Fig1,men,B,67.5000,0.2427,1977-79,earnings_rank
+Fig1,men,B,72.5000,0.2394,1977-79,earnings_rank
+Fig1,men,B,77.5000,0.2432,1977-79,earnings_rank
+Fig1,men,B,82.5000,0.2404,1977-79,earnings_rank
+Fig1,men,B,87.5000,0.2264,1977-79,earnings_rank
+Fig1,men,B,92.5000,0.2281,1977-79,earnings_rank
+Fig1,men,B,97.5000,0.2327,1977-79,earnings_rank
+Fig1,men,C,2.5000,0.9923,1951-53,earnings_rank
+Fig1,men,C,7.5000,1.5683,1951-53,earnings_rank
+Fig1,men,C,12.5000,1.7084,1951-53,earnings_rank
+Fig1,men,C,17.5000,1.7696,1951-53,earnings_rank
+Fig1,men,C,22.5000,1.8322,1951-53,earnings_rank
+Fig1,men,C,27.5000,1.8716,1951-53,earnings_rank
+Fig1,men,C,32.5000,1.8825,1951-53,earnings_rank
+Fig1,men,C,37.5000,1.8989,1951-53,earnings_rank
+Fig1,men,C,42.5000,1.9458,1951-53,earnings_rank
+Fig1,men,C,47.5000,1.9466,1951-53,earnings_rank
+Fig1,men,C,52.5000,1.9695,1951-53,earnings_rank
+Fig1,men,C,57.5000,1.9768,1951-53,earnings_rank
+Fig1,men,C,62.5000,2.0150,1951-53,earnings_rank
+Fig1,men,C,67.5000,2.0321,1951-53,earnings_rank
+Fig1,men,C,72.5000,1.9968,1951-53,earnings_rank
+Fig1,men,C,77.5000,2.0380,1951-53,earnings_rank
+Fig1,men,C,82.5000,2.0296,1951-53,earnings_rank
+Fig1,men,C,87.5000,2.0875,1951-53,earnings_rank
+Fig1,men,C,92.5000,2.1064,1951-53,earnings_rank
+Fig1,men,C,97.5000,2.1996,1951-53,earnings_rank
+Fig1,men,C,2.5000,0.7887,1964-66,earnings_rank
+Fig1,men,C,7.5000,1.3498,1964-66,earnings_rank
+Fig1,men,C,12.5000,1.5202,1964-66,earnings_rank
+Fig1,men,C,17.5000,1.6214,1964-66,earnings_rank
+Fig1,men,C,22.5000,1.6287,1964-66,earnings_rank
+Fig1,men,C,27.5000,1.6881,1964-66,earnings_rank
+Fig1,men,C,32.5000,1.7481,1964-66,earnings_rank
+Fig1,men,C,37.5000,1.7405,1964-66,earnings_rank
+Fig1,men,C,42.5000,1.7875,1964-66,earnings_rank
+Fig1,men,C,47.5000,1.7936,1964-66,earnings_rank
+Fig1,men,C,52.5000,1.8286,1964-66,earnings_rank
+Fig1,men,C,57.5000,1.8381,1964-66,earnings_rank
+Fig1,men,C,62.5000,1.8472,1964-66,earnings_rank
+Fig1,men,C,67.5000,1.8508,1964-66,earnings_rank
+Fig1,men,C,72.5000,1.8788,1964-66,earnings_rank
+Fig1,men,C,77.5000,1.9273,1964-66,earnings_rank
+Fig1,men,C,82.5000,1.9393,1964-66,earnings_rank
+Fig1,men,C,87.5000,1.9655,1964-66,earnings_rank
+Fig1,men,C,92.5000,2.0441,1964-66,earnings_rank
+Fig1,men,C,97.5000,2.0656,1964-66,earnings_rank
+Fig1,men,C,2.5000,0.4891,1977-79,earnings_rank
+Fig1,men,C,7.5000,0.8768,1977-79,earnings_rank
+Fig1,men,C,12.5000,1.1532,1977-79,earnings_rank
+Fig1,men,C,17.5000,1.3061,1977-79,earnings_rank
+Fig1,men,C,22.5000,1.4423,1977-79,earnings_rank
+Fig1,men,C,27.5000,1.5260,1977-79,earnings_rank
+Fig1,men,C,32.5000,1.6032,1977-79,earnings_rank
+Fig1,men,C,37.5000,1.6353,1977-79,earnings_rank
+Fig1,men,C,42.5000,1.6538,1977-79,earnings_rank
+Fig1,men,C,47.5000,1.6648,1977-79,earnings_rank
+Fig1,men,C,52.5000,1.7478,1977-79,earnings_rank
+Fig1,men,C,57.5000,1.7736,1977-79,earnings_rank
+Fig1,men,C,62.5000,1.7987,1977-79,earnings_rank
+Fig1,men,C,67.5000,1.8027,1977-79,earnings_rank
+Fig1,men,C,72.5000,1.8268,1977-79,earnings_rank
+Fig1,men,C,77.5000,1.8271,1977-79,earnings_rank
+Fig1,men,C,82.5000,1.8869,1977-79,earnings_rank
+Fig1,men,C,87.5000,1.9458,1977-79,earnings_rank
+Fig1,men,C,92.5000,1.9455,1977-79,earnings_rank
+Fig1,men,C,97.5000,2.0125,1977-79,earnings_rank
+Fig1,men,D,2.5000,1.7992,1951-53,earnings_rank
+Fig1,men,D,7.5000,1.8397,1951-53,earnings_rank
+Fig1,men,D,12.5000,1.8659,1951-53,earnings_rank
+Fig1,men,D,17.5000,1.9001,1951-53,earnings_rank
+Fig1,men,D,22.5000,1.9065,1951-53,earnings_rank
+Fig1,men,D,27.5000,1.9218,1951-53,earnings_rank
+Fig1,men,D,32.5000,1.8853,1951-53,earnings_rank
+Fig1,men,D,37.5000,1.8983,1951-53,earnings_rank
+Fig1,men,D,42.5000,1.9399,1951-53,earnings_rank
+Fig1,men,D,47.5000,1.9162,1951-53,earnings_rank
+Fig1,men,D,52.5000,1.9133,1951-53,earnings_rank
+Fig1,men,D,57.5000,1.9119,1951-53,earnings_rank
+Fig1,men,D,62.5000,1.9156,1951-53,earnings_rank
+Fig1,men,D,67.5000,1.8902,1951-53,earnings_rank
+Fig1,men,D,72.5000,1.8813,1951-53,earnings_rank
+Fig1,men,D,77.5000,1.9471,1951-53,earnings_rank
+Fig1,men,D,82.5000,1.8766,1951-53,earnings_rank
+Fig1,men,D,87.5000,1.9040,1951-53,earnings_rank
+Fig1,men,D,92.5000,1.8637,1951-53,earnings_rank
+Fig1,men,D,97.5000,1.8927,1951-53,earnings_rank
+Fig1,men,D,2.5000,1.6579,1964-66,earnings_rank
+Fig1,men,D,7.5000,1.7265,1964-66,earnings_rank
+Fig1,men,D,12.5000,1.7207,1964-66,earnings_rank
+Fig1,men,D,17.5000,1.7288,1964-66,earnings_rank
+Fig1,men,D,22.5000,1.7121,1964-66,earnings_rank
+Fig1,men,D,27.5000,1.7844,1964-66,earnings_rank
+Fig1,men,D,32.5000,1.7658,1964-66,earnings_rank
+Fig1,men,D,37.5000,1.7470,1964-66,earnings_rank
+Fig1,men,D,42.5000,1.7648,1964-66,earnings_rank
+Fig1,men,D,47.5000,1.7581,1964-66,earnings_rank
+Fig1,men,D,52.5000,1.7543,1964-66,earnings_rank
+Fig1,men,D,57.5000,1.7337,1964-66,earnings_rank
+Fig1,men,D,62.5000,1.7427,1964-66,earnings_rank
+Fig1,men,D,67.5000,1.7555,1964-66,earnings_rank
+Fig1,men,D,72.5000,1.7630,1964-66,earnings_rank
+Fig1,men,D,77.5000,1.7447,1964-66,earnings_rank
+Fig1,men,D,82.5000,1.7685,1964-66,earnings_rank
+Fig1,men,D,87.5000,1.7401,1964-66,earnings_rank
+Fig1,men,D,92.5000,1.7043,1964-66,earnings_rank
+Fig1,men,D,97.5000,1.7409,1964-66,earnings_rank
+Fig1,men,D,2.5000,1.4373,1977-79,earnings_rank
+Fig1,men,D,7.5000,1.5495,1977-79,earnings_rank
+Fig1,men,D,12.5000,1.5611,1977-79,earnings_rank
+Fig1,men,D,17.5000,1.5801,1977-79,earnings_rank
+Fig1,men,D,22.5000,1.5661,1977-79,earnings_rank
+Fig1,men,D,27.5000,1.5972,1977-79,earnings_rank
+Fig1,men,D,32.5000,1.5796,1977-79,earnings_rank
+Fig1,men,D,37.5000,1.5877,1977-79,earnings_rank
+Fig1,men,D,42.5000,1.5967,1977-79,earnings_rank
+Fig1,men,D,47.5000,1.6015,1977-79,earnings_rank
+Fig1,men,D,52.5000,1.5821,1977-79,earnings_rank
+Fig1,men,D,57.5000,1.6390,1977-79,earnings_rank
+Fig1,men,D,62.5000,1.6462,1977-79,earnings_rank
+Fig1,men,D,67.5000,1.6108,1977-79,earnings_rank
+Fig1,men,D,72.5000,1.5904,1977-79,earnings_rank
+Fig1,men,D,77.5000,1.5961,1977-79,earnings_rank
+Fig1,men,D,82.5000,1.6097,1977-79,earnings_rank
+Fig1,men,D,87.5000,1.6418,1977-79,earnings_rank
+Fig1,men,D,92.5000,1.6510,1977-79,earnings_rank
+Fig1,men,D,97.5000,1.6303,1977-79,earnings_rank
+Fig2,men,A,1951.0000,0.4325,bottom 10%,birth_year
+Fig2,men,A,1952.0000,0.4468,bottom 10%,birth_year
+Fig2,men,A,1953.0000,0.4388,bottom 10%,birth_year
+Fig2,men,A,1954.0000,0.4361,bottom 10%,birth_year
+Fig2,men,A,1955.0000,0.4606,bottom 10%,birth_year
+Fig2,men,A,1956.0000,0.4612,bottom 10%,birth_year
+Fig2,men,A,1957.0000,0.4587,bottom 10%,birth_year
+Fig2,men,A,1958.0000,0.4919,bottom 10%,birth_year
+Fig2,men,A,1959.0000,0.4691,bottom 10%,birth_year
+Fig2,men,A,1960.0000,0.4984,bottom 10%,birth_year
+Fig2,men,A,1961.0000,0.4911,bottom 10%,birth_year
+Fig2,men,A,1962.0000,0.5021,bottom 10%,birth_year
+Fig2,men,A,1963.0000,0.5131,bottom 10%,birth_year
+Fig2,men,A,1964.0000,0.5065,bottom 10%,birth_year
+Fig2,men,A,1965.0000,0.5178,bottom 10%,birth_year
+Fig2,men,A,1966.0000,0.4978,bottom 10%,birth_year
+Fig2,men,A,1967.0000,0.5260,bottom 10%,birth_year
+Fig2,men,A,1968.0000,0.5302,bottom 10%,birth_year
+Fig2,men,A,1969.0000,0.5413,bottom 10%,birth_year
+Fig2,men,A,1970.0000,0.5549,bottom 10%,birth_year
+Fig2,men,A,1971.0000,0.5515,bottom 10%,birth_year
+Fig2,men,A,1972.0000,0.5592,bottom 10%,birth_year
+Fig2,men,A,1973.0000,0.5943,bottom 10%,birth_year
+Fig2,men,A,1974.0000,0.5778,bottom 10%,birth_year
+Fig2,men,A,1975.0000,0.6054,bottom 10%,birth_year
+Fig2,men,A,1976.0000,0.6104,bottom 10%,birth_year
+Fig2,men,A,1977.0000,0.6455,bottom 10%,birth_year
+Fig2,men,A,1978.0000,0.6458,bottom 10%,birth_year
+Fig2,men,A,1979.0000,0.6392,bottom 10%,birth_year
+Fig2,men,A,1951.0000,0.1308,middle 10%,birth_year
+Fig2,men,A,1952.0000,0.1361,middle 10%,birth_year
+Fig2,men,A,1953.0000,0.1408,middle 10%,birth_year
+Fig2,men,A,1954.0000,0.1492,middle 10%,birth_year
+Fig2,men,A,1955.0000,0.1476,middle 10%,birth_year
+Fig2,men,A,1956.0000,0.1614,middle 10%,birth_year
+Fig2,men,A,1957.0000,0.1694,middle 10%,birth_year
+Fig2,men,A,1958.0000,0.1609,middle 10%,birth_year
+Fig2,men,A,1959.0000,0.1676,middle 10%,birth_year
+Fig2,men,A,1960.0000,0.1706,middle 10%,birth_year
+Fig2,men,A,1961.0000,0.1808,middle 10%,birth_year
+Fig2,men,A,1962.0000,0.1780,middle 10%,birth_year
+Fig2,men,A,1963.0000,0.1822,middle 10%,birth_year
+Fig2,men,A,1964.0000,0.1673,middle 10%,birth_year
+Fig2,men,A,1965.0000,0.1837,middle 10%,birth_year
+Fig2,men,A,1966.0000,0.1854,middle 10%,birth_year
+Fig2,men,A,1967.0000,0.2040,middle 10%,birth_year
+Fig2,men,A,1968.0000,0.1882,middle 10%,birth_year
+Fig2,men,A,1969.0000,0.1808,middle 10%,birth_year
+Fig2,men,A,1970.0000,0.1773,middle 10%,birth_year
+Fig2,men,A,1971.0000,0.1881,middle 10%,birth_year
+Fig2,men,A,1972.0000,0.1701,middle 10%,birth_year
+Fig2,men,A,1973.0000,0.1778,middle 10%,birth_year
+Fig2,men,A,1974.0000,0.1896,middle 10%,birth_year
+Fig2,men,A,1975.0000,0.1804,middle 10%,birth_year
+Fig2,men,A,1976.0000,0.1956,middle 10%,birth_year
+Fig2,men,A,1977.0000,0.1966,middle 10%,birth_year
+Fig2,men,A,1978.0000,0.1967,middle 10%,birth_year
+Fig2,men,A,1979.0000,0.2080,middle 10%,birth_year
+Fig2,men,A,1951.0000,0.0816,top 10%,birth_year
+Fig2,men,A,1952.0000,0.0904,top 10%,birth_year
+Fig2,men,A,1953.0000,0.0839,top 10%,birth_year
+Fig2,men,A,1954.0000,0.0873,top 10%,birth_year
+Fig2,men,A,1955.0000,0.1117,top 10%,birth_year
+Fig2,men,A,1956.0000,0.1009,top 10%,birth_year
+Fig2,men,A,1957.0000,0.1021,top 10%,birth_year
+Fig2,men,A,1958.0000,0.1043,top 10%,birth_year
+Fig2,men,A,1959.0000,0.1048,top 10%,birth_year
+Fig2,men,A,1960.0000,0.1096,top 10%,birth_year
+Fig2,men,A,1961.0000,0.0963,top 10%,birth_year
+Fig2,men,A,1962.0000,0.1096,top 10%,birth_year
+Fig2,men,A,1963.0000,0.1073,top 10%,birth_year
+Fig2,men,A,1964.0000,0.1170,top 10%,birth_year
+Fig2,men,A,1965.0000,0.1119,top 10%,birth_year
+Fig2,men,A,1966.0000,0.1087,top 10%,birth_year
+Fig2,men,A,1967.0000,0.1110,top 10%,birth_year
+Fig2,men,A,1968.0000,0.1164,top 10%,birth_year
+Fig2,men,A,1969.0000,0.1157,top 10%,birth_year
+Fig2,men,A,1970.0000,0.1248,top 10%,birth_year
+Fig2,men,A,1971.0000,0.1177,top 10%,birth_year
+Fig2,men,A,1972.0000,0.1247,top 10%,birth_year
+Fig2,men,A,1973.0000,0.1202,top 10%,birth_year
+Fig2,men,A,1974.0000,0.1182,top 10%,birth_year
+Fig2,men,A,1975.0000,0.1101,top 10%,birth_year
+Fig2,men,A,1976.0000,0.1136,top 10%,birth_year
+Fig2,men,A,1977.0000,0.1119,top 10%,birth_year
+Fig2,men,A,1978.0000,0.1240,top 10%,birth_year
+Fig2,men,A,1979.0000,0.1267,top 10%,birth_year
+Fig2,men,B,1951.0000,0.2111,bottom 10%,birth_year
+Fig2,men,B,1952.0000,0.2093,bottom 10%,birth_year
+Fig2,men,B,1953.0000,0.2136,bottom 10%,birth_year
+Fig2,men,B,1954.0000,0.2084,bottom 10%,birth_year
+Fig2,men,B,1955.0000,0.2222,bottom 10%,birth_year
+Fig2,men,B,1956.0000,0.2398,bottom 10%,birth_year
+Fig2,men,B,1957.0000,0.2191,bottom 10%,birth_year
+Fig2,men,B,1958.0000,0.2281,bottom 10%,birth_year
+Fig2,men,B,1959.0000,0.2308,bottom 10%,birth_year
+Fig2,men,B,1960.0000,0.2444,bottom 10%,birth_year
+Fig2,men,B,1961.0000,0.2524,bottom 10%,birth_year
+Fig2,men,B,1962.0000,0.2521,bottom 10%,birth_year
+Fig2,men,B,1963.0000,0.2533,bottom 10%,birth_year
+Fig2,men,B,1964.0000,0.2425,bottom 10%,birth_year
+Fig2,men,B,1965.0000,0.2597,bottom 10%,birth_year
+Fig2,men,B,1966.0000,0.2485,bottom 10%,birth_year
+Fig2,men,B,1967.0000,0.2602,bottom 10%,birth_year
+Fig2,men,B,1968.0000,0.2493,bottom 10%,birth_year
+Fig2,men,B,1969.0000,0.2642,bottom 10%,birth_year
+Fig2,men,B,1970.0000,0.2707,bottom 10%,birth_year
+Fig2,men,B,1971.0000,0.2667,bottom 10%,birth_year
+Fig2,men,B,1972.0000,0.2743,bottom 10%,birth_year
+Fig2,men,B,1973.0000,0.2784,bottom 10%,birth_year
+Fig2,men,B,1974.0000,0.2654,bottom 10%,birth_year
+Fig2,men,B,1975.0000,0.2876,bottom 10%,birth_year
+Fig2,men,B,1976.0000,0.2847,bottom 10%,birth_year
+Fig2,men,B,1977.0000,0.2854,bottom 10%,birth_year
+Fig2,men,B,1978.0000,0.2947,bottom 10%,birth_year
+Fig2,men,B,1979.0000,0.3095,bottom 10%,birth_year
+Fig2,men,B,1951.0000,0.1571,middle 10%,birth_year
+Fig2,men,B,1952.0000,0.1486,middle 10%,birth_year
+Fig2,men,B,1953.0000,0.1634,middle 10%,birth_year
+Fig2,men,B,1954.0000,0.1675,middle 10%,birth_year
+Fig2,men,B,1955.0000,0.1771,middle 10%,birth_year
+Fig2,men,B,1956.0000,0.1752,middle 10%,birth_year
+Fig2,men,B,1957.0000,0.1885,middle 10%,birth_year
+Fig2,men,B,1958.0000,0.1918,middle 10%,birth_year
+Fig2,men,B,1959.0000,0.1939,middle 10%,birth_year
+Fig2,men,B,1960.0000,0.2051,middle 10%,birth_year
+Fig2,men,B,1961.0000,0.2056,middle 10%,birth_year
+Fig2,men,B,1962.0000,0.2216,middle 10%,birth_year
+Fig2,men,B,1963.0000,0.2145,middle 10%,birth_year
+Fig2,men,B,1964.0000,0.2073,middle 10%,birth_year
+Fig2,men,B,1965.0000,0.2187,middle 10%,birth_year
+Fig2,men,B,1966.0000,0.2100,middle 10%,birth_year
+Fig2,men,B,1967.0000,0.2072,middle 10%,birth_year
+Fig2,men,B,1968.0000,0.2279,middle 10%,birth_year
+Fig2,men,B,1969.0000,0.2025,middle 10%,birth_year
+Fig2,men,B,1970.0000,0.2191,middle 10%,birth_year
+Fig2,men,B,1971.0000,0.2252,middle 10%,birth_year
+Fig2,men,B,1972.0000,0.2189,middle 10%,birth_year
+Fig2,men,B,1973.0000,0.2284,middle 10%,birth_year
+Fig2,men,B,1974.0000,0.2273,middle 10%,birth_year
+Fig2,men,B,1975.0000,0.2271,middle 10%,birth_year
+Fig2,men,B,1976.0000,0.2285,middle 10%,birth_year
+Fig2,men,B,1977.0000,0.2533,middle 10%,birth_year
+Fig2,men,B,1978.0000,0.2510,middle 10%,birth_year
+Fig2,men,B,1979.0000,0.2484,middle 10%,birth_year
+Fig2,men,B,1951.0000,0.1724,top 10%,birth_year
+Fig2,men,B,1952.0000,0.1747,top 10%,birth_year
+Fig2,men,B,1953.0000,0.1654,top 10%,birth_year
+Fig2,men,B,1954.0000,0.1760,top 10%,birth_year
+Fig2,men,B,1955.0000,0.1876,top 10%,birth_year
+Fig2,men,B,1956.0000,0.1805,top 10%,birth_year
+Fig2,men,B,1957.0000,0.1782,top 10%,birth_year
+Fig2,men,B,1958.0000,0.1912,top 10%,birth_year
+Fig2,men,B,1959.0000,0.1992,top 10%,birth_year
+Fig2,men,B,1960.0000,0.1993,top 10%,birth_year
+Fig2,men,B,1961.0000,0.1997,top 10%,birth_year
+Fig2,men,B,1962.0000,0.2038,top 10%,birth_year
+Fig2,men,B,1963.0000,0.2078,top 10%,birth_year
+Fig2,men,B,1964.0000,0.2139,top 10%,birth_year
+Fig2,men,B,1965.0000,0.2183,top 10%,birth_year
+Fig2,men,B,1966.0000,0.2155,top 10%,birth_year
+Fig2,men,B,1967.0000,0.2113,top 10%,birth_year
+Fig2,men,B,1968.0000,0.2042,top 10%,birth_year
+Fig2,men,B,1969.0000,0.1966,top 10%,birth_year
+Fig2,men,B,1970.0000,0.2126,top 10%,birth_year
+Fig2,men,B,1971.0000,0.2092,top 10%,birth_year
+Fig2,men,B,1972.0000,0.1994,top 10%,birth_year
+Fig2,men,B,1973.0000,0.2061,top 10%,birth_year
+Fig2,men,B,1974.0000,0.1966,top 10%,birth_year
+Fig2,men,B,1975.0000,0.2202,top 10%,birth_year
+Fig2,men,B,1976.0000,0.2278,top 10%,birth_year
+Fig2,men,B,1977.0000,0.2282,top 10%,birth_year
+Fig2,men,B,1978.0000,0.2275,top 10%,birth_year
+Fig2,men,B,1979.0000,0.2354,top 10%,birth_year
+Fig2,men,C,1951.0000,1.2557,bottom 10%,birth_year
+Fig2,men,C,1952.0000,1.2003,bottom 10%,birth_year
+Fig2,men,C,1953.0000,1.2032,bottom 10%,birth_year
+Fig2,men,C,1954.0000,1.2735,bottom 10%,birth_year
+Fig2,men,C,1955.0000,1.1917,bottom 10%,birth_year
+Fig2,men,C,1956.0000,1.1706,bottom 10%,birth_year
+Fig2,men,C,1957.0000,1.1598,bottom 10%,birth_year
+Fig2,men,C,1958.0000,1.1109,bottom 10%,birth_year
+Fig2,men,C,1959.0000,1.1735,bottom 10%,birth_year
+Fig2,men,C,1960.0000,1.0334,bottom 10%,birth_year
+Fig2,men,C,1961.0000,1.0928,bottom 10%,birth_year
+Fig2,men,C,1962.0000,1.0620,bottom 10%,birth_year
+Fig2,men,C,1963.0000,1.0276,bottom 10%,birth_year
+Fig2,men,C,1964.0000,1.0251,bottom 10%,birth_year
+Fig2,men,C,1965.0000,0.9827,bottom 10%,birth_year
+Fig2,men,C,1966.0000,1.0139,bottom 10%,birth_year
+Fig2,men,C,1967.0000,0.9794,bottom 10%,birth_year
+Fig2,men,C,1968.0000,0.9537,bottom 10%,birth_year
+Fig2,men,C,1969.0000,0.8889,bottom 10%,birth_year
+Fig2,men,C,1970.0000,0.8810,bottom 10%,birth_year
+Fig2,men,C,1971.0000,0.8603,bottom 10%,birth_year
+Fig2,men,C,1972.0000,0.8556,bottom 10%,birth_year
+Fig2,men,C,1973.0000,0.7882,bottom 10%,birth_year
+Fig2,men,C,1974.0000,0.8150,bottom 10%,birth_year
+Fig2,men,C,1975.0000,0.7423,bottom 10%,birth_year
+Fig2,men,C,1976.0000,0.7202,bottom 10%,birth_year
+Fig2,men,C,1977.0000,0.6409,bottom 10%,birth_year
+Fig2,men,C,1978.0000,0.6271,bottom 10%,birth_year
+Fig2,men,C,1979.0000,0.6336,bottom 10%,birth_year
+Fig2,men,C,1951.0000,1.9601,middle 10%,birth_year
+Fig2,men,C,1952.0000,1.9525,middle 10%,birth_year
+Fig2,men,C,1953.0000,1.9525,middle 10%,birth_year
+Fig2,men,C,1954.0000,1.9543,middle 10%,birth_year
+Fig2,men,C,1955.0000,1.9507,middle 10%,birth_year
+Fig2,men,C,1956.0000,1.9166,middle 10%,birth_year
+Fig2,men,C,1957.0000,1.9217,middle 10%,birth_year
+Fig2,men,C,1958.0000,1.9170,middle 10%,birth_year
+Fig2,men,C,1959.0000,1.8837,middle 10%,birth_year
+Fig2,men,C,1960.0000,1.8978,middle 10%,birth_year
+Fig2,men,C,1961.0000,1.8645,middle 10%,birth_year
+Fig2,men,C,1962.0000,1.8844,middle 10%,birth_year
+Fig2,men,C,1963.0000,1.8112,middle 10%,birth_year
+Fig2,men,C,1964.0000,1.8533,middle 10%,birth_year
+Fig2,men,C,1965.0000,1.8163,middle 10%,birth_year
+Fig2,men,C,1966.0000,1.7555,middle 10%,birth_year
+Fig2,men,C,1967.0000,1.7475,middle 10%,birth_year
+Fig2,men,C,1968.0000,1.7841,middle 10%,birth_year
+Fig2,men,C,1969.0000,1.7718,middle 10%,birth_year
+Fig2,men,C,1970.0000,1.8051,middle 10%,birth_year
+Fig2,men,C,1971.0000,1.7555,middle 10%,birth_year
+Fig2,men,C,1972.0000,1.7982,middle 10%,birth_year
+Fig2,men,C,1973.0000,1.7692,middle 10%,birth_year
+Fig2,men,C,1974.0000,1.7591,middle 10%,birth_year
+Fig2,men,C,1975.0000,1.7692,middle 10%,birth_year
+Fig2,men,C,1976.0000,1.7124,middle 10%,birth_year
+Fig2,men,C,1977.0000,1.7138,middle 10%,birth_year
+Fig2,men,C,1978.0000,1.7135,middle 10%,birth_year
+Fig2,men,C,1979.0000,1.6773,middle 10%,birth_year
+Fig2,men,C,1951.0000,2.1368,top 10%,birth_year
+Fig2,men,C,1952.0000,2.1299,top 10%,birth_year
+Fig2,men,C,1953.0000,2.1563,top 10%,birth_year
+Fig2,men,C,1954.0000,2.1295,top 10%,birth_year
+Fig2,men,C,1955.0000,2.0883,top 10%,birth_year
+Fig2,men,C,1956.0000,2.1085,top 10%,birth_year
+Fig2,men,C,1957.0000,2.1241,top 10%,birth_year
+Fig2,men,C,1958.0000,2.1205,top 10%,birth_year
+Fig2,men,C,1959.0000,2.1350,top 10%,birth_year
+Fig2,men,C,1960.0000,2.0937,top 10%,birth_year
+Fig2,men,C,1961.0000,2.1198,top 10%,birth_year
+Fig2,men,C,1962.0000,2.0705,top 10%,birth_year
+Fig2,men,C,1963.0000,2.0785,top 10%,birth_year
+Fig2,men,C,1964.0000,2.0416,top 10%,birth_year
+Fig2,men,C,1965.0000,2.0441,top 10%,birth_year
+Fig2,men,C,1966.0000,2.0267,top 10%,birth_year
+Fig2,men,C,1967.0000,2.0423,top 10%,birth_year
+Fig2,men,C,1968.0000,2.0126,top 10%,birth_year
+Fig2,men,C,1969.0000,1.9880,top 10%,birth_year
+Fig2,men,C,1970.0000,1.9594,top 10%,birth_year
+Fig2,men,C,1971.0000,1.9800,top 10%,birth_year
+Fig2,men,C,1972.0000,1.9470,top 10%,birth_year
+Fig2,men,C,1973.0000,1.9622,top 10%,birth_year
+Fig2,men,C,1974.0000,1.9612,top 10%,birth_year
+Fig2,men,C,1975.0000,1.9894,top 10%,birth_year
+Fig2,men,C,1976.0000,1.9836,top 10%,birth_year
+Fig2,men,C,1977.0000,1.9883,top 10%,birth_year
+Fig2,men,C,1978.0000,1.9822,top 10%,birth_year
+Fig2,men,C,1979.0000,1.9699,top 10%,birth_year
+Fig2,men,D,1951.0000,1.8221,bottom 10%,birth_year
+Fig2,men,D,1952.0000,1.8083,bottom 10%,birth_year
+Fig2,men,D,1953.0000,1.8246,bottom 10%,birth_year
+Fig2,men,D,1954.0000,1.8486,bottom 10%,birth_year
+Fig2,men,D,1955.0000,1.7917,bottom 10%,birth_year
+Fig2,men,D,1956.0000,1.7558,bottom 10%,birth_year
+Fig2,men,D,1957.0000,1.7764,bottom 10%,birth_year
+Fig2,men,D,1958.0000,1.7995,bottom 10%,birth_year
+Fig2,men,D,1959.0000,1.7972,bottom 10%,birth_year
+Fig2,men,D,1960.0000,1.7787,bottom 10%,birth_year
+Fig2,men,D,1961.0000,1.7127,bottom 10%,birth_year
+Fig2,men,D,1962.0000,1.7291,bottom 10%,birth_year
+Fig2,men,D,1963.0000,1.6894,bottom 10%,birth_year
+Fig2,men,D,1964.0000,1.7258,bottom 10%,birth_year
+Fig2,men,D,1965.0000,1.6448,bottom 10%,birth_year
+Fig2,men,D,1966.0000,1.6773,bottom 10%,birth_year
+Fig2,men,D,1967.0000,1.6490,bottom 10%,birth_year
+Fig2,men,D,1968.0000,1.6518,bottom 10%,birth_year
+Fig2,men,D,1969.0000,1.6025,bottom 10%,birth_year
+Fig2,men,D,1970.0000,1.5926,bottom 10%,birth_year
+Fig2,men,D,1971.0000,1.5888,bottom 10%,birth_year
+Fig2,men,D,1972.0000,1.5724,bottom 10%,birth_year
+Fig2,men,D,1973.0000,1.5594,bottom 10%,birth_year
+Fig2,men,D,1974.0000,1.6024,bottom 10%,birth_year
+Fig2,men,D,1975.0000,1.5220,bottom 10%,birth_year
+Fig2,men,D,1976.0000,1.5274,bottom 10%,birth_year
+Fig2,men,D,1977.0000,1.5081,bottom 10%,birth_year
+Fig2,men,D,1978.0000,1.4843,bottom 10%,birth_year
+Fig2,men,D,1979.0000,1.4401,bottom 10%,birth_year
+Fig2,men,D,1951.0000,1.9132,middle 10%,birth_year
+Fig2,men,D,1952.0000,1.9373,middle 10%,birth_year
+Fig2,men,D,1953.0000,1.8944,middle 10%,birth_year
+Fig2,men,D,1954.0000,1.8953,middle 10%,birth_year
+Fig2,men,D,1955.0000,1.8895,middle 10%,birth_year
+Fig2,men,D,1956.0000,1.9085,middle 10%,birth_year
+Fig2,men,D,1957.0000,1.8599,middle 10%,birth_year
+Fig2,men,D,1958.0000,1.8337,middle 10%,birth_year
+Fig2,men,D,1959.0000,1.8769,middle 10%,birth_year
+Fig2,men,D,1960.0000,1.7892,middle 10%,birth_year
+Fig2,men,D,1961.0000,1.8116,middle 10%,birth_year
+Fig2,men,D,1962.0000,1.7892,middle 10%,birth_year
+Fig2,men,D,1963.0000,1.7552,middle 10%,birth_year
+Fig2,men,D,1964.0000,1.7953,middle 10%,birth_year
+Fig2,men,D,1965.0000,1.7499,middle 10%,birth_year
+Fig2,men,D,1966.0000,1.7238,middle 10%,birth_year
+Fig2,men,D,1967.0000,1.7476,middle 10%,birth_year
+Fig2,men,D,1968.0000,1.6914,middle 10%,birth_year
+Fig2,men,D,1969.0000,1.7363,middle 10%,birth_year
+Fig2,men,D,1970.0000,1.6844,middle 10%,birth_year
+Fig2,men,D,1971.0000,1.6628,middle 10%,birth_year
+Fig2,men,D,1972.0000,1.6564,middle 10%,birth_year
+Fig2,men,D,1973.0000,1.6512,middle 10%,birth_year
+Fig2,men,D,1974.0000,1.6293,middle 10%,birth_year
+Fig2,men,D,1975.0000,1.6693,middle 10%,birth_year
+Fig2,men,D,1976.0000,1.6578,middle 10%,birth_year
+Fig2,men,D,1977.0000,1.5961,middle 10%,birth_year
+Fig2,men,D,1978.0000,1.5919,middle 10%,birth_year
+Fig2,men,D,1979.0000,1.5874,middle 10%,birth_year
+Fig2,men,D,1951.0000,1.8852,top 10%,birth_year
+Fig2,men,D,1952.0000,1.8526,top 10%,birth_year
+Fig2,men,D,1953.0000,1.8961,top 10%,birth_year
+Fig2,men,D,1954.0000,1.8815,top 10%,birth_year
+Fig2,men,D,1955.0000,1.8564,top 10%,birth_year
+Fig2,men,D,1956.0000,1.8683,top 10%,birth_year
+Fig2,men,D,1957.0000,1.8816,top 10%,birth_year
+Fig2,men,D,1958.0000,1.8549,top 10%,birth_year
+Fig2,men,D,1959.0000,1.8339,top 10%,birth_year
+Fig2,men,D,1960.0000,1.8322,top 10%,birth_year
+Fig2,men,D,1961.0000,1.7947,top 10%,birth_year
+Fig2,men,D,1962.0000,1.7988,top 10%,birth_year
+Fig2,men,D,1963.0000,1.7583,top 10%,birth_year
+Fig2,men,D,1964.0000,1.7423,top 10%,birth_year
+Fig2,men,D,1965.0000,1.7205,top 10%,birth_year
+Fig2,men,D,1966.0000,1.7053,top 10%,birth_year
+Fig2,men,D,1967.0000,1.7228,top 10%,birth_year
+Fig2,men,D,1968.0000,1.7318,top 10%,birth_year
+Fig2,men,D,1969.0000,1.7300,top 10%,birth_year
+Fig2,men,D,1970.0000,1.7108,top 10%,birth_year
+Fig2,men,D,1971.0000,1.7079,top 10%,birth_year
+Fig2,men,D,1972.0000,1.7135,top 10%,birth_year
+Fig2,men,D,1973.0000,1.6999,top 10%,birth_year
+Fig2,men,D,1974.0000,1.7258,top 10%,birth_year
+Fig2,men,D,1975.0000,1.6663,top 10%,birth_year
+Fig2,men,D,1976.0000,1.6568,top 10%,birth_year
+Fig2,men,D,1977.0000,1.6527,top 10%,birth_year
+Fig2,men,D,1978.0000,1.6469,top 10%,birth_year
+Fig2,men,D,1979.0000,1.6222,top 10%,birth_year
+FigA2,women,A,2.5000,0.1214,1951-53,earnings_rank
+FigA2,women,A,7.5000,0.0449,1951-53,earnings_rank
+FigA2,women,A,12.5000,0.0244,1951-53,earnings_rank
+FigA2,women,A,17.5000,0.0261,1951-53,earnings_rank
+FigA2,women,A,22.5000,0.0258,1951-53,earnings_rank
+FigA2,women,A,27.5000,0.0279,1951-53,earnings_rank
+FigA2,women,A,32.5000,0.0248,1951-53,earnings_rank
+FigA2,women,A,37.5000,0.0361,1951-53,earnings_rank
+FigA2,women,A,42.5000,0.0380,1951-53,earnings_rank
+FigA2,women,A,47.5000,0.0411,1951-53,earnings_rank
+FigA2,women,A,52.5000,0.0532,1951-53,earnings_rank
+FigA2,women,A,57.5000,0.0538,1951-53,earnings_rank
+FigA2,women,A,62.5000,0.0642,1951-53,earnings_rank
+FigA2,women,A,67.5000,0.0875,1951-53,earnings_rank
+FigA2,women,A,72.5000,0.1047,1951-53,earnings_rank
+FigA2,women,A,77.5000,0.1437,1951-53,earnings_rank
+FigA2,women,A,82.5000,0.1753,1951-53,earnings_rank
+FigA2,women,A,87.5000,0.2365,1951-53,earnings_rank
+FigA2,women,A,92.5000,0.2968,1951-53,earnings_rank
+FigA2,women,A,97.5000,0.3948,1951-53,earnings_rank
+FigA2,women,A,2.5000,0.2114,1964-66,earnings_rank
+FigA2,women,A,7.5000,0.1137,1964-66,earnings_rank
+FigA2,women,A,12.5000,0.0634,1964-66,earnings_rank
+FigA2,women,A,17.5000,0.0582,1964-66,earnings_rank
+FigA2,women,A,22.5000,0.0551,1964-66,earnings_rank
+FigA2,women,A,27.5000,0.0608,1964-66,earnings_rank
+FigA2,women,A,32.5000,0.0621,1964-66,earnings_rank
+FigA2,women,A,37.5000,0.0626,1964-66,earnings_rank
+FigA2,women,A,42.5000,0.0682,1964-66,earnings_rank
+FigA2,women,A,47.5000,0.0810,1964-66,earnings_rank
+FigA2,women,A,52.5000,0.0954,1964-66,earnings_rank
+FigA2,women,A,57.5000,0.0959,1964-66,earnings_rank
+FigA2,women,A,62.5000,0.1137,1964-66,earnings_rank
+FigA2,women,A,67.5000,0.1254,1964-66,earnings_rank
+FigA2,women,A,72.5000,0.1396,1964-66,earnings_rank
+FigA2,women,A,77.5000,0.1629,1964-66,earnings_rank
+FigA2,women,A,82.5000,0.1659,1964-66,earnings_rank
+FigA2,women,A,87.5000,0.1851,1964-66,earnings_rank
+FigA2,women,A,92.5000,0.2173,1964-66,earnings_rank
+FigA2,women,A,97.5000,0.2245,1964-66,earnings_rank
+FigA2,women,A,2.5000,0.3554,1977-79,earnings_rank
+FigA2,women,A,7.5000,0.2000,1977-79,earnings_rank
+FigA2,women,A,12.5000,0.1410,1977-79,earnings_rank
+FigA2,women,A,17.5000,0.1111,1977-79,earnings_rank
+FigA2,women,A,22.5000,0.1081,1977-79,earnings_rank
+FigA2,women,A,27.5000,0.1082,1977-79,earnings_rank
+FigA2,women,A,32.5000,0.1068,1977-79,earnings_rank
+FigA2,women,A,37.5000,0.1028,1977-79,earnings_rank
+FigA2,women,A,42.5000,0.1074,1977-79,earnings_rank
+FigA2,women,A,47.5000,0.1126,1977-79,earnings_rank
+FigA2,women,A,52.5000,0.1196,1977-79,earnings_rank
+FigA2,women,A,57.5000,0.1186,1977-79,earnings_rank
+FigA2,women,A,62.5000,0.1199,1977-79,earnings_rank
+FigA2,women,A,67.5000,0.1249,1977-79,earnings_rank
+FigA2,women,A,72.5000,0.1275,1977-79,earnings_rank
+FigA2,women,A,77.5000,0.1267,1977-79,earnings_rank
+FigA2,women,A,82.5000,0.1357,1977-79,earnings_rank
+FigA2,women,A,87.5000,0.1537,1977-79,earnings_rank
+FigA2,women,A,92.5000,0.1468,1977-79,earnings_rank
+FigA2,women,A,97.5000,0.1474,1977-79,earnings_rank
+FigA2,women,B,2.5000,0.1048,1951-53,earnings_rank
+FigA2,women,B,7.5000,0.0951,1951-53,earnings_rank
+FigA2,women,B,12.5000,0.0968,1951-53,earnings_rank
+FigA2,women,B,17.5000,0.1005,1951-53,earnings_rank
+FigA2,women,B,22.5000,0.0923,1951-53,earnings_rank
+FigA2,women,B,27.5000,0.0756,1951-53,earnings_rank
+FigA2,women,B,32.5000,0.0838,1951-53,earnings_rank
+FigA2,women,B,37.5000,0.0988,1951-53,earnings_rank
+FigA2,women,B,42.5000,0.1003,1951-53,earnings_rank
+FigA2,women,B,47.5000,0.0889,1951-53,earnings_rank
+FigA2,women,B,52.5000,0.0925,1951-53,earnings_rank
+FigA2,women,B,57.5000,0.0953,1951-53,earnings_rank
+FigA2,women,B,62.5000,0.0914,1951-53,earnings_rank
+FigA2,women,B,67.5000,0.0952,1951-53,earnings_rank
+FigA2,women,B,72.5000,0.0903,1951-53,earnings_rank
+FigA2,women,B,77.5000,0.0953,1951-53,earnings_rank
+FigA2,women,B,82.5000,0.0980,1951-53,earnings_rank
+FigA2,women,B,87.5000,0.1152,1951-53,earnings_rank
+FigA2,women,B,92.5000,0.1157,1951-53,earnings_rank
+FigA2,women,B,97.5000,0.1370,1951-53,earnings_rank
+FigA2,women,B,2.5000,0.1296,1964-66,earnings_rank
+FigA2,women,B,7.5000,0.1140,1964-66,earnings_rank
+FigA2,women,B,12.5000,0.1144,1964-66,earnings_rank
+FigA2,women,B,17.5000,0.1085,1964-66,earnings_rank
+FigA2,women,B,22.5000,0.1119,1964-66,earnings_rank
+FigA2,women,B,27.5000,0.1099,1964-66,earnings_rank
+FigA2,women,B,32.5000,0.1088,1964-66,earnings_rank
+FigA2,women,B,37.5000,0.1177,1964-66,earnings_rank
+FigA2,women,B,42.5000,0.0984,1964-66,earnings_rank
+FigA2,women,B,47.5000,0.1017,1964-66,earnings_rank
+FigA2,women,B,52.5000,0.1164,1964-66,earnings_rank
+FigA2,women,B,57.5000,0.1082,1964-66,earnings_rank
+FigA2,women,B,62.5000,0.1138,1964-66,earnings_rank
+FigA2,women,B,67.5000,0.1215,1964-66,earnings_rank
+FigA2,women,B,72.5000,0.1191,1964-66,earnings_rank
+FigA2,women,B,77.5000,0.1177,1964-66,earnings_rank
+FigA2,women,B,82.5000,0.1249,1964-66,earnings_rank
+FigA2,women,B,87.5000,0.1286,1964-66,earnings_rank
+FigA2,women,B,92.5000,0.1364,1964-66,earnings_rank
+FigA2,women,B,97.5000,0.1431,1964-66,earnings_rank
+FigA2,women,B,2.5000,0.1680,1977-79,earnings_rank
+FigA2,women,B,7.5000,0.1490,1977-79,earnings_rank
+FigA2,women,B,12.5000,0.1438,1977-79,earnings_rank
+FigA2,women,B,17.5000,0.1455,1977-79,earnings_rank
+FigA2,women,B,22.5000,0.1400,1977-79,earnings_rank
+FigA2,women,B,27.5000,0.1425,1977-79,earnings_rank
+FigA2,women,B,32.5000,0.1390,1977-79,earnings_rank
+FigA2,women,B,37.5000,0.1424,1977-79,earnings_rank
+FigA2,women,B,42.5000,0.1492,1977-79,earnings_rank
+FigA2,women,B,47.5000,0.1484,1977-79,earnings_rank
+FigA2,women,B,52.5000,0.1286,1977-79,earnings_rank
+FigA2,women,B,57.5000,0.1317,1977-79,earnings_rank
+FigA2,women,B,62.5000,0.1333,1977-79,earnings_rank
+FigA2,women,B,67.5000,0.1459,1977-79,earnings_rank
+FigA2,women,B,72.5000,0.1355,1977-79,earnings_rank
+FigA2,women,B,77.5000,0.1263,1977-79,earnings_rank
+FigA2,women,B,82.5000,0.1392,1977-79,earnings_rank
+FigA2,women,B,87.5000,0.1311,1977-79,earnings_rank
+FigA2,women,B,92.5000,0.1339,1977-79,earnings_rank
+FigA2,women,B,97.5000,0.1193,1977-79,earnings_rank
+FigA2,women,C,2.5000,2.4520,1951-53,earnings_rank
+FigA2,women,C,7.5000,2.5319,1951-53,earnings_rank
+FigA2,women,C,12.5000,2.5111,1951-53,earnings_rank
+FigA2,women,C,17.5000,2.4592,1951-53,earnings_rank
+FigA2,women,C,22.5000,2.4340,1951-53,earnings_rank
+FigA2,women,C,27.5000,2.3907,1951-53,earnings_rank
+FigA2,women,C,32.5000,2.3299,1951-53,earnings_rank
+FigA2,women,C,37.5000,2.2789,1951-53,earnings_rank
+FigA2,women,C,42.5000,2.2248,1951-53,earnings_rank
+FigA2,women,C,47.5000,2.1665,1951-53,earnings_rank
+FigA2,women,C,52.5000,2.1130,1951-53,earnings_rank
+FigA2,women,C,57.5000,2.0805,1951-53,earnings_rank
+FigA2,women,C,62.5000,2.0170,1951-53,earnings_rank
+FigA2,women,C,67.5000,1.9246,1951-53,earnings_rank
+FigA2,women,C,72.5000,1.8619,1951-53,earnings_rank
+FigA2,women,C,77.5000,1.7238,1951-53,earnings_rank
+FigA2,women,C,82.5000,1.6145,1951-53,earnings_rank
+FigA2,women,C,87.5000,1.4558,1951-53,earnings_rank
+FigA2,women,C,92.5000,1.3007,1951-53,earnings_rank
+FigA2,women,C,97.5000,1.0680,1951-53,earnings_rank
+FigA2,women,C,2.5000,2.1308,1964-66,earnings_rank
+FigA2,women,C,7.5000,2.3815,1964-66,earnings_rank
+FigA2,women,C,12.5000,2.4348,1964-66,earnings_rank
+FigA2,women,C,17.5000,2.3782,1964-66,earnings_rank
+FigA2,women,C,22.5000,2.3666,1964-66,earnings_rank
+FigA2,women,C,27.5000,2.3083,1964-66,earnings_rank
+FigA2,women,C,32.5000,2.2675,1964-66,earnings_rank
+FigA2,women,C,37.5000,2.2148,1964-66,earnings_rank
+FigA2,women,C,42.5000,2.1832,1964-66,earnings_rank
+FigA2,women,C,47.5000,2.1014,1964-66,earnings_rank
+FigA2,women,C,52.5000,2.0495,1964-66,earnings_rank
+FigA2,women,C,57.5000,2.0040,1964-66,earnings_rank
+FigA2,women,C,62.5000,1.9485,1964-66,earnings_rank
+FigA2,women,C,67.5000,1.9163,1964-66,earnings_rank
+FigA2,women,C,72.5000,1.8225,1964-66,earnings_rank
+FigA2,women,C,77.5000,1.7590,1964-66,earnings_rank
+FigA2,women,C,82.5000,1.7385,1964-66,earnings_rank
+FigA2,women,C,87.5000,1.6816,1964-66,earnings_rank
+FigA2,women,C,92.5000,1.5693,1964-66,earnings_rank
+FigA2,women,C,97.5000,1.5410,1964-66,earnings_rank
+FigA2,women,C,2.5000,1.4888,1977-79,earnings_rank
+FigA2,women,C,7.5000,1.9094,1977-79,earnings_rank
+FigA2,women,C,12.5000,2.0409,1977-79,earnings_rank
+FigA2,women,C,17.5000,2.1321,1977-79,earnings_rank
+FigA2,women,C,22.5000,2.0775,1977-79,earnings_rank
+FigA2,women,C,27.5000,2.0617,1977-79,earnings_rank
+FigA2,women,C,32.5000,2.0606,1977-79,earnings_rank
+FigA2,women,C,37.5000,2.0326,1977-79,earnings_rank
+FigA2,women,C,42.5000,1.9979,1977-79,earnings_rank
+FigA2,women,C,47.5000,1.9832,1977-79,earnings_rank
+FigA2,women,C,52.5000,1.9429,1977-79,earnings_rank
+FigA2,women,C,57.5000,1.9515,1977-79,earnings_rank
+FigA2,women,C,62.5000,1.9135,1977-79,earnings_rank
+FigA2,women,C,67.5000,1.8994,1977-79,earnings_rank
+FigA2,women,C,72.5000,1.9049,1977-79,earnings_rank
+FigA2,women,C,77.5000,1.8755,1977-79,earnings_rank
+FigA2,women,C,82.5000,1.8547,1977-79,earnings_rank
+FigA2,women,C,87.5000,1.7923,1977-79,earnings_rank
+FigA2,women,C,92.5000,1.8051,1977-79,earnings_rank
+FigA2,women,C,97.5000,1.8053,1977-79,earnings_rank
+FigA2,women,D,2.5000,1.7202,1951-53,earnings_rank
+FigA2,women,D,7.5000,1.8697,1951-53,earnings_rank
+FigA2,women,D,12.5000,1.7739,1951-53,earnings_rank
+FigA2,women,D,17.5000,1.7444,1951-53,earnings_rank
+FigA2,women,D,22.5000,1.8189,1951-53,earnings_rank
+FigA2,women,D,27.5000,1.9631,1951-53,earnings_rank
+FigA2,women,D,32.5000,1.7233,1951-53,earnings_rank
+FigA2,women,D,37.5000,1.6989,1951-53,earnings_rank
+FigA2,women,D,42.5000,1.7431,1951-53,earnings_rank
+FigA2,women,D,47.5000,1.6728,1951-53,earnings_rank
+FigA2,women,D,52.5000,1.6251,1951-53,earnings_rank
+FigA2,women,D,57.5000,1.6157,1951-53,earnings_rank
+FigA2,women,D,62.5000,1.5457,1951-53,earnings_rank
+FigA2,women,D,67.5000,1.4949,1951-53,earnings_rank
+FigA2,women,D,72.5000,1.3915,1951-53,earnings_rank
+FigA2,women,D,77.5000,1.4492,1951-53,earnings_rank
+FigA2,women,D,82.5000,1.4117,1951-53,earnings_rank
+FigA2,women,D,87.5000,1.3221,1951-53,earnings_rank
+FigA2,women,D,92.5000,1.3079,1951-53,earnings_rank
+FigA2,women,D,97.5000,1.2191,1951-53,earnings_rank
+FigA2,women,D,2.5000,1.7056,1964-66,earnings_rank
+FigA2,women,D,7.5000,1.8444,1964-66,earnings_rank
+FigA2,women,D,12.5000,1.7111,1964-66,earnings_rank
+FigA2,women,D,17.5000,1.8054,1964-66,earnings_rank
+FigA2,women,D,22.5000,1.6586,1964-66,earnings_rank
+FigA2,women,D,27.5000,1.7204,1964-66,earnings_rank
+FigA2,women,D,32.5000,1.7537,1964-66,earnings_rank
+FigA2,women,D,37.5000,1.6439,1964-66,earnings_rank
+FigA2,women,D,42.5000,1.7999,1964-66,earnings_rank
+FigA2,women,D,47.5000,1.7475,1964-66,earnings_rank
+FigA2,women,D,52.5000,1.4929,1964-66,earnings_rank
+FigA2,women,D,57.5000,1.7151,1964-66,earnings_rank
+FigA2,women,D,62.5000,1.5962,1964-66,earnings_rank
+FigA2,women,D,67.5000,1.5095,1964-66,earnings_rank
+FigA2,women,D,72.5000,1.3979,1964-66,earnings_rank
+FigA2,women,D,77.5000,1.4955,1964-66,earnings_rank
+FigA2,women,D,82.5000,1.3913,1964-66,earnings_rank
+FigA2,women,D,87.5000,1.3305,1964-66,earnings_rank
+FigA2,women,D,92.5000,1.1684,1964-66,earnings_rank
+FigA2,women,D,97.5000,1.1908,1964-66,earnings_rank
+FigA2,women,D,2.5000,0.9749,1977-79,earnings_rank
+FigA2,women,D,7.5000,1.1140,1977-79,earnings_rank
+FigA2,women,D,12.5000,1.1781,1977-79,earnings_rank
+FigA2,women,D,17.5000,1.1173,1977-79,earnings_rank
+FigA2,women,D,22.5000,1.0980,1977-79,earnings_rank
+FigA2,women,D,27.5000,1.1657,1977-79,earnings_rank
+FigA2,women,D,32.5000,1.0650,1977-79,earnings_rank
+FigA2,women,D,37.5000,1.2289,1977-79,earnings_rank
+FigA2,women,D,42.5000,1.0235,1977-79,earnings_rank
+FigA2,women,D,47.5000,1.0233,1977-79,earnings_rank
+FigA2,women,D,52.5000,1.1406,1977-79,earnings_rank
+FigA2,women,D,57.5000,1.1098,1977-79,earnings_rank
+FigA2,women,D,62.5000,1.1555,1977-79,earnings_rank
+FigA2,women,D,67.5000,1.0080,1977-79,earnings_rank
+FigA2,women,D,72.5000,1.1726,1977-79,earnings_rank
+FigA2,women,D,77.5000,1.1377,1977-79,earnings_rank
+FigA2,women,D,82.5000,1.0335,1977-79,earnings_rank
+FigA2,women,D,87.5000,1.0745,1977-79,earnings_rank
+FigA2,women,D,92.5000,1.0794,1977-79,earnings_rank
+FigA2,women,D,97.5000,1.2544,1977-79,earnings_rank
+FigA3,women,A,1951.0000,0.0836,bottom 10%,birth_year
+FigA3,women,A,1952.0000,0.0942,bottom 10%,birth_year
+FigA3,women,A,1953.0000,0.0944,bottom 10%,birth_year
+FigA3,women,A,1954.0000,0.1039,bottom 10%,birth_year
+FigA3,women,A,1955.0000,0.1012,bottom 10%,birth_year
+FigA3,women,A,1956.0000,0.1049,bottom 10%,birth_year
+FigA3,women,A,1957.0000,0.1128,bottom 10%,birth_year
+FigA3,women,A,1958.0000,0.1149,bottom 10%,birth_year
+FigA3,women,A,1959.0000,0.1196,bottom 10%,birth_year
+FigA3,women,A,1960.0000,0.1414,bottom 10%,birth_year
+FigA3,women,A,1961.0000,0.1300,bottom 10%,birth_year
+FigA3,women,A,1962.0000,0.1517,bottom 10%,birth_year
+FigA3,women,A,1963.0000,0.1643,bottom 10%,birth_year
+FigA3,women,A,1964.0000,0.1740,bottom 10%,birth_year
+FigA3,women,A,1965.0000,0.1767,bottom 10%,birth_year
+FigA3,women,A,1966.0000,0.1725,bottom 10%,birth_year
+FigA3,women,A,1967.0000,0.1779,bottom 10%,birth_year
+FigA3,women,A,1968.0000,0.1864,bottom 10%,birth_year
+FigA3,women,A,1969.0000,0.1909,bottom 10%,birth_year
+FigA3,women,A,1970.0000,0.1894,bottom 10%,birth_year
+FigA3,women,A,1971.0000,0.2076,bottom 10%,birth_year
+FigA3,women,A,1972.0000,0.2043,bottom 10%,birth_year
+FigA3,women,A,1973.0000,0.2277,bottom 10%,birth_year
+FigA3,women,A,1974.0000,0.2347,bottom 10%,birth_year
+FigA3,women,A,1975.0000,0.2685,bottom 10%,birth_year
+FigA3,women,A,1976.0000,0.2764,bottom 10%,birth_year
+FigA3,women,A,1977.0000,0.2782,bottom 10%,birth_year
+FigA3,women,A,1978.0000,0.3022,bottom 10%,birth_year
+FigA3,women,A,1979.0000,0.3098,bottom 10%,birth_year
+FigA3,women,A,1951.0000,0.0424,middle 10%,birth_year
+FigA3,women,A,1952.0000,0.0420,middle 10%,birth_year
+FigA3,women,A,1953.0000,0.0514,middle 10%,birth_year
+FigA3,women,A,1954.0000,0.0464,middle 10%,birth_year
+FigA3,women,A,1955.0000,0.0518,middle 10%,birth_year
+FigA3,women,A,1956.0000,0.0589,middle 10%,birth_year
+FigA3,women,A,1957.0000,0.0503,middle 10%,birth_year
+FigA3,women,A,1958.0000,0.0618,middle 10%,birth_year
+FigA3,women,A,1959.0000,0.0677,middle 10%,birth_year
+FigA3,women,A,1960.0000,0.0598,middle 10%,birth_year
+FigA3,women,A,1961.0000,0.0731,middle 10%,birth_year
+FigA3,women,A,1962.0000,0.0809,middle 10%,birth_year
+FigA3,women,A,1963.0000,0.0717,middle 10%,birth_year
+FigA3,women,A,1964.0000,0.0855,middle 10%,birth_year
+FigA3,women,A,1965.0000,0.0882,middle 10%,birth_year
+FigA3,women,A,1966.0000,0.0816,middle 10%,birth_year
+FigA3,women,A,1967.0000,0.0896,middle 10%,birth_year
+FigA3,women,A,1968.0000,0.0885,middle 10%,birth_year
+FigA3,women,A,1969.0000,0.0872,middle 10%,birth_year
+FigA3,women,A,1970.0000,0.0862,middle 10%,birth_year
+FigA3,women,A,1971.0000,0.0877,middle 10%,birth_year
+FigA3,women,A,1972.0000,0.0956,middle 10%,birth_year
+FigA3,women,A,1973.0000,0.0926,middle 10%,birth_year
+FigA3,women,A,1974.0000,0.1002,middle 10%,birth_year
+FigA3,women,A,1975.0000,0.1017,middle 10%,birth_year
+FigA3,women,A,1976.0000,0.1112,middle 10%,birth_year
+FigA3,women,A,1977.0000,0.1150,middle 10%,birth_year
+FigA3,women,A,1978.0000,0.1147,middle 10%,birth_year
+FigA3,women,A,1979.0000,0.1120,middle 10%,birth_year
+FigA3,women,A,1951.0000,0.3421,top 10%,birth_year
+FigA3,women,A,1952.0000,0.3194,top 10%,birth_year
+FigA3,women,A,1953.0000,0.3323,top 10%,birth_year
+FigA3,women,A,1954.0000,0.3332,top 10%,birth_year
+FigA3,women,A,1955.0000,0.3439,top 10%,birth_year
+FigA3,women,A,1956.0000,0.3221,top 10%,birth_year
+FigA3,women,A,1957.0000,0.3191,top 10%,birth_year
+FigA3,women,A,1958.0000,0.3132,top 10%,birth_year
+FigA3,women,A,1959.0000,0.2776,top 10%,birth_year
+FigA3,women,A,1960.0000,0.2743,top 10%,birth_year
+FigA3,women,A,1961.0000,0.2599,top 10%,birth_year
+FigA3,women,A,1962.0000,0.2523,top 10%,birth_year
+FigA3,women,A,1963.0000,0.2494,top 10%,birth_year
+FigA3,women,A,1964.0000,0.2248,top 10%,birth_year
+FigA3,women,A,1965.0000,0.2210,top 10%,birth_year
+FigA3,women,A,1966.0000,0.1978,top 10%,birth_year
+FigA3,women,A,1967.0000,0.2089,top 10%,birth_year
+FigA3,women,A,1968.0000,0.1848,top 10%,birth_year
+FigA3,women,A,1969.0000,0.1958,top 10%,birth_year
+FigA3,women,A,1970.0000,0.1894,top 10%,birth_year
+FigA3,women,A,1971.0000,0.1833,top 10%,birth_year
+FigA3,women,A,1972.0000,0.1798,top 10%,birth_year
+FigA3,women,A,1973.0000,0.1754,top 10%,birth_year
+FigA3,women,A,1974.0000,0.1677,top 10%,birth_year
+FigA3,women,A,1975.0000,0.1590,top 10%,birth_year
+FigA3,women,A,1976.0000,0.1698,top 10%,birth_year
+FigA3,women,A,1977.0000,0.1451,top 10%,birth_year
+FigA3,women,A,1978.0000,0.1490,top 10%,birth_year
+FigA3,women,A,1979.0000,0.1487,top 10%,birth_year
+FigA3,women,B,1951.0000,0.1065,bottom 10%,birth_year
+FigA3,women,B,1952.0000,0.0970,bottom 10%,birth_year
+FigA3,women,B,1953.0000,0.1012,bottom 10%,birth_year
+FigA3,women,B,1954.0000,0.1035,bottom 10%,birth_year
+FigA3,women,B,1955.0000,0.1090,bottom 10%,birth_year
+FigA3,women,B,1956.0000,0.1096,bottom 10%,birth_year
+FigA3,women,B,1957.0000,0.1114,bottom 10%,birth_year
+FigA3,women,B,1958.0000,0.1263,bottom 10%,birth_year
+FigA3,women,B,1959.0000,0.1192,bottom 10%,birth_year
+FigA3,women,B,1960.0000,0.1312,bottom 10%,birth_year
+FigA3,women,B,1961.0000,0.1233,bottom 10%,birth_year
+FigA3,women,B,1962.0000,0.1137,bottom 10%,birth_year
+FigA3,women,B,1963.0000,0.1250,bottom 10%,birth_year
+FigA3,women,B,1964.0000,0.1341,bottom 10%,birth_year
+FigA3,women,B,1965.0000,0.1204,bottom 10%,birth_year
+FigA3,women,B,1966.0000,0.1165,bottom 10%,birth_year
+FigA3,women,B,1967.0000,0.1310,bottom 10%,birth_year
+FigA3,women,B,1968.0000,0.1211,bottom 10%,birth_year
+FigA3,women,B,1969.0000,0.1238,bottom 10%,birth_year
+FigA3,women,B,1970.0000,0.1169,bottom 10%,birth_year
+FigA3,women,B,1971.0000,0.1285,bottom 10%,birth_year
+FigA3,women,B,1972.0000,0.1350,bottom 10%,birth_year
+FigA3,women,B,1973.0000,0.1293,bottom 10%,birth_year
+FigA3,women,B,1974.0000,0.1343,bottom 10%,birth_year
+FigA3,women,B,1975.0000,0.1356,bottom 10%,birth_year
+FigA3,women,B,1976.0000,0.1422,bottom 10%,birth_year
+FigA3,women,B,1977.0000,0.1639,bottom 10%,birth_year
+FigA3,women,B,1978.0000,0.1622,bottom 10%,birth_year
+FigA3,women,B,1979.0000,0.1619,bottom 10%,birth_year
+FigA3,women,B,1951.0000,0.0897,middle 10%,birth_year
+FigA3,women,B,1952.0000,0.0954,middle 10%,birth_year
+FigA3,women,B,1953.0000,0.0872,middle 10%,birth_year
+FigA3,women,B,1954.0000,0.0891,middle 10%,birth_year
+FigA3,women,B,1955.0000,0.0992,middle 10%,birth_year
+FigA3,women,B,1956.0000,0.1051,middle 10%,birth_year
+FigA3,women,B,1957.0000,0.0911,middle 10%,birth_year
+FigA3,women,B,1958.0000,0.1203,middle 10%,birth_year
+FigA3,women,B,1959.0000,0.0980,middle 10%,birth_year
+FigA3,women,B,1960.0000,0.1062,middle 10%,birth_year
+FigA3,women,B,1961.0000,0.1107,middle 10%,birth_year
+FigA3,women,B,1962.0000,0.1073,middle 10%,birth_year
+FigA3,women,B,1963.0000,0.1157,middle 10%,birth_year
+FigA3,women,B,1964.0000,0.1027,middle 10%,birth_year
+FigA3,women,B,1965.0000,0.1110,middle 10%,birth_year
+FigA3,women,B,1966.0000,0.1133,middle 10%,birth_year
+FigA3,women,B,1967.0000,0.1118,middle 10%,birth_year
+FigA3,women,B,1968.0000,0.1115,middle 10%,birth_year
+FigA3,women,B,1969.0000,0.1243,middle 10%,birth_year
+FigA3,women,B,1970.0000,0.1189,middle 10%,birth_year
+FigA3,women,B,1971.0000,0.1174,middle 10%,birth_year
+FigA3,women,B,1972.0000,0.1226,middle 10%,birth_year
+FigA3,women,B,1973.0000,0.1170,middle 10%,birth_year
+FigA3,women,B,1974.0000,0.1296,middle 10%,birth_year
+FigA3,women,B,1975.0000,0.1384,middle 10%,birth_year
+FigA3,women,B,1976.0000,0.1215,middle 10%,birth_year
+FigA3,women,B,1977.0000,0.1340,middle 10%,birth_year
+FigA3,women,B,1978.0000,0.1399,middle 10%,birth_year
+FigA3,women,B,1979.0000,0.1416,middle 10%,birth_year
+FigA3,women,B,1951.0000,0.1173,top 10%,birth_year
+FigA3,women,B,1952.0000,0.1276,top 10%,birth_year
+FigA3,women,B,1953.0000,0.1322,top 10%,birth_year
+FigA3,women,B,1954.0000,0.1260,top 10%,birth_year
+FigA3,women,B,1955.0000,0.1391,top 10%,birth_year
+FigA3,women,B,1956.0000,0.1366,top 10%,birth_year
+FigA3,women,B,1957.0000,0.1360,top 10%,birth_year
+FigA3,women,B,1958.0000,0.1351,top 10%,birth_year
+FigA3,women,B,1959.0000,0.1434,top 10%,birth_year
+FigA3,women,B,1960.0000,0.1424,top 10%,birth_year
+FigA3,women,B,1961.0000,0.1433,top 10%,birth_year
+FigA3,women,B,1962.0000,0.1457,top 10%,birth_year
+FigA3,women,B,1963.0000,0.1536,top 10%,birth_year
+FigA3,women,B,1964.0000,0.1369,top 10%,birth_year
+FigA3,women,B,1965.0000,0.1420,top 10%,birth_year
+FigA3,women,B,1966.0000,0.1404,top 10%,birth_year
+FigA3,women,B,1967.0000,0.1334,top 10%,birth_year
+FigA3,women,B,1968.0000,0.1353,top 10%,birth_year
+FigA3,women,B,1969.0000,0.1364,top 10%,birth_year
+FigA3,women,B,1970.0000,0.1266,top 10%,birth_year
+FigA3,women,B,1971.0000,0.1315,top 10%,birth_year
+FigA3,women,B,1972.0000,0.1274,top 10%,birth_year
+FigA3,women,B,1973.0000,0.1253,top 10%,birth_year
+FigA3,women,B,1974.0000,0.1304,top 10%,birth_year
+FigA3,women,B,1975.0000,0.1275,top 10%,birth_year
+FigA3,women,B,1976.0000,0.1386,top 10%,birth_year
+FigA3,women,B,1977.0000,0.1178,top 10%,birth_year
+FigA3,women,B,1978.0000,0.1215,top 10%,birth_year
+FigA3,women,B,1979.0000,0.1406,top 10%,birth_year
+FigA3,women,C,1951.0000,2.5003,bottom 10%,birth_year
+FigA3,women,C,1952.0000,2.4992,bottom 10%,birth_year
+FigA3,women,C,1953.0000,2.4647,bottom 10%,birth_year
+FigA3,women,C,1954.0000,2.4402,bottom 10%,birth_year
+FigA3,women,C,1955.0000,2.4541,bottom 10%,birth_year
+FigA3,women,C,1956.0000,2.4381,bottom 10%,birth_year
+FigA3,women,C,1957.0000,2.4381,bottom 10%,birth_year
+FigA3,women,C,1958.0000,2.4622,bottom 10%,birth_year
+FigA3,women,C,1959.0000,2.4158,bottom 10%,birth_year
+FigA3,women,C,1960.0000,2.3633,bottom 10%,birth_year
+FigA3,women,C,1961.0000,2.4063,bottom 10%,birth_year
+FigA3,women,C,1962.0000,2.3155,bottom 10%,birth_year
+FigA3,women,C,1963.0000,2.2786,bottom 10%,birth_year
+FigA3,women,C,1964.0000,2.2761,bottom 10%,birth_year
+FigA3,women,C,1965.0000,2.2033,bottom 10%,birth_year
+FigA3,women,C,1966.0000,2.2101,bottom 10%,birth_year
+FigA3,women,C,1967.0000,2.1819,bottom 10%,birth_year
+FigA3,women,C,1968.0000,2.1710,bottom 10%,birth_year
+FigA3,women,C,1969.0000,2.0963,bottom 10%,birth_year
+FigA3,women,C,1970.0000,2.0963,bottom 10%,birth_year
+FigA3,women,C,1971.0000,1.9985,bottom 10%,birth_year
+FigA3,women,C,1972.0000,1.9860,bottom 10%,birth_year
+FigA3,women,C,1973.0000,1.9485,bottom 10%,birth_year
+FigA3,women,C,1974.0000,1.8960,bottom 10%,birth_year
+FigA3,women,C,1975.0000,1.7621,bottom 10%,birth_year
+FigA3,women,C,1976.0000,1.7461,bottom 10%,birth_year
+FigA3,women,C,1977.0000,1.6991,bottom 10%,birth_year
+FigA3,women,C,1978.0000,1.6442,bottom 10%,birth_year
+FigA3,women,C,1979.0000,1.6132,bottom 10%,birth_year
+FigA3,women,C,1951.0000,2.1881,middle 10%,birth_year
+FigA3,women,C,1952.0000,2.1550,middle 10%,birth_year
+FigA3,women,C,1953.0000,2.1055,middle 10%,birth_year
+FigA3,women,C,1954.0000,2.1501,middle 10%,birth_year
+FigA3,women,C,1955.0000,2.1509,middle 10%,birth_year
+FigA3,women,C,1956.0000,2.1357,middle 10%,birth_year
+FigA3,women,C,1957.0000,2.1976,middle 10%,birth_year
+FigA3,women,C,1958.0000,2.1797,middle 10%,birth_year
+FigA3,women,C,1959.0000,2.1661,middle 10%,birth_year
+FigA3,women,C,1960.0000,2.2153,middle 10%,birth_year
+FigA3,women,C,1961.0000,2.1558,middle 10%,birth_year
+FigA3,women,C,1962.0000,2.1213,middle 10%,birth_year
+FigA3,women,C,1963.0000,2.1639,middle 10%,birth_year
+FigA3,women,C,1964.0000,2.1226,middle 10%,birth_year
+FigA3,women,C,1965.0000,2.0751,middle 10%,birth_year
+FigA3,women,C,1966.0000,2.0830,middle 10%,birth_year
+FigA3,women,C,1967.0000,2.0767,middle 10%,birth_year
+FigA3,women,C,1968.0000,2.0528,middle 10%,birth_year
+FigA3,women,C,1969.0000,2.0857,middle 10%,birth_year
+FigA3,women,C,1970.0000,2.0436,middle 10%,birth_year
+FigA3,women,C,1971.0000,2.0645,middle 10%,birth_year
+FigA3,women,C,1972.0000,2.0542,middle 10%,birth_year
+FigA3,women,C,1973.0000,2.0335,middle 10%,birth_year
+FigA3,women,C,1974.0000,1.9890,middle 10%,birth_year
+FigA3,women,C,1975.0000,2.0297,middle 10%,birth_year
+FigA3,women,C,1976.0000,1.9737,middle 10%,birth_year
+FigA3,women,C,1977.0000,1.9870,middle 10%,birth_year
+FigA3,women,C,1978.0000,1.9694,middle 10%,birth_year
+FigA3,women,C,1979.0000,1.9607,middle 10%,birth_year
+FigA3,women,C,1951.0000,1.1994,top 10%,birth_year
+FigA3,women,C,1952.0000,1.2318,top 10%,birth_year
+FigA3,women,C,1953.0000,1.2293,top 10%,birth_year
+FigA3,women,C,1954.0000,1.2217,top 10%,birth_year
+FigA3,women,C,1955.0000,1.2301,top 10%,birth_year
+FigA3,women,C,1956.0000,1.2850,top 10%,birth_year
+FigA3,women,C,1957.0000,1.2978,top 10%,birth_year
+FigA3,women,C,1958.0000,1.3434,top 10%,birth_year
+FigA3,women,C,1959.0000,1.4149,top 10%,birth_year
+FigA3,women,C,1960.0000,1.4168,top 10%,birth_year
+FigA3,women,C,1961.0000,1.4649,top 10%,birth_year
+FigA3,women,C,1962.0000,1.4912,top 10%,birth_year
+FigA3,women,C,1963.0000,1.5165,top 10%,birth_year
+FigA3,women,C,1964.0000,1.5355,top 10%,birth_year
+FigA3,women,C,1965.0000,1.5716,top 10%,birth_year
+FigA3,women,C,1966.0000,1.6070,top 10%,birth_year
+FigA3,women,C,1967.0000,1.6265,top 10%,birth_year
+FigA3,women,C,1968.0000,1.6515,top 10%,birth_year
+FigA3,women,C,1969.0000,1.6665,top 10%,birth_year
+FigA3,women,C,1970.0000,1.6523,top 10%,birth_year
+FigA3,women,C,1971.0000,1.6648,top 10%,birth_year
+FigA3,women,C,1972.0000,1.6849,top 10%,birth_year
+FigA3,women,C,1973.0000,1.6923,top 10%,birth_year
+FigA3,women,C,1974.0000,1.7178,top 10%,birth_year
+FigA3,women,C,1975.0000,1.7689,top 10%,birth_year
+FigA3,women,C,1976.0000,1.7360,top 10%,birth_year
+FigA3,women,C,1977.0000,1.8088,top 10%,birth_year
+FigA3,women,C,1978.0000,1.8124,top 10%,birth_year
+FigA3,women,C,1979.0000,1.7912,top 10%,birth_year
+FigA3,women,D,1951.0000,1.8678,bottom 10%,birth_year
+FigA3,women,D,1952.0000,1.7511,bottom 10%,birth_year
+FigA3,women,D,1953.0000,1.7308,bottom 10%,birth_year
+FigA3,women,D,1954.0000,1.6406,bottom 10%,birth_year
+FigA3,women,D,1955.0000,1.7542,bottom 10%,birth_year
+FigA3,women,D,1956.0000,1.6596,bottom 10%,birth_year
+FigA3,women,D,1957.0000,1.7816,bottom 10%,birth_year
+FigA3,women,D,1958.0000,1.6834,bottom 10%,birth_year
+FigA3,women,D,1959.0000,1.7484,bottom 10%,birth_year
+FigA3,women,D,1960.0000,1.6433,bottom 10%,birth_year
+FigA3,women,D,1961.0000,1.7876,bottom 10%,birth_year
+FigA3,women,D,1962.0000,1.8698,bottom 10%,birth_year
+FigA3,women,D,1963.0000,1.8618,bottom 10%,birth_year
+FigA3,women,D,1964.0000,1.7546,bottom 10%,birth_year
+FigA3,women,D,1965.0000,1.7333,bottom 10%,birth_year
+FigA3,women,D,1966.0000,1.7896,bottom 10%,birth_year
+FigA3,women,D,1967.0000,1.5026,bottom 10%,birth_year
+FigA3,women,D,1968.0000,1.7486,bottom 10%,birth_year
+FigA3,women,D,1969.0000,1.6921,bottom 10%,birth_year
+FigA3,women,D,1970.0000,1.7121,bottom 10%,birth_year
+FigA3,women,D,1971.0000,1.4563,bottom 10%,birth_year
+FigA3,women,D,1972.0000,1.3478,bottom 10%,birth_year
+FigA3,women,D,1973.0000,1.5070,bottom 10%,birth_year
+FigA3,women,D,1974.0000,1.3765,bottom 10%,birth_year
+FigA3,women,D,1975.0000,1.2808,bottom 10%,birth_year
+FigA3,women,D,1976.0000,1.2819,bottom 10%,birth_year
+FigA3,women,D,1977.0000,1.0721,bottom 10%,birth_year
+FigA3,women,D,1978.0000,1.0330,bottom 10%,birth_year
+FigA3,women,D,1979.0000,0.9702,bottom 10%,birth_year
+FigA3,women,D,1951.0000,1.6591,middle 10%,birth_year
+FigA3,women,D,1952.0000,1.5155,middle 10%,birth_year
+FigA3,women,D,1953.0000,1.7631,middle 10%,birth_year
+FigA3,women,D,1954.0000,1.6317,middle 10%,birth_year
+FigA3,women,D,1955.0000,1.5177,middle 10%,birth_year
+FigA3,women,D,1956.0000,1.5694,middle 10%,birth_year
+FigA3,women,D,1957.0000,1.7462,middle 10%,birth_year
+FigA3,women,D,1958.0000,1.5175,middle 10%,birth_year
+FigA3,women,D,1959.0000,1.7239,middle 10%,birth_year
+FigA3,women,D,1960.0000,1.8856,middle 10%,birth_year
+FigA3,women,D,1961.0000,1.8154,middle 10%,birth_year
+FigA3,women,D,1962.0000,1.7676,middle 10%,birth_year
+FigA3,women,D,1963.0000,1.6883,middle 10%,birth_year
+FigA3,women,D,1964.0000,1.6756,middle 10%,birth_year
+FigA3,women,D,1965.0000,1.5943,middle 10%,birth_year
+FigA3,women,D,1966.0000,1.5930,middle 10%,birth_year
+FigA3,women,D,1967.0000,1.5382,middle 10%,birth_year
+FigA3,women,D,1968.0000,1.5752,middle 10%,birth_year
+FigA3,women,D,1969.0000,1.3220,middle 10%,birth_year
+FigA3,women,D,1970.0000,1.4703,middle 10%,birth_year
+FigA3,women,D,1971.0000,1.4013,middle 10%,birth_year
+FigA3,women,D,1972.0000,1.3839,middle 10%,birth_year
+FigA3,women,D,1973.0000,1.4075,middle 10%,birth_year
+FigA3,women,D,1974.0000,1.1862,middle 10%,birth_year
+FigA3,women,D,1975.0000,1.1552,middle 10%,birth_year
+FigA3,women,D,1976.0000,1.3122,middle 10%,birth_year
+FigA3,women,D,1977.0000,1.1087,middle 10%,birth_year
+FigA3,women,D,1978.0000,1.1156,middle 10%,birth_year
+FigA3,women,D,1979.0000,1.0223,middle 10%,birth_year
+FigA3,women,D,1951.0000,1.3280,top 10%,birth_year
+FigA3,women,D,1952.0000,1.2006,top 10%,birth_year
+FigA3,women,D,1953.0000,1.2712,top 10%,birth_year
+FigA3,women,D,1954.0000,1.3211,top 10%,birth_year
+FigA3,women,D,1955.0000,1.4106,top 10%,birth_year
+FigA3,women,D,1956.0000,1.3273,top 10%,birth_year
+FigA3,women,D,1957.0000,1.4963,top 10%,birth_year
+FigA3,women,D,1958.0000,1.4681,top 10%,birth_year
+FigA3,women,D,1959.0000,1.4471,top 10%,birth_year
+FigA3,women,D,1960.0000,1.5195,top 10%,birth_year
+FigA3,women,D,1961.0000,1.3694,top 10%,birth_year
+FigA3,women,D,1962.0000,1.3451,top 10%,birth_year
+FigA3,women,D,1963.0000,1.1467,top 10%,birth_year
+FigA3,women,D,1964.0000,1.2000,top 10%,birth_year
+FigA3,women,D,1965.0000,1.2371,top 10%,birth_year
+FigA3,women,D,1966.0000,1.1020,top 10%,birth_year
+FigA3,women,D,1967.0000,1.2463,top 10%,birth_year
+FigA3,women,D,1968.0000,1.2231,top 10%,birth_year
+FigA3,women,D,1969.0000,1.1427,top 10%,birth_year
+FigA3,women,D,1970.0000,1.1205,top 10%,birth_year
+FigA3,women,D,1971.0000,1.2897,top 10%,birth_year
+FigA3,women,D,1972.0000,1.0670,top 10%,birth_year
+FigA3,women,D,1973.0000,1.2180,top 10%,birth_year
+FigA3,women,D,1974.0000,1.1877,top 10%,birth_year
+FigA3,women,D,1975.0000,1.1775,top 10%,birth_year
+FigA3,women,D,1976.0000,1.0813,top 10%,birth_year
+FigA3,women,D,1977.0000,1.2746,top 10%,birth_year
+FigA3,women,D,1978.0000,1.1552,top 10%,birth_year
+FigA3,women,D,1979.0000,1.0713,top 10%,birth_year

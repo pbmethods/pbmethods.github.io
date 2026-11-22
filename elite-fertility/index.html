@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elite fertility reversal: rich vs poor fertility in history (Skirbekk 2008), Norway and the Netherlands</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Elite fertility reversal: rich vs poor fertility in history (Skirbekk 2008), Norway and the Netherlands</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/elite-fertility/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>extract_norway.py</code></h3>
+<pre><code class="language-text">Extract the plotted data from Bratsberg, Kotsadam &amp; Walther (2021), IZA DP 14506,
+&quot;Male Fertility: Facts, Distribution and Drivers of Inequality&quot; (Norwegian full-population registers).
+
+The paper's scatter plots are vector graphics, so the marker coordinates in the PDF are the exact
+plotted values (not a by-eye digitization). For each panel we decode the Stata axis tick labels
+(glyph codes shifted by 29 from ASCII), fit the linear page-&gt;data map from them, and convert each
+marker's centre.
+
+Figures extracted (PDF page index -&gt; figure):
+  11 -&gt; Figure 1   men, by lifetime earnings rank (20 bins of 5%), cohorts 1951-53 / 1964-66 / 1977-79
+  12 -&gt; Figure 2   men, by birth cohort 1951-1979, for bottom 10% / middle 10% / top 10% of earnings
+  47 -&gt; Figure A.2 women, as Figure 1
+  48 -&gt; Figure A.3 women, as Figure 2
+Panels A/C use own earnings rank (B/D father's rank). A = childless at age 40, C = children at age 40.
+Marker shapes: hollow circle, filled triangle, hollow square = the three series in legend order.
+
+Output: data/norway_bkw2021.csv (figure, sex, panel, series, x, y).
+</code></pre>
+<h3><code>digitize_vanwijk.py</code></h3>
+<pre><code class="language-text">Digitize the Q5/Q1 series from van Wijk (2024), Demographic Research 51(26), Figure 1:
+&quot;Ratio of the predicted probability of having a child for persons in income quintiles 2-5 relative
+to persons in income quintile 1, by gender and year&quot; (Dutch full-population registers, 2008-2022).
+
+The underlying CBS microdata are restricted (remote access only), and the figure is a raster
+image, so this reads the top-quintile (orange) line pixel by pixel from the embedded image:
+- the image's top half holds the y-range 1.3-2.0 with gridlines at 1.4/1.6/1.8/2.0; gridline rows
+  are found as long runs of light-gray pixels and give the y calibration;
+- the line's first and last orange columns are 2008 and 2022; the 15 annual points are evenly
+  spaced between them and read as the centre of the orange pixels in that column.
+Check: the paper's text gives 1.64 -&gt; 1.89 (men) and 1.41 -&gt; 1.61 (women) for 2008 -&gt; 2022.
+
+The outcome is an annual probability of a birth (any parity) in year t+1 given income quintile in
+t-2, ages 18-45, not completed fertility.
+
+Output: data/netherlands_vanwijk2024_q5.csv (sex, year, ratio_q5_q1).
+</code></pre>
+<h3><code>elite_fertility_chart.py</code></h3>
+<pre><code class="language-text">Elite fertility: positive before industrialisation, negative through the demographic transition,
+turning positive again in Northern Europe.
+
+All three panels show the same quantity on the same log scale: fertility of the top status/income
+group divided by fertility of the bottom group (1.0 = equal; 2.0 = top group has twice as many).
+
+A  History (Europe and North America), from the meta-analysis dataset of Skirbekk (2008),
+   &quot;Fertility trends by social status&quot;, Demographic Research 18(5), downloaded as published:
+   notebooks/us_public_data/skirbekk2008/StatusFertilityDataset.xls (879 samples, 129 sources).
+   Kept: samples from Europe (continent 2) and North America (5) whose status measure is
+   income/wealth (code 1) or occupation/social class (code 2); education samples (code 3) are
+   dropped because schooling depresses fertility in every period and isn't the &quot;rich vs poor&quot;
+   comparison. Ratio = 1 + &quot;Fertility of high relative to low status group&quot;/100, where fertility is
+   mostly children ever born (some TFR/marital fertility). Each dot is one sample, placed at its
+   period year; the navy steps are medians over Skirbekk's own period bins (pre-1750, 1750-1899,
+   1900-24, 1925-49, 1950-74, 1975-89, 1990-2006). Points outside the axis are clipped to the edge.
+
+B  Norway, full-population registers: Bratsberg, Kotsadam &amp; Walther (2021), &quot;Male Fertility:
+   Facts, Distribution and Drivers of Inequality&quot;, IZA DP 14506, Figure 2C (men) and Figure A.3C
+   (women): mean number of children at age 40 for the bottom 10% and top 10% of lifetime earnings
+   rank (within sex and birth cohort; rank = average of annual earnings percentiles from age 30),
+   birth cohorts 1951-1979. Values are the exact plotted coordinates read from the PDF's vector
+   graphics (extract_norway.py); they reproduce the paper's stated numbers (bottom-top gap in
+   children 0.88 for men born 1951, 1.34 for 1979). Ratio = top 10% / bottom 10%.
+
+C  Netherlands, full-population registers: van Wijk (2024), &quot;Higher incomes are increasingly
+   associated with higher fertility: Evidence from the Netherlands, 2008-2022&quot;, Demographic
+   Research 51(26), Figure 1: ratio of the predicted annual probability of having a child for the
+   top vs bottom income quintile (income at t-2, ages 18-45, logit with controls). Digitized from
+   the figure's raster image (digitize_vanwijk.py), checked against the text's 1.64-&gt;1.89 (men)
+   and 1.41-&gt;1.61 (women). This is a period birth rate, not completed fertility, so panel C is not
+   directly comparable in level with A and B; it's driven by first births.
+
+The underlying Norwegian and Dutch microdata are restricted (Statistics Norway / CBS remote access);
+no national statistics office publishes fertility by income, so B and C rest on the published
+figures. Kolk (2023, Population Studies 77(2)) shows the same reversal for Swedish women born
+1940-70 but its tables weren't accessible here, so Sweden isn't plotted.
+</code></pre>
+<h2>Results</h2>
+<h3><code>norway_bkw2021.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>figure</th>
+<th>sex</th>
+<th>panel</th>
+<th>x</th>
+<th>y</th>
+<th>series</th>
+<th>xkind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>A</td>
+<td>2.500</td>
+<td>0.527</td>
+<td>1951-53</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>A</td>
+<td>47.500</td>
+<td>0.187</td>
+<td>1964-66</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>A</td>
+<td>92.500</td>
+<td>0.133</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>B</td>
+<td>37.500</td>
+<td>0.217</td>
+<td>1964-66</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>B</td>
+<td>82.500</td>
+<td>0.240</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>C</td>
+<td>27.500</td>
+<td>1.688</td>
+<td>1964-66</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>C</td>
+<td>72.500</td>
+<td>1.827</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>D</td>
+<td>17.500</td>
+<td>1.729</td>
+<td>1964-66</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig1</td>
+<td>men</td>
+<td>D</td>
+<td>62.500</td>
+<td>1.646</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>A</td>
+<td>1972.000</td>
+<td>0.559</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>A</td>
+<td>1972.000</td>
+<td>0.170</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>A</td>
+<td>1972.000</td>
+<td>0.125</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>B</td>
+<td>1972.000</td>
+<td>0.274</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>B</td>
+<td>1972.000</td>
+<td>0.219</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>B</td>
+<td>1972.000</td>
+<td>0.199</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>C</td>
+<td>1972.000</td>
+<td>0.856</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>C</td>
+<td>1972.000</td>
+<td>1.798</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>C</td>
+<td>1972.000</td>
+<td>1.947</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>D</td>
+<td>1972.000</td>
+<td>1.572</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>D</td>
+<td>1972.000</td>
+<td>1.656</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>Fig2</td>
+<td>men</td>
+<td>D</td>
+<td>1972.000</td>
+<td>1.714</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>A</td>
+<td>7.500</td>
+<td>0.114</td>
+<td>1964-66</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>A</td>
+<td>52.500</td>
+<td>0.120</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>B</td>
+<td>97.500</td>
+<td>0.137</td>
+<td>1951-53</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>B</td>
+<td>42.500</td>
+<td>0.149</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>C</td>
+<td>87.500</td>
+<td>1.456</td>
+<td>1951-53</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>C</td>
+<td>32.500</td>
+<td>2.061</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>D</td>
+<td>77.500</td>
+<td>1.449</td>
+<td>1951-53</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA2</td>
+<td>women</td>
+<td>D</td>
+<td>22.500</td>
+<td>1.098</td>
+<td>1977-79</td>
+<td>earnings_rank</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>A</td>
+<td>1964.000</td>
+<td>0.174</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>A</td>
+<td>1964.000</td>
+<td>0.086</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>A</td>
+<td>1964.000</td>
+<td>0.225</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>B</td>
+<td>1964.000</td>
+<td>0.134</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>B</td>
+<td>1964.000</td>
+<td>0.103</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>B</td>
+<td>1964.000</td>
+<td>0.137</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>C</td>
+<td>1964.000</td>
+<td>2.276</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>C</td>
+<td>1964.000</td>
+<td>2.123</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>C</td>
+<td>1964.000</td>
+<td>1.536</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>D</td>
+<td>1964.000</td>
+<td>1.755</td>
+<td>bottom 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>D</td>
+<td>1964.000</td>
+<td>1.676</td>
+<td>middle 10%</td>
+<td>birth_year</td>
+</tr>
+<tr>
+<td>FigA3</td>
+<td>women</td>
+<td>D</td>
+<td>1964.000</td>
+<td>1.200</td>
+<td>top 10%</td>
+<td>birth_year</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 29th row of 1176 shown; full file: <a href="norway_bkw2021.csv">norway_bkw2021.csv</a>.</em></p>
+<h3><code>netherlands_vanwijk2024_q5.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>sex</th>
+<th>year</th>
+<th>ratio_q5_q1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>men</td>
+<td>2008</td>
+<td>1.643</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2009</td>
+<td>1.663</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2010</td>
+<td>1.775</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2011</td>
+<td>1.704</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2012</td>
+<td>1.736</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2013</td>
+<td>1.881</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2014</td>
+<td>1.882</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2015</td>
+<td>1.826</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2016</td>
+<td>1.835</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2017</td>
+<td>1.867</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2018</td>
+<td>1.931</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2019</td>
+<td>1.968</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2020</td>
+<td>1.976</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2021</td>
+<td>1.933</td>
+</tr>
+<tr>
+<td>men</td>
+<td>2022</td>
+<td>1.893</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2008</td>
+<td>1.412</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2009</td>
+<td>1.408</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2010</td>
+<td>1.440</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2011</td>
+<td>1.371</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2012</td>
+<td>1.433</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2013</td>
+<td>1.466</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2014</td>
+<td>1.487</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2015</td>
+<td>1.490</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2016</td>
+<td>1.500</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2017</td>
+<td>1.556</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2018</td>
+<td>1.569</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2019</td>
+<td>1.585</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2020</td>
+<td>1.610</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2021</td>
+<td>1.621</td>
+</tr>
+<tr>
+<td>women</td>
+<td>2022</td>
+<td>1.612</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats: elite fertility reversal chart</h1>
+<ul>
+<li><strong>The three panels measure different things.</strong> A is mostly children ever born (some TFR or marital fertility) for high vs low status, across many definitions of "status". B is children by age 40 for the top vs bottom 10% of lifetime earnings. C is the <em>annual</em> probability of a birth for the top vs bottom income quintile. It's a period rate, driven by first births, so its level is not comparable with A or B.</li>
+<li><strong>The Wood From Eden article's "1.89x / 1.61x" numbers are from the Netherlands, not the Nordics</strong>, and they are birth-probability ratios, not ratios of total children.</li>
+<li><strong>Panel A mixes samples of very different quality.</strong> It includes sex- and age-specific samples, survey data (WVS, FFS), and husband's or father's status; medians are unweighted across samples. Pre-1750 has only 18 samples. 1990–2006 is dominated by WVS income samples.</li>
+<li><strong>Panel B uses own lifetime earnings rank</strong>, which is partly an outcome of having children, especially for women (the child penalty), so the women's early negative ratio partly reflects reverse causation. The top-to-bottom ratio is sensitive to the bottom decile's very high childlessness (72% for men born 1977–79).</li>
+<li><strong>Panel C is digitized from a raster figure.</strong> Endpoints match the paper's text to within 0.003; intermediate years should be good to about ±0.01.</li>
+<li><strong>Sweden (Kolk 2023) isn't plotted</strong>: its tables weren't accessible. It reports the same direction: positive for men throughout, and turning positive for women born from the late 1950s.</li>
+<li><strong>Microdata are restricted</strong> (Statistics Norway, CBS). No national statistics office publishes fertility by income. B and C rest on the published figures, not re-analysis.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>extract_norway.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Extract the plotted data from Bratsberg, Kotsadam &amp; Walther (2021), IZA DP 14506,
+&quot;Male Fertility: Facts, Distribution and Drivers of Inequality&quot; (Norwegian full-population registers).
+
+The paper's scatter plots are vector graphics, so the marker coordinates in the PDF are the exact
+plotted values (not a by-eye digitization). For each panel we decode the Stata axis tick labels
+(glyph codes shifted by 29 from ASCII), fit the linear page-&gt;data map from them, and convert each
+marker's centre.
+
+Figures extracted (PDF page index -&gt; figure):
+  11 -&gt; Figure 1   men, by lifetime earnings rank (20 bins of 5%), cohorts 1951-53 / 1964-66 / 1977-79
+  12 -&gt; Figure 2   men, by birth cohort 1951-1979, for bottom 10% / middle 10% / top 10% of earnings
+  47 -&gt; Figure A.2 women, as Figure 1
+  48 -&gt; Figure A.3 women, as Figure 2
+Panels A/C use own earnings rank (B/D father's rank). A = childless at age 40, C = children at age 40.
+Marker shapes: hollow circle, filled triangle, hollow square = the three series in legend order.
+
+Output: data/norway_bkw2021.csv (figure, sex, panel, series, x, y).
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+import pandas as pd
+import pymupdf as fitz
+
+HERE = Path(__file__).resolve().parent
+PDF = HERE.parents[1] / &quot;papers&quot; / &quot;dp14506.pdf&quot;
+OUT = HERE / &quot;data&quot; / &quot;norway_bkw2021.csv&quot;
+
+FIGS = {  # page: (figure, sex, legend order, x kind)
+    11: (&quot;Fig1&quot;, &quot;men&quot;, [&quot;1951-53&quot;, &quot;1964-66&quot;, &quot;1977-79&quot;], &quot;earnings_rank&quot;),
+    12: (&quot;Fig2&quot;, &quot;men&quot;, None, &quot;birth_year&quot;),
+    47: (&quot;FigA2&quot;, &quot;women&quot;, [&quot;1951-53&quot;, &quot;1964-66&quot;, &quot;1977-79&quot;], &quot;earnings_rank&quot;),
+    48: (&quot;FigA3&quot;, &quot;women&quot;, None, &quot;birth_year&quot;),
+}
+
+
+def decode(s):
+    return &quot;&quot;.join(chr(ord(c) + 29) for c in s)
+
+
+def num(s):
+    try:
+        return float(decode(s.strip()))
+    except ValueError:
+        return None
+
+
+def legend_labels(page):
+    &quot;&quot;&quot;Series names in legend order, read from the legend text (left to right).&quot;&quot;&quot;
+    spans = []
+    for b in page.get_text(&quot;dict&quot;)[&quot;blocks&quot;]:
+        for l in b.get(&quot;lines&quot;, []):
+            for s in l[&quot;spans&quot;]:
+                spans.append(s)
+    return spans
+
+
+def marker_shape(d):
+    kinds = [it[0] for it in d[&quot;items&quot;]]
+    if &quot;c&quot; in kinds:
+        return &quot;circle&quot;
+    if kinds == [&quot;re&quot;]:
+        return &quot;square&quot;
+    if d.get(&quot;fill&quot;) is not None and kinds.count(&quot;l&quot;) == 3:
+        return &quot;triangle&quot;
+    return None
+
+
+def marker_centre(d):
+    if marker_shape(d) == &quot;triangle&quot;:
+        pts = [it[1] for it in d[&quot;items&quot;]] + [d[&quot;items&quot;][-1][2]]
+        pts = pts[:3]
+        return sum(p.x for p in pts) / 3, sum(p.y for p in pts) / 3
+    r = d[&quot;rect&quot;]
+    return (r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2
+
+
+def fit(pairs):
+    (p0, v0), (p1, v1) = pairs[0], pairs[-1]
+    a = (v1 - v0) / (p1 - p0)
+    return lambda p: v0 + a * (p - p0)
+
+
+def extract(page_no, doc):
+    fig, sex, legend, xkind = FIGS[page_no]
+    page = doc[page_no]
+    ylab, xlab = [], []
+    for b in page.get_text(&quot;dict&quot;)[&quot;blocks&quot;]:
+        for l in b.get(&quot;lines&quot;, []):
+            for s in l[&quot;spans&quot;]:
+                v = num(s[&quot;text&quot;])
+                if v is None or not s[&quot;text&quot;].strip():
+                    continue
+                x0, y0, x1, y1 = s[&quot;bbox&quot;]
+                if l[&quot;dir&quot;] == (0.0, -1.0):
+                    ylab.append(((x0 + x1) / 2, (y0 + y1) / 2, v))
+                elif l[&quot;dir&quot;] == (1.0, 0.0):
+                    xlab.append(((x0 + x1) / 2, (y0 + y1) / 2, v))
+    # columns of panels = distinct y-label x positions; rows = clusters of y labels
+    cols = sorted({round(x) for x, _, _ in ylab})
+    xrow_y = max(y for _, y, _ in xlab)
+    xlab = [t for t in xlab if abs(t[1] - xrow_y) &lt; 3]
+    panels = []
+    for ci, cx in enumerate(cols):
+        labs = sorted([t for t in ylab if abs(t[0] - cx) &lt; 2], key=lambda t: t[1])
+        # going down a column, tick values fall within a panel and jump back up at the next panel
+        k = next(i for i in range(1, len(labs)) if labs[i][2] &gt; labs[i - 1][2])
+        groups = [labs[:k], labs[k:]]
+        xmax = cols[ci + 1] if ci + 1 &lt; len(cols) else 1e9
+        xl = sorted([t for t in xlab if cx &lt; t[0] &lt; xmax], key=lambda t: t[0])
+        fx = fit([(t[0], t[2]) for t in xl])
+        for ri, g in enumerate(groups):
+            fy = fit([(t[1], t[2]) for t in g])
+            letter = &quot;ABCD&quot;[ri * 2 + ci]
+            panels.append(dict(letter=letter, x0=cx, x1=xmax, y0=g[0][1] - 12, y1=g[-1][1] + 12, fx=fx, fy=fy))
+    rows = []
+    for d in page.get_drawings():
+        shape = marker_shape(d)
+        if shape is None or d[&quot;rect&quot;].width &gt; 7 or d[&quot;rect&quot;].width &lt; 2:
+            continue
+        cx, cy = marker_centre(d)
+        if cy &gt; xrow_y:  # legend
+            continue
+        for p in panels:
+            if p[&quot;x0&quot;] &lt; cx &lt; p[&quot;x1&quot;] and p[&quot;y0&quot;] &lt; cy &lt; p[&quot;y1&quot;]:
+                rows.append(dict(figure=fig, sex=sex, panel=p[&quot;letter&quot;], shape=shape,
+                                 x=p[&quot;fx&quot;](cx), y=p[&quot;fy&quot;](cy)))
+    df = pd.DataFrame(rows)
+    order = {&quot;circle&quot;: 0, &quot;triangle&quot;: 1, &quot;square&quot;: 2}
+    if legend:
+        df[&quot;series&quot;] = df[&quot;shape&quot;].map(lambda s: legend[order[s]])
+        df[&quot;x&quot;] = (df[&quot;x&quot;] / 5).round() * 5 - 2.5  # bin midpoints 2.5, 7.5, ... 97.5
+    else:
+        df[&quot;series&quot;] = df[&quot;shape&quot;].map(dict(circle=&quot;bottom 10%&quot;, triangle=&quot;middle 10%&quot;, square=&quot;top 10%&quot;))
+        df[&quot;x&quot;] = df[&quot;x&quot;].round()
+    df[&quot;xkind&quot;] = xkind
+    return df.drop(columns=&quot;shape&quot;)
+
+
+def main():
+    doc = fitz.open(PDF)
+    df = pd.concat([extract(p, doc) for p in FIGS], ignore_index=True)
+    df = df.sort_values([&quot;figure&quot;, &quot;panel&quot;, &quot;series&quot;, &quot;x&quot;])
+    OUT.parent.mkdir(exist_ok=True)
+    df.to_csv(OUT, index=False, float_format=&quot;%.4f&quot;)
+    print(df.groupby([&quot;figure&quot;, &quot;panel&quot;, &quot;series&quot;]).size().unstack())
+    return df
+
+
+if __name__ == &quot;__main__&quot;:
+    sys.exit(main() is None)
+</code></pre>
+<h3><code>digitize_vanwijk.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Digitize the Q5/Q1 series from van Wijk (2024), Demographic Research 51(26), Figure 1:
+&quot;Ratio of the predicted probability of having a child for persons in income quintiles 2-5 relative
+to persons in income quintile 1, by gender and year&quot; (Dutch full-population registers, 2008-2022).
+
+The underlying CBS microdata are restricted (remote access only), and the figure is a raster
+image, so this reads the top-quintile (orange) line pixel by pixel from the embedded image:
+- the image's top half holds the y-range 1.3-2.0 with gridlines at 1.4/1.6/1.8/2.0; gridline rows
+  are found as long runs of light-gray pixels and give the y calibration;
+- the line's first and last orange columns are 2008 and 2022; the 15 annual points are evenly
+  spaced between them and read as the centre of the orange pixels in that column.
+Check: the paper's text gives 1.64 -&gt; 1.89 (men) and 1.41 -&gt; 1.61 (women) for 2008 -&gt; 2022.
+
+The outcome is an annual probability of a birth (any parity) in year t+1 given income quintile in
+t-2, ages 18-45, not completed fertility.
+
+Output: data/netherlands_vanwijk2024_q5.csv (sex, year, ratio_q5_q1).
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pymupdf as fitz
+
+HERE = Path(__file__).resolve().parent
+PDF = HERE.parents[1] / &quot;papers&quot; / &quot;51-26.pdf&quot;
+OUT = HERE / &quot;data&quot; / &quot;netherlands_vanwijk2024_q5.csv&quot;
+TEXT = {(&quot;men&quot;, 2008): 1.64, (&quot;men&quot;, 2022): 1.89, (&quot;women&quot;, 2008): 1.41, (&quot;women&quot;, 2022): 1.61}
+
+
+def image(doc, page, idx):
+    pix = fitz.Pixmap(doc, doc[page].get_images(full=True)[idx][0])
+    return np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.width, pix.n)[..., :3].astype(int)
+
+
+def main():
+    doc = fitz.open(PDF)
+    im = image(doc, 7, 0)  # top half of Figure 1 (page 814)
+    r, g, b = im[..., 0], im[..., 1], im[..., 2]
+    orange = (r &gt; 200) &amp; (g &gt; 110) &amp; (g &lt; 190) &amp; (b &lt; 90)
+    gray = (abs(r - g) &lt; 4) &amp; (abs(g - b) &lt; 4) &amp; (r &gt; 220) &amp; (r &lt; 250)
+    W = im.shape[1]
+    rows = []
+    for sex, (c0, c1) in {&quot;men&quot;: (0, W // 2), &quot;women&quot;: (W // 2, W)}.items():
+        # gridline rows: rows where &gt;70% of the plot interior is neutral light gray; the lowest one
+        # in this half-image is 1.4, then 1.6, 1.8 (and 2.0 where detected), 0.2 apart
+        frac = gray[:, c0 + 130 : c1 - 30].mean(axis=1)
+        gl = [y for y in range(len(frac)) if frac[y] &gt; 0.7]
+        groups = np.split(np.array(gl), np.where(np.diff(gl) &gt; 2)[0] + 1)
+        ys = sorted((g.mean() for g in groups), reverse=True)
+        vals = [1.4 + 0.2 * i for i in range(len(ys))]
+        a, k = np.polyfit(ys, vals, 1)
+        cols = np.where(orange[:, c0:c1].any(axis=0))[0] + c0
+        x0, x1 = cols.min() + 1, cols.max() - 1
+        for i, yr in enumerate(range(2008, 2023)):
+            x = round(x0 + (x1 - x0) * i / 14)
+            yy = np.where(orange[:, x - 1 : x + 2].any(axis=1))[0]
+            rows.append(dict(sex=sex, year=yr, ratio_q5_q1=round(a * yy.mean() + k, 3)))
+    df = pd.DataFrame(rows)
+    for (sex, yr), v in TEXT.items():
+        got = df.query(&quot;sex == @sex and year == @yr&quot;).ratio_q5_q1.item()
+        print(f&quot;{sex} {yr}: digitized {got:.3f}  text {v:.2f}&quot;)
+        assert abs(got - v) &lt; 0.02, &quot;calibration off&quot;
+    OUT.parent.mkdir(exist_ok=True)
+    df.to_csv(OUT, index=False)
+    print(df.pivot(index=&quot;year&quot;, columns=&quot;sex&quot;, values=&quot;ratio_q5_q1&quot;))
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>elite_fertility_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Elite fertility: positive before industrialisation, negative through the demographic transition,
+turning positive again in Northern Europe.
+
+All three panels show the same quantity on the same log scale: fertility of the top status/income
+group divided by fertility of the bottom group (1.0 = equal; 2.0 = top group has twice as many).
+
+A  History (Europe and North America), from the meta-analysis dataset of Skirbekk (2008),
+   &quot;Fertility trends by social status&quot;, Demographic Research 18(5), downloaded as published:
+   notebooks/us_public_data/skirbekk2008/StatusFertilityDataset.xls (879 samples, 129 sources).
+   Kept: samples from Europe (continent 2) and North America (5) whose status measure is
+   income/wealth (code 1) or occupation/social class (code 2); education samples (code 3) are
+   dropped because schooling depresses fertility in every period and isn't the &quot;rich vs poor&quot;
+   comparison. Ratio = 1 + &quot;Fertility of high relative to low status group&quot;/100, where fertility is
+   mostly children ever born (some TFR/marital fertility). Each dot is one sample, placed at its
+   period year; the navy steps are medians over Skirbekk's own period bins (pre-1750, 1750-1899,
+   1900-24, 1925-49, 1950-74, 1975-89, 1990-2006). Points outside the axis are clipped to the edge.
+
+B  Norway, full-population registers: Bratsberg, Kotsadam &amp; Walther (2021), &quot;Male Fertility:
+   Facts, Distribution and Drivers of Inequality&quot;, IZA DP 14506, Figure 2C (men) and Figure A.3C
+   (women): mean number of children at age 40 for the bottom 10% and top 10% of lifetime earnings
+   rank (within sex and birth cohort; rank = average of annual earnings percentiles from age 30),
+   birth cohorts 1951-1979. Values are the exact plotted coordinates read from the PDF's vector
+   graphics (extract_norway.py); they reproduce the paper's stated numbers (bottom-top gap in
+   children 0.88 for men born 1951, 1.34 for 1979). Ratio = top 10% / bottom 10%.
+
+C  Netherlands, full-population registers: van Wijk (2024), &quot;Higher incomes are increasingly
+   associated with higher fertility: Evidence from the Netherlands, 2008-2022&quot;, Demographic
+   Research 51(26), Figure 1: ratio of the predicted annual probability of having a child for the
+   top vs bottom income quintile (income at t-2, ages 18-45, logit with controls). Digitized from
+   the figure's raster image (digitize_vanwijk.py), checked against the text's 1.64-&gt;1.89 (men)
+   and 1.41-&gt;1.61 (women). This is a period birth rate, not completed fertility, so panel C is not
+   directly comparable in level with A and B; it's driven by first births.
+
+The underlying Norwegian and Dutch microdata are restricted (Statistics Norway / CBS remote access);
+no national statistics office publishes fertility by income, so B and C rest on the published
+figures. Kolk (2023, Population Studies 77(2)) shows the same reversal for Swedish women born
+1940-70 but its tables weren't accessible here, so Sweden isn't plotted.
+&quot;&quot;&quot;
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.ticker import FixedLocator, NullLocator
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parents[1]
+SKIRBEKK = REPO / &quot;notebooks/us_public_data/skirbekk2008/StatusFertilityDataset.xls&quot;
+NORWAY = HERE / &quot;data/norway_bkw2021.csv&quot;
+DUTCH = HERE / &quot;data/netherlands_vanwijk2024_q5.csv&quot;
+NOTES = Path.home() / &quot;Desktop/Recent Projects/Substack Notes&quot;
+OUT = NOTES / &quot;Unwatermarked graphs/elite_fertility_reversal.png&quot;
+OUT_WM = NOTES / &quot;elite_fertility_reversal_wm.png&quot;
+
+YMIN, YMAX = 0.4, 3.6
+BINS = [1200, 1750, 1900, 1925, 1950, 1975, 1990, 2007]
+
+
+def skirbekk():
+    d = pd.read_excel(SKIRBEKK, header=1)
+    cols = list(d.columns)
+    d = pd.DataFrame({
+        &quot;year&quot;: pd.to_numeric(d[&quot;Period&quot;], errors=&quot;coerce&quot;),
+        &quot;code&quot;: pd.to_numeric(d[cols[6]], errors=&quot;coerce&quot;),
+        &quot;cont&quot;: pd.to_numeric(d[cols[18]], errors=&quot;coerce&quot;),
+        &quot;rel&quot;: pd.to_numeric(d[&quot;Fertility of high relative to low status group&quot;], errors=&quot;coerce&quot;),
+        &quot;society&quot;: d[&quot;Society&quot;], &quot;author&quot;: d[&quot;Author&quot;],
+    })
+    d = d[d.code.isin([1, 2]) &amp; d.cont.isin([2, 5]) &amp; d.rel.notna() &amp; d.year.notna()].copy()
+    d[&quot;ratio&quot;] = 1 + d.rel / 100
+    d[&quot;bin&quot;] = pd.cut(d.year, BINS, right=False)
+    med = d.groupby(&quot;bin&quot;, observed=True).agg(n=(&quot;ratio&quot;, &quot;size&quot;), median=(&quot;ratio&quot;, &quot;median&quot;),
+                                              share_pos=(&quot;rel&quot;, lambda s: (s &gt; 0).mean()))
+    med[&quot;lo&quot;] = [b.left for b in med.index]
+    med[&quot;hi&quot;] = [b.right for b in med.index]
+    med.loc[med.index[0], &quot;lo&quot;] = d.year.min()
+    return d, med.reset_index(drop=True)
+
+
+def norway():
+    d = pd.read_csv(NORWAY)
+    d = d[d.figure.isin([&quot;Fig2&quot;, &quot;FigA3&quot;]) &amp; (d.panel == &quot;C&quot;)]
+    w = d.pivot_table(index=[&quot;sex&quot;, &quot;x&quot;], columns=&quot;series&quot;, values=&quot;y&quot;).reset_index()
+    w[&quot;ratio&quot;] = w[&quot;top 10%&quot;] / w[&quot;bottom 10%&quot;]
+    return w.rename(columns={&quot;x&quot;: &quot;cohort&quot;})
+
+
+def style_log(ax):
+    ax.set_yscale(&quot;log&quot;)
+    ax.set_ylim(YMIN, YMAX)
+    ax.yaxis.set_major_locator(FixedLocator([0.5, 0.75, 1, 1.5, 2, 3]))
+    ax.yaxis.set_minor_locator(NullLocator())
+    ax.set_yticklabels([&quot;0.5×&quot;, &quot;0.75×&quot;, &quot;1×&quot;, &quot;1.5×&quot;, &quot;2×&quot;, &quot;3×&quot;])
+    ax.axhline(1, color=pb.INK2, lw=1, zorder=1)
+    ax.tick_params(labelsize=10)
+
+
+def endlabel(ax, x, y, text, color, dy=0, ha=&quot;left&quot;, dx=6):
+    ax.annotate(text, (x, y), xytext=(dx, dy), textcoords=&quot;offset points&quot;, va=&quot;center&quot;, ha=ha,
+                fontsize=10, fontweight=&quot;bold&quot;, color=pb.INK)
+    ax.plot([x], [y], &quot;o&quot;, color=color, ms=4.5, zorder=4)
+
+
+def main():
+    pb.apply()
+    hist, med = skirbekk()
+    nor = norway()
+    nl = pd.read_csv(DUTCH)
+    print(med.round(3).to_string())
+    print(nor.query(&quot;cohort in [1951, 1965, 1979]&quot;)[[&quot;sex&quot;, &quot;cohort&quot;, &quot;bottom 10%&quot;, &quot;top 10%&quot;, &quot;ratio&quot;]].round(2))
+
+    fig = plt.figure(figsize=(13.5, 6.6))
+    gs = fig.add_gridspec(1, 3, width_ratios=[1.9, 1, 1], wspace=0.18, left=0.055, right=0.965,
+                          top=0.70, bottom=0.17)
+    axA, axB, axC = (fig.add_subplot(gs[i]) for i in range(3))
+    for ax in (axA, axB, axC):
+        style_log(ax)
+    axB.sharey(axA)
+    axC.sharey(axA)
+    axB.tick_params(labelleft=False)
+    axC.tick_params(labelleft=False)
+    style_log(axA)
+
+    # --- A: history
+    y = hist.ratio.clip(YMIN * 1.03, YMAX / 1.03)
+    axA.scatter(hist.year, y, s=14, color=pb.MUTE, edgecolor=&quot;none&quot;, zorder=2)
+    for _, r in med.iterrows():
+        axA.plot([r.lo, r.hi], [r[&quot;median&quot;]] * 2, color=pb.NAVY, lw=3, solid_capstyle=&quot;butt&quot;, zorder=3)
+    m = med[&quot;median&quot;].values
+    lab = dict(fontsize=9.5, fontweight=&quot;bold&quot;, color=pb.INK, textcoords=&quot;offset points&quot;, va=&quot;center&quot;)
+    axA.annotate(f&quot;{m[0]:.2f}× before 1750&quot;, (1510, m[0]), xytext=(0, 10), ha=&quot;center&quot;, **lab)
+    axA.annotate(f&quot;{m[1]:.2f}×&quot;, (1825, m[1]), xytext=(0, -11), ha=&quot;center&quot;, **lab)
+    axA.annotate(f&quot;{min(m[2:5]):.2f}–{max(m[2:5]):.2f}×&quot;, (1938, min(m[2:5])), xytext=(0, -11), ha=&quot;center&quot;, **lab)
+    # the two recent bins are short; label them to the right of the data
+    for i, per in [(5, &quot;1975–89&quot;), (6, &quot;1990–2006&quot;)]:
+        dy = -8 if i == 5 else 8
+        axA.annotate(f&quot;{m[i]:.2f}×&quot;, (2008, m[i]), xytext=(7, dy), ha=&quot;left&quot;, **lab)
+        axA.annotate(per, (2008, m[i]), xytext=(42, dy), ha=&quot;left&quot;, fontsize=8.5, color=pb.INK2,
+                     textcoords=&quot;offset points&quot;, va=&quot;center&quot;)
+    axA.set_xlim(1250, 2120)
+    axA.set_xticks([1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000])
+    axA.text(1262, 3.45, &quot;Gray dots: one sample each (income, wealth\nor occupation; n = %d). Navy: median by period&quot; % len(hist),
+             fontsize=9, color=pb.INK2, va=&quot;top&quot;, linespacing=1.35)
+
+    # --- B: Norway
+    for sex, col, lab in [(&quot;men&quot;, pb.NAVY, &quot;Men&quot;), (&quot;women&quot;, pb.RED, &quot;Women&quot;)]:
+        s = nor[nor.sex == sex].sort_values(&quot;cohort&quot;)
+        axB.plot(s.cohort, s.ratio, color=col, lw=2.2, zorder=3)
+        first, last = s.iloc[0], s.iloc[-1]
+        axB.annotate(f&quot;{first.ratio:.2f}×&quot;, (first.cohort, first.ratio), xytext=(0, 9),
+                     textcoords=&quot;offset points&quot;, ha=&quot;left&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=pb.INK)
+        endlabel(axB, last.cohort, last.ratio, f&quot;{lab}\n{last.ratio:.2f}×&quot;, col)
+    axB.set_xlim(1949, 1987)
+    axB.set_xticks([1955, 1965, 1975])
+    axB.set_xlabel(&quot;Birth cohort&quot;, fontsize=10, color=pb.INK2)
+
+    # --- C: Netherlands
+    for sex, col, lab in [(&quot;men&quot;, pb.NAVY, &quot;Men&quot;), (&quot;women&quot;, pb.RED, &quot;Women&quot;)]:
+        s = nl[nl.sex == sex].sort_values(&quot;year&quot;)
+        axC.plot(s.year, s.ratio_q5_q1, color=col, lw=2.2, zorder=3)
+        first, last = s.iloc[0], s.iloc[-1]
+        axC.annotate(f&quot;{first.ratio_q5_q1:.2f}×&quot;, (first.year, first.ratio_q5_q1), xytext=(0, -12 if sex == &quot;women&quot; else 10),
+                     textcoords=&quot;offset points&quot;, ha=&quot;left&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=pb.INK)
+        endlabel(axC, last.year, last.ratio_q5_q1, f&quot;{lab}\n{last.ratio_q5_q1:.2f}×&quot;, col,
+                 dy=10 if sex == &quot;men&quot; else -10)
+    axC.set_xlim(2007, 2026.5)
+    axC.set_xticks([2008, 2012, 2016, 2020])
+    axC.set_xlabel(&quot;Year&quot;, fontsize=10, color=pb.INK2)
+
+    # panel titles
+    titles = [
+        (axA, &quot;A  Europe &amp; N. America, 1270–2006&quot;, &quot;Children of the top status group vs the bottom,\nsamples from 129 studies&quot;),
+        (axB, &quot;B  Norway, born 1951–79&quot;, &quot;Children by age 40: top 10% of lifetime\nearnings vs bottom 10%&quot;),
+        (axC, &quot;C  Netherlands, 2008–2022&quot;, &quot;Chance of a birth each year: top\nincome fifth vs bottom fifth&quot;),
+    ]
+    for ax, t, sub in titles:
+        ax.text(0, 1.17, t, transform=ax.transAxes, fontsize=12, fontweight=&quot;bold&quot;, va=&quot;bottom&quot;)
+        ax.text(0, 1.035, sub, transform=ax.transAxes, fontsize=9.5, color=pb.INK2, va=&quot;bottom&quot;)
+
+    fig.text(0.055, 0.965, &quot;The rich are having more children than the poor again&quot;,
+             fontsize=20, fontweight=&quot;bold&quot;, va=&quot;top&quot;)
+    fig.text(0.055, 0.905, &quot;Fertility of the top status or income group divided by the bottom group (log scale; 1× = equal). &quot;
+             &quot;Elites out-bred the poor before 1750, fell behind\nduring the demographic transition, and in &quot;
+             &quot;Norwegian and Dutch registers now lead again, mostly because low earners, men above all, go childless.&quot;,
+             fontsize=11, color=pb.INK2, va=&quot;top&quot;, linespacing=1.4)
+    fig.text(0.055, 0.035,
+             &quot;Sources: A, Skirbekk (2008), Demographic Research 18(5), meta-analysis dataset; samples measuring status by income, wealth or occupation &quot;
+             &quot;(education excluded), mostly children ever born.\nB, Bratsberg, Kotsadam &amp; Walther (2021), IZA DP 14506, Norwegian registers, &quot;
+             &quot;values read from the paper's vector figures. C, van Wijk (2024), Demographic Research 51(26), Dutch registers,\n&quot;
+             &quot;digitized from Fig. 1; C is an annual birth rate (mostly first births), not completed fertility. Dots outside the axis are drawn at its edge.&quot;,
+             fontsize=8.3, color=pb.MUTED, va=&quot;bottom&quot;, linespacing=1.45)
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUT, dpi=150)
+    print(&quot;wrote&quot;, OUT)
+    env = dict(os.environ)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark/watermark.py&quot;), &quot;7&quot;, str(OUT), str(OUT_WM)],
+                   check=True, env=env)
+    print(&quot;wrote&quot;, OUT_WM)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
