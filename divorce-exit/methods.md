@@ -241,8 +241,8 @@ _Every 5th row of 217 shown; full file: [unilateral_divorce_csdid_eventstudy.csv
   (removing the biased comparisons gives -5.44, about -10%), and part from California's influence and imperfect
   balance between early and late reform states (1960 income and sex ratio).
 - **Modern staggered-adoption estimators** (Callaway-Sant'Anna, Sun-Abraham, de Chaisemartin-D'Haultfoeuille) are
-  designed for exactly this problem. A re-estimation with one of them on the NCHS data would settle more than either
-  paper's numbers; none is shown here.
+  designed for exactly this problem. The second chart re-estimates the suicide result with Callaway-Sant'Anna and
+  Sun-Abraham on the same state panel; see below.
 - **Domestic violence** rests on two survey waves (1976, 1985), around 6,000 households, and self-reported violence;
   the wife-to-husband estimate is not significant. **Spousal homicide** of women falls 12.6% (marginally significant),
   but in the paper's triple difference against non-intimate homicide the drop is 7.2% and not significant.
