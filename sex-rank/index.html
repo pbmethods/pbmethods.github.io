@@ -1444,7 +1444,7 @@ split = sh[sh.lens == &quot;split&quot;].set_index(&quot;part&quot;)
 n_couples, n_followed, n_split = int(cpl.n.iloc[0]), int(split.n.iloc[0]), int(split.events.iloc[0])
 
 fig = plt.figure(figsize=(14, 9.2))
-gs = fig.add_gridspec(1, 2, width_ratios=[1.45, 1], left=0.165, right=0.97, top=0.76, bottom=0.15, wspace=0.28)
+gs = fig.add_gridspec(1, 2, width_ratios=[1.45, 1], left=0.165, right=0.97, top=0.73, bottom=0.17, wspace=0.28)
 axA, axB = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
 
 # A
@@ -1469,27 +1469,29 @@ axA.grid(axis=&quot;x&quot;, color=pb.GRID, linewidth=0.8, zorder=0)
 axA.grid(axis=&quot;y&quot;, visible=False)
 axA.tick_params(axis=&quot;y&quot;, length=0)
 axA.legend(handles=[
-    Line2D([], [], color=pb.MUTE, linewidth=9, label=&quot;Both spouses' ratings, averaged (bar, 95% interval)&quot;),
+    Line2D([], [], color=pb.MUTE, linewidth=9, label=&quot;Both spouses' ratings averaged (bar, 95% interval)&quot;),
     Line2D([], [], marker=&quot;o&quot;, linestyle=&quot;none&quot;, markerfacecolor=pb.SURFACE, markeredgecolor=pb.INK, markersize=7.5,
-           markeredgewidth=1.4, label=&quot;Other spouse's ratings only (no shared mood)&quot;),
+           markeredgewidth=1.4, label=&quot;Other spouse's ratings only&quot;),
     Line2D([], [], marker=&quot;D&quot;, linestyle=&quot;none&quot;, color=pb.INK, markersize=6.5,
-           label=f&quot;Who separated or divorced by 2001–03&quot;)],
-    loc=&quot;lower right&quot;, fontsize=9.5, frameon=False, handlelength=1.6)
+           label=&quot;Who split by 2001–03&quot;)],
+    loc=&quot;lower left&quot;, bbox_to_anchor=(-0.01, 1.0), ncol=3, fontsize=9.5, frameon=False, handlelength=1.6,
+    columnspacing=1.4)
 fig.text(0.03, 0.80, &quot;A  How much each part of the marriage explains, net of the others&quot;, fontsize=12.5,
          fontweight=&quot;bold&quot;)
 
 # B
 s = lv[lv.part == &quot;Sex&quot;].reset_index(drop=True)
-labels = [&quot;1–3\n(unhappy)&quot;, &quot;3.5–4.5&quot;, &quot;5–5.5&quot;, &quot;6–6.5&quot;, &quot;7\n(very happy)&quot;]
+shares = s.couples / s.couples.sum() * 100
+labels = [f&quot;{b}\n{sh:.0f}% of couples&quot; for b, sh in
+          zip([&quot;1–3 (unhappy)&quot;, &quot;3.5–4.5&quot;, &quot;5–5.5&quot;, &quot;6–6.5&quot;, &quot;7 (very happy)&quot;], shares)]
 xb = np.arange(len(s))
 axB.bar(xb, s.split_pct, color=[pb.RED] + [pb.NAVY] * (len(s) - 1), width=0.66, zorder=2)
-for xi, (v, n, share) in enumerate(zip(s.split_pct, s.followed, s.couples / s.couples.sum() * 100)):
+for xi, v in enumerate(s.split_pct):
     axB.text(xi, v + 0.6, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=12, fontweight=&quot;bold&quot;)
-    axB.text(xi, -3.6, f&quot;{share:.0f}% of\ncouples&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=9, color=pb.MUTED)
-axB.set_xticks(xb, labels, fontsize=10.5)
+axB.set_xticks(xb, labels, fontsize=9.5)
 axB.set_ylim(0, 26)
 axB.set_yticks([0, 5, 10, 15, 20, 25], [f&quot;{v}%&quot; for v in [0, 5, 10, 15, 20, 25]])
-axB.set_xlabel(&quot;Couple's average rating of their sexual relationship (1–7)&quot;, fontsize=10.5, labelpad=34)
+axB.set_xlabel(&quot;Couple's average rating of their sexual relationship (1–7)&quot;, fontsize=10.5, labelpad=8)
 axB.grid(axis=&quot;y&quot;, color=pb.GRID, linewidth=0.8, zorder=0)
 axB.grid(axis=&quot;x&quot;, visible=False)
 axB.tick_params(axis=&quot;x&quot;, length=0)
