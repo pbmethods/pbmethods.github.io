@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How much the sex life matters to a marriage: seven parts of a marriage ranked by both spouses, and by who split nine years later (NSFH)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>How much the sex life matters to a marriage: seven parts of a marriage ranked by both spouses, and by who split nine years later (NSFH)</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/sex-rank/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>nsfh_sex_rank.py</code></h3>
+<pre><code class="language-text">How much does the sex life matter to a marriage, next to everything else? NSFH couples, both spouses, 1992-94 -&gt; 2001-03.
+
+Data: National Survey of Families and Households (notebooks/us_public_data/nsfh).
+  Wave 2 (1992-94, ICPSR 6906): self-enumerated questionnaires of the main respondent (DS0004) and of the current
+  spouse (DS0005). Each spouse, separately, rated the marriage overall (MT601 / CT601, 1 = very unhappy ... 7 = very
+  happy) and &quot;how happy are you with ...&quot; seven parts of it, 1-7 (MT602A-G / CT602A-G): the understanding you receive,
+  the love and affection, the time spent together, the demands your spouse places on you, the sexual relationship,
+  your spouse's spending habits, and your spouse's housework. (A parenting item, 602H, exists only for parents and is
+  left out.) Both also reported how often they had sex in the past month (MT608 / CT608).
+  The two files link on MCASEID, not CASEID: CASEID in DS0005 is its own row index. Only couples who are married at
+  Wave 2 and where both spouses rated the marriage and all seven parts are used (complete cases).
+  Wave 3 (2001-03): the constructed marriage history (marhist111605) and interview dates (statusfile_010307) give
+  whether the Wave 2 marriage had ended in separation or divorce by the Wave 3 interview; widowhood is dropped, and so
+  are couples the history doesn't follow. Same rule as nsfh_split_predictors_chart.py.
+
+Method: Shapley (general dominance) decomposition. For an outcome and the seven parts as predictors, fit the model on
+every subset of the parts (2^7 = 128 fits) and credit each part with its average gain in fit when it is added, over
+all orders. The credits add up to the full model's fit, so each part gets a share of the explained variance that
+already accounts for its overlap with the others. Four lenses, each a different guard against the obvious bias (one
+person in one mood rating everything at once):
+  own      each spouse's seven ratings -&gt; that spouse's overall rating (OLS R^2; both spouses as raters).
+  partner  the OTHER spouse's seven ratings -&gt; this spouse's overall rating. No shared rater, so no shared mood
+           or answering style.
+  couple   the two spouses' average rating of each part -&gt; their average overall rating (&quot;both sides&quot;).
+  split    the couple averages -&gt; separated or divorced by Wave 3, about 9 years later (logistic, McFadden pseudo-R^2).
+           A behavioural outcome, measured years later.
+Also: husbands and wives separately (own lens), sex frequency added as an eighth predictor (log(1 + times last month),
+couple average) to compare frequency against satisfaction, and the split rate and overall rating by the couple's
+average sex rating, to see whether a bad sex life hurts more than a good one helps.
+Confidence intervals: 95% percentile bootstrap over couples (400 draws for OLS lenses, 200 for split).
+Unweighted: this is about relationships between ratings within marriages, not population shares.
+Run:  uv run --with pandas,pyreadstat,numpy python notebooks/marital_happiness/nsfh_sex_rank.py
+</code></pre>
+<h3><code>nsfh_sex_rank_chart.py</code></h3>
+<pre><code class="language-text">Chart: sex ranks third of seven parts of a marriage, and a bad sex life is common and costly. NSFH couples 1992-94.
+
+Reads the outputs of nsfh_sex_rank.py (run it first; its docstring is the method):
+  nsfh_sex_rank_shares.csv  Shapley shares of explained fit for each part, per lens, with bootstrap 95% intervals.
+  nsfh_sex_rank_levels.csv  split rate by Wave 3 and mean overall rating, by the couple's average rating of each part.
+A: bars = &quot;couple&quot; lens (both spouses' average rating of each part -&gt; their average overall rating), whiskers = 95%
+   bootstrap interval; markers = the same decomposition using only the other spouse's ratings (&quot;partner&quot; lens) and
+   using who separated or divorced by 2001-03 (&quot;split&quot; lens, logistic, McFadden pseudo-R^2).
+B: share of couples separated or divorced by Wave 3, by the couple's average rating of the sexual relationship.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_sex_rank_chart.py
+</code></pre>
+<h2>Results</h2>
+<h3><code>nsfh_sex_rank_shares.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>lens</th>
+<th>part</th>
+<th>share</th>
+<th>lo</th>
+<th>hi</th>
+<th>rank</th>
+<th>total_fit</th>
+<th>n</th>
+<th>couples</th>
+<th>events</th>
+<th>sex_rank_ci</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>own</td>
+<td>Understanding</td>
+<td>0.253</td>
+<td>0.239</td>
+<td>0.267</td>
+<td>2</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own</td>
+<td>Love and affection</td>
+<td>0.257</td>
+<td>0.243</td>
+<td>0.269</td>
+<td>1</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own</td>
+<td>Time together</td>
+<td>0.081</td>
+<td>0.074</td>
+<td>0.090</td>
+<td>5</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own</td>
+<td>Spouse's demands</td>
+<td>0.120</td>
+<td>0.110</td>
+<td>0.131</td>
+<td>4</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own</td>
+<td>Sex</td>
+<td>0.159</td>
+<td>0.145</td>
+<td>0.173</td>
+<td>3</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own</td>
+<td>Spouse's spending</td>
+<td>0.071</td>
+<td>0.063</td>
+<td>0.080</td>
+<td>6</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own</td>
+<td>Spouse's housework</td>
+<td>0.060</td>
+<td>0.053</td>
+<td>0.068</td>
+<td>7</td>
+<td>0.516</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Understanding</td>
+<td>0.214</td>
+<td>0.184</td>
+<td>0.246</td>
+<td>2</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Love and affection</td>
+<td>0.272</td>
+<td>0.242</td>
+<td>0.303</td>
+<td>1</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Time together</td>
+<td>0.124</td>
+<td>0.097</td>
+<td>0.155</td>
+<td>4</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Spouse's demands</td>
+<td>0.120</td>
+<td>0.095</td>
+<td>0.144</td>
+<td>5</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Sex</td>
+<td>0.181</td>
+<td>0.147</td>
+<td>0.214</td>
+<td>3</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Spouse's spending</td>
+<td>0.047</td>
+<td>0.038</td>
+<td>0.062</td>
+<td>6</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>partner</td>
+<td>Spouse's housework</td>
+<td>0.042</td>
+<td>0.035</td>
+<td>0.054</td>
+<td>7</td>
+<td>0.135</td>
+<td>8014</td>
+<td>4007</td>
+<td></td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Understanding</td>
+<td>0.237</td>
+<td>0.223</td>
+<td>0.249</td>
+<td>2</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Love and affection</td>
+<td>0.259</td>
+<td>0.245</td>
+<td>0.274</td>
+<td>1</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Time together</td>
+<td>0.081</td>
+<td>0.072</td>
+<td>0.091</td>
+<td>5</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Spouse's demands</td>
+<td>0.130</td>
+<td>0.119</td>
+<td>0.141</td>
+<td>4</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Sex</td>
+<td>0.150</td>
+<td>0.136</td>
+<td>0.165</td>
+<td>3</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Spouse's spending</td>
+<td>0.071</td>
+<td>0.064</td>
+<td>0.080</td>
+<td>7</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple</td>
+<td>Spouse's housework</td>
+<td>0.072</td>
+<td>0.064</td>
+<td>0.080</td>
+<td>6</td>
+<td>0.619</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Understanding</td>
+<td>0.158</td>
+<td>0.118</td>
+<td>0.239</td>
+<td>2</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Love and affection</td>
+<td>0.314</td>
+<td>0.206</td>
+<td>0.416</td>
+<td>1</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Time together</td>
+<td>0.103</td>
+<td>0.050</td>
+<td>0.241</td>
+<td>5</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Spouse's demands</td>
+<td>0.091</td>
+<td>0.063</td>
+<td>0.158</td>
+<td>6</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Sex</td>
+<td>0.140</td>
+<td>0.077</td>
+<td>0.244</td>
+<td>3</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Spouse's spending</td>
+<td>0.128</td>
+<td>0.052</td>
+<td>0.240</td>
+<td>4</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split</td>
+<td>Spouse's housework</td>
+<td>0.066</td>
+<td>0.046</td>
+<td>0.121</td>
+<td>7</td>
+<td>0.089</td>
+<td>1841</td>
+<td>1841</td>
+<td>157.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Understanding</td>
+<td>0.266</td>
+<td>0.247</td>
+<td>0.293</td>
+<td>1</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Love and affection</td>
+<td>0.250</td>
+<td>0.228</td>
+<td>0.268</td>
+<td>2</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Time together</td>
+<td>0.075</td>
+<td>0.063</td>
+<td>0.087</td>
+<td>5</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Spouse's demands</td>
+<td>0.121</td>
+<td>0.107</td>
+<td>0.137</td>
+<td>4</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Sex</td>
+<td>0.162</td>
+<td>0.140</td>
+<td>0.183</td>
+<td>3</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Spouse's spending</td>
+<td>0.056</td>
+<td>0.046</td>
+<td>0.070</td>
+<td>7</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_husband</td>
+<td>Spouse's housework</td>
+<td>0.070</td>
+<td>0.058</td>
+<td>0.086</td>
+<td>6</td>
+<td>0.455</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Understanding</td>
+<td>0.240</td>
+<td>0.223</td>
+<td>0.258</td>
+<td>2</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Love and affection</td>
+<td>0.259</td>
+<td>0.241</td>
+<td>0.278</td>
+<td>1</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Time together</td>
+<td>0.085</td>
+<td>0.074</td>
+<td>0.097</td>
+<td>5</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Spouse's demands</td>
+<td>0.118</td>
+<td>0.104</td>
+<td>0.135</td>
+<td>4</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Sex</td>
+<td>0.158</td>
+<td>0.142</td>
+<td>0.174</td>
+<td>3</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Spouse's spending</td>
+<td>0.084</td>
+<td>0.072</td>
+<td>0.097</td>
+<td>6</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>own_wife</td>
+<td>Spouse's housework</td>
+<td>0.056</td>
+<td>0.049</td>
+<td>0.065</td>
+<td>7</td>
+<td>0.576</td>
+<td>4007</td>
+<td>4007</td>
+<td></td>
+<td>3-3</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Understanding</td>
+<td>0.233</td>
+<td>0.219</td>
+<td>0.247</td>
+<td>2</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Love and affection</td>
+<td>0.255</td>
+<td>0.242</td>
+<td>0.268</td>
+<td>1</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Time together</td>
+<td>0.080</td>
+<td>0.070</td>
+<td>0.089</td>
+<td>5</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Spouse's demands</td>
+<td>0.129</td>
+<td>0.117</td>
+<td>0.142</td>
+<td>4</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Sex</td>
+<td>0.146</td>
+<td>0.132</td>
+<td>0.159</td>
+<td>3</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Spouse's spending</td>
+<td>0.069</td>
+<td>0.060</td>
+<td>0.076</td>
+<td>7</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Spouse's housework</td>
+<td>0.069</td>
+<td>0.062</td>
+<td>0.078</td>
+<td>6</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>couple+freq</td>
+<td>Sex frequency</td>
+<td>0.020</td>
+<td>0.015</td>
+<td>0.025</td>
+<td>8</td>
+<td>0.629</td>
+<td>3534</td>
+<td>3534</td>
+<td></td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Understanding</td>
+<td>0.145</td>
+<td>0.104</td>
+<td>0.197</td>
+<td>3</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Love and affection</td>
+<td>0.301</td>
+<td>0.187</td>
+<td>0.382</td>
+<td>1</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Time together</td>
+<td>0.097</td>
+<td>0.048</td>
+<td>0.181</td>
+<td>5</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Spouse's demands</td>
+<td>0.080</td>
+<td>0.056</td>
+<td>0.158</td>
+<td>6</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Sex</td>
+<td>0.165</td>
+<td>0.079</td>
+<td>0.292</td>
+<td>2</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Spouse's spending</td>
+<td>0.119</td>
+<td>0.047</td>
+<td>0.216</td>
+<td>4</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Spouse's housework</td>
+<td>0.063</td>
+<td>0.041</td>
+<td>0.123</td>
+<td>7</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+<tr>
+<td>split+freq</td>
+<td>Sex frequency</td>
+<td>0.029</td>
+<td>0.014</td>
+<td>0.073</td>
+<td>8</td>
+<td>0.091</td>
+<td>1658</td>
+<td>1658</td>
+<td>150.000</td>
+<td>1-6</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 1th row of 58 shown; full file: <a href="nsfh_sex_rank_shares.csv">nsfh_sex_rank_shares.csv</a>.</em></p>
+<h3><code>nsfh_sex_rank_levels.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>part</th>
+<th>band</th>
+<th>couples</th>
+<th>mean_overall</th>
+<th>followed</th>
+<th>split_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Understanding</td>
+<td>1-3</td>
+<td>216</td>
+<td>3.718</td>
+<td>110</td>
+<td>30.000</td>
+</tr>
+<tr>
+<td>Understanding</td>
+<td>3.5-4.5</td>
+<td>747</td>
+<td>5.098</td>
+<td>351</td>
+<td>11.396</td>
+</tr>
+<tr>
+<td>Understanding</td>
+<td>5-5.5</td>
+<td>1031</td>
+<td>5.869</td>
+<td>473</td>
+<td>8.034</td>
+</tr>
+<tr>
+<td>Understanding</td>
+<td>6-6.5</td>
+<td>1387</td>
+<td>6.441</td>
+<td>632</td>
+<td>5.538</td>
+</tr>
+<tr>
+<td>Understanding</td>
+<td>7</td>
+<td>626</td>
+<td>6.772</td>
+<td>275</td>
+<td>4.000</td>
+</tr>
+<tr>
+<td>Love and affection</td>
+<td>1-3</td>
+<td>181</td>
+<td>3.517</td>
+<td>88</td>
+<td>34.091</td>
+</tr>
+<tr>
+<td>Love and affection</td>
+<td>3.5-4.5</td>
+<td>594</td>
+<td>4.946</td>
+<td>284</td>
+<td>14.437</td>
+</tr>
+<tr>
+<td>Love and affection</td>
+<td>5-5.5</td>
+<td>804</td>
+<td>5.690</td>
+<td>381</td>
+<td>8.924</td>
+</tr>
+<tr>
+<td>Love and affection</td>
+<td>6-6.5</td>
+<td>1408</td>
+<td>6.276</td>
+<td>635</td>
+<td>5.354</td>
+</tr>
+<tr>
+<td>Love and affection</td>
+<td>7</td>
+<td>1020</td>
+<td>6.714</td>
+<td>453</td>
+<td>3.974</td>
+</tr>
+<tr>
+<td>Time together</td>
+<td>1-3</td>
+<td>416</td>
+<td>4.874</td>
+<td>193</td>
+<td>17.617</td>
+</tr>
+<tr>
+<td>Time together</td>
+<td>3.5-4.5</td>
+<td>1115</td>
+<td>5.567</td>
+<td>495</td>
+<td>11.717</td>
+</tr>
+<tr>
+<td>Time together</td>
+<td>5-5.5</td>
+<td>969</td>
+<td>6.040</td>
+<td>446</td>
+<td>8.296</td>
+</tr>
+<tr>
+<td>Time together</td>
+<td>6-6.5</td>
+<td>983</td>
+<td>6.331</td>
+<td>489</td>
+<td>4.499</td>
+</tr>
+<tr>
+<td>Time together</td>
+<td>7</td>
+<td>524</td>
+<td>6.725</td>
+<td>218</td>
+<td>2.752</td>
+</tr>
+<tr>
+<td>Spouse's demands</td>
+<td>1-3</td>
+<td>233</td>
+<td>4.249</td>
+<td>113</td>
+<td>21.239</td>
+</tr>
+<tr>
+<td>Spouse's demands</td>
+<td>3.5-4.5</td>
+<td>937</td>
+<td>5.309</td>
+<td>429</td>
+<td>12.121</td>
+</tr>
+<tr>
+<td>Spouse's demands</td>
+<td>5-5.5</td>
+<td>1234</td>
+<td>6.011</td>
+<td>547</td>
+<td>8.410</td>
+</tr>
+<tr>
+<td>Spouse's demands</td>
+<td>6-6.5</td>
+<td>1205</td>
+<td>6.427</td>
+<td>572</td>
+<td>4.720</td>
+</tr>
+<tr>
+<td>Spouse's demands</td>
+<td>7</td>
+<td>398</td>
+<td>6.803</td>
+<td>180</td>
+<td>4.444</td>
+</tr>
+<tr>
+<td>Sex</td>
+<td>1-3</td>
+<td>394</td>
+<td>4.491</td>
+<td>191</td>
+<td>21.990</td>
+</tr>
+<tr>
+<td>Sex</td>
+<td>3.5-4.5</td>
+<td>829</td>
+<td>5.464</td>
+<td>397</td>
+<td>10.831</td>
+</tr>
+<tr>
+<td>Sex</td>
+<td>5-5.5</td>
+<td>930</td>
+<td>5.915</td>
+<td>407</td>
+<td>8.108</td>
+</tr>
+<tr>
+<td>Sex</td>
+<td>6-6.5</td>
+<td>1201</td>
+<td>6.358</td>
+<td>552</td>
+<td>4.348</td>
+</tr>
+<tr>
+<td>Sex</td>
+<td>7</td>
+<td>653</td>
+<td>6.734</td>
+<td>294</td>
+<td>5.102</td>
+</tr>
+<tr>
+<td>Spouse's spending</td>
+<td>1-3</td>
+<td>222</td>
+<td>4.595</td>
+<td>95</td>
+<td>21.053</td>
+</tr>
+<tr>
+<td>Spouse's spending</td>
+<td>3.5-4.5</td>
+<td>822</td>
+<td>5.356</td>
+<td>367</td>
+<td>13.351</td>
+</tr>
+<tr>
+<td>Spouse's spending</td>
+<td>5-5.5</td>
+<td>1137</td>
+<td>5.942</td>
+<td>512</td>
+<td>9.180</td>
+</tr>
+<tr>
+<td>Spouse's spending</td>
+<td>6-6.5</td>
+<td>1323</td>
+<td>6.282</td>
+<td>631</td>
+<td>5.705</td>
+</tr>
+<tr>
+<td>Spouse's spending</td>
+<td>7</td>
+<td>503</td>
+<td>6.647</td>
+<td>236</td>
+<td>2.119</td>
+</tr>
+<tr>
+<td>Spouse's housework</td>
+<td>1-3</td>
+<td>185</td>
+<td>4.641</td>
+<td>83</td>
+<td>20.482</td>
+</tr>
+<tr>
+<td>Spouse's housework</td>
+<td>3.5-4.5</td>
+<td>826</td>
+<td>5.319</td>
+<td>374</td>
+<td>12.834</td>
+</tr>
+<tr>
+<td>Spouse's housework</td>
+<td>5-5.5</td>
+<td>1067</td>
+<td>5.851</td>
+<td>474</td>
+<td>9.916</td>
+</tr>
+<tr>
+<td>Spouse's housework</td>
+<td>6-6.5</td>
+<td>1332</td>
+<td>6.274</td>
+<td>643</td>
+<td>5.910</td>
+</tr>
+<tr>
+<td>Spouse's housework</td>
+<td>7</td>
+<td>597</td>
+<td>6.670</td>
+<td>267</td>
+<td>2.622</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats: how much the sex life matters (NSFH, sex-rank)</h1>
+<ul>
+<li><strong>Association, not cause.</strong> The shares say how much of the variation in how couples rate their marriage (or in who
+  later split) lines up with each part of it, net of the others. A happy marriage can make the sex better as much as
+  the reverse; the one randomized test of more sex (Loewenstein et al. 2015) found no happiness gain from doubling
+  frequency.</li>
+<li><strong>Seven parts, as the survey drew them.</strong> Shares are relative to these seven items. Things the NSFH battery didn't
+  ask about (commitment, appreciation, conflict, trust) would take part of the credit if they were in the model.
+  "Love and affection" probably includes some physical affection, which overlaps with sex.</li>
+<li><strong>Same-rater bias.</strong> In the "own" lens one person rates everything in one sitting, so mood inflates every part
+  together. The "spouse's ratings" lens has no shared rater and explains much less in total (R² 0.14 vs 0.52), but
+  the ranking is the same, which is the point of showing it.</li>
+<li><strong>The nine-year split lens is the noisiest.</strong> Only about half of Wave 2 was re-interviewed at Wave 3, and dropouts
+  skew toward unstable marriages: 1,841 couples were followed, and 157 split. Sex ranks third there too, but its
+  95% bootstrap interval runs from first to sixth place.</li>
+<li><strong>Sex frequency</strong> is entered as log(1 + times in the past month), couple average. It adds little once satisfaction
+  with the sexual relationship is known (about 2–3% of the explained fit).</li>
+<li><strong>Era and sample.</strong> Married couples in 1992–94, both spouses answering a private self-administered questionnaire,
+  complete cases only, unweighted (relationships between ratings rather than population shares). Same-sex couples
+  were not identifiable in this wave.</li>
+<li><strong>Bands in panel B</strong> are the average of the two spouses' 1–7 ratings of the sexual relationship. About 10% of
+  couples average 3 or below on sex, roughly twice the share at the bottom for understanding or love and affection.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>nsfh_sex_rank.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;How much does the sex life matter to a marriage, next to everything else? NSFH couples, both spouses, 1992-94 -&gt; 2001-03.
+
+Data: National Survey of Families and Households (notebooks/us_public_data/nsfh).
+  Wave 2 (1992-94, ICPSR 6906): self-enumerated questionnaires of the main respondent (DS0004) and of the current
+  spouse (DS0005). Each spouse, separately, rated the marriage overall (MT601 / CT601, 1 = very unhappy ... 7 = very
+  happy) and &quot;how happy are you with ...&quot; seven parts of it, 1-7 (MT602A-G / CT602A-G): the understanding you receive,
+  the love and affection, the time spent together, the demands your spouse places on you, the sexual relationship,
+  your spouse's spending habits, and your spouse's housework. (A parenting item, 602H, exists only for parents and is
+  left out.) Both also reported how often they had sex in the past month (MT608 / CT608).
+  The two files link on MCASEID, not CASEID: CASEID in DS0005 is its own row index. Only couples who are married at
+  Wave 2 and where both spouses rated the marriage and all seven parts are used (complete cases).
+  Wave 3 (2001-03): the constructed marriage history (marhist111605) and interview dates (statusfile_010307) give
+  whether the Wave 2 marriage had ended in separation or divorce by the Wave 3 interview; widowhood is dropped, and so
+  are couples the history doesn't follow. Same rule as nsfh_split_predictors_chart.py.
+
+Method: Shapley (general dominance) decomposition. For an outcome and the seven parts as predictors, fit the model on
+every subset of the parts (2^7 = 128 fits) and credit each part with its average gain in fit when it is added, over
+all orders. The credits add up to the full model's fit, so each part gets a share of the explained variance that
+already accounts for its overlap with the others. Four lenses, each a different guard against the obvious bias (one
+person in one mood rating everything at once):
+  own      each spouse's seven ratings -&gt; that spouse's overall rating (OLS R^2; both spouses as raters).
+  partner  the OTHER spouse's seven ratings -&gt; this spouse's overall rating. No shared rater, so no shared mood
+           or answering style.
+  couple   the two spouses' average rating of each part -&gt; their average overall rating (&quot;both sides&quot;).
+  split    the couple averages -&gt; separated or divorced by Wave 3, about 9 years later (logistic, McFadden pseudo-R^2).
+           A behavioural outcome, measured years later.
+Also: husbands and wives separately (own lens), sex frequency added as an eighth predictor (log(1 + times last month),
+couple average) to compare frequency against satisfaction, and the split rate and overall rating by the couple's
+average sex rating, to see whether a bad sex life hurts more than a good one helps.
+Confidence intervals: 95% percentile bootstrap over couples (400 draws for OLS lenses, 200 for split).
+Unweighted: this is about relationships between ratings within marriages, not population shares.
+Run:  uv run --with pandas,pyreadstat,numpy python notebooks/marital_happiness/nsfh_sex_rank.py
+&quot;&quot;&quot;
+import itertools
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pyreadstat
+
+HERE = Path(__file__).resolve().parent
+NSFH = HERE.parent / &quot;us_public_data&quot; / &quot;nsfh&quot;
+W2, W3 = NSFH / &quot;wave2&quot; / &quot;ICPSR_06906&quot;, NSFH / &quot;wave3&quot;
+OUT_SHARES = HERE / &quot;nsfh_sex_rank_shares.csv&quot;
+OUT_LEVELS = HERE / &quot;nsfh_sex_rank_levels.csv&quot;
+
+PARTS = {&quot;A&quot;: &quot;Understanding&quot;, &quot;B&quot;: &quot;Love and affection&quot;, &quot;C&quot;: &quot;Time together&quot;, &quot;D&quot;: &quot;Spouse's demands&quot;,
+         &quot;E&quot;: &quot;Sex&quot;, &quot;F&quot;: &quot;Spouse's spending&quot;, &quot;G&quot;: &quot;Spouse's housework&quot;}
+RNG = np.random.default_rng(20261122)
+
+
+def w2(ds, cols):
+    return pd.read_stata(W2 / f&quot;DS{ds}&quot; / f&quot;06906-{ds}-Data.dta&quot;, convert_categoricals=False, columns=cols)
+
+
+# ---------------------------------------------------------------- data
+r = w2(&quot;0004&quot;, [&quot;MCASEID&quot;, &quot;MT601&quot;, &quot;MT608&quot;] + [f&quot;MT602{k}&quot; for k in PARTS])
+s = w2(&quot;0005&quot;, [&quot;MCASEID&quot;, &quot;CT601&quot;, &quot;CT608&quot;] + [f&quot;CT602{k}&quot; for k in PARTS])
+sex = w2(&quot;0001&quot;, [&quot;MCASEID&quot;, &quot;MA7&quot;])  # 1 male, 2 female (main respondent)
+r = r.rename(columns={&quot;MT601&quot;: &quot;r_all&quot;, &quot;MT608&quot;: &quot;r_freq&quot;, **{f&quot;MT602{k}&quot;: f&quot;r_{k}&quot; for k in PARTS}})
+s = s.rename(columns={&quot;CT601&quot;: &quot;s_all&quot;, &quot;CT608&quot;: &quot;s_freq&quot;, **{f&quot;CT602{k}&quot;: f&quot;s_{k}&quot; for k in PARTS}})
+cpl = r.merge(s, on=&quot;MCASEID&quot;).merge(sex, on=&quot;MCASEID&quot;)
+rating_cols = [f&quot;{p}_{k}&quot; for p in &quot;rs&quot; for k in [&quot;all&quot;, *PARTS]]
+cpl = cpl[cpl[rating_cols].apply(lambda c: c.between(1, 7)).all(axis=1)].copy()
+for p in &quot;rs&quot;:
+    cpl[f&quot;{p}_freq&quot;] = cpl[f&quot;{p}_freq&quot;].where(cpl[f&quot;{p}_freq&quot;].between(0, 95))
+
+# Wave 3 outcome of the Wave 2 marriage (same rule as nsfh_split_predictors_chart.py)
+mh, _ = pyreadstat.read_sav(W3 / &quot;marhist111605.sav&quot;)
+st, _ = pyreadstat.read_sav(W3 / &quot;statusfile_010307.sav&quot;, usecols=[&quot;caseid&quot;, &quot;r2intyr&quot;, &quot;r2intmo&quot;, &quot;r3intyr_&quot;, &quot;r3intmo_&quot;])
+st[&quot;cm2&quot;] = st.r2intyr * 12 + st.r2intmo
+st[&quot;cm3&quot;] = (st.r3intyr_ - 1900) * 12 + st.r3intmo_
+mh = mh.merge(st, left_on=&quot;case&quot;, right_on=&quot;caseid&quot;)
+slots = sorted({m.group(1) for c in mh.columns if (m := re.match(r&quot;howend(\d+)&quot;, c))})
+
+
+def w3_outcome(row):
+    for k in slots:
+        md, how, end = row[f&quot;mardat{k}&quot;], row[f&quot;howend{k}&quot;], row[f&quot;enddat{k}&quot;]
+        if pd.isna(md) or md &gt;= 9999 or pd.isna(how) or md &gt; row.cm2:
+            continue
+        if how == 8 or (0 &lt; end &lt; 9999 and end &gt; row.cm2):
+            if how == 8 or end &gt; row.cm3:
+                return &quot;intact&quot;
+            return {2: &quot;split&quot;, 3: &quot;split&quot;, 4: &quot;widowed&quot;}.get(how)
+    return None
+
+
+mh[&quot;w3&quot;] = mh.apply(w3_outcome, axis=1)
+cpl = cpl.merge(mh[[&quot;case&quot;, &quot;w3&quot;]].rename(columns={&quot;case&quot;: &quot;MCASEID&quot;}), how=&quot;left&quot;)
+cpl[&quot;split&quot;] = np.where(cpl.w3 == &quot;split&quot;, 1.0, np.where(cpl.w3 == &quot;intact&quot;, 0.0, np.nan))
+
+for k in [&quot;all&quot;, *PARTS]:
+    cpl[f&quot;c_{k}&quot;] = (cpl[f&quot;r_{k}&quot;] + cpl[f&quot;s_{k}&quot;]) / 2
+cpl[&quot;c_freq&quot;] = (np.log1p(cpl.r_freq) + np.log1p(cpl.s_freq)) / 2
+cpl[&quot;husband_is_r&quot;] = cpl.MA7 == 1
+
+
+# ---------------------------------------------------------------- fitting
+def r2_ols(X, y):
+    X1 = np.column_stack([np.ones(len(y)), X])
+    beta, *_ = np.linalg.lstsq(X1, y, rcond=None)
+    resid = y - X1 @ beta
+    return 1 - resid.var() / y.var()
+
+
+def loglik_logit(X, y, iters=25):
+    X1 = np.column_stack([np.ones(len(y)), X])
+    b = np.zeros(X1.shape[1])
+    b[0] = np.log(y.mean() / (1 - y.mean()))
+    for _ in range(iters):
+        p = 1 / (1 + np.exp(-X1 @ b))
+        w = p * (1 - p)
+        step = np.linalg.solve(X1.T @ (X1 * w[:, None]) + 1e-9 * np.eye(len(b)), X1.T @ (y - p))
+        b += step
+        if np.abs(step).max() &lt; 1e-8:
+            break
+    p = np.clip(1 / (1 + np.exp(-X1 @ b)), 1e-12, 1 - 1e-12)
+    return np.sum(y * np.log(p) + (1 - y) * np.log(1 - p))
+
+
+def r2_logit(X, y):
+    ll0 = np.sum(y * np.log(y.mean()) + (1 - y) * np.log(1 - y.mean()))
+    if X.shape[1] == 0:
+        return 0.0
+    return 1 - loglik_logit(X, y) / ll0
+
+
+def shapley(X, y, fit):
+    &quot;&quot;&quot;General dominance: each predictor's average marginal gain in fit over all subsets, weighted by order.&quot;&quot;&quot;
+    k = X.shape[1]
+    fits = {}
+    for size in range(k + 1):
+        for sub in itertools.combinations(range(k), size):
+            fits[sub] = fit(X[:, list(sub)], y) if sub else 0.0
+    from math import factorial
+    out = np.zeros(k)
+    for j in range(k):
+        for sub, v in fits.items():
+            if j in sub:
+                continue
+            w = factorial(len(sub)) * factorial(k - len(sub) - 1) / factorial(k)
+            out[j] += w * (fits[tuple(sorted(sub + (j,)))] - v)
+    return out
+
+
+def lens_data(d, lens, extra=()):
+    &quot;&quot;&quot;Stack rows for a lens. Returns X, y, cluster ids (couple).&quot;&quot;&quot;
+    keys = [*PARTS, *extra]
+    if lens in (&quot;own&quot;, &quot;partner&quot;, &quot;own_husband&quot;, &quot;own_wife&quot;):
+        rows = []
+        for me, other in ((&quot;r&quot;, &quot;s&quot;), (&quot;s&quot;, &quot;r&quot;)):
+            src = me if lens != &quot;partner&quot; else other
+            husband = d.husband_is_r if me == &quot;r&quot; else ~d.husband_is_r
+            sel = (husband if lens == &quot;own_husband&quot; else ~husband if lens == &quot;own_wife&quot; else np.ones(len(d), bool))
+            dd = d[sel]
+            rows.append(pd.DataFrame({&quot;cid&quot;: dd.MCASEID.values, &quot;y&quot;: dd[f&quot;{me}_all&quot;].values,
+                                      **{k: dd[f&quot;{src}_{k}&quot;].values for k in keys}}))
+        z = pd.concat(rows)
+    elif lens == &quot;couple&quot;:
+        z = pd.DataFrame({&quot;cid&quot;: d.MCASEID.values, &quot;y&quot;: d.c_all.values, **{k: d[f&quot;c_{k}&quot;].values for k in keys}})
+    elif lens == &quot;split&quot;:
+        dd = d[d.split.notna()]
+        z = pd.DataFrame({&quot;cid&quot;: dd.MCASEID.values, &quot;y&quot;: dd.split.values, **{k: dd[f&quot;c_{k}&quot;].values for k in keys}})
+    z = z.dropna()
+    return z
+
+
+def run_lens(d, lens, n_boot, extra=()):
+    z = lens_data(d, lens, extra)
+    keys = [*PARTS, *extra]
+    fit = r2_logit if lens == &quot;split&quot; else r2_ols
+    X, y = z[keys].to_numpy(float), z.y.to_numpy(float)
+    point = shapley(X, y, fit)
+    cids = z.cid.unique()
+    groups = {c: idx for c, idx in z.groupby(&quot;cid&quot;).indices.items()}
+    boots = []
+    for _ in range(n_boot):
+        pick = RNG.choice(cids, len(cids))
+        idx = np.concatenate([groups[c] for c in pick])
+        boots.append(shapley(X[idx], y[idx], fit))
+    boots = np.array(boots)
+    total = point.sum()
+    share = point / total
+    bshare = boots / boots.sum(axis=1, keepdims=True)
+    rank = (-point).argsort().argsort() + 1
+    brank = (-boots).argsort(axis=1).argsort(axis=1) + 1
+    e = keys.index(&quot;E&quot;)
+    res = pd.DataFrame({&quot;lens&quot;: lens, &quot;part&quot;: [PARTS.get(k, &quot;Sex frequency&quot;) for k in keys],
+                        &quot;share&quot;: share, &quot;lo&quot;: np.percentile(bshare, 2.5, axis=0), &quot;hi&quot;: np.percentile(bshare, 97.5, axis=0),
+                        &quot;rank&quot;: rank, &quot;total_fit&quot;: total, &quot;n&quot;: len(z), &quot;couples&quot;: len(cids),
+                        &quot;events&quot;: int(y.sum()) if lens == &quot;split&quot; else np.nan})
+    res[&quot;sex_rank_ci&quot;] = f&quot;{int(np.percentile(brank[:, e], 2.5))}-{int(np.percentile(brank[:, e], 97.5))}&quot;
+    return res
+
+
+if __name__ == &quot;__main__&quot;:
+    print(f&quot;couples with both spouses' full ratings: {len(cpl)};  followed to Wave 3: {cpl.split.notna().sum()} &quot;
+          f&quot;({int(cpl.split.sum())} split)&quot;)
+    print(f&quot;spouse agreement on the sex rating r = {cpl.r_E.corr(cpl.s_E):.2f}, on the overall rating &quot;
+          f&quot;r = {cpl.r_all.corr(cpl.s_all):.2f}&quot;)
+    out = []
+    for lens, nb in [(&quot;own&quot;, 400), (&quot;partner&quot;, 400), (&quot;couple&quot;, 400), (&quot;split&quot;, 200),
+                     (&quot;own_husband&quot;, 400), (&quot;own_wife&quot;, 400)]:
+        out.append(run_lens(cpl, lens, nb))
+        print(out[-1][[&quot;lens&quot;, &quot;part&quot;, &quot;share&quot;, &quot;lo&quot;, &quot;hi&quot;, &quot;rank&quot;]].round(3).to_string(index=False),
+              &quot;\n  fit:&quot;, round(out[-1].total_fit.iloc[0], 3), &quot; n:&quot;, out[-1].n.iloc[0],
+              &quot; sex rank 95% CI:&quot;, out[-1].sex_rank_ci.iloc[0])
+    for lens, nb in [(&quot;couple&quot;, 200), (&quot;split&quot;, 100)]:
+        out.append(run_lens(cpl, lens, nb, extra=(&quot;freq&quot;,)).assign(lens=f&quot;{lens}+freq&quot;))
+        print(out[-1][[&quot;lens&quot;, &quot;part&quot;, &quot;share&quot;, &quot;rank&quot;]].round(3).to_string(index=False))
+    shares = pd.concat(out)
+    shares.to_csv(OUT_SHARES, index=False)
+
+    # asymmetry: outcomes by the couple's average sex rating, and by each other part for comparison
+    lv = []
+    bands = [(1, 3.5, &quot;1-3&quot;), (3.5, 5, &quot;3.5-4.5&quot;), (5, 6, &quot;5-5.5&quot;), (6, 7, &quot;6-6.5&quot;), (7, 7.01, &quot;7&quot;)]
+    for k, name in PARTS.items():
+        for lo, hi, lab in bands:
+            g = cpl[(cpl[f&quot;c_{k}&quot;] &gt;= lo) &amp; (cpl[f&quot;c_{k}&quot;] &lt; hi)]
+            f = g[g.split.notna()]
+            lv.append({&quot;part&quot;: name, &quot;band&quot;: lab, &quot;couples&quot;: len(g), &quot;mean_overall&quot;: g.c_all.mean(),
+                       &quot;followed&quot;: len(f), &quot;split_pct&quot;: 100 * f.split.mean() if len(f) else np.nan})
+    levels = pd.DataFrame(lv)
+    levels.to_csv(OUT_LEVELS, index=False)
+    print(levels[levels.part == &quot;Sex&quot;].round(2).to_string(index=False))
+    # piecewise slope of the overall couple rating on the sex rating, below vs above 5, holding the other parts
+    z = cpl.copy()
+    z[&quot;E_lo&quot;], z[&quot;E_hi&quot;] = np.minimum(z.c_E, 5) - 5, np.maximum(z.c_E, 5) - 5
+    X = np.column_stack([np.ones(len(z)), z[[&quot;E_lo&quot;, &quot;E_hi&quot;] + [f&quot;c_{k}&quot; for k in PARTS if k != &quot;E&quot;]]])
+    b = np.linalg.lstsq(X, z.c_all, rcond=None)[0]
+    print(f&quot;overall rating per sex-rating point, other parts held: below 5 {b[1]:.3f}, above 5 {b[2]:.3f}&quot;)
+</code></pre>
+<h3><code>nsfh_sex_rank_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Chart: sex ranks third of seven parts of a marriage, and a bad sex life is common and costly. NSFH couples 1992-94.
+
+Reads the outputs of nsfh_sex_rank.py (run it first; its docstring is the method):
+  nsfh_sex_rank_shares.csv  Shapley shares of explained fit for each part, per lens, with bootstrap 95% intervals.
+  nsfh_sex_rank_levels.csv  split rate by Wave 3 and mean overall rating, by the couple's average rating of each part.
+A: bars = &quot;couple&quot; lens (both spouses' average rating of each part -&gt; their average overall rating), whiskers = 95%
+   bootstrap interval; markers = the same decomposition using only the other spouse's ratings (&quot;partner&quot; lens) and
+   using who separated or divorced by 2001-03 (&quot;split&quot; lens, logistic, McFadden pseudo-R^2).
+B: share of couples separated or divorced by Wave 3, by the couple's average rating of the sexual relationship.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_sex_rank_chart.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.lines import Line2D
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Sex&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Sex&quot; / &quot;nsfh_sex_rank.png&quot;
+
+pb.apply()
+sh = pd.read_csv(HERE / &quot;nsfh_sex_rank_shares.csv&quot;)
+lv = pd.read_csv(HERE / &quot;nsfh_sex_rank_levels.csv&quot;)
+cpl = sh[sh.lens == &quot;couple&quot;].sort_values(&quot;share&quot;)
+order = list(cpl.part)
+part_of = sh[sh.lens == &quot;partner&quot;].set_index(&quot;part&quot;)
+split = sh[sh.lens == &quot;split&quot;].set_index(&quot;part&quot;)
+n_couples, n_followed, n_split = int(cpl.n.iloc[0]), int(split.n.iloc[0]), int(split.events.iloc[0])
+
+fig = plt.figure(figsize=(14, 9.2))
+gs = fig.add_gridspec(1, 2, width_ratios=[1.45, 1], left=0.165, right=0.97, top=0.76, bottom=0.15, wspace=0.28)
+axA, axB = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
+
+# A
+y = np.arange(len(order))
+colors = [pb.RED if p == &quot;Sex&quot; else pb.MUTE for p in order]
+axA.barh(y, cpl.share * 100, color=colors, height=0.62, zorder=2)
+axA.errorbar(cpl.share * 100, y, xerr=[(cpl.share - cpl.lo) * 100, (cpl.hi - cpl.share) * 100], fmt=&quot;none&quot;,
+             ecolor=pb.INK2, elinewidth=1, capsize=3, zorder=3)
+axA.scatter(part_of.loc[order, &quot;share&quot;] * 100, y, marker=&quot;o&quot;, s=46, facecolor=pb.SURFACE, edgecolor=pb.INK,
+            linewidth=1.4, zorder=4)
+axA.scatter(split.loc[order, &quot;share&quot;] * 100, y, marker=&quot;D&quot;, s=40, color=pb.INK, zorder=4)
+for yi, (p, v) in enumerate(zip(order, cpl.share)):
+    axA.text(1.0, yi, f&quot;{v * 100:.0f}%&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=11, fontweight=&quot;bold&quot;,
+             color=&quot;white&quot; if p == &quot;Sex&quot; else pb.INK, zorder=5)
+axA.set_yticks(y, order, fontsize=12)
+for t in axA.get_yticklabels():
+    if t.get_text() == &quot;Sex&quot;:
+        t.set_fontweight(&quot;bold&quot;)
+axA.set_xlim(0, 34)
+axA.set_xlabel(&quot;Share of the explained variation in the overall rating (%)&quot;, fontsize=10.5)
+axA.grid(axis=&quot;x&quot;, color=pb.GRID, linewidth=0.8, zorder=0)
+axA.grid(axis=&quot;y&quot;, visible=False)
+axA.tick_params(axis=&quot;y&quot;, length=0)
+axA.legend(handles=[
+    Line2D([], [], color=pb.MUTE, linewidth=9, label=&quot;Both spouses' ratings, averaged (bar, 95% interval)&quot;),
+    Line2D([], [], marker=&quot;o&quot;, linestyle=&quot;none&quot;, markerfacecolor=pb.SURFACE, markeredgecolor=pb.INK, markersize=7.5,
+           markeredgewidth=1.4, label=&quot;Other spouse's ratings only (no shared mood)&quot;),
+    Line2D([], [], marker=&quot;D&quot;, linestyle=&quot;none&quot;, color=pb.INK, markersize=6.5,
+           label=f&quot;Who separated or divorced by 2001–03&quot;)],
+    loc=&quot;lower right&quot;, fontsize=9.5, frameon=False, handlelength=1.6)
+fig.text(0.03, 0.80, &quot;A  How much each part of the marriage explains, net of the others&quot;, fontsize=12.5,
+         fontweight=&quot;bold&quot;)
+
+# B
+s = lv[lv.part == &quot;Sex&quot;].reset_index(drop=True)
+labels = [&quot;1–3\n(unhappy)&quot;, &quot;3.5–4.5&quot;, &quot;5–5.5&quot;, &quot;6–6.5&quot;, &quot;7\n(very happy)&quot;]
+xb = np.arange(len(s))
+axB.bar(xb, s.split_pct, color=[pb.RED] + [pb.NAVY] * (len(s) - 1), width=0.66, zorder=2)
+for xi, (v, n, share) in enumerate(zip(s.split_pct, s.followed, s.couples / s.couples.sum() * 100)):
+    axB.text(xi, v + 0.6, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=12, fontweight=&quot;bold&quot;)
+    axB.text(xi, -3.6, f&quot;{share:.0f}% of\ncouples&quot;, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=9, color=pb.MUTED)
+axB.set_xticks(xb, labels, fontsize=10.5)
+axB.set_ylim(0, 26)
+axB.set_yticks([0, 5, 10, 15, 20, 25], [f&quot;{v}%&quot; for v in [0, 5, 10, 15, 20, 25]])
+axB.set_xlabel(&quot;Couple's average rating of their sexual relationship (1–7)&quot;, fontsize=10.5, labelpad=34)
+axB.grid(axis=&quot;y&quot;, color=pb.GRID, linewidth=0.8, zorder=0)
+axB.grid(axis=&quot;x&quot;, visible=False)
+axB.tick_params(axis=&quot;x&quot;, length=0)
+fig.text(axB.get_position().x0 - 0.045, 0.80, &quot;B  Separated or divorced within ~9 years&quot;, fontsize=12.5,
+         fontweight=&quot;bold&quot;)
+
+fig.text(0.03, 0.945, &quot;Sex is the third-biggest part of a happy marriage, after love and understanding&quot;,
+         fontsize=21, fontweight=&quot;bold&quot;)
+fig.text(0.03, 0.885, f&quot;{n_couples:,} US married couples in 1992–94, where husband and wife separately rated the &quot;
+         &quot;marriage overall and seven parts of it. Sex ranks third\nin every view: each spouse's own ratings, the &quot;
+         &quot;other spouse's, husbands, wives, and who split up years later. A bad sex life is common: 1 couple in 10.&quot;,
+         fontsize=12, color=pb.INK2, linespacing=1.45)
+fig.text(0.03, 0.035, f&quot;Source: National Survey of Families and Households, Wave 2 (1992–94) self-administered &quot;
+         f&quot;questionnaires of both spouses, followed to Wave 3 (2001–03). A: Shapley decomposition of R² over all 128 &quot;
+         f&quot;subsets of the\nseven parts; split = logistic pseudo-R² ({n_followed:,} couples followed, {n_split} split; &quot;
+         &quot;Wave 3 re-interviewed about half). B: share of followed couples split, widowhood excluded. Unweighted. &quot;
+         &quot;Associations, not causes.&quot;, fontsize=8.8, color=pb.MUTED, linespacing=1.45)
+
+NOTES.mkdir(parents=True, exist_ok=True)
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+print(OUT, NOTES / (OUT.stem + &quot;_wm.png&quot;))
+</code></pre>
+</main></body></html>
