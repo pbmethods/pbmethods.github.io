@@ -25,6 +25,7 @@ li{margin:.2rem 0}
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-22.</p>
 
 <p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/heaven-hell-exit/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -69,6 +70,27 @@ groups, variables, weights, adjustment). Each row is one group: hollow dot = wei
 the same people in 1992-94. Right-hand numbers: the 1992-94 difference from people who stayed in unhappy marriages,
 adjusted for the 1987-88 value, age and sex, with its 95% interval.
 Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_heaven_hell_exit_chart.py
+</code></pre>
+<h3><code>nsfh_where_divorces_come_from.py</code></h3>
+<pre><code class="language-text">Where divorces come from: most splits end marriages both spouses called happy five years earlier, and those are the
+people who fall furthest. NSFH 1987-88 -&gt; 1992-94.
+
+Sample. NSFH Wave 1 (ICPSR 6041) married couples where the main respondent (E701) and the spouse (S67) both rated the
+marriage on the 1-7 scale (1 very unhappy - 7 very happy), with the main respondent re-interviewed at Wave 2 (ICPSR
+6906) and either still married to that spouse (MUT1UTRA 7-8) or separated / divorced from them (3-4). Widowed and not
+re-interviewed are dropped. Weighted by the Wave 1 weight AWEIGHT.
+
+Couple groups, by the lower of the two 1987-88 ratings: both rated 6-7; the lower rating was 5; someone rated 1-4.
+
+A. Share of married couples in each group, the share of each group that split within five years, and the share of
+   all splits that came from each group (weighted).
+B, C. Change from 1987-88 to 1992-94 in the main respondent's personal happiness (&quot;Taking things all together, how
+   would you say things are these days?&quot;, 1-7; E201 -&gt; MT201) and depression (CES-D, sum over 12 items of days in the
+   past week, 0-84, at least 10 answered; E202A-L -&gt; MT206A-L), by group and by whether the couple split. Bars are
+   weighted means of each person's change; whiskers are 95% intervals (weighted SE with Kish effective n).
+   Changes are descriptive: people who split differ from those who stayed in ways the ratings do not capture.
+Output: nsfh_where_divorces_come_from.csv, then the chart.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_where_divorces_come_from.py
 </code></pre>
 <h2>Results</h2>
 <h3><code>nsfh_heaven_hell_exit.csv</code></h3>
@@ -503,6 +525,93 @@ Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_
 </tr>
 </tbody>
 </table>
+<h3><code>nsfh_where_divorces_come_from.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>n</th>
+<th>n_split</th>
+<th>share_of_couples</th>
+<th>split_rate</th>
+<th>share_of_splits</th>
+<th>dhap_stayed</th>
+<th>dhap_stayed_ci</th>
+<th>dhap_stayed_n</th>
+<th>ddep_stayed</th>
+<th>ddep_stayed_ci</th>
+<th>ddep_stayed_n</th>
+<th>dhap_split</th>
+<th>dhap_split_ci</th>
+<th>dhap_split_n</th>
+<th>ddep_split</th>
+<th>ddep_split_ci</th>
+<th>ddep_split_n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Both rated it 6–7</td>
+<td>2740</td>
+<td>214</td>
+<td>65.927</td>
+<td>6.460</td>
+<td>42.706</td>
+<td>-0.254</td>
+<td>0.071</td>
+<td>1974</td>
+<td>-0.043</td>
+<td>0.672</td>
+<td>2426</td>
+<td>-0.778</td>
+<td>0.295</td>
+<td>175</td>
+<td>2.602</td>
+<td>2.615</td>
+<td>210</td>
+</tr>
+<tr>
+<td>Lower rating was 5</td>
+<td>679</td>
+<td>100</td>
+<td>16.654</td>
+<td>12.421</td>
+<td>20.741</td>
+<td>-0.035</td>
+<td>0.145</td>
+<td>455</td>
+<td>0.773</td>
+<td>1.446</td>
+<td>564</td>
+<td>-0.062</td>
+<td>0.410</td>
+<td>73</td>
+<td>6.039</td>
+<td>4.184</td>
+<td>99</td>
+</tr>
+<tr>
+<td>Someone rated it 1–4</td>
+<td>701</td>
+<td>166</td>
+<td>17.419</td>
+<td>20.928</td>
+<td>36.553</td>
+<td>0.366</td>
+<td>0.176</td>
+<td>408</td>
+<td>-0.979</td>
+<td>1.587</td>
+<td>515</td>
+<td>0.262</td>
+<td>0.373</td>
+<td>124</td>
+<td>1.066</td>
+<td>3.587</td>
+<td>161</td>
+</tr>
+</tbody>
+</table>
 <h2>Code</h2>
 <p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
 <h3><code>nsfh_heaven_hell_exit_data.py</code></h3>
@@ -707,6 +816,180 @@ fig.text(0.03, 0.035,
          &quot;divorced by Wave 2; who wanted out as the respondent reports it. Self-esteem and self-rated health barely &quot;
          &quot;moved and no group differed on them.\nThese compare people who chose differently; they are associations, &quot;
          &quot;not causal effects.&quot;,
+         fontsize=9.5, color=pb.MUTED, linespacing=1.5)
+
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+</code></pre>
+<h3><code>nsfh_where_divorces_come_from.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Where divorces come from: most splits end marriages both spouses called happy five years earlier, and those are the
+people who fall furthest. NSFH 1987-88 -&gt; 1992-94.
+
+Sample. NSFH Wave 1 (ICPSR 6041) married couples where the main respondent (E701) and the spouse (S67) both rated the
+marriage on the 1-7 scale (1 very unhappy - 7 very happy), with the main respondent re-interviewed at Wave 2 (ICPSR
+6906) and either still married to that spouse (MUT1UTRA 7-8) or separated / divorced from them (3-4). Widowed and not
+re-interviewed are dropped. Weighted by the Wave 1 weight AWEIGHT.
+
+Couple groups, by the lower of the two 1987-88 ratings: both rated 6-7; the lower rating was 5; someone rated 1-4.
+
+A. Share of married couples in each group, the share of each group that split within five years, and the share of
+   all splits that came from each group (weighted).
+B, C. Change from 1987-88 to 1992-94 in the main respondent's personal happiness (&quot;Taking things all together, how
+   would you say things are these days?&quot;, 1-7; E201 -&gt; MT201) and depression (CES-D, sum over 12 items of days in the
+   past week, 0-84, at least 10 answered; E202A-L -&gt; MT206A-L), by group and by whether the couple split. Bars are
+   weighted means of each person's change; whiskers are 95% intervals (weighted SE with Kish effective n).
+   Changes are descriptive: people who split differ from those who stayed in ways the ratings do not capture.
+Output: nsfh_where_divorces_come_from.csv, then the chart.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_where_divorces_come_from.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NSFH = HERE.parent / &quot;us_public_data&quot; / &quot;nsfh&quot;
+W2 = NSFH / &quot;wave2&quot; / &quot;ICPSR_06906&quot;
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot; / &quot;nsfh_where_divorces_come_from.png&quot;
+CES = &quot;ABCDEFGHIJKL&quot;
+CATS = [&quot;Both rated it 6–7&quot;, &quot;Lower rating was 5&quot;, &quot;Someone rated it 1–4&quot;]
+
+
+def w2(ds, cols):
+    return pd.read_stata(W2 / f&quot;DS{ds}&quot; / f&quot;06906-{ds}-Data.dta&quot;, convert_categoricals=False, columns=cols)
+
+
+def cesd(df, prefix):
+    it = df[[f&quot;{prefix}{c}&quot; for c in CES]]
+    it = it.where((it &gt;= 0) &amp; (it &lt;= 7))
+    return (it.mean(axis=1) * 12).where(it.notna().sum(axis=1) &gt;= 10)
+
+
+def wmean_ci(x, w):
+    m = np.average(x, weights=w)
+    n_eff = w.sum() ** 2 / (w ** 2).sum()
+    se = np.sqrt(np.average((x - m) ** 2, weights=w) / n_eff)
+    return m, 1.96 * se
+
+
+w1 = pd.read_stata(NSFH / &quot;wave1&quot; / &quot;ICPSR_06041&quot; / &quot;DS0001&quot; / &quot;06041-0001-Data.dta&quot;, convert_categoricals=False,
+                   columns=[&quot;MCASEID&quot;, &quot;AWEIGHT&quot;, &quot;E701&quot;, &quot;S67&quot;, &quot;E201&quot;] + [f&quot;E202{c}&quot; for c in CES])
+t2 = w2(&quot;0004&quot;, [&quot;CASEID&quot;, &quot;MCASEID&quot;, &quot;MT201&quot;] + [f&quot;MT206{c}&quot; for c in CES]).merge(w2(&quot;0007&quot;, [&quot;CASEID&quot;, &quot;MUT1UTRA&quot;]))
+d = w1[w1.E701.between(1, 7) &amp; w1.S67.between(1, 7)].merge(t2, on=&quot;MCASEID&quot;)
+d = d[d.MUT1UTRA.isin([3, 4, 7, 8])].copy()
+d[&quot;split&quot;] = d.MUT1UTRA.isin([3, 4])
+low = np.minimum(d.E701, d.S67)
+d[&quot;cat&quot;] = np.select([low &gt;= 6, low == 5], CATS[:2], CATS[2])
+d[&quot;dhap&quot;] = d.MT201.where(d.MT201.between(1, 7)) - d.E201.where(d.E201.between(1, 7))
+d[&quot;ddep&quot;] = cesd(d, &quot;MT206&quot;) - cesd(d, &quot;E202&quot;)
+
+wp = lambda m, x: np.average(m, weights=x.AWEIGHT) * 100  # noqa: E731
+S = d[d.split]
+rows = []
+for c in CATS:
+    g = d[d.cat == c]
+    row = dict(group=c, n=len(g), n_split=int(g.split.sum()), share_of_couples=wp(d.cat == c, d),
+               split_rate=wp(g.split, g), share_of_splits=wp(S.cat == c, S))
+    for sp, tag in [(False, &quot;stayed&quot;), (True, &quot;split&quot;)]:
+        h = g[g.split == sp]
+        for v in [&quot;dhap&quot;, &quot;ddep&quot;]:
+            s = h.dropna(subset=[v])
+            row[f&quot;{v}_{tag}&quot;], row[f&quot;{v}_{tag}_ci&quot;] = wmean_ci(s[v], s.AWEIGHT)
+            row[f&quot;{v}_{tag}_n&quot;] = len(s)
+    rows.append(row)
+res = pd.DataFrame(rows)
+res.to_csv(HERE / &quot;nsfh_where_divorces_come_from.csv&quot;, index=False, float_format=&quot;%.4f&quot;)
+print(res.round(2).T)
+
+# ---- chart ----
+COL = {CATS[0]: pb.RED, CATS[1]: &quot;#c9c7c1&quot;, CATS[2]: pb.GRAYS[1]}
+TXT = {CATS[0]: &quot;white&quot;, CATS[1]: pb.INK, CATS[2]: &quot;white&quot;}
+pb.apply()
+fig = plt.figure(figsize=(14, 9.8))
+axA = fig.add_axes([0.26, 0.60, 0.68, 0.17])
+axB = fig.add_axes([0.07, 0.19, 0.38, 0.27])
+axC = fig.add_axes([0.57, 0.19, 0.38, 0.27])
+r = res.set_index(&quot;group&quot;)
+
+fig.text(0.03, 0.945, &quot;Four in ten divorces end a marriage both spouses called happy five years earlier&quot;,
+         fontsize=21, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.03, 0.905, f&quot;Happy marriages rarely end ({r.loc[CATS[0], 'split_rate']:.1f}% within five years), but &quot;
+         f&quot;they are two-thirds of all marriages, so they supply the largest share of divorces.\nPeople whose happy &quot;
+         &quot;marriage ended lost the most happiness; people whose unhappy marriage ended came out slightly ahead.&quot;,
+         fontsize=12.5, color=pb.INK2, va=&quot;top&quot;, linespacing=1.45)
+
+axA.text(-0.34, 1.32, &quot;A  Couples by how both spouses rated the marriage in 1987–88, and the share of each that split within five years&quot;, transform=axA.transAxes,
+         fontsize=14, fontweight=&quot;bold&quot;, color=pb.INK)
+for y, key, lab in [(1, &quot;share_of_couples&quot;, f&quot;All married couples (n = {len(d):,})&quot;),
+                    (0, &quot;share_of_splits&quot;, f&quot;Couples who split by 1992–94 (n = {len(S):,})&quot;)]:
+    left = 0
+    for c in CATS:
+        v = r.loc[c, key]
+        axA.barh(y, v, left=left, color=COL[c], height=0.62, edgecolor=pb.SURFACE, lw=1.5)
+        axA.text(left + v / 2, y, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=12.5, fontweight=&quot;bold&quot;,
+                 color=TXT[c])
+        left += v
+    axA.text(-1.5, y, lab, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11.5, color=pb.INK)
+left = 0
+for c in CATS:
+    v = r.loc[c, &quot;share_of_couples&quot;]
+    axA.text(left + v / 2, 1.5, f&quot;{c}\n{r.loc[c, 'split_rate']:.1f}% split&quot;, ha=&quot;center&quot;,
+             va=&quot;bottom&quot;, fontsize=10.5, color=pb.INK2, fontweight=&quot;bold&quot; if c == CATS[0] else &quot;normal&quot;)
+    left += v
+axA.set_xlim(0, 100)
+axA.set_ylim(-0.45, 1.45)
+axA.axis(&quot;off&quot;)
+
+
+def fmt(m):
+    t = f&quot;{m:+.1f}&quot;
+    return &quot;0.0&quot; if t in (&quot;+0.0&quot;, &quot;-0.0&quot;) else t
+
+
+def change_panel(ax, v, title, unit, ylim):
+    ax.text(0, 1.1, title, transform=ax.transAxes, fontsize=14, fontweight=&quot;bold&quot;, color=pb.INK)
+    ax.text(0, 1.03, unit, transform=ax.transAxes, fontsize=10.5, color=pb.MUTED)
+    ax.axhline(0, color=pb.MUTED, lw=1)
+    ticks = []
+    for i, c in enumerate(CATS):
+        for j, (tag, lab) in enumerate([(&quot;stayed&quot;, &quot;stayed&quot;), (&quot;split&quot;, &quot;split&quot;)]):
+            x = i + (j - 0.5) * 0.36
+            m, ci = r.loc[c, f&quot;{v}_{tag}&quot;], r.loc[c, f&quot;{v}_{tag}_ci&quot;]
+            color = COL[c] if tag == &quot;split&quot; else &quot;#e4e3df&quot;
+            ax.bar(x, m, width=0.32, color=color, edgecolor=pb.GRAYS[0] if tag == &quot;stayed&quot; else color, lw=0.8)
+            ax.plot([x, x], [m - ci, m + ci], color=pb.INK, lw=1)
+            ticks.append((x, f&quot;{lab}\n{fmt(m)}&quot;))
+    ax.set_xticks([t[0] for t in ticks])
+    ax.set_xticklabels([t[1] for t in ticks], fontsize=10.5)
+    ax.tick_params(axis=&quot;x&quot;, length=0)
+    for i, c in enumerate(CATS):
+        ax.text(i, -0.2, c, transform=ax.get_xaxis_transform(), ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=11,
+                fontweight=&quot;bold&quot; if i == 0 else &quot;normal&quot;, color=pb.INK)
+    ax.set_ylim(*ylim)
+    ax.set_xlim(-0.6, 2.6)
+    ax.grid(axis=&quot;y&quot;)
+    ax.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+
+change_panel(axB, &quot;dhap&quot;, &quot;B  Change in personal happiness, 1987–88 to 1992–94&quot;, &quot;1–7 scale; higher = happier&quot;,
+             (-1.2, 0.8))
+change_panel(axC, &quot;ddep&quot;, &quot;C  Change in depression symptoms&quot;, &quot;CES-D days in past week, 12 symptoms; up = worse&quot;,
+             (-4, 12))
+
+fig.text(0.03, 0.035,
+         &quot;Source: National Survey of Families and Households. Married couples in 1987–88 where both spouses rated the &quot;
+         &quot;marriage (1–7), followed to 1992–94; weighted. Split = separated or divorced.\nChanges are the main &quot;
+         &quot;respondent's own; whiskers are 95% intervals. Descriptive comparisons, not causal effects: people whose &quot;
+         &quot;marriages ended differ from those whose did not.&quot;,
          fontsize=9.5, color=pb.MUTED, linespacing=1.5)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
