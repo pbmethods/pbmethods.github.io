@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>What a typical US date costs: a CPI-priced date basket since 2000 vs BMO&#x27;s survey</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>What a typical US date costs: a CPI-priced date basket since 2000 vs BMO's survey</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-23.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/date-cost/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>date_cost_cpi_chart.py</code></h3>
+<pre><code class="language-text">What a typical US date has cost since 2000, priced with the CPI, set against BMO's survey figures.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/dating_cost/date_cost_cpi_chart.py
+
+Why a proxy: BMO's Real Financial Progress Index (Ipsos online panel, ~2,500 US adults 18+, weighted to the census)
+has asked about the &quot;all-in&quot; cost of a date in only two waves: $168 (fielded Dec 23 2024 - Jan 20 2025, released
+Feb 2025) and $189 (fielded Dec 29 2025 - Jan 27 2026, released Feb 2026). Its definition covers transport,
+getting ready (grooming, attire) and the date itself (food, drinks, tickets). Two points are not a time series, so
+this chart prices a fixed &quot;date basket&quot; with the Bureau of Labor Statistics' Consumer Price Index instead.
+
+Data (CPI-U, US city average, monthly; local copies under notebooks/us_public_data/):
+  - Food away from home           CUSR0000SEFV  (FRED, seasonally adjusted)   weight 50%
+  - Alcoholic beverages away      CUSR0000SEFX  (FRED, seasonally adjusted)   weight 15%
+  - Admissions (movies, concerts, sports, etc.)  CUUR0000SERF02 (BLS API v1, not seasonally adjusted)  weight 15%
+  - Gasoline, all types           CUSR0000SETB01 (FRED, seasonally adjusted)  weight 10%
+  - Personal care services (haircuts etc.)  CUUR0000SEGC (FRED, not seasonally adjusted)  weight 10%
+  - All items                     CPIAUCSL      (FRED, seasonally adjusted)   comparison line
+  BLS published no October 2025 CPI (federal shutdown); that month is linearly interpolated.
+
+Method:
+  - Fixed-quantity (Laspeyres) basket. The weights are spending shares at BMO's 2026 field period (mean of Dec 2025
+    and Jan 2026). They are my assumption, not BMO's: BMO publishes no breakdown of the $189. Meals dominate, with
+    drinks and tickets next, and gas and grooming as smaller add-ons.
+  - Each component index is divided by its level in the 2026 field period, weighted, summed and scaled so the
+    basket costs $189 then. The line therefore reads &quot;what the same date (same meal, drinks, tickets, gas, haircut)
+    cost in that month&quot;, in nominal dollars. The all-items line does the same with headline CPI.
+  - Comparison with BMO's 2025 wave: the basket's value in the 2025 field period (mean of Dec 2024 and Jan 2025)
+    is what $189 of date would have cost then if nothing changed but prices. BMO's measured $168 is shown against it.
+  - Panel B: change in each annual-average index from 2000 to 2025 (the last full year).
+
+Point of the chart: date prices have outrun general inflation since 2000, mostly through restaurant meals, but the
+2025-to-2026 jump in BMO's survey ($168 to $189, +12.5%) is about three times what prices did over the same
+months; the rest is people buying more (or pricier) date, sample differences, or survey noise.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/:
+  date_cost_cpi.png
+</code></pre>
+<h2>Notes and caveats</h2>
+<h1>Caveats: CPI-priced date basket vs BMO's survey</h1>
+<p><strong>The basket weights are an assumption.</strong> BMO doesn't break down its $189. The chart uses restaurant meals 50%,
+drinks out 15%, tickets 15%, gasoline 10% and haircuts/personal care 10%. Other plausible weightings move the
+answers only a little:</p>
+<table>
+<thead>
+<tr>
+<th>Weights (meals / drinks / tickets / gas / grooming)</th>
+<th>Price-only cost in BMO's 2025 field period</th>
+<th>Price change, 2025 to 2026 field periods</th>
+<th>Same date in 2000</th>
+<th>Basket rise, 2000 to 2025</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50 / 15 / 15 / 10 / 10 (chart)</td>
+<td>$183</td>
+<td>+3.1%</td>
+<td>$85</td>
+<td>+118%</td>
+</tr>
+<tr>
+<td>Equal, 20 each</td>
+<td>$185</td>
+<td>+2.2%</td>
+<td>$87</td>
+<td>+113%</td>
+</tr>
+<tr>
+<td>70 / 10 / 10 / 5 / 5</td>
+<td>$182</td>
+<td>+3.6%</td>
+<td>$84</td>
+<td>+121%</td>
+</tr>
+<tr>
+<td>60 / 20 / 20 / 0 / 0</td>
+<td>$182</td>
+<td>+4.1%</td>
+<td>$84</td>
+<td>+120%</td>
+</tr>
+<tr>
+<td>40 / 10 / 15 / 25 / 10</td>
+<td>$186</td>
+<td>+1.6%</td>
+<td>$86</td>
+<td>+117%</td>
+</tr>
+</tbody>
+</table>
+<p>Every version puts the price-only change at 2–4%, far below BMO's +12.5%. Every version also has date prices
+rising faster than all-items CPI (+87%) since 2000.</p>
+<p><strong>Fixed quantities.</strong> The basket holds the date constant: the same meal, the same number of drinks, the same
+tickets. Real dates change over time. People trade down when prices rise (BMO's own release says half of daters
+went on fewer or cheaper dates), and fashions change. The line is a price index, not a measure of what people
+actually spent in 2000.</p>
+<p><strong>CPI items are national averages,</strong> and they aren't exactly "date" goods. "Food away from home" includes fast
+food and work lunches. "Admissions" covers movies, concerts, sporting events and museums. "Personal care services"
+covers haircuts, salons and similar. Rideshare and taxi fares, flowers and clothing are left out. Gasoline stands
+in for all transport.</p>
+<p><strong>Seasonal adjustment is mixed.</strong> Admissions and personal care services aren't available seasonally adjusted for
+this window, so those two series are not seasonally adjusted. The rest are. BMO's two field periods fall in the same
+months (December–January), so the year-over-year comparison is unaffected.</p>
+<p><strong>October 2025 is interpolated,</strong> because BLS published no CPI for that month during the federal shutdown.</p>
+<p><strong>BMO's two survey points have their own limits.</strong> Each is a mean of self-reported spending on a skewed variable:
+14% say a date costs nothing and 14% say $300 or more. A small change in the top tail moves the mean a lot. The
+release gives no medians or standard errors for the dollar figures. The question asks about a typical date over the
+past year, so it isn't a receipt. BMO's Canadian wave, run by the same pollster on the same dates, went from $173 to
+$174, which suggests at least part of the US jump is sampling or wording rather than a real change in behavior.</p>
+<p><strong>Nominal dollars.</strong> Panel A isn't inflation-adjusted. The all-items line is there so the date line can be read
+against general inflation.</p>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>date_cost_cpi_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;What a typical US date has cost since 2000, priced with the CPI, set against BMO's survey figures.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/dating_cost/date_cost_cpi_chart.py
+
+Why a proxy: BMO's Real Financial Progress Index (Ipsos online panel, ~2,500 US adults 18+, weighted to the census)
+has asked about the &quot;all-in&quot; cost of a date in only two waves: $168 (fielded Dec 23 2024 - Jan 20 2025, released
+Feb 2025) and $189 (fielded Dec 29 2025 - Jan 27 2026, released Feb 2026). Its definition covers transport,
+getting ready (grooming, attire) and the date itself (food, drinks, tickets). Two points are not a time series, so
+this chart prices a fixed &quot;date basket&quot; with the Bureau of Labor Statistics' Consumer Price Index instead.
+
+Data (CPI-U, US city average, monthly; local copies under notebooks/us_public_data/):
+  - Food away from home           CUSR0000SEFV  (FRED, seasonally adjusted)   weight 50%
+  - Alcoholic beverages away      CUSR0000SEFX  (FRED, seasonally adjusted)   weight 15%
+  - Admissions (movies, concerts, sports, etc.)  CUUR0000SERF02 (BLS API v1, not seasonally adjusted)  weight 15%
+  - Gasoline, all types           CUSR0000SETB01 (FRED, seasonally adjusted)  weight 10%
+  - Personal care services (haircuts etc.)  CUUR0000SEGC (FRED, not seasonally adjusted)  weight 10%
+  - All items                     CPIAUCSL      (FRED, seasonally adjusted)   comparison line
+  BLS published no October 2025 CPI (federal shutdown); that month is linearly interpolated.
+
+Method:
+  - Fixed-quantity (Laspeyres) basket. The weights are spending shares at BMO's 2026 field period (mean of Dec 2025
+    and Jan 2026). They are my assumption, not BMO's: BMO publishes no breakdown of the $189. Meals dominate, with
+    drinks and tickets next, and gas and grooming as smaller add-ons.
+  - Each component index is divided by its level in the 2026 field period, weighted, summed and scaled so the
+    basket costs $189 then. The line therefore reads &quot;what the same date (same meal, drinks, tickets, gas, haircut)
+    cost in that month&quot;, in nominal dollars. The all-items line does the same with headline CPI.
+  - Comparison with BMO's 2025 wave: the basket's value in the 2025 field period (mean of Dec 2024 and Jan 2025)
+    is what $189 of date would have cost then if nothing changed but prices. BMO's measured $168 is shown against it.
+  - Panel B: change in each annual-average index from 2000 to 2025 (the last full year).
+
+Point of the chart: date prices have outrun general inflation since 2000, mostly through restaurant meals, but the
+2025-to-2026 jump in BMO's survey ($168 to $189, +12.5%) is about three times what prices did over the same
+months; the rest is people buying more (or pricier) date, sample differences, or survey noise.
+Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/:
+  date_cost_cpi.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+NAME = &quot;date_cost_cpi&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
+
+SERIES = {  # key: (file, label, weight)
+    &quot;food&quot;: (&quot;fred/CUSR0000SEFV.csv&quot;, &quot;Restaurant meals&quot;, 0.50),
+    &quot;drinks&quot;: (&quot;fred/CUSR0000SEFX.csv&quot;, &quot;Drinks out&quot;, 0.15),
+    &quot;tickets&quot;: (&quot;bls_cpi/CUUR0000SERF02.csv&quot;, &quot;Tickets (admissions)&quot;, 0.15),
+    &quot;gas&quot;: (&quot;fred/CUSR0000SETB01.csv&quot;, &quot;Gasoline&quot;, 0.10),
+    &quot;groom&quot;: (&quot;fred/CUUR0000SEGC.csv&quot;, &quot;Haircuts, personal care&quot;, 0.10),
+}
+ALL = &quot;fred/CPIAUCSL.csv&quot;
+BMO_2025, BMO_2026 = 168, 189
+W25 = (&quot;2024-12-01&quot;, &quot;2025-01-01&quot;)  # BMO 2025 field period, Dec 23 2024 - Jan 20 2025
+W26 = (&quot;2025-12-01&quot;, &quot;2026-01-01&quot;)  # BMO 2026 field period, Dec 29 2025 - Jan 27 2026
+START = &quot;2000-01-01&quot;
+
+FOOTNOTE = (
+    &quot;Source: US Bureau of Labor Statistics, CPI-U (via FRED and the BLS API), monthly to Oct 2025; Oct 2025 interpolated &quot;
+    &quot;(not published). Survey points: BMO Real Financial Progress Index (Ipsos, ~2,500 US adults),\n\&quot;all-in\&quot; cost per &quot;
+    &quot;date incl. transport and grooming, fielded Dec–Jan before each February release. Basket weights are my assumption &quot;
+    &quot;(BMO gives no breakdown): restaurant meals 50%, drinks out 15%,\ntickets 15%, gasoline 10%, haircuts/personal care &quot;
+    &quot;10%; fixed quantities, scaled to $189 in Dec 2025–Jan 2026. Panel B: annual averages, 2000 to 2025.&quot;
+)
+
+
+def load(rel):
+    s = pd.read_csv(DATA / rel, index_col=0, parse_dates=True).iloc[:, 0]
+    return pd.to_numeric(s, errors=&quot;coerce&quot;)
+
+
+def build():
+    d = pd.concat({k: load(v[0]) for k, v in SERIES.items()} | {&quot;all&quot;: load(ALL)}, axis=1)
+    d = d[START:].dropna(how=&quot;all&quot;)
+    full = pd.date_range(d.index.min(), d.index.max(), freq=&quot;MS&quot;)
+    d = d.reindex(full).interpolate(limit_area=&quot;inside&quot;).dropna()
+    base = d.loc[W26[0]:W26[1]].mean()
+    rel = d / base
+    w = pd.Series({k: v[2] for k, v in SERIES.items()})
+    basket = (rel[w.index] * w).sum(axis=1) * BMO_2026
+    allitems = rel[&quot;all&quot;] * BMO_2026
+    return d, basket, allitems
+
+
+def main():
+    d, basket, allitems = build()
+    implied25 = basket.loc[W25[0]:W25[1]].mean()
+    price_chg = BMO_2026 / implied25 - 1
+    bmo_chg = BMO_2026 / BMO_2025 - 1
+    b2000 = basket.loc[&quot;2000&quot;].mean()
+    ann = d.resample(&quot;YS&quot;).mean()
+    growth = (ann.loc[&quot;2025-01-01&quot;] / ann.loc[&quot;2000-01-01&quot;] - 1) * 100
+    w = pd.Series({k: v[2] for k, v in SERIES.items()})
+    basket_ann = (ann[w.index] / ann.loc[&quot;2025-01-01&quot;, w.index] * w).sum(axis=1)
+    growth[&quot;basket&quot;] = (basket_ann.loc[&quot;2025-01-01&quot;] / basket_ann.loc[&quot;2000-01-01&quot;] - 1) * 100
+    print(f&quot;implied 2025 cost {implied25:.1f}; price change {price_chg:.1%}; BMO change {bmo_chg:.1%}; &quot;
+          f&quot;2000 basket ${b2000:.0f}&quot;)
+    print(growth.round(1))
+
+    fig = plt.figure(figsize=(13, 7.6))
+    gs = fig.add_gridspec(1, 2, left=0.055, right=0.975, top=0.80, bottom=0.2, wspace=0.2, width_ratios=[1.45, 1])
+    a, c = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
+
+    fig.text(0.055, 0.945, f&quot;Date prices rose {price_chg:.0%} last year. Reported date spending rose {bmo_chg:.1%}&quot;,
+             fontsize=19, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
+    fig.text(0.055, 0.88, f&quot;A typical US date priced with the CPI: the same restaurant meal, drinks, tickets, gas and &quot;
+             f&quot;haircut cost ${b2000:.0f} in 2000 and ${BMO_2026} now, outpacing\noverall inflation. But BMO's survey &quot;
+             f&quot;jump from ${BMO_2025} to ${BMO_2026} is about {bmo_chg / price_chg:.0f}× what prices did; the rest is &quot;
+             f&quot;bigger dates, or survey noise.&quot;, fontsize=11.5, color=INK2, ha=&quot;left&quot;, linespacing=1.4)
+
+    # A: basket over time vs all-items, with BMO points
+    a.plot(allitems.index, allitems, color=pb.GRAYS[0], lw=1.8, zorder=2)
+    a.plot(basket.index, basket, color=pb.NAVY, lw=2.4, zorder=3)
+    a.text(pd.Timestamp(&quot;2013-06-01&quot;), basket.loc[&quot;2013-06-01&quot;] + 9, &quot;Same date, priced with\ndate-related CPI&quot;,
+           fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, ha=&quot;center&quot;, va=&quot;bottom&quot;, linespacing=1.3)
+    a.text(pd.Timestamp(&quot;2014-06-01&quot;), allitems.loc[&quot;2014-06-01&quot;] - 9, &quot;Same $189, priced with\nall-items CPI&quot;,
+           fontsize=10.5, color=INK2, ha=&quot;center&quot;, va=&quot;top&quot;, linespacing=1.3)
+    t25, t26 = pd.Timestamp(&quot;2025-01-01&quot;), pd.Timestamp(&quot;2026-01-01&quot;)
+    a.scatter([t25], [implied25], s=42, color=pb.NAVY, edgecolor=pb.SURFACE, lw=1.2, zorder=5)
+    a.scatter([t25, t26], [BMO_2025, BMO_2026], s=60, color=pb.RED, edgecolor=pb.SURFACE, lw=1.2, zorder=6)
+    a.annotate(f&quot;Prices alone: ${implied25:.0f}&quot;, (t25, implied25), xytext=(-12, 10), textcoords=&quot;offset points&quot;,
+               ha=&quot;right&quot;, va=&quot;bottom&quot;, fontsize=10, color=INK)
+    a.annotate(f&quot;BMO survey: ${BMO_2025}&quot;, (t25, BMO_2025), xytext=(-12, -4), textcoords=&quot;offset points&quot;,
+               ha=&quot;right&quot;, va=&quot;top&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK)
+    a.annotate(f&quot;${BMO_2026}&quot;, (t26, BMO_2026), xytext=(0, 9), textcoords=&quot;offset points&quot;,
+               ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK)
+    a.set_xlim(pd.Timestamp(&quot;1999-07-01&quot;), pd.Timestamp(&quot;2027-03-01&quot;))
+    a.set_ylim(60, 220)
+    a.set_yticks(range(60, 221, 40))
+    a.set_yticklabels([f&quot;${v}&quot; for v in range(60, 221, 40)])
+    a.xaxis.set_major_locator(mdates.YearLocator(5))
+    a.xaxis.set_major_formatter(mdates.DateFormatter(&quot;%Y&quot;))
+    a.set_title(&quot;A  Cost of the same date, nominal dollars&quot;, loc=&quot;left&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, pad=10)
+    a.grid(axis=&quot;x&quot;, visible=False)
+
+    # B: growth since 2000 by component
+    order = [&quot;food&quot;, &quot;drinks&quot;, &quot;tickets&quot;, &quot;groom&quot;, &quot;gas&quot;]
+    rows = [(&quot;all&quot;, &quot;All items (overall inflation)&quot;)] + [(&quot;basket&quot;, &quot;Date basket&quot;)] + \
+           [(k, SERIES[k][1]) for k in order]
+    y = np.arange(len(rows))[::-1]
+    vals = [growth[k] for k, _ in rows]
+    cols = [pb.NAVY, pb.GRAYS[2]] + [pb.GRAYS[0]] * len(order)
+    c.barh(y, vals, height=0.64, color=cols, zorder=2)
+    for yi, v in zip(y, vals):
+        c.text(v + 3, yi, f&quot;+{v:.0f}%&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK)
+    c.set_yticks(y)
+    c.set_yticklabels([lab for _, lab in rows], fontsize=10.5)
+    c.axvline(growth[&quot;all&quot;], color=pb.NAVY, lw=1, ls=(0, (3, 3)), zorder=1)
+    c.set_xlim(0, max(vals) * 1.2)
+    c.set_xticks([])
+    c.tick_params(axis=&quot;y&quot;, length=0)
+    c.set_title(&quot;B  Price rise, 2000 to 2025&quot;, loc=&quot;left&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, pad=10)
+    c.grid(visible=False)
+
+    fig.text(0.055, 0.025, FOOTNOTE, fontsize=8.3, color=MUTED, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.45)
+
+    orig = NOTES / &quot;Unwatermarked graphs&quot; / f&quot;{NAME}.png&quot;
+    wm = NOTES / f&quot;{NAME}_wm.png&quot;
+    orig.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(orig, dpi=200)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(orig), str(wm)], check=True)
+    print(&quot;wrote&quot;, orig, &quot;and&quot;, wm)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
