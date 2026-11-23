@@ -226,7 +226,7 @@ def main():
     # A: basket over time vs all-items, with BMO points
     a.plot(allitems.index, allitems, color=pb.GRAYS[0], lw=1.8, zorder=2)
     a.plot(basket.index, basket, color=pb.NAVY, lw=2.4, zorder=3)
-    a.text(pd.Timestamp("2012-01-01"), basket.loc["2012-01-01"] - 14, "Same date, priced with\ndate-related CPI",
+    a.text(pd.Timestamp("2015-06-01"), basket.loc["2015-06-01"] - 14, "Same date, priced with\ndate-related CPI",
            fontsize=10.5, fontweight="bold", color=INK, ha="center", va="top", linespacing=1.3)
     a.text(pd.Timestamp("2004-01-01"), allitems.loc["2004-01-01"] + 9, "Same $189, priced with\nall-items CPI",
            fontsize=10.5, color=INK2, ha="center", va="bottom", linespacing=1.3)
