@@ -226,7 +226,7 @@ def main():
     # A: basket over time vs all-items, with BMO points
     a.plot(allitems.index, allitems, color=pb.GRAYS[0], lw=1.8, zorder=2)
     a.plot(basket.index, basket, color=pb.NAVY, lw=2.4, zorder=3)
-    a.text(pd.Timestamp("2008-01-01"), basket.loc["2008-01-01"] - 12, "Same date, priced with\ndate-related CPI",
+    a.text(pd.Timestamp("2012-01-01"), basket.loc["2012-01-01"] - 14, "Same date, priced with\ndate-related CPI",
            fontsize=10.5, fontweight="bold", color=INK, ha="center", va="top", linespacing=1.3)
     a.text(pd.Timestamp("2004-01-01"), allitems.loc["2004-01-01"] + 9, "Same $189, priced with\nall-items CPI",
            fontsize=10.5, color=INK2, ha="center", va="bottom", linespacing=1.3)
@@ -237,8 +237,8 @@ def main():
     a.annotate(f"Prices alone: ${implied25:.0f}", (t25, implied25), xytext=(-2, 22), textcoords="offset points",
                ha="right", va="bottom", fontsize=10, color=INK, bbox=box,
                arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=0, shrinkB=4))
-    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(0, -10), textcoords="offset points",
-               ha="center", va="top", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
+    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(10, -2), textcoords="offset points",
+               ha="left", va="top", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
     a.annotate(f"BMO survey\nDec–Jan 2026: ${BMO_2026}", (t26, BMO_2026), xytext=(10, 0), textcoords="offset points",
                ha="left", va="center", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
     a.set_xlim(pd.Timestamp("1999-07-01"), pd.Timestamp("2030-06-01"))

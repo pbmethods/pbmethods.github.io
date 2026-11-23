@@ -269,7 +269,7 @@ def main():
     # A: basket over time vs all-items, with BMO points
     a.plot(allitems.index, allitems, color=pb.GRAYS[0], lw=1.8, zorder=2)
     a.plot(basket.index, basket, color=pb.NAVY, lw=2.4, zorder=3)
-    a.text(pd.Timestamp(&quot;2008-01-01&quot;), basket.loc[&quot;2008-01-01&quot;] - 12, &quot;Same date, priced with\ndate-related CPI&quot;,
+    a.text(pd.Timestamp(&quot;2012-01-01&quot;), basket.loc[&quot;2012-01-01&quot;] - 14, &quot;Same date, priced with\ndate-related CPI&quot;,
            fontsize=10.5, fontweight=&quot;bold&quot;, color=INK, ha=&quot;center&quot;, va=&quot;top&quot;, linespacing=1.3)
     a.text(pd.Timestamp(&quot;2004-01-01&quot;), allitems.loc[&quot;2004-01-01&quot;] + 9, &quot;Same $189, priced with\nall-items CPI&quot;,
            fontsize=10.5, color=INK2, ha=&quot;center&quot;, va=&quot;bottom&quot;, linespacing=1.3)
@@ -280,8 +280,8 @@ def main():
     a.annotate(f&quot;Prices alone: ${implied25:.0f}&quot;, (t25, implied25), xytext=(-2, 22), textcoords=&quot;offset points&quot;,
                ha=&quot;right&quot;, va=&quot;bottom&quot;, fontsize=10, color=INK, bbox=box,
                arrowprops=dict(arrowstyle=&quot;-&quot;, color=MUTED, lw=0.8, shrinkA=0, shrinkB=4))
-    a.annotate(f&quot;BMO survey\nDec–Jan 2025: ${BMO_2025}&quot;, (t25, BMO_2025), xytext=(0, -10), textcoords=&quot;offset points&quot;,
-               ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK, linespacing=1.25)
+    a.annotate(f&quot;BMO survey\nDec–Jan 2025: ${BMO_2025}&quot;, (t25, BMO_2025), xytext=(10, -2), textcoords=&quot;offset points&quot;,
+               ha=&quot;left&quot;, va=&quot;top&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK, linespacing=1.25)
     a.annotate(f&quot;BMO survey\nDec–Jan 2026: ${BMO_2026}&quot;, (t26, BMO_2026), xytext=(10, 0), textcoords=&quot;offset points&quot;,
                ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=INK, linespacing=1.25)
     a.set_xlim(pd.Timestamp(&quot;1999-07-01&quot;), pd.Timestamp(&quot;2030-06-01&quot;))
