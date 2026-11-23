@@ -238,7 +238,7 @@ def main():
     a.annotate(f"Prices alone: ${implied25:.0f}", (t25, implied25), xytext=(-2, 22), textcoords="offset points",
                ha="right", va="bottom", fontsize=10, color=INK, bbox=box,
                arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=0, shrinkB=4))
-    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(0, -10), textcoords="offset points",
+    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(22, -10), textcoords="offset points",
                ha="center", va="top", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
     a.annotate(f"{t_end:%b %Y}: ${b_end:.0f}", (t_end, b_end), xytext=(8, 0), textcoords="offset points",
                ha="left", va="center", fontsize=10, color=INK)
