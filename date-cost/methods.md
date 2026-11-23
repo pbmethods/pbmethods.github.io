@@ -29,7 +29,7 @@ Data (CPI-U, US city average, monthly; local copies under notebooks/us_public_da
   - Personal care services (haircuts etc.)  CUUR0000SEGC (FRED, not seasonally adjusted)  weight 10%
   - All items                     CPIAUCSL      (FRED, seasonally adjusted)   comparison line
   BLS published no October 2025 CPI (federal shutdown); that month is linearly interpolated.
-  The lines run Jan 2000 to Jan 2026, ending at BMO's latest field period.
+  The lines run Jan 2000 to Oct 2026, the latest CPI month.
 
 Method:
   - Fixed-quantity (Laspeyres) basket. The weights are spending shares at BMO's 2026 field period (mean of Dec 2025
@@ -43,7 +43,7 @@ Method:
   - Panel B: change in each annual-average index from 2000 to 2025 (the last full year).
 
 Point of the chart: date prices have outrun general inflation since 2000, mostly through restaurant meals, but the
-2025-to-2026 jump in BMO's survey ($168 to $189, +12.5%) is about three times what prices did over the same
+2025-to-2026 jump in BMO's survey ($168 to $189, +12.5%) is about four times what prices did over the same
 months; the rest is people buying more (or pricier) date, sample differences, or survey noise.
 Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/:
   date_cost_cpi.png
@@ -118,7 +118,7 @@ Data (CPI-U, US city average, monthly; local copies under notebooks/us_public_da
   - Personal care services (haircuts etc.)  CUUR0000SEGC (FRED, not seasonally adjusted)  weight 10%
   - All items                     CPIAUCSL      (FRED, seasonally adjusted)   comparison line
   BLS published no October 2025 CPI (federal shutdown); that month is linearly interpolated.
-  The lines run Jan 2000 to Jan 2026, ending at BMO's latest field period.
+  The lines run Jan 2000 to Oct 2026, the latest CPI month.
 
 Method:
   - Fixed-quantity (Laspeyres) basket. The weights are spending shares at BMO's 2026 field period (mean of Dec 2025
@@ -132,7 +132,7 @@ Method:
   - Panel B: change in each annual-average index from 2000 to 2025 (the last full year).
 
 Point of the chart: date prices have outrun general inflation since 2000, mostly through restaurant meals, but the
-2025-to-2026 jump in BMO's survey ($168 to $189, +12.5%) is about three times what prices did over the same
+2025-to-2026 jump in BMO's survey ($168 to $189, +12.5%) is about four times what prices did over the same
 months; the rest is people buying more (or pricier) date, sample differences, or survey noise.
 Writes the _wm copy to ~/Desktop/Recent Projects/Substack Notes/ and the original to its Unwatermarked graphs/:
   date_cost_cpi.png
@@ -168,10 +168,10 @@ ALL = "fred/CPIAUCSL.csv"
 BMO_2025, BMO_2026 = 168, 189
 W25 = ("2024-12-01", "2025-01-01")  # BMO 2025 field period, Dec 23 2024 - Jan 20 2025
 W26 = ("2025-12-01", "2026-01-01")  # BMO 2026 field period, Dec 29 2025 - Jan 27 2026
-START, END = "2000-01-01", "2026-01-01"  # end at BMO's 2026 field period
+START, END = "2000-01-01", "2026-10-01"  # latest CPI month
 
 FOOTNOTE = (
-    "Source: US Bureau of Labor Statistics, CPI-U (via FRED and the BLS API), monthly Jan 2000–Jan 2026; Oct 2025 interpolated "
+    "Source: US Bureau of Labor Statistics, CPI-U (via FRED and the BLS API), monthly Jan 2000–Oct 2026; Oct 2025 interpolated "
     "(not published). Survey points: BMO Real Financial Progress Index (Ipsos, ~2,500 US adults),\n\"all-in\" cost per "
     "date incl. transport and grooming, fielded Dec–Jan before each February release. Basket weights are my assumption "
     "(BMO gives no breakdown): restaurant meals 50%, drinks out 15%,\ntickets 15%, gasoline 10%, haircuts/personal care "
@@ -203,6 +203,7 @@ def main():
     price_chg = BMO_2026 / implied25 - 1
     bmo_chg = BMO_2026 / BMO_2025 - 1
     b2000 = basket.loc["2000"].mean()
+    t_end, b_end = basket.index[-1], basket.iloc[-1]
     ann = d.resample("YS").mean()
     growth = (ann.loc["2025-01-01"] / ann.loc["2000-01-01"] - 1) * 100
     w = pd.Series({k: v[2] for k, v in SERIES.items()})
@@ -219,7 +220,7 @@ def main():
     fig.text(0.055, 0.945, f"Date prices rose {price_chg:.0%} last year. Reported date spending rose {bmo_chg:.1%}",
              fontsize=19, fontweight="bold", ha="left")
     fig.text(0.055, 0.88, f"A typical US date priced with the CPI: the same restaurant meal, drinks, tickets, gas and "
-             f"haircut cost ${b2000:.0f} in 2000 and ${BMO_2026} in early 2026,\noutpacing overall inflation. But BMO's survey "
+             f"haircut cost ${b2000:.0f} in 2000, ${BMO_2026} in early 2026 and\n${b_end:.0f} by {t_end:%B %Y}, outpacing overall inflation. But BMO's survey "
              f"jump from ${BMO_2025} to ${BMO_2026} is about {bmo_chg / price_chg:.0f}× what prices did; the rest is "
              f"bigger dates, or survey noise.", fontsize=11.5, color=INK2, ha="left", linespacing=1.4)
 
@@ -237,12 +238,14 @@ def main():
     a.annotate(f"Prices alone: ${implied25:.0f}", (t25, implied25), xytext=(-2, 22), textcoords="offset points",
                ha="right", va="bottom", fontsize=10, color=INK, bbox=box,
                arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=0, shrinkB=4))
-    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(10, -2), textcoords="offset points",
+    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(0, -10), textcoords="offset points",
+               ha="center", va="top", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
+    a.annotate(f"{t_end:%b %Y}: ${b_end:.0f}", (t_end, b_end), xytext=(8, 0), textcoords="offset points",
+               ha="left", va="center", fontsize=10, color=INK)
+    a.annotate(f"BMO survey\nDec–Jan 2026: ${BMO_2026}", (t26, BMO_2026), xytext=(10, -6), textcoords="offset points",
                ha="left", va="top", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
-    a.annotate(f"BMO survey\nDec–Jan 2026: ${BMO_2026}", (t26, BMO_2026), xytext=(10, 0), textcoords="offset points",
-               ha="left", va="center", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
     a.set_xlim(pd.Timestamp("1999-07-01"), pd.Timestamp("2030-06-01"))
-    a.spines["bottom"].set_bounds(mdates.date2num(pd.Timestamp("1999-07-01")), mdates.date2num(t26))
+    a.spines["bottom"].set_bounds(mdates.date2num(pd.Timestamp("1999-07-01")), mdates.date2num(t_end))
     a.set_ylim(60, 220)
     a.set_yticks(range(60, 221, 40))
     a.set_yticklabels([f"${v}" for v in range(60, 221, 40)])
