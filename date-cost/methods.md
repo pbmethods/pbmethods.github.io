@@ -29,6 +29,7 @@ Data (CPI-U, US city average, monthly; local copies under notebooks/us_public_da
   - Personal care services (haircuts etc.)  CUUR0000SEGC (FRED, not seasonally adjusted)  weight 10%
   - All items                     CPIAUCSL      (FRED, seasonally adjusted)   comparison line
   BLS published no October 2025 CPI (federal shutdown); that month is linearly interpolated.
+  The lines run Jan 2000 to Jan 2026, ending at BMO's latest field period.
 
 Method:
   - Fixed-quantity (Laspeyres) basket. The weights are spending shares at BMO's 2026 field period (mean of Dec 2025
@@ -117,6 +118,7 @@ Data (CPI-U, US city average, monthly; local copies under notebooks/us_public_da
   - Personal care services (haircuts etc.)  CUUR0000SEGC (FRED, not seasonally adjusted)  weight 10%
   - All items                     CPIAUCSL      (FRED, seasonally adjusted)   comparison line
   BLS published no October 2025 CPI (federal shutdown); that month is linearly interpolated.
+  The lines run Jan 2000 to Jan 2026, ending at BMO's latest field period.
 
 Method:
   - Fixed-quantity (Laspeyres) basket. The weights are spending shares at BMO's 2026 field period (mean of Dec 2025
@@ -152,6 +154,7 @@ sys.path.insert(0, str(Path.home() / "_watermark"))
 import pb_style as pb  # noqa: E402
 
 pb.apply()
+plt.rcParams["text.parse_math"] = False  # dollar signs are literal
 INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
 
 SERIES = {  # key: (file, label, weight)
@@ -165,10 +168,10 @@ ALL = "fred/CPIAUCSL.csv"
 BMO_2025, BMO_2026 = 168, 189
 W25 = ("2024-12-01", "2025-01-01")  # BMO 2025 field period, Dec 23 2024 - Jan 20 2025
 W26 = ("2025-12-01", "2026-01-01")  # BMO 2026 field period, Dec 29 2025 - Jan 27 2026
-START = "2000-01-01"
+START, END = "2000-01-01", "2026-01-01"  # end at BMO's 2026 field period
 
 FOOTNOTE = (
-    "Source: US Bureau of Labor Statistics, CPI-U (via FRED and the BLS API), monthly to Oct 2025; Oct 2025 interpolated "
+    "Source: US Bureau of Labor Statistics, CPI-U (via FRED and the BLS API), monthly Jan 2000–Jan 2026; Oct 2025 interpolated "
     "(not published). Survey points: BMO Real Financial Progress Index (Ipsos, ~2,500 US adults),\n\"all-in\" cost per "
     "date incl. transport and grooming, fielded Dec–Jan before each February release. Basket weights are my assumption "
     "(BMO gives no breakdown): restaurant meals 50%, drinks out 15%,\ntickets 15%, gasoline 10%, haircuts/personal care "
@@ -183,7 +186,7 @@ def load(rel):
 
 def build():
     d = pd.concat({k: load(v[0]) for k, v in SERIES.items()} | {"all": load(ALL)}, axis=1)
-    d = d[START:].dropna(how="all")
+    d = d[START:END].dropna(how="all")
     full = pd.date_range(d.index.min(), d.index.max(), freq="MS")
     d = d.reindex(full).interpolate(limit_area="inside").dropna()
     base = d.loc[W26[0]:W26[1]].mean()
@@ -210,37 +213,40 @@ def main():
     print(growth.round(1))
 
     fig = plt.figure(figsize=(13, 7.6))
-    gs = fig.add_gridspec(1, 2, left=0.055, right=0.975, top=0.80, bottom=0.2, wspace=0.2, width_ratios=[1.45, 1])
+    gs = fig.add_gridspec(1, 2, left=0.055, right=0.975, top=0.80, bottom=0.2, wspace=0.42, width_ratios=[1.5, 1])
     a, c = fig.add_subplot(gs[0]), fig.add_subplot(gs[1])
 
     fig.text(0.055, 0.945, f"Date prices rose {price_chg:.0%} last year. Reported date spending rose {bmo_chg:.1%}",
              fontsize=19, fontweight="bold", ha="left")
     fig.text(0.055, 0.88, f"A typical US date priced with the CPI: the same restaurant meal, drinks, tickets, gas and "
-             f"haircut cost ${b2000:.0f} in 2000 and ${BMO_2026} now, outpacing\noverall inflation. But BMO's survey "
+             f"haircut cost ${b2000:.0f} in 2000 and ${BMO_2026} in early 2026,\noutpacing overall inflation. But BMO's survey "
              f"jump from ${BMO_2025} to ${BMO_2026} is about {bmo_chg / price_chg:.0f}× what prices did; the rest is "
              f"bigger dates, or survey noise.", fontsize=11.5, color=INK2, ha="left", linespacing=1.4)
 
     # A: basket over time vs all-items, with BMO points
     a.plot(allitems.index, allitems, color=pb.GRAYS[0], lw=1.8, zorder=2)
     a.plot(basket.index, basket, color=pb.NAVY, lw=2.4, zorder=3)
-    a.text(pd.Timestamp("2013-06-01"), basket.loc["2013-06-01"] + 9, "Same date, priced with\ndate-related CPI",
-           fontsize=10.5, fontweight="bold", color=INK, ha="center", va="bottom", linespacing=1.3)
-    a.text(pd.Timestamp("2014-06-01"), allitems.loc["2014-06-01"] - 9, "Same $189, priced with\nall-items CPI",
-           fontsize=10.5, color=INK2, ha="center", va="top", linespacing=1.3)
+    a.text(pd.Timestamp("2008-01-01"), basket.loc["2008-01-01"] - 12, "Same date, priced with\ndate-related CPI",
+           fontsize=10.5, fontweight="bold", color=INK, ha="center", va="top", linespacing=1.3)
+    a.text(pd.Timestamp("2004-01-01"), allitems.loc["2004-01-01"] + 9, "Same $189, priced with\nall-items CPI",
+           fontsize=10.5, color=INK2, ha="center", va="bottom", linespacing=1.3)
     t25, t26 = pd.Timestamp("2025-01-01"), pd.Timestamp("2026-01-01")
     a.scatter([t25], [implied25], s=42, color=pb.NAVY, edgecolor=pb.SURFACE, lw=1.2, zorder=5)
     a.scatter([t25, t26], [BMO_2025, BMO_2026], s=60, color=pb.RED, edgecolor=pb.SURFACE, lw=1.2, zorder=6)
-    a.annotate(f"Prices alone: ${implied25:.0f}", (t25, implied25), xytext=(-12, 10), textcoords="offset points",
-               ha="right", va="bottom", fontsize=10, color=INK)
-    a.annotate(f"BMO survey: ${BMO_2025}", (t25, BMO_2025), xytext=(-12, -4), textcoords="offset points",
-               ha="right", va="top", fontsize=10, fontweight="bold", color=INK)
-    a.annotate(f"${BMO_2026}", (t26, BMO_2026), xytext=(0, 9), textcoords="offset points",
-               ha="center", va="bottom", fontsize=10, fontweight="bold", color=INK)
-    a.set_xlim(pd.Timestamp("1999-07-01"), pd.Timestamp("2027-03-01"))
+    box = dict(boxstyle="square,pad=0.15", fc=pb.SURFACE, ec="none")
+    a.annotate(f"Prices alone: ${implied25:.0f}", (t25, implied25), xytext=(-2, 22), textcoords="offset points",
+               ha="right", va="bottom", fontsize=10, color=INK, bbox=box,
+               arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=0, shrinkB=4))
+    a.annotate(f"BMO survey\nDec–Jan 2025: ${BMO_2025}", (t25, BMO_2025), xytext=(0, -10), textcoords="offset points",
+               ha="center", va="top", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
+    a.annotate(f"BMO survey\nDec–Jan 2026: ${BMO_2026}", (t26, BMO_2026), xytext=(10, 0), textcoords="offset points",
+               ha="left", va="center", fontsize=10, fontweight="bold", color=INK, linespacing=1.25)
+    a.set_xlim(pd.Timestamp("1999-07-01"), pd.Timestamp("2030-06-01"))
+    a.spines["bottom"].set_bounds(mdates.date2num(pd.Timestamp("1999-07-01")), mdates.date2num(t26))
     a.set_ylim(60, 220)
     a.set_yticks(range(60, 221, 40))
     a.set_yticklabels([f"${v}" for v in range(60, 221, 40)])
-    a.xaxis.set_major_locator(mdates.YearLocator(5))
+    a.set_xticks([pd.Timestamp(f"{y}-01-01") for y in range(2000, 2026, 5)])
     a.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     a.set_title("A  Cost of the same date, nominal dollars", loc="left", fontsize=12.5, fontweight="bold", pad=10)
     a.grid(axis="x", visible=False)
