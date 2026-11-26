@@ -638,8 +638,8 @@ acs = pd.read_csv(HERE / &quot;children_of_divorce_acs.csv&quot;)
 
 pb.apply()
 fig = plt.figure(figsize=(14, 11.6))
-gs = fig.add_gridspec(2, 2, width_ratios=[1, 1.15], height_ratios=[1.55, 1], left=0.06, right=0.91, top=0.77,
-                      bottom=0.15, hspace=0.62, wspace=0.42)
+gs = fig.add_gridspec(2, 2, width_ratios=[1, 1.15], height_ratios=[1.55, 1], left=0.06, right=0.91, top=0.80,
+                      bottom=0.17, hspace=0.85, wspace=0.42)
 axA, axB = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
 axC, axD = fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1])
 
@@ -687,7 +687,7 @@ for i, g in [(0, RAW_GAP), (2, left_gap), (3.25, FE_GAP)]:
                  linespacing=1.0, bbox=dict(fc=&quot;white&quot;, ec=&quot;none&quot;, pad=1))
 header(0.03, axA, &quot;A  How far behind is the typical child of divorce?&quot;,
        &quot;Gap vs children of intact families, in SD. Labels in the bars: where\nthe middle child of divorce would rank &quot;
-       &quot;among children of intact\nfamilies (50th = no gap)&quot;, gap=0.09)
+       &quot;among children of intact\nfamilies (50th = no gap)&quot;, gap=0.07)
 
 # ---------- B: share surviving ----------
 e = est.sort_values(&quot;kept&quot;).reset_index(drop=True)
@@ -713,7 +713,7 @@ strip(axB)
 x0 = axB.get_position().x0 - 0.17
 header(x0, axB, &quot;B  Share of the gap that survives twin and sibling comparisons&quot;,
        &quot;Each dot: one outcome. Comparing children of identical twins (one divorced,\none not), or older and younger &quot;
-       &quot;siblings, holds genes and family background fixed&quot;, gap=0.09)
+       &quot;siblings, holds genes and family background fixed&quot;, gap=0.07)
 
 # ---------- C: conflict before the split ----------
 TIERS = [(&quot;violent&quot;, &quot;Physical fights&quot;, pb.RED, &quot;white&quot;), (&quot;heated&quot;, &quot;Heated arguing,\nno violence&quot;, &quot;#e59a95&quot;, pb.INK),
@@ -725,7 +725,7 @@ for yi, (g, lab) in zip([1, 0], rows):
     for key, name, color, txt in TIERS:
         v = sub.loc[key, &quot;pct&quot;]
         axC.barh(yi, v, left=left, height=0.62, color=color, edgecolor=pb.SURFACE, lw=1.5)
-        if v &gt;= 5:
+        if v &gt;= 7:
             axC.text(left + v / 2, yi, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=txt)
         left += v
     axC.text(-1.5, yi, f&quot;{lab}\n(n = {int(sub.n_group.iloc[0]):,})&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=9.5,

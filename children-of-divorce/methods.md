@@ -304,8 +304,8 @@ acs = pd.read_csv(HERE / "children_of_divorce_acs.csv")
 
 pb.apply()
 fig = plt.figure(figsize=(14, 11.6))
-gs = fig.add_gridspec(2, 2, width_ratios=[1, 1.15], height_ratios=[1.55, 1], left=0.06, right=0.91, top=0.77,
-                      bottom=0.15, hspace=0.62, wspace=0.42)
+gs = fig.add_gridspec(2, 2, width_ratios=[1, 1.15], height_ratios=[1.55, 1], left=0.06, right=0.91, top=0.80,
+                      bottom=0.17, hspace=0.85, wspace=0.42)
 axA, axB = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
 axC, axD = fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1])
 
@@ -353,7 +353,7 @@ for i, g in [(0, RAW_GAP), (2, left_gap), (3.25, FE_GAP)]:
                  linespacing=1.0, bbox=dict(fc="white", ec="none", pad=1))
 header(0.03, axA, "A  How far behind is the typical child of divorce?",
        "Gap vs children of intact families, in SD. Labels in the bars: where\nthe middle child of divorce would rank "
-       "among children of intact\nfamilies (50th = no gap)", gap=0.09)
+       "among children of intact\nfamilies (50th = no gap)", gap=0.07)
 
 # ---------- B: share surviving ----------
 e = est.sort_values("kept").reset_index(drop=True)
@@ -379,7 +379,7 @@ strip(axB)
 x0 = axB.get_position().x0 - 0.17
 header(x0, axB, "B  Share of the gap that survives twin and sibling comparisons",
        "Each dot: one outcome. Comparing children of identical twins (one divorced,\none not), or older and younger "
-       "siblings, holds genes and family background fixed", gap=0.09)
+       "siblings, holds genes and family background fixed", gap=0.07)
 
 # ---------- C: conflict before the split ----------
 TIERS = [("violent", "Physical fights", pb.RED, "white"), ("heated", "Heated arguing,\nno violence", "#e59a95", pb.INK),
@@ -391,7 +391,7 @@ for yi, (g, lab) in zip([1, 0], rows):
     for key, name, color, txt in TIERS:
         v = sub.loc[key, "pct"]
         axC.barh(yi, v, left=left, height=0.62, color=color, edgecolor=pb.SURFACE, lw=1.5)
-        if v >= 5:
+        if v >= 7:
             axC.text(left + v / 2, yi, f"{v:.0f}%", ha="center", va="center", fontsize=10, fontweight="bold", color=txt)
         left += v
     axC.text(-1.5, yi, f"{lab}\n(n = {int(sub.n_group.iloc[0]):,})", ha="right", va="center", fontsize=9.5,
