@@ -701,8 +701,8 @@ fig3.text(0.03, 0.025,
           "Sources: Australian twins, D'Onofrio et al. 2006 (Dev Psychol; parents divorced before the child was 16; "
           "intact-family rates from its Table 3); US twins, D'Onofrio et al. 2007 (JCPP); Sweden, Björklund & Sundström "
           "2006\n(siblings; authors: raw gap ≈ one year of schooling). Yes/no outcomes: the intact-family rate shifted by "
-          "each study's logit estimate. \"none\" = the estimate fell to zero or reversed. *Cohabitation as the study measured it. Not shown: Norway (Sigle-Rushton "
-          "et al. 2014),\nschool grades at 16 half a grade point lower raw, no gap among siblings. Many single twin "
+          "each study's logit estimate. \"none\" = the estimate fell to zero or reversed. *Cohabitation as the study measured it.\nNot shown: Norway (Sigle-Rushton "
+          "et al. 2014), school grades at 16 half a grade point lower raw, no gap among siblings. Many single twin "
           "estimates have wide standard errors.",
           fontsize=8.2, color=pb.MUTED, linespacing=1.45)
 save(fig3, "children_of_divorce_plain")
