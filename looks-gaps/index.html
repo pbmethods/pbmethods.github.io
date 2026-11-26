@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Is the earnings gap for looks bigger than the Black-white gap? Gender, race, height and looks on one scale</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Is the earnings gap for looks bigger than the Black-white gap? Gender, race, height and looks on one scale</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/looks-gaps/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>looks_gaps_estimate.py</code></h3>
+<pre><code class="language-text">Is the earnings gap for looks bigger than the Black-white gap? Gender, race, height and looks on one scale.
+
+Question: posts claim the &quot;attractiveness income gap&quot; is bigger than the Black-white gap. That comparison usually sets
+an extreme looks contrast (ugliest vs prettiest) against a regression-adjusted race gap from another study. This
+script puts all four traits in one sample, one outcome, one set of controls, and one contrast size.
+
+Data: Add Health (ICPSR 21600) public-use files, a national school-based cohort born ~1974-83.
+  outcome       Wave VI (2022-24, ages ~39-49) personal earnings last year, H6EC1, 13 brackets; replication on
+                Wave V (2016-18, ages ~33-43), H5EC1, same brackets
+  sex           BIO_SEX (Wave I)
+  race          Wave I self-report: Hispanic (H1GI4) first, then race (H1GI6A-E; multi-race resolved with the
+                single-category item H1GI8) -&gt; White, Black, Hispanic, Asian, Other (all non-Hispanic except Hispanic)
+  looks         interviewer rating &quot;physical attractiveness of R&quot;, 1 very unattractive .. 5 very attractive, at Waves I
+                (1994-95), II, III and IV (2008-09): H1IR1, H2IR1, H3IR1, H4IR1. Each wave had a different
+                interviewer. Score = mean of available ratings (at least 2), standardized within sex.
+  height        measured height at Wave IV (H4HGT, cm), standardized within sex
+  age           interview year minus birth year (H4OD1Y)
+  cognition     Wave I Add Health Picture Vocabulary Test, age-standardized (PVTSTD1), a pre-labor-market score
+  education     highest level at the outcome wave (H6OD9 / H5OD11), 5 groups: &lt;HS, HS/GED, some college/assoc/voc,
+                BA, graduate
+Sample: full-time workers (35+ hours/week across current jobs: H6LM4AE / H5LM7) with earnings of $10,000+ (drops
+part-year and zero earners), non-missing race, height and 2+ looks ratings.
+Outcome: log earnings at the bracket midpoint; the open top bracket ($200k+) is set to $275k. A normal interval
+regression on the bracket bounds (log scale) is run as a robustness check.
+Pooled (&quot;5+6&quot;): both waves stacked (person-waves), with a Wave VI dummy; each person-wave carries its own wave's
+weight, and school clustering also absorbs the repeated person. This averages out year-to-year earnings noise and is
+the headline estimate; the single waves are reported as replications.
+Weights: GSW1456 (Wave VI) / GSW145 (Wave V) longitudinal weights; standard errors clustered on CLUSTER2 (schools).
+
+Specifications, each run separately for men and women (gender itself is pooled):
+  raw        the trait alone (race: Black vs White only; gender: female dummy only)
+  +age/mutual all traits together plus age: race dummies, looks, height (and female in the pooled model)
+  +PVT, educ adds the Wave I vocabulary score and education. These are partly mediators (looks and height in
+             adolescence plausibly shape schooling), so this column is &quot;what's left beyond skills&quot;, not &quot;the true
+             effect&quot;.
+Contrasts that make the traits commensurable:
+  matched share  looks and height enter as an indicator for being in the bottom p of the within-sex distribution,
+                 where p = the weighted Black share of the Black+White sample (about 1 in 6). This compares a group of
+                 the same relative size as the Black group to everyone else, so the binary and continuous traits are
+                 compared like for like. Ties in the looks score are broken by a weighted random draw (seeded).
+  per SD         looks and height as z-scores; the looks coefficient is also divided by the reliability of the mean
+                 rating (Spearman-Brown from the average inter-wave correlation), to undo attenuation from rater
+                 noise.
+Effects are reported as percent differences, 100*(exp(b)-1).
+
+Run:  uv run --with pandas,numpy,statsmodels,scipy python notebooks/looks_gaps/looks_gaps_estimate.py
+Writes looks_gaps_results.csv and looks_gaps_reliability.csv next to this script.
+</code></pre>
+<h3><code>looks_gaps_chart.py</code></h3>
+<pre><code class="language-text">Chart: earnings gaps for gender, race, height and looks on one matched scale (Add Health, Waves V+VI pooled).
+
+Reads looks_gaps_results.csv from looks_gaps_estimate.py (run that first; its docstring is the full method).
+Shown: wave &quot;5+6&quot; pooled, the &quot;matched share&quot; contrast: Black vs White, and the bottom ~17% of the within-sex looks or
+height distribution vs everyone else (17% = the weighted Black share of the Black+White sample), each within sex;
+women vs men pooled. Bars: &quot;+age/mutual&quot; spec (age, all race groups, looks and height together) with 95% CIs
+clustered on school; open diamonds: also holding the Wave I vocabulary score and education equal.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/looks_gaps/looks_gaps_chart.py
+Writes ~/Desktop/Recent Projects/Substack Notes/Economics/looks_vs_race_gender_height_gaps_wm.png (original in
+Unwatermarked graphs/Economics/).
+</code></pre>
+<h2>Results</h2>
+<h3><code>looks_gaps_results.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>wave</th>
+<th>group</th>
+<th>trait</th>
+<th>contrast</th>
+<th>spec</th>
+<th>n</th>
+<th>b</th>
+<th>se</th>
+<th>pct</th>
+<th>lo95</th>
+<th>hi95</th>
+<th>pct_intreg</th>
+<th>p_black</th>
+<th>pct_disattenuated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>raw</td>
+<td>669</td>
+<td>-0.366</td>
+<td>0.088</td>
+<td>-30.627</td>
+<td>-41.609</td>
+<td>-17.580</td>
+<td></td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+age/mutual</td>
+<td>781</td>
+<td>-0.364</td>
+<td>0.082</td>
+<td>-30.488</td>
+<td>-40.857</td>
+<td>-18.301</td>
+<td>-30.629</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+PVT, educ</td>
+<td>781</td>
+<td>-0.259</td>
+<td>0.074</td>
+<td>-22.814</td>
+<td>-33.296</td>
+<td>-10.685</td>
+<td>-22.911</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>raw</td>
+<td>669</td>
+<td>-0.366</td>
+<td>0.088</td>
+<td>-30.627</td>
+<td>-41.609</td>
+<td>-17.580</td>
+<td></td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+age/mutual</td>
+<td>781</td>
+<td>-0.367</td>
+<td>0.085</td>
+<td>-30.727</td>
+<td>-41.367</td>
+<td>-18.156</td>
+<td>-30.878</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+PVT, educ</td>
+<td>781</td>
+<td>-0.264</td>
+<td>0.075</td>
+<td>-23.227</td>
+<td>-33.786</td>
+<td>-10.982</td>
+<td>-23.325</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>raw</td>
+<td>906</td>
+<td>-0.232</td>
+<td>0.071</td>
+<td>-20.721</td>
+<td>-31.010</td>
+<td>-8.896</td>
+<td></td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+age/mutual</td>
+<td>1031</td>
+<td>-0.220</td>
+<td>0.072</td>
+<td>-19.724</td>
+<td>-30.271</td>
+<td>-7.583</td>
+<td>-19.471</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+PVT, educ</td>
+<td>1031</td>
+<td>-0.127</td>
+<td>0.053</td>
+<td>-11.931</td>
+<td>-20.612</td>
+<td>-2.301</td>
+<td>-11.681</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>raw</td>
+<td>906</td>
+<td>-0.232</td>
+<td>0.071</td>
+<td>-20.721</td>
+<td>-31.010</td>
+<td>-8.896</td>
+<td></td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+age/mutual</td>
+<td>1031</td>
+<td>-0.213</td>
+<td>0.071</td>
+<td>-19.226</td>
+<td>-29.704</td>
+<td>-7.187</td>
+<td>-18.960</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+PVT, educ</td>
+<td>1031</td>
+<td>-0.125</td>
+<td>0.052</td>
+<td>-11.743</td>
+<td>-20.281</td>
+<td>-2.292</td>
+<td>-11.485</td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>All</td>
+<td>Women vs men</td>
+<td>matched share</td>
+<td>raw</td>
+<td>1812</td>
+<td>-0.275</td>
+<td>0.036</td>
+<td>-24.065</td>
+<td>-29.188</td>
+<td>-18.572</td>
+<td></td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>All</td>
+<td>Women vs men</td>
+<td>per SD</td>
+<td>raw</td>
+<td>1812</td>
+<td>-0.275</td>
+<td>0.036</td>
+<td>-24.065</td>
+<td>-29.188</td>
+<td>-18.572</td>
+<td></td>
+<td>0.172</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>raw</td>
+<td>810</td>
+<td>-0.365</td>
+<td>0.091</td>
+<td>-30.561</td>
+<td>-41.854</td>
+<td>-17.076</td>
+<td></td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+age/mutual</td>
+<td>958</td>
+<td>-0.361</td>
+<td>0.087</td>
+<td>-30.287</td>
+<td>-41.207</td>
+<td>-17.339</td>
+<td>-30.215</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+PVT, educ</td>
+<td>958</td>
+<td>-0.356</td>
+<td>0.065</td>
+<td>-29.981</td>
+<td>-38.372</td>
+<td>-20.448</td>
+<td>-29.888</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>raw</td>
+<td>810</td>
+<td>-0.365</td>
+<td>0.091</td>
+<td>-30.561</td>
+<td>-41.854</td>
+<td>-17.076</td>
+<td></td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+age/mutual</td>
+<td>958</td>
+<td>-0.359</td>
+<td>0.085</td>
+<td>-30.166</td>
+<td>-40.854</td>
+<td>-17.545</td>
+<td>-30.129</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+PVT, educ</td>
+<td>958</td>
+<td>-0.357</td>
+<td>0.066</td>
+<td>-29.996</td>
+<td>-38.462</td>
+<td>-20.365</td>
+<td>-29.932</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>raw</td>
+<td>956</td>
+<td>-0.276</td>
+<td>0.061</td>
+<td>-24.133</td>
+<td>-32.683</td>
+<td>-14.496</td>
+<td></td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+age/mutual</td>
+<td>1097</td>
+<td>-0.261</td>
+<td>0.061</td>
+<td>-22.987</td>
+<td>-31.622</td>
+<td>-13.262</td>
+<td>-22.765</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+PVT, educ</td>
+<td>1097</td>
+<td>-0.170</td>
+<td>0.051</td>
+<td>-15.662</td>
+<td>-23.657</td>
+<td>-6.829</td>
+<td>-15.554</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>raw</td>
+<td>956</td>
+<td>-0.276</td>
+<td>0.061</td>
+<td>-24.133</td>
+<td>-32.683</td>
+<td>-14.496</td>
+<td></td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+age/mutual</td>
+<td>1097</td>
+<td>-0.255</td>
+<td>0.061</td>
+<td>-22.491</td>
+<td>-31.297</td>
+<td>-12.555</td>
+<td>-22.270</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+PVT, educ</td>
+<td>1097</td>
+<td>-0.170</td>
+<td>0.051</td>
+<td>-15.667</td>
+<td>-23.699</td>
+<td>-6.790</td>
+<td>-15.566</td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>All</td>
+<td>Women vs men</td>
+<td>matched share</td>
+<td>raw</td>
+<td>2055</td>
+<td>-0.222</td>
+<td>0.034</td>
+<td>-19.921</td>
+<td>-25.120</td>
+<td>-14.361</td>
+<td></td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>All</td>
+<td>Women vs men</td>
+<td>per SD</td>
+<td>raw</td>
+<td>2055</td>
+<td>-0.222</td>
+<td>0.034</td>
+<td>-19.921</td>
+<td>-25.120</td>
+<td>-14.361</td>
+<td></td>
+<td>0.163</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>raw</td>
+<td>1479</td>
+<td>-0.351</td>
+<td>0.079</td>
+<td>-29.586</td>
+<td>-39.632</td>
+<td>-17.869</td>
+<td></td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+age/mutual</td>
+<td>1739</td>
+<td>-0.366</td>
+<td>0.076</td>
+<td>-30.667</td>
+<td>-40.243</td>
+<td>-19.556</td>
+<td>-30.714</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+PVT, educ</td>
+<td>1739</td>
+<td>-0.299</td>
+<td>0.062</td>
+<td>-25.879</td>
+<td>-34.313</td>
+<td>-16.363</td>
+<td>-25.923</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>raw</td>
+<td>1479</td>
+<td>-0.351</td>
+<td>0.079</td>
+<td>-29.586</td>
+<td>-39.632</td>
+<td>-17.869</td>
+<td></td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+age/mutual</td>
+<td>1739</td>
+<td>-0.366</td>
+<td>0.076</td>
+<td>-30.636</td>
+<td>-40.219</td>
+<td>-19.517</td>
+<td>-30.703</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Men</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+PVT, educ</td>
+<td>1739</td>
+<td>-0.304</td>
+<td>0.062</td>
+<td>-26.187</td>
+<td>-34.653</td>
+<td>-16.624</td>
+<td>-26.245</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>raw</td>
+<td>1862</td>
+<td>-0.258</td>
+<td>0.056</td>
+<td>-22.767</td>
+<td>-30.829</td>
+<td>-13.764</td>
+<td></td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+age/mutual</td>
+<td>2128</td>
+<td>-0.238</td>
+<td>0.057</td>
+<td>-21.209</td>
+<td>-29.566</td>
+<td>-11.861</td>
+<td>-20.978</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>matched share</td>
+<td>+PVT, educ</td>
+<td>2128</td>
+<td>-0.146</td>
+<td>0.041</td>
+<td>-13.580</td>
+<td>-20.191</td>
+<td>-6.422</td>
+<td>-13.402</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>raw</td>
+<td>1862</td>
+<td>-0.258</td>
+<td>0.056</td>
+<td>-22.767</td>
+<td>-30.829</td>
+<td>-13.764</td>
+<td></td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+age/mutual</td>
+<td>2128</td>
+<td>-0.233</td>
+<td>0.057</td>
+<td>-20.820</td>
+<td>-29.135</td>
+<td>-11.529</td>
+<td>-20.581</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>Women</td>
+<td>Black vs White</td>
+<td>per SD</td>
+<td>+PVT, educ</td>
+<td>2128</td>
+<td>-0.146</td>
+<td>0.040</td>
+<td>-13.571</td>
+<td>-20.079</td>
+<td>-6.532</td>
+<td>-13.391</td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>All</td>
+<td>Women vs men</td>
+<td>matched share</td>
+<td>raw</td>
+<td>3867</td>
+<td>-0.245</td>
+<td>0.031</td>
+<td>-21.707</td>
+<td>-26.260</td>
+<td>-16.874</td>
+<td></td>
+<td>0.168</td>
+<td></td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>All</td>
+<td>Women vs men</td>
+<td>per SD</td>
+<td>raw</td>
+<td>3867</td>
+<td>-0.245</td>
+<td>0.031</td>
+<td>-21.707</td>
+<td>-26.260</td>
+<td>-16.874</td>
+<td></td>
+<td>0.168</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 3th row of 126 shown; full file: <a href="looks_gaps_results.csv">looks_gaps_results.csv</a>.</em></p>
+<h3><code>looks_gaps_reliability.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>wave</th>
+<th>mean_interwave_r</th>
+<th>mean_k</th>
+<th>reliability</th>
+<th>p_black</th>
+<th>n</th>
+<th>n_men</th>
+<th>n_women</th>
+<th>r_01</th>
+<th>r_02</th>
+<th>r_03</th>
+<th>r_12</th>
+<th>r_13</th>
+<th>r_23</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6</td>
+<td>0.157</td>
+<td>3.799</td>
+<td>0.414</td>
+<td>0.172</td>
+<td>1812</td>
+<td>781</td>
+<td>1031</td>
+<td>0.274</td>
+<td>0.166</td>
+<td>0.111</td>
+<td>0.193</td>
+<td>0.095</td>
+<td>0.103</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0.171</td>
+<td>3.788</td>
+<td>0.438</td>
+<td>0.163</td>
+<td>2055</td>
+<td>958</td>
+<td>1097</td>
+<td>0.304</td>
+<td>0.170</td>
+<td>0.126</td>
+<td>0.194</td>
+<td>0.109</td>
+<td>0.120</td>
+</tr>
+<tr>
+<td>5+6</td>
+<td>0.164</td>
+<td>3.793</td>
+<td>0.427</td>
+<td>0.168</td>
+<td>3867</td>
+<td>1739</td>
+<td>2128</td>
+<td>0.290</td>
+<td>0.168</td>
+<td>0.119</td>
+<td>0.193</td>
+<td>0.102</td>
+<td>0.112</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats: looks vs race, gender and height earnings gaps</h1>
+<ul>
+<li><strong>Looks ratings are noisy.</strong> Each wave's interviewer rates physical attractiveness on a 1-5 scale. Ratings of
+  the same person from different waves correlate only 0.10-0.30, so the 4-wave average has a reliability of about
+  0.43. Noise biases the looks gap toward zero. Corrected for this, the per-SD looks effect is about 22% for men and
+  15% for women, up from 14% and 10% (see <code>looks_gaps_results.csv</code>, <code>pct_disattenuated</code>). The matched-share bars in
+  the chart are not corrected, so they understate the looks gap.</li>
+<li><strong>Some of the rating is not looks.</strong> Interviewer ratings also pick up grooming, weight, health and how someone
+  presents. "Looks" here means how someone comes across to a stranger, not facial structure alone. Black women
+  are rated slightly lower on average (3.50 vs 3.64 for white women). The models hold race constant, so this
+  doesn't feed into the looks estimate.</li>
+<li><strong>The controls include mediators.</strong> Looks and height in adolescence plausibly shape schooling and confidence, so
+  holding education and the vocabulary score equal (the diamonds) removes part of the real effect. Read the
+  diamonds as a lower bound, not "the true effect".</li>
+<li><strong>The vocabulary test is a weak skills control.</strong> The Add Health picture-vocabulary test captures less than the
+  AFQT used in the Black-white literature (e.g. Neal &amp; Johnson 1996). With AFQT, the adjusted Black-white gap for
+  men usually falls further than it does here.</li>
+<li><strong>Full-time workers only.</strong> Restricting to people working 35+ hours drops non-workers. That is more selective for
+  women and for Black men, whose employment rates are lower, so all gaps here are for people who work full-time.
+  Gaps in annual earnings among everyone would be larger, especially the race gap.</li>
+<li><strong>Earnings are in brackets.</strong> Earnings are recorded in 13 brackets, valued at their midpoints with $275k for the
+  open $200k+ bracket. An interval regression on the bracket bounds gives the same answers to within about 0.5
+  points (<code>pct_intreg</code>).</li>
+<li><strong>The sample is modest.</strong> There are about 1,700 male and 2,100 female person-waves (pooled), so the 95% intervals
+  span about ±8-10 points. Looks vs height for men cannot be told apart, and Wave V and Wave VI alone differ by a
+  few points (men's height gap: 7% in Wave V vs 14% in Wave VI).</li>
+<li><strong>One cohort.</strong> Respondents were born ~1974-83 and were US teenagers in 1994-95. The results may not hold for
+  other cohorts or countries.</li>
+<li><strong>Matched share is a choice.</strong> Comparing the bottom 17% with everyone else matches the Black group's share. A
+  more extreme contrast (bottom vs top fifth) would make the looks and height gaps larger. The per-SD estimates in
+  the CSV give the full slope.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>looks_gaps_estimate.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Is the earnings gap for looks bigger than the Black-white gap? Gender, race, height and looks on one scale.
+
+Question: posts claim the &quot;attractiveness income gap&quot; is bigger than the Black-white gap. That comparison usually sets
+an extreme looks contrast (ugliest vs prettiest) against a regression-adjusted race gap from another study. This
+script puts all four traits in one sample, one outcome, one set of controls, and one contrast size.
+
+Data: Add Health (ICPSR 21600) public-use files, a national school-based cohort born ~1974-83.
+  outcome       Wave VI (2022-24, ages ~39-49) personal earnings last year, H6EC1, 13 brackets; replication on
+                Wave V (2016-18, ages ~33-43), H5EC1, same brackets
+  sex           BIO_SEX (Wave I)
+  race          Wave I self-report: Hispanic (H1GI4) first, then race (H1GI6A-E; multi-race resolved with the
+                single-category item H1GI8) -&gt; White, Black, Hispanic, Asian, Other (all non-Hispanic except Hispanic)
+  looks         interviewer rating &quot;physical attractiveness of R&quot;, 1 very unattractive .. 5 very attractive, at Waves I
+                (1994-95), II, III and IV (2008-09): H1IR1, H2IR1, H3IR1, H4IR1. Each wave had a different
+                interviewer. Score = mean of available ratings (at least 2), standardized within sex.
+  height        measured height at Wave IV (H4HGT, cm), standardized within sex
+  age           interview year minus birth year (H4OD1Y)
+  cognition     Wave I Add Health Picture Vocabulary Test, age-standardized (PVTSTD1), a pre-labor-market score
+  education     highest level at the outcome wave (H6OD9 / H5OD11), 5 groups: &lt;HS, HS/GED, some college/assoc/voc,
+                BA, graduate
+Sample: full-time workers (35+ hours/week across current jobs: H6LM4AE / H5LM7) with earnings of $10,000+ (drops
+part-year and zero earners), non-missing race, height and 2+ looks ratings.
+Outcome: log earnings at the bracket midpoint; the open top bracket ($200k+) is set to $275k. A normal interval
+regression on the bracket bounds (log scale) is run as a robustness check.
+Pooled (&quot;5+6&quot;): both waves stacked (person-waves), with a Wave VI dummy; each person-wave carries its own wave's
+weight, and school clustering also absorbs the repeated person. This averages out year-to-year earnings noise and is
+the headline estimate; the single waves are reported as replications.
+Weights: GSW1456 (Wave VI) / GSW145 (Wave V) longitudinal weights; standard errors clustered on CLUSTER2 (schools).
+
+Specifications, each run separately for men and women (gender itself is pooled):
+  raw        the trait alone (race: Black vs White only; gender: female dummy only)
+  +age/mutual all traits together plus age: race dummies, looks, height (and female in the pooled model)
+  +PVT, educ adds the Wave I vocabulary score and education. These are partly mediators (looks and height in
+             adolescence plausibly shape schooling), so this column is &quot;what's left beyond skills&quot;, not &quot;the true
+             effect&quot;.
+Contrasts that make the traits commensurable:
+  matched share  looks and height enter as an indicator for being in the bottom p of the within-sex distribution,
+                 where p = the weighted Black share of the Black+White sample (about 1 in 6). This compares a group of
+                 the same relative size as the Black group to everyone else, so the binary and continuous traits are
+                 compared like for like. Ties in the looks score are broken by a weighted random draw (seeded).
+  per SD         looks and height as z-scores; the looks coefficient is also divided by the reliability of the mean
+                 rating (Spearman-Brown from the average inter-wave correlation), to undo attenuation from rater
+                 noise.
+Effects are reported as percent differences, 100*(exp(b)-1).
+
+Run:  uv run --with pandas,numpy,statsmodels,scipy python notebooks/looks_gaps/looks_gaps_estimate.py
+Writes looks_gaps_results.csv and looks_gaps_reliability.csv next to this script.
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from scipy import optimize, stats
+
+HERE = Path(__file__).resolve().parent
+AH = HERE.parent / &quot;us_public_data&quot; / &quot;Add Health - ICPSR_21600&quot;
+X6 = AH / &quot;DS0043&quot; / &quot;extracted&quot;  # unzipped Wave V/VI package (SAS files)
+RNG = np.random.default_rng(11)
+
+# H5EC1 / H6EC1 brackets (identical in both waves)
+LO = {1: 0, 2: 5e3, 3: 10e3, 4: 15e3, 5: 20e3, 6: 25e3, 7: 30e3, 8: 40e3, 9: 50e3, 10: 75e3, 11: 100e3,
+      12: 150e3, 13: 200e3}
+HI = {1: 5e3, 2: 10e3, 3: 15e3, 4: 20e3, 5: 25e3, 6: 30e3, 7: 40e3, 8: 50e3, 9: 75e3, 10: 100e3, 11: 150e3,
+      12: 200e3, 13: np.inf}
+MID = {k: (LO[k] + HI[k]) / 2 for k in range(1, 13)} | {13: 275e3}
+
+
+def stata(ds, cols):
+    f = next((AH / ds).glob(&quot;*.dta&quot;))
+    return pd.read_stata(f, columns=[&quot;AID&quot;] + cols, convert_categoricals=False)
+
+
+def base():
+    w1 = stata(&quot;DS0001&quot;, [&quot;BIO_SEX&quot;, &quot;H1GI4&quot;, &quot;H1GI6A&quot;, &quot;H1GI6B&quot;, &quot;H1GI6C&quot;, &quot;H1GI6D&quot;, &quot;H1GI6E&quot;, &quot;H1GI8&quot;, &quot;H1IR1&quot;])
+    w2 = stata(&quot;DS0005&quot;, [&quot;H2IR1&quot;])
+    w3 = stata(&quot;DS0008&quot;, [&quot;H3IR1&quot;])
+    w4 = stata(&quot;DS0022&quot;, [&quot;H4IR1&quot;, &quot;H4HGT&quot;, &quot;H4OD1Y&quot;])
+    pvt = stata(&quot;DS0020&quot;, [&quot;PVTSTD1&quot;])
+    d = w1.merge(w2, on=&quot;AID&quot;, how=&quot;left&quot;).merge(w3, on=&quot;AID&quot;, how=&quot;left&quot;).merge(w4, on=&quot;AID&quot;, how=&quot;left&quot;) \
+        .merge(pvt, on=&quot;AID&quot;, how=&quot;left&quot;)
+    d[&quot;female&quot;] = (d.BIO_SEX == 2).astype(float)
+    d = d[d.BIO_SEX.isin([1, 2])]
+
+    hisp = d.H1GI4 == 1
+    flags = d[[&quot;H1GI6A&quot;, &quot;H1GI6B&quot;, &quot;H1GI6C&quot;, &quot;H1GI6D&quot;, &quot;H1GI6E&quot;]].eq(1)
+    n = flags.sum(axis=1)
+    single = flags.idxmax(axis=1).map({&quot;H1GI6A&quot;: 1, &quot;H1GI6B&quot;: 2, &quot;H1GI6C&quot;: 3, &quot;H1GI6D&quot;: 4, &quot;H1GI6E&quot;: 5})
+    code = np.where(n == 1, single, np.where(n &gt; 1, d.H1GI8, np.nan))
+    race = pd.Series(code, index=d.index).map({1: &quot;White&quot;, 2: &quot;Black&quot;, 3: &quot;Other&quot;, 4: &quot;Asian&quot;, 5: &quot;Other&quot;})
+    race[hisp] = &quot;Hispanic&quot;
+    race[(~hisp) &amp; (d.H1GI4 &gt; 1)] = np.nan  # refused/DK Hispanic origin
+    d[&quot;race&quot;] = race
+
+    for c in [&quot;H1IR1&quot;, &quot;H2IR1&quot;, &quot;H3IR1&quot;, &quot;H4IR1&quot;]:
+        d[c] = d[c].where(d[c].between(1, 5))
+    d[&quot;n_ratings&quot;] = d[[&quot;H1IR1&quot;, &quot;H2IR1&quot;, &quot;H3IR1&quot;, &quot;H4IR1&quot;]].notna().sum(axis=1)
+    d[&quot;looks_raw&quot;] = d[[&quot;H1IR1&quot;, &quot;H2IR1&quot;, &quot;H3IR1&quot;, &quot;H4IR1&quot;]].mean(axis=1)
+    d.loc[d.n_ratings &lt; 2, &quot;looks_raw&quot;] = np.nan
+    d[&quot;height_cm&quot;] = d.H4HGT.where(d.H4HGT.between(120, 230))
+    d[&quot;pvt&quot;] = d.PVTSTD1.where(d.PVTSTD1.between(40, 160))
+    d[&quot;birth_y&quot;] = d.H4OD1Y.where(d.H4OD1Y.between(1970, 1990))
+    return d
+
+
+def wave(w):
+    if w == 6:
+        s = pd.read_sas(X6 / &quot;pwave6.sas7bdat&quot;, encoding=&quot;latin-1&quot;)[[&quot;AID&quot;, &quot;IYEAR6&quot;, &quot;H6EC1&quot;, &quot;H6LM4AE&quot;, &quot;H6OD9&quot;]]
+        s.columns = [&quot;AID&quot;, &quot;iyear&quot;, &quot;ec&quot;, &quot;hours&quot;, &quot;educ&quot;]
+        wt = pd.read_sas(X6 / &quot;p6weight.sas7bdat&quot;, encoding=&quot;latin-1&quot;)[[&quot;AID&quot;, &quot;CLUSTER2&quot;, &quot;GSW1456&quot;]]
+    else:
+        s = stata(&quot;DS0032&quot;, [&quot;IYEAR5&quot;, &quot;H5EC1&quot;, &quot;H5LM7&quot;, &quot;H5OD11&quot;])
+        s.columns = [&quot;AID&quot;, &quot;iyear&quot;, &quot;ec&quot;, &quot;hours&quot;, &quot;educ&quot;]
+        wt = pd.read_sas(X6 / &quot;p5weight.sas7bdat&quot;, encoding=&quot;latin-1&quot;)[[&quot;AID&quot;, &quot;CLUSTER2&quot;, &quot;GSW145&quot;]]
+    wt.columns = [&quot;AID&quot;, &quot;cluster&quot;, &quot;wt&quot;]
+    for df in (s, wt):
+        df[&quot;AID&quot;] = df.AID.astype(str).str.strip()
+    return s.merge(wt, on=&quot;AID&quot;)
+
+
+def educ5(e):
+    return pd.cut(e, [0, 2.5, 4.5, 9.5, 11.5, 99], labels=[&quot;&lt;HS&quot;, &quot;HS&quot;, &quot;SomeCol&quot;, &quot;BA&quot;, &quot;Grad&quot;])
+
+
+def wquantile_flag(x, w, p):
+    &quot;&quot;&quot;1 if in the bottom weighted share p of x; ties broken by random jitter so the share is exactly ~p.&quot;&quot;&quot;
+    jitter = RNG.uniform(-1e-6, 1e-6, len(x))
+    order = np.argsort(x.values + jitter)
+    cw = np.cumsum(w.values[order]) / w.sum()
+    flag = np.zeros(len(x))
+    flag[order[cw &lt;= p]] = 1
+    return pd.Series(flag, index=x.index)
+
+
+def wls(y, X, w, cl):
+    m = sm.WLS(y, sm.add_constant(X, has_constant=&quot;add&quot;), weights=w).fit(
+        cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: pd.factorize(cl)[0]})
+    return m
+
+
+def intreg(lo, hi, X, w):
+    &quot;&quot;&quot;Weighted normal interval regression on log bounds; returns coefficients (no SEs: robustness point check).&quot;&quot;&quot;
+    Xc = sm.add_constant(X, has_constant=&quot;add&quot;).values
+    llo, lhi = np.log(np.maximum(lo, 1)), np.log(hi)
+    b0 = np.linalg.lstsq(Xc, (llo + np.where(np.isinf(lhi), llo + 0.3, lhi)) / 2, rcond=None)[0]
+
+    def nll(p):
+        b, s = p[:-1], np.exp(p[-1])
+        mu = Xc @ b
+        pr = stats.norm.cdf((lhi - mu) / s) - stats.norm.cdf((llo - mu) / s)
+        return -(w * np.log(np.clip(pr, 1e-300, None))).sum()
+
+    r = optimize.minimize(nll, np.r_[b0, np.log(0.6)], method=&quot;BFGS&quot;)
+    return pd.Series(r.x[:-1], index=[&quot;const&quot;] + list(X.columns))
+
+
+def pct(b):
+    return 100 * (np.exp(b) - 1)
+
+
+def run(ws):
+    b = base()
+    d = pd.concat([b.merge(wave(w), on=&quot;AID&quot;).assign(w6=float(w == 6)) for w in ws], ignore_index=True)
+    w = &quot;+&quot;.join(str(x) for x in ws)
+    d[&quot;age&quot;] = d.iyear - d.birth_y
+    d[&quot;hours&quot;] = d.hours.where(d.hours.between(1, 168))
+    d[&quot;ec&quot;] = d.ec.where(d.ec.between(1, 13))
+    d = d[(d.hours &gt;= 35) &amp; (d.ec &gt;= 3) &amp; d.race.notna() &amp; d.looks_raw.notna() &amp; d.height_cm.notna()
+          &amp; d.age.notna() &amp; (d.wt &gt; 0)].copy()
+    d[&quot;lnearn&quot;] = np.log(d.ec.map(MID))
+    d[&quot;lo&quot;], d[&quot;hi&quot;] = d.ec.map(LO), d.ec.map(HI)
+    d[&quot;educ5&quot;] = educ5(d.educ)
+    d = d[d.pvt.notna() &amp; d.educ5.notna()].copy()  # common sample across all specifications
+
+    for sexv in (0, 1):
+        m = d.female == sexv
+        for v in (&quot;looks_raw&quot;, &quot;height_cm&quot;):
+            x, ww = d.loc[m, v], d.loc[m, &quot;wt&quot;]
+            mu = np.average(x, weights=ww)
+            sd = np.sqrt(np.average((x - mu) ** 2, weights=ww))
+            d.loc[m, v.split(&quot;_&quot;)[0] + &quot;_z&quot;] = (x - mu) / sd
+
+    bw = d[d.race.isin([&quot;Black&quot;, &quot;White&quot;])]
+    p_black = np.average(bw.race == &quot;Black&quot;, weights=bw.wt)
+    for sexv in (0, 1):
+        m = d.female == sexv
+        for v in (&quot;looks_z&quot;, &quot;height_z&quot;):
+            d.loc[m, v.replace(&quot;_z&quot;, &quot;_low&quot;)] = wquantile_flag(d.loc[m, v], d.loc[m, &quot;wt&quot;], p_black)
+
+    for r in [&quot;Black&quot;, &quot;Hispanic&quot;, &quot;Asian&quot;, &quot;Other&quot;]:
+        d[r] = (d.race == r).astype(float)
+    edu = pd.get_dummies(d.educ5, prefix=&quot;ed&quot;, drop_first=True, dtype=float)
+    d = pd.concat([d, edu], axis=1)
+    edcols = list(edu.columns)
+    wcol = [&quot;w6&quot;] if len(ws) &gt; 1 else []
+
+    rows = []
+
+    def add(group, trait, contrast, spec, m, name, n, extra=None):
+        b, se = m.params[name], m.bse[name]
+        rows.append(dict(wave=w, group=group, trait=trait, contrast=contrast, spec=spec, n=n, b=b, se=se,
+                         pct=pct(b), lo95=pct(b - 1.96 * se), hi95=pct(b + 1.96 * se), **(extra or {})))
+
+    races = [&quot;Black&quot;, &quot;Hispanic&quot;, &quot;Asian&quot;, &quot;Other&quot;]
+    for sexv, g in ((0, &quot;Men&quot;), (1, &quot;Women&quot;)):
+        s = d[d.female == sexv]
+        for contrast, lk, ht in ((&quot;matched share&quot;, &quot;looks_low&quot;, &quot;height_low&quot;), (&quot;per SD&quot;, &quot;looks_z&quot;, &quot;height_z&quot;)):
+            # raw: each trait alone (race on the Black+White subsample)
+            sbw = s[s.race.isin([&quot;Black&quot;, &quot;White&quot;])]
+            add(g, &quot;Black vs White&quot;, contrast, &quot;raw&quot;, wls(sbw.lnearn, sbw[[&quot;Black&quot;]], sbw.wt, sbw.cluster),
+                &quot;Black&quot;, len(sbw))
+            add(g, &quot;Looks&quot;, contrast, &quot;raw&quot;, wls(s.lnearn, s[[lk]], s.wt, s.cluster), lk, len(s))
+            add(g, &quot;Height&quot;, contrast, &quot;raw&quot;, wls(s.lnearn, s[[ht]], s.wt, s.cluster), ht, len(s))
+            X1 = races + [lk, ht, &quot;age&quot;] + wcol
+            X2 = X1 + [&quot;pvt&quot;] + edcols
+            for spec, X in ((&quot;+age/mutual&quot;, X1), (&quot;+PVT, educ&quot;, X2)):
+                mm = wls(s.lnearn, s[X], s.wt, s.cluster)
+                ir = intreg(s.lo.values, s.hi.values, s[X], s.wt.values)
+                for t, nm in ((&quot;Black vs White&quot;, &quot;Black&quot;), (&quot;Looks&quot;, lk), (&quot;Height&quot;, ht)):
+                    add(g, t, contrast, spec, mm, nm, len(s), {&quot;pct_intreg&quot;: pct(ir[nm])})
+    # gender, pooled
+    for contrast, lk, ht in ((&quot;matched share&quot;, &quot;looks_low&quot;, &quot;height_low&quot;), (&quot;per SD&quot;, &quot;looks_z&quot;, &quot;height_z&quot;)):
+        add(&quot;All&quot;, &quot;Women vs men&quot;, contrast, &quot;raw&quot;, wls(d.lnearn, d[[&quot;female&quot;]], d.wt, d.cluster), &quot;female&quot;, len(d))
+        X1 = [&quot;female&quot;] + races + [lk, ht, &quot;age&quot;] + wcol
+        for spec, X in ((&quot;+age/mutual&quot;, X1), (&quot;+PVT, educ&quot;, X1 + [&quot;pvt&quot;] + edcols)):
+            mm = wls(d.lnearn, d[X], d.wt, d.cluster)
+            ir = intreg(d.lo.values, d.hi.values, d[X], d.wt.values)
+            add(&quot;All&quot;, &quot;Women vs men&quot;, contrast, spec, mm, &quot;female&quot;, len(d), {&quot;pct_intreg&quot;: pct(ir[&quot;female&quot;])})
+
+    # reliability of the mean looks rating, and attenuation-corrected per-SD looks effects
+    rr = d[[&quot;H1IR1&quot;, &quot;H2IR1&quot;, &quot;H3IR1&quot;, &quot;H4IR1&quot;]]
+    cors = rr.corr().values[np.triu_indices(4, 1)]
+    rbar = np.nanmean(cors)
+    k = d.n_ratings.mean()
+    rel = k * rbar / (1 + (k - 1) * rbar)
+    res = pd.DataFrame(rows)
+    res[&quot;p_black&quot;] = p_black
+    mask = (res.trait == &quot;Looks&quot;) &amp; (res.contrast == &quot;per SD&quot;)
+    res.loc[mask, &quot;pct_disattenuated&quot;] = pct(res.loc[mask, &quot;b&quot;] / np.sqrt(rel))
+    relrow = dict(wave=w, mean_interwave_r=rbar, mean_k=k, reliability=rel, p_black=p_black, n=len(d),
+                  n_men=int((d.female == 0).sum()), n_women=int((d.female == 1).sum()),
+                  **{f&quot;r_{a}{b}&quot;: rr.iloc[:, a].corr(rr.iloc[:, b]) for a in range(4) for b in range(a + 1, 4)})
+    return res, relrow
+
+
+if __name__ == &quot;__main__&quot;:
+    out, rel = [], []
+    for ws in ((6,), (5,), (5, 6)):
+        r, rl = run(ws)
+        out.append(r)
+        rel.append(rl)
+    res = pd.concat(out, ignore_index=True)
+    res.round(4).to_csv(HERE / &quot;looks_gaps_results.csv&quot;, index=False)
+    pd.DataFrame(rel).round(4).to_csv(HERE / &quot;looks_gaps_reliability.csv&quot;, index=False)
+    pd.set_option(&quot;display.width&quot;, 200)
+    print(pd.DataFrame(rel).round(3).T)
+    show = res.pivot_table(index=[&quot;wave&quot;, &quot;contrast&quot;, &quot;group&quot;, &quot;trait&quot;], columns=&quot;spec&quot;, values=&quot;pct&quot;, sort=False)
+    print(show[[&quot;raw&quot;, &quot;+age/mutual&quot;, &quot;+PVT, educ&quot;]].round(1))
+    print(res[res.spec != &quot;raw&quot;][[&quot;wave&quot;, &quot;contrast&quot;, &quot;group&quot;, &quot;trait&quot;, &quot;spec&quot;, &quot;pct&quot;, &quot;pct_intreg&quot;]].round(1)
+          .to_string())
+</code></pre>
+<h3><code>looks_gaps_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Chart: earnings gaps for gender, race, height and looks on one matched scale (Add Health, Waves V+VI pooled).
+
+Reads looks_gaps_results.csv from looks_gaps_estimate.py (run that first; its docstring is the full method).
+Shown: wave &quot;5+6&quot; pooled, the &quot;matched share&quot; contrast: Black vs White, and the bottom ~17% of the within-sex looks or
+height distribution vs everyone else (17% = the weighted Black share of the Black+White sample), each within sex;
+women vs men pooled. Bars: &quot;+age/mutual&quot; spec (age, all race groups, looks and height together) with 95% CIs
+clustered on school; open diamonds: also holding the Wave I vocabulary score and education equal.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/looks_gaps/looks_gaps_chart.py
+Writes ~/Desktop/Recent Projects/Substack Notes/Economics/looks_vs_race_gender_height_gaps_wm.png (original in
+Unwatermarked graphs/Economics/).
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+SN = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = &quot;Economics&quot;
+NAME = &quot;looks_vs_race_gender_height_gaps&quot;
+
+
+def main():
+    pb.apply()
+    r = pd.read_csv(HERE / &quot;looks_gaps_results.csv&quot;, dtype={&quot;wave&quot;: str})
+    r = r[(r.wave == &quot;5+6&quot;) &amp; (r.contrast == &quot;matched share&quot;)]
+    p = r.p_black.iloc[0]
+    share = f&quot;{100 * p:.0f}%&quot;
+
+    def get(group, trait, spec):
+        return r[(r.group == group) &amp; (r.trait == trait) &amp; (r.spec == spec)].iloc[0]
+
+    color = {&quot;Women vs men&quot;: pb.GRAYS[2], &quot;Black vs White&quot;: pb.NAVY, &quot;Looks&quot;: pb.RED, &quot;Height&quot;: pb.GRAYS[0]}
+    label = {&quot;Women vs men&quot;: &quot;Women vs men&quot;, &quot;Black vs White&quot;: &quot;Black vs white&quot;,
+             &quot;Looks&quot;: f&quot;Bottom {share} on looks&quot;, &quot;Height&quot;: f&quot;Bottom {share} on height&quot;}
+    rows = [(&quot;All&quot;, &quot;Women vs men&quot;)] + [(g, t) for g in (&quot;Men&quot;, &quot;Women&quot;)
+                                        for t in (&quot;Black vs White&quot;, &quot;Looks&quot;, &quot;Height&quot;)]
+    ypos, y = [], 0.0
+    for i, (g, t) in enumerate(rows):
+        if i in (1, 4):
+            y += 0.9  # gap before each sex block
+        ypos.append(y)
+        y += 1
+
+    fig, ax = plt.subplots(figsize=(9, 6.4))
+    for yy, (g, t) in zip(ypos, rows):
+        a, b = get(g, t, &quot;+age/mutual&quot;), get(g, t, &quot;+PVT, educ&quot;)
+        ax.barh(yy, -a.pct, height=0.62, color=color[t], zorder=2)
+        ax.plot([-a.hi95, -a.lo95], [yy, yy], color=pb.INK2, lw=1.1, zorder=3)
+        ax.scatter(-b.pct, yy, marker=&quot;D&quot;, s=46, facecolor=pb.SURFACE, edgecolor=pb.INK, lw=1.3, zorder=4)
+        ax.text(max(-a.lo95, -b.pct + 0.8) + 1.0, yy, f&quot;{-a.pct:.0f}%&quot;, va=&quot;center&quot;, ha=&quot;left&quot;, fontsize=11,
+                fontweight=&quot;bold&quot;, color=pb.INK)
+        ax.text(-1.0, yy, label[t], va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=11, color=pb.INK)
+    for yy, txt in ((ypos[1] - 0.85, &quot;MEN&quot;), (ypos[4] - 0.85, &quot;WOMEN&quot;), (ypos[0] - 0.85, &quot;EVERYONE&quot;)):
+        ax.text(-1.0, yy, txt, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=9, fontweight=&quot;bold&quot;, color=pb.MUTED)
+
+    ax.set_ylim(ypos[-1] + 0.7, ypos[0] - 2.0)
+    ax.set_xlim(0, 46)
+    ax.set_yticks([])
+    ax.set_xlabel(&quot;Lower earnings than the comparison group (%)&quot;, color=pb.INK2)
+    ax.xaxis.grid(True, color=pb.GRID, lw=0.8)
+    ax.set_axisbelow(True)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    ax.tick_params(axis=&quot;x&quot;, colors=pb.INK2)
+
+    # legend for the two estimates
+    lx, ly = 22, ypos[0] - 1.55
+    ax.barh(ly, 2.2, left=lx, height=0.32, color=pb.GRAYS[0])
+    ax.plot([lx - 0.6, lx + 2.8], [ly, ly], color=pb.INK2, lw=1.1)
+    ax.text(lx + 3.6, ly, &quot;Bar: same age, race, looks, height (line = 95% CI)&quot;, va=&quot;center&quot;, fontsize=9,
+            color=pb.INK2)
+    ax.scatter(lx + 1.1, ly + 0.5, marker=&quot;D&quot;, s=36, facecolor=pb.SURFACE, edgecolor=pb.INK, lw=1.2)
+    ax.text(lx + 3.6, ly + 0.5, &quot;Also same vocabulary score and education&quot;, va=&quot;center&quot;, fontsize=9,
+            color=pb.INK2)
+
+    fig.subplots_adjust(left=0.27, right=0.97, top=0.80, bottom=0.17)
+    fig.text(0.02, 0.955, &quot;Looking plain costs women about as much as being Black. For men, about half as much&quot;,
+             fontsize=14.5, fontweight=&quot;bold&quot;, color=pb.INK, ha=&quot;left&quot;)
+    fig.text(0.02, 0.86,
+             f&quot;Earnings gap for full-time workers aged 33-49. Looks and height compare the bottom {share} with everyone\n&quot;
+             f&quot;else, a group the same size as the Black share, so all gaps are on the same scale. Within sex.&quot;,
+             fontsize=10.5, color=pb.INK2, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.4)
+    n = int(r[(r.group == &quot;All&quot;)].n.iloc[0])
+    fig.text(0.02, 0.025,
+             &quot;Looks = average of up to 4 interviewer ratings, 1994-2009. Raters agree only weakly (reliability ~0.43), &quot;
+             &quot;so the true looks gap\nis larger than shown. Height measured in 2008. Earnings in brackets, 2016-18 and &quot;
+             f&quot;2022-24 pooled ({n:,} person-waves); full-time =\n35+ hrs/week with earnings $10k+. &quot;
+             &quot;Source: Add Health public-use Waves I-VI, survey-weighted, CIs clustered by school.&quot;,
+             fontsize=8, color=pb.MUTED, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.45)
+
+    raw = SN / &quot;Unwatermarked graphs&quot; / SUB / f&quot;{NAME}.png&quot;
+    wm = SN / SUB / f&quot;{NAME}_wm.png&quot;
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(raw, dpi=200, facecolor=pb.SURFACE)
+    plt.close(fig)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)],
+                   check=True)
+    print(&quot;wrote&quot;, raw, &quot;\n     &quot;, wm)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
