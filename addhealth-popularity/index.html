@@ -213,7 +213,7 @@ Writes network_factors.csv, network_shap.csv and popularity_outcomes.csv next to
 <tr>
 <td>Popularity</td>
 <td>0.105</td>
-<td>BMI (vs same sex &amp; age) −, Had a romance (18 mo) +, Looks (interviewer) +</td>
+<td>BMI −, Had a romance +, Looks +</td>
 </tr>
 <tr>
 <td>Sociability</td>
@@ -228,7 +228,7 @@ Writes network_factors.csv, network_shap.csv and popularity_outcomes.csv next to
 <tr>
 <td>Tight clique</td>
 <td>0.044</td>
-<td>Black −, BMI (vs same sex &amp; age) −, Age +</td>
+<td>Black −, BMI −, Age +</td>
 </tr>
 </tbody>
 </table>
@@ -1019,7 +1019,7 @@ def factor_models(d, sc):
         t = shap_table(d[MAIN], y, p)
         t = t[t.feature != &quot;size&quot;]  # school size is a control, not a trait
         rows.append(dict(factor=f, cv_r2=cv_r2(d[MAIN], y, p),
-                         top=&quot;, &quot;.join(f&quot;{r.label} {'+' if r.direction &gt; 0 else '−'}&quot; for r in t.head(3).itertuples())))
+                         top=&quot;, &quot;.join(f&quot;{r.label.split(' (')[0]} {'+' if r.direction &gt; 0 else '−'}&quot; for r in t.head(3).itertuples())))
     return pd.DataFrame(rows)
 
 

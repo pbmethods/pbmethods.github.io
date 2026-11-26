@@ -100,10 +100,10 @@ Builds the Wave I analysis file for the Add Health friendship-network analysis (
 
 | factor | cv_r2 | top |
 |---|---|---|
-| Popularity | 0.105 | BMI (vs same sex & age) −, Had a romance (18 mo) +, Looks (interviewer) + |
+| Popularity | 0.105 | BMI −, Had a romance +, Looks + |
 | Sociability | 0.028 | Household income −, Moved since 1990 −, GPA + |
 | Reach | 0.096 | Black −, Male −, GPA + |
-| Tight clique | 0.044 | Black −, BMI (vs same sex & age) −, Age + |
+| Tight clique | 0.044 | Black −, BMI −, Age + |
 
 ### `network_shap.csv`
 
@@ -368,7 +368,7 @@ def factor_models(d, sc):
         t = shap_table(d[MAIN], y, p)
         t = t[t.feature != "size"]  # school size is a control, not a trait
         rows.append(dict(factor=f, cv_r2=cv_r2(d[MAIN], y, p),
-                         top=", ".join(f"{r.label} {'+' if r.direction > 0 else '−'}" for r in t.head(3).itertuples())))
+                         top=", ".join(f"{r.label.split(' (')[0]} {'+' if r.direction > 0 else '−'}" for r in t.head(3).itertuples())))
     return pd.DataFrame(rows)
 
 
