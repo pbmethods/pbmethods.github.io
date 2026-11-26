@@ -1,0 +1,19 @@
+outcome,spec,gap,lo,hi,n,low_mean
+Earnings (%),sex and age,34.05,21.06,48.43,3093,10.1
+Earnings (%),plus background,17.21,5.55,30.16,3093,10.1
+Bachelor's degree,sex and age,19.94,14.74,25.15,3511,0.23
+Bachelor's degree,plus background,5.8,1.21,10.39,3511,0.23
+Supervises others at work,sex and age,8.63,3.11,14.15,3468,0.31
+Supervises others at work,plus background,6.04,0.31,11.76,3468,0.31
+Ever married,sex and age,8.25,2.65,13.85,3508,0.46
+Ever married,plus background,6.1,0.43,11.76,3508,0.46
+6+ close friends,sex and age,12.82,7.61,18.03,3476,0.24
+6+ close friends,plus background,8.69,3.31,14.06,3476,0.24
+Felt depressed this week,sex and age,-3.78,-8.88,1.31,3511,0.28
+Felt depressed this week,plus background,0.89,-4.39,6.18,3511,0.28
+Very good/excellent health,sex and age,13.67,8.02,19.33,3511,0.54
+Very good/excellent health,plus background,5.61,-0.22,11.43,3511,0.54
+Adult personality rated 4–5,sex and age,12.34,6.62,18.06,3509,0.48
+Adult personality rated 4–5,plus background,8.89,2.92,14.85,3509,0.48
+Adult looks rated 4–5,sex and age,15.48,9.82,21.14,3509,0.35
+Adult looks rated 4–5,plus background,8.9,3.05,14.76,3509,0.35

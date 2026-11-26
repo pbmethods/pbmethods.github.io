@@ -1,0 +1,15 @@
+,Popularity,Sociability,Reach,Tight clique
+In-degree (named by),0.968,0.175,0.154,-0.086
+Influence domain,0.614,0.059,0.298,0.062
+Proximity prestige,0.396,0.151,0.207,-0.025
+Ego-network size,0.64,0.494,0.437,-0.292
+Best friend names them back,0.255,-0.088,-0.183,0.204
+Out-degree (names),0.2,0.801,0.521,-0.171
+Bonacich centrality,0.22,0.797,0.371,-0.116
+Ties outside school,-0.052,-0.329,0.005,0.095
+Share of school reachable,0.152,0.167,0.974,0.01
+Reachable in 3 steps,0.146,0.387,0.859,-0.125
+Closeness (−mean distance),0.044,0.303,-0.183,-0.054
+"Density, friends named",0.234,-0.401,0.047,0.648
+"Density, friends naming",-0.474,0.124,0.132,0.565
+"Density, all friends",-0.155,-0.127,-0.139,0.966

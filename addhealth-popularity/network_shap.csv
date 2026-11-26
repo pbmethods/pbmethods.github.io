@@ -1,0 +1,45 @@
+feature,label,group,mean_abs_shap,pct,direction
+size,School size,Demographics,0.0695,7.196,-1.0
+bmi_z,BMI (vs same sex & age),Body,0.0678,7.016,-1.0
+romance,Had a romance (18 mo),Risk,0.0637,6.5728,1.0
+gpa,GPA,School,0.0567,5.8374,1.0
+looks,Looks (interviewer),Appearance,0.0524,5.3831,1.0
+drunk,Got drunk (frequency),Risk,0.0477,4.8899,1.0
+sport,Plays a sport (times/wk),Activities,0.0466,4.7741,1.0
+income,Household income,Family,0.0436,4.4614,1.0
+games,Video game hours/wk,Activities,0.041,4.1823,-1.0
+moved,Moved since 1990,Demographics,0.0393,4.0079,-1.0
+college_want,Wants college,School,0.0336,3.418,1.0
+age,Age,Demographics,0.0284,2.8852,-1.0
+pvt,Vocabulary test,School,0.0237,2.3995,1.0
+teacher_trouble,Trouble with teachers,School,0.0201,2.0277,1.0
+height_z,Height (vs same sex & age),Body,0.0199,2.0074,-1.0
+mature,Physical maturity (interviewer),Appearance,0.0188,1.9023,1.0
+tv,TV hours/wk,Activities,0.0181,1.8313,-1.0
+religion,Religious attendance,Family,0.018,1.813,1.0
+suspended,Ever suspended,School,0.0149,1.4997,-1.0
+skipped,Days skipped school,School,0.0129,1.2954,-1.0
+allowance,Weekly allowance,Activities,0.0128,1.2866,1.0
+groom,Grooming (interviewer),Appearance,0.0109,1.1008,1.0
+exercise,Exercise (times/wk),Activities,0.0105,1.057,1.0
+depressed,Felt depressed,Self-view,0.0101,1.0128,1.0
+pers,Personality (interviewer),Appearance,0.01,1.0017,1.0
+coordinated,Well coordinated,Self-view,0.0088,0.8827,1.0
+parent_ed,Parent's education,Family,0.0085,0.8581,-1.0
+asian,Asian,Demographics,0.0074,0.742,-1.0
+repeat,Repeated a grade,School,0.0073,0.735,-1.0
+hobbies,Hobbies (times/wk),Activities,0.0073,0.7279,-1.0
+self_iq,Self-rated intelligence,School,0.0069,0.6952,1.0
+sex,Ever had sex,Risk,0.0058,0.5776,1.0
+male,Male,Demographics,0.0056,0.5646,-1.0
+black,Black,Demographics,0.0052,0.5191,-1.0
+grade,Grade,Demographics,0.0044,0.4395,-1.0
+usborn,US-born,Demographics,0.0038,0.378,1.0
+good_qualities,Has good qualities,Self-view,0.0035,0.3485,1.0
+hisp,Hispanic,Demographics,0.0032,0.3226,-1.0
+like_self,Likes self as is,Self-view,0.0032,0.3164,1.0
+mom_warm,Mother warm and loving,Family,0.0032,0.3156,1.0
+pot,Marijuana use (times),Risk,0.0028,0.2794,-1.0
+energy,Lots of energy,Self-view,0.0026,0.2631,1.0
+candid,Candid in interview (interviewer),Appearance,0.0019,0.195,1.0
+smoker,Regular smoker,Risk,0.001,0.102,1.0

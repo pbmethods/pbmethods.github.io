@@ -1,0 +1,1390 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teen friendship networks in Add Health: four kinds of connectedness, what predicts popularity, and what popularity predicts</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Teen friendship networks in Add Health: four kinds of connectedness, what predicts popularity, and what popularity predicts</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p><img alt="chart 3" src="chart3.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/addhealth-popularity/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>network_charts.py</code></h3>
+<pre><code class="language-text">What makes a teenager popular, what &quot;well connected&quot; means, and what teen popularity predicts at age 24-32.
+
+Data
+  Add Health (ICPSR 21600) public-use files. In 1994-95 every student in the sampled schools filled in an in-school
+  questionnaire naming up to 5 male and 5 female best friends. Add Health matched the nominations to the school roster
+  and computed network measures for each student; the public-use Wave I network file (DS0003) has them for the
+  4,397 in-home respondents in schools where the roster could be matched. Predictors come from the Wave I in-home
+  interview (DS0001, 1994-95, grades 7-12) and its parent questionnaire; adult outcomes from Wave IV (DS0022,
+  2008-09, ages 24-32) with weight GSWGT4_2 (DS0031). Variable construction is in net_data.py.
+
+Popularity
+  In-degree (IDGX2): the number of schoolmates who named the student as a friend (mean 4.6, range 0-30). Only
+  nominations from students in the same school who filled in the questionnaire count.
+
+1. Four kinds of &quot;well connected&quot; (exploratory factor analysis)
+  14 network measures: in-degree (log), out-degree, ties sent outside the school, Bonacich centrality, share of the
+  school reachable through friends-of-friends (REACH/SIZE), alters reachable in 3 steps (log), mean distance to
+  reachable alters (negated), proximity prestige, influence domain (as a share of school size), density of the send,
+  receive and combined ego networks, ego-network size (log), and whether the best friend named them back. Medians
+  fill missing values, measures are standardized, and a 4-factor varimax solution (sklearn FactorAnalysis) is
+  extracted; four factors is where the eigenvalues fall below 1. Each factor is then predicted from the Wave I
+  traits with the same boosted model as chart 2, and the cross-validated R^2 and top predictors are shown.
+
+2. What predicts popularity (gradient boosting + SHAP)
+  LightGBM with a Poisson objective (400 trees, learning rate 0.03, 15 leaves, at least 40 cases per leaf, row and
+  column subsampling), 46 Wave I predictors grouped as: interviewer ratings (looks, personality, grooming, physical
+  maturity, candour), body (height and BMI as z-scores within sex and age), demographics (sex, age, grade,
+  race/ethnicity, US-born, school size, moved since 1990), school (GPA from four subject grades, vocabulary test,
+  repeated a grade, suspended, days skipped, trouble with teachers, wants college, self-rated intelligence),
+  activities (sport, exercise, hobbies, TV, video games, allowance), risk (getting drunk, regular smoking,
+  marijuana, ever had sex, romance in last 18 months), family (religious attendance, parent's education, household
+  income, warm mother) and self-view (energy, coordination, good qualities, likes self, depressed). Self-reports that
+  are largely consequences of popularity (feels socially accepted, lonely, disliked, close to people at school, happy
+  at school, trouble with other students, hanging out with friends) are left out of the main model and added only in
+  a sensitivity model. Accuracy is 5-fold cross-validated R^2 on the count. Importance is the mean absolute SHAP
+  value on the log scale, shown as a % change in nominations, 100*(exp(mean|SHAP|)-1); direction is the sign of the
+  correlation between a feature and its SHAP values. Panel B gives weighted (GSWGT1) mean nominations for low and high
+  groups of the top features.
+
+3. Teen popularity and adult outcomes (Wave IV)
+  Weighted least squares with robust (HC1) errors, comparing the most-nominated (7+, about 24%) with the
+  least-nominated (0-1, about 20%) on each adult outcome. &quot;Sex and age only&quot; adjusts for sex and age; &quot;plus
+  background&quot; also adjusts for race/ethnicity, school size, moving, parent's education, household income, vocabulary
+  score, GPA, teen looks, personality and grooming ratings, BMI and sport (missing values filled with the median plus
+  a missing flag). Earnings: log personal earnings ($1,000+), shown as 100*(exp(b)-1). Other outcomes are
+  percentage points: bachelor's degree, supervises others at work, ever married, 6+ close friends, felt depressed in
+  the past week (sometimes or more), very good or excellent health, and the Wave IV interviewer's personality and looks
+  ratings of 4-5.
+
+Writes network_factors.csv, network_shap.csv and popularity_outcomes.csv next to this script, and three charts
+(watermarked copies to ~/Desktop/Recent Projects/Substack Notes/Dating, originals under Unwatermarked graphs/Dating):
+  addhealth_network_factors.png, addhealth_popularity_shap.png, addhealth_popularity_outcomes.png
+</code></pre>
+<h3><code>net_data.py</code></h3>
+<pre><code class="language-text">Builds the Wave I analysis file for the Add Health friendship-network analysis (imported by network_charts.py).
+</code></pre>
+<h2>Results</h2>
+<h3><code>network_factors.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Popularity</th>
+<th>Sociability</th>
+<th>Reach</th>
+<th>Tight clique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In-degree (named by)</td>
+<td>0.968</td>
+<td>0.175</td>
+<td>0.154</td>
+<td>-0.086</td>
+</tr>
+<tr>
+<td>Influence domain</td>
+<td>0.614</td>
+<td>0.059</td>
+<td>0.298</td>
+<td>0.062</td>
+</tr>
+<tr>
+<td>Proximity prestige</td>
+<td>0.396</td>
+<td>0.151</td>
+<td>0.207</td>
+<td>-0.025</td>
+</tr>
+<tr>
+<td>Ego-network size</td>
+<td>0.640</td>
+<td>0.494</td>
+<td>0.437</td>
+<td>-0.292</td>
+</tr>
+<tr>
+<td>Best friend names them back</td>
+<td>0.255</td>
+<td>-0.088</td>
+<td>-0.183</td>
+<td>0.204</td>
+</tr>
+<tr>
+<td>Out-degree (names)</td>
+<td>0.200</td>
+<td>0.801</td>
+<td>0.521</td>
+<td>-0.171</td>
+</tr>
+<tr>
+<td>Bonacich centrality</td>
+<td>0.220</td>
+<td>0.797</td>
+<td>0.371</td>
+<td>-0.116</td>
+</tr>
+<tr>
+<td>Ties outside school</td>
+<td>-0.052</td>
+<td>-0.329</td>
+<td>0.005</td>
+<td>0.095</td>
+</tr>
+<tr>
+<td>Share of school reachable</td>
+<td>0.152</td>
+<td>0.167</td>
+<td>0.974</td>
+<td>0.010</td>
+</tr>
+<tr>
+<td>Reachable in 3 steps</td>
+<td>0.146</td>
+<td>0.387</td>
+<td>0.859</td>
+<td>-0.125</td>
+</tr>
+<tr>
+<td>Closeness (−mean distance)</td>
+<td>0.044</td>
+<td>0.303</td>
+<td>-0.183</td>
+<td>-0.054</td>
+</tr>
+<tr>
+<td>Density, friends named</td>
+<td>0.234</td>
+<td>-0.401</td>
+<td>0.047</td>
+<td>0.648</td>
+</tr>
+<tr>
+<td>Density, friends naming</td>
+<td>-0.474</td>
+<td>0.124</td>
+<td>0.132</td>
+<td>0.565</td>
+</tr>
+<tr>
+<td>Density, all friends</td>
+<td>-0.155</td>
+<td>-0.127</td>
+<td>-0.139</td>
+<td>0.966</td>
+</tr>
+</tbody>
+</table>
+<h3><code>network_factor_models.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>factor</th>
+<th>cv_r2</th>
+<th>top</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Popularity</td>
+<td>0.105</td>
+<td>BMI (vs same sex &amp; age) −, Had a romance (18 mo) +, Looks (interviewer) +</td>
+</tr>
+<tr>
+<td>Sociability</td>
+<td>0.028</td>
+<td>Household income −, Moved since 1990 −, GPA +</td>
+</tr>
+<tr>
+<td>Reach</td>
+<td>0.096</td>
+<td>Black −, Male −, GPA +</td>
+</tr>
+<tr>
+<td>Tight clique</td>
+<td>0.044</td>
+<td>Black −, BMI (vs same sex &amp; age) −, Age +</td>
+</tr>
+</tbody>
+</table>
+<h3><code>network_shap.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>feature</th>
+<th>label</th>
+<th>group</th>
+<th>mean_abs_shap</th>
+<th>pct</th>
+<th>direction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>size</td>
+<td>School size</td>
+<td>Demographics</td>
+<td>0.070</td>
+<td>7.196</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>bmi_z</td>
+<td>BMI (vs same sex &amp; age)</td>
+<td>Body</td>
+<td>0.068</td>
+<td>7.016</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>romance</td>
+<td>Had a romance (18 mo)</td>
+<td>Risk</td>
+<td>0.064</td>
+<td>6.573</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>gpa</td>
+<td>GPA</td>
+<td>School</td>
+<td>0.057</td>
+<td>5.837</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>looks</td>
+<td>Looks (interviewer)</td>
+<td>Appearance</td>
+<td>0.052</td>
+<td>5.383</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>drunk</td>
+<td>Got drunk (frequency)</td>
+<td>Risk</td>
+<td>0.048</td>
+<td>4.890</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>sport</td>
+<td>Plays a sport (times/wk)</td>
+<td>Activities</td>
+<td>0.047</td>
+<td>4.774</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>income</td>
+<td>Household income</td>
+<td>Family</td>
+<td>0.044</td>
+<td>4.461</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>games</td>
+<td>Video game hours/wk</td>
+<td>Activities</td>
+<td>0.041</td>
+<td>4.182</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>moved</td>
+<td>Moved since 1990</td>
+<td>Demographics</td>
+<td>0.039</td>
+<td>4.008</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>college_want</td>
+<td>Wants college</td>
+<td>School</td>
+<td>0.034</td>
+<td>3.418</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>age</td>
+<td>Age</td>
+<td>Demographics</td>
+<td>0.028</td>
+<td>2.885</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>pvt</td>
+<td>Vocabulary test</td>
+<td>School</td>
+<td>0.024</td>
+<td>2.400</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>teacher_trouble</td>
+<td>Trouble with teachers</td>
+<td>School</td>
+<td>0.020</td>
+<td>2.028</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>height_z</td>
+<td>Height (vs same sex &amp; age)</td>
+<td>Body</td>
+<td>0.020</td>
+<td>2.007</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>mature</td>
+<td>Physical maturity (interviewer)</td>
+<td>Appearance</td>
+<td>0.019</td>
+<td>1.902</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>tv</td>
+<td>TV hours/wk</td>
+<td>Activities</td>
+<td>0.018</td>
+<td>1.831</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>religion</td>
+<td>Religious attendance</td>
+<td>Family</td>
+<td>0.018</td>
+<td>1.813</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>suspended</td>
+<td>Ever suspended</td>
+<td>School</td>
+<td>0.015</td>
+<td>1.500</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>skipped</td>
+<td>Days skipped school</td>
+<td>School</td>
+<td>0.013</td>
+<td>1.295</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>allowance</td>
+<td>Weekly allowance</td>
+<td>Activities</td>
+<td>0.013</td>
+<td>1.287</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>groom</td>
+<td>Grooming (interviewer)</td>
+<td>Appearance</td>
+<td>0.011</td>
+<td>1.101</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>exercise</td>
+<td>Exercise (times/wk)</td>
+<td>Activities</td>
+<td>0.011</td>
+<td>1.057</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>depressed</td>
+<td>Felt depressed</td>
+<td>Self-view</td>
+<td>0.010</td>
+<td>1.013</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>pers</td>
+<td>Personality (interviewer)</td>
+<td>Appearance</td>
+<td>0.010</td>
+<td>1.002</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>coordinated</td>
+<td>Well coordinated</td>
+<td>Self-view</td>
+<td>0.009</td>
+<td>0.883</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>parent_ed</td>
+<td>Parent's education</td>
+<td>Family</td>
+<td>0.009</td>
+<td>0.858</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>asian</td>
+<td>Asian</td>
+<td>Demographics</td>
+<td>0.007</td>
+<td>0.742</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>repeat</td>
+<td>Repeated a grade</td>
+<td>School</td>
+<td>0.007</td>
+<td>0.735</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>hobbies</td>
+<td>Hobbies (times/wk)</td>
+<td>Activities</td>
+<td>0.007</td>
+<td>0.728</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>self_iq</td>
+<td>Self-rated intelligence</td>
+<td>School</td>
+<td>0.007</td>
+<td>0.695</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>sex</td>
+<td>Ever had sex</td>
+<td>Risk</td>
+<td>0.006</td>
+<td>0.578</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>male</td>
+<td>Male</td>
+<td>Demographics</td>
+<td>0.006</td>
+<td>0.565</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>black</td>
+<td>Black</td>
+<td>Demographics</td>
+<td>0.005</td>
+<td>0.519</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>grade</td>
+<td>Grade</td>
+<td>Demographics</td>
+<td>0.004</td>
+<td>0.440</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>usborn</td>
+<td>US-born</td>
+<td>Demographics</td>
+<td>0.004</td>
+<td>0.378</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>good_qualities</td>
+<td>Has good qualities</td>
+<td>Self-view</td>
+<td>0.004</td>
+<td>0.348</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>hisp</td>
+<td>Hispanic</td>
+<td>Demographics</td>
+<td>0.003</td>
+<td>0.323</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>like_self</td>
+<td>Likes self as is</td>
+<td>Self-view</td>
+<td>0.003</td>
+<td>0.316</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>mom_warm</td>
+<td>Mother warm and loving</td>
+<td>Family</td>
+<td>0.003</td>
+<td>0.316</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>pot</td>
+<td>Marijuana use (times)</td>
+<td>Risk</td>
+<td>0.003</td>
+<td>0.279</td>
+<td>-1.000</td>
+</tr>
+<tr>
+<td>energy</td>
+<td>Lots of energy</td>
+<td>Self-view</td>
+<td>0.003</td>
+<td>0.263</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>candid</td>
+<td>Candid in interview (interviewer)</td>
+<td>Appearance</td>
+<td>0.002</td>
+<td>0.195</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>smoker</td>
+<td>Regular smoker</td>
+<td>Risk</td>
+<td>0.001</td>
+<td>0.102</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<p><em>Every 1th row of 44 shown; full file: <a href="network_shap.csv">network_shap.csv</a>.</em></p>
+<h3><code>popularity_contrasts.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>feature</th>
+<th>low_label</th>
+<th>high_label</th>
+<th>low</th>
+<th>high</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPA</td>
+<td>bottom fifth</td>
+<td>top fifth</td>
+<td>3.740</td>
+<td>5.670</td>
+</tr>
+<tr>
+<td>BMI for age</td>
+<td>heaviest fifth</td>
+<td>middle 60%</td>
+<td>3.730</td>
+<td>4.900</td>
+</tr>
+<tr>
+<td>Had a romance</td>
+<td>no</td>
+<td>yes</td>
+<td>4.030</td>
+<td>5.100</td>
+</tr>
+<tr>
+<td>Plays a sport</td>
+<td>never</td>
+<td>5+ times a week</td>
+<td>4.070</td>
+<td>5.490</td>
+</tr>
+<tr>
+<td>Looks (interviewer)</td>
+<td>below average</td>
+<td>attractive</td>
+<td>3.300</td>
+<td>5.190</td>
+</tr>
+<tr>
+<td>Household income</td>
+<td>bottom fifth</td>
+<td>top fifth</td>
+<td>3.650</td>
+<td>5.570</td>
+</tr>
+<tr>
+<td>Moved since 1990</td>
+<td>moved</td>
+<td>stayed</td>
+<td>4.090</td>
+<td>5.040</td>
+</tr>
+<tr>
+<td>Gets drunk</td>
+<td>never</td>
+<td>monthly or more</td>
+<td>4.410</td>
+<td>5.180</td>
+</tr>
+</tbody>
+</table>
+<h3><code>popularity_outcomes.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>outcome</th>
+<th>spec</th>
+<th>gap</th>
+<th>lo</th>
+<th>hi</th>
+<th>n</th>
+<th>low_mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Earnings (%)</td>
+<td>sex and age</td>
+<td>34.050</td>
+<td>21.060</td>
+<td>48.430</td>
+<td>3093</td>
+<td>10.100</td>
+</tr>
+<tr>
+<td>Earnings (%)</td>
+<td>plus background</td>
+<td>17.210</td>
+<td>5.550</td>
+<td>30.160</td>
+<td>3093</td>
+<td>10.100</td>
+</tr>
+<tr>
+<td>Bachelor's degree</td>
+<td>sex and age</td>
+<td>19.940</td>
+<td>14.740</td>
+<td>25.150</td>
+<td>3511</td>
+<td>0.230</td>
+</tr>
+<tr>
+<td>Bachelor's degree</td>
+<td>plus background</td>
+<td>5.800</td>
+<td>1.210</td>
+<td>10.390</td>
+<td>3511</td>
+<td>0.230</td>
+</tr>
+<tr>
+<td>Supervises others at work</td>
+<td>sex and age</td>
+<td>8.630</td>
+<td>3.110</td>
+<td>14.150</td>
+<td>3468</td>
+<td>0.310</td>
+</tr>
+<tr>
+<td>Supervises others at work</td>
+<td>plus background</td>
+<td>6.040</td>
+<td>0.310</td>
+<td>11.760</td>
+<td>3468</td>
+<td>0.310</td>
+</tr>
+<tr>
+<td>Ever married</td>
+<td>sex and age</td>
+<td>8.250</td>
+<td>2.650</td>
+<td>13.850</td>
+<td>3508</td>
+<td>0.460</td>
+</tr>
+<tr>
+<td>Ever married</td>
+<td>plus background</td>
+<td>6.100</td>
+<td>0.430</td>
+<td>11.760</td>
+<td>3508</td>
+<td>0.460</td>
+</tr>
+<tr>
+<td>6+ close friends</td>
+<td>sex and age</td>
+<td>12.820</td>
+<td>7.610</td>
+<td>18.030</td>
+<td>3476</td>
+<td>0.240</td>
+</tr>
+<tr>
+<td>6+ close friends</td>
+<td>plus background</td>
+<td>8.690</td>
+<td>3.310</td>
+<td>14.060</td>
+<td>3476</td>
+<td>0.240</td>
+</tr>
+<tr>
+<td>Felt depressed this week</td>
+<td>sex and age</td>
+<td>-3.780</td>
+<td>-8.880</td>
+<td>1.310</td>
+<td>3511</td>
+<td>0.280</td>
+</tr>
+<tr>
+<td>Felt depressed this week</td>
+<td>plus background</td>
+<td>0.890</td>
+<td>-4.390</td>
+<td>6.180</td>
+<td>3511</td>
+<td>0.280</td>
+</tr>
+<tr>
+<td>Very good/excellent health</td>
+<td>sex and age</td>
+<td>13.670</td>
+<td>8.020</td>
+<td>19.330</td>
+<td>3511</td>
+<td>0.540</td>
+</tr>
+<tr>
+<td>Very good/excellent health</td>
+<td>plus background</td>
+<td>5.610</td>
+<td>-0.220</td>
+<td>11.430</td>
+<td>3511</td>
+<td>0.540</td>
+</tr>
+<tr>
+<td>Adult personality rated 4–5</td>
+<td>sex and age</td>
+<td>12.340</td>
+<td>6.620</td>
+<td>18.060</td>
+<td>3509</td>
+<td>0.480</td>
+</tr>
+<tr>
+<td>Adult personality rated 4–5</td>
+<td>plus background</td>
+<td>8.890</td>
+<td>2.920</td>
+<td>14.850</td>
+<td>3509</td>
+<td>0.480</td>
+</tr>
+<tr>
+<td>Adult looks rated 4–5</td>
+<td>sex and age</td>
+<td>15.480</td>
+<td>9.820</td>
+<td>21.140</td>
+<td>3509</td>
+<td>0.350</td>
+</tr>
+<tr>
+<td>Adult looks rated 4–5</td>
+<td>plus background</td>
+<td>8.900</td>
+<td>3.050</td>
+<td>14.760</td>
+<td>3509</td>
+<td>0.350</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats</h1>
+<ul>
+<li><strong>Popularity is nominations within one school, in one year.</strong> In-degree counts only schoolmates who filled in the
+  1994–95 in-school questionnaire and named the student among up to 5 male and 5 female friends. Friends outside the
+  school, and anyone a student would have named sixth, are missed. The public-use file covers 4,397 of the 6,504
+  in-home respondents, those whose school roster could be matched.</li>
+<li><strong>School size is a control, not a trait.</strong> Larger schools spread nominations more thinly, so school size has a big
+  SHAP value. The public-use file has no school identifier, so within-school comparisons (school fixed effects) are
+  not possible. Some of what looks like an individual trait (race, income) may partly reflect which schools students
+  attend.</li>
+<li><strong>The predictors are one cross-section.</strong> Popularity was measured in the same school year as the traits, so dating,
+  drinking, sport, weight and even grades may be consequences of popularity as well as causes. SHAP values describe
+  what the model uses, not causal effects.</li>
+<li><strong>The R² is low, but not because nothing matters.</strong> About 14% of the variation in nominations is predictable out of
+  sample. Some of the rest is real but unmeasured (social skill, humour, kindness, shared history). Some is noise in a
+  single year's count.</li>
+<li><strong>Factor names are interpretations.</strong> "Sociability" is built mostly on friends named, and Add Health's Bonacich
+  centrality is computed on ties sent, so it loads there too. Several measures share components mechanically (ego-
+  network size includes in-degree and out-degree), which inflates some loadings.</li>
+<li><strong>Adult outcomes are associations.</strong> Comparing the most- and least-named teens with background held fixed still leaves
+  room for unmeasured traits (social skill, conscientiousness, health) that drive both teen popularity and adult
+  success. The adult looks and personality ratings come from a different interviewer 14 years later, so they are not
+  contaminated by the teen ratings, but they are single, noisy ratings.</li>
+<li><strong>Weights.</strong> The boosted models are unweighted, because the network sample is not a probability sample of its own.
+  Panel B means use the Wave I weight, and the adult-outcome regressions use the Wave IV weight.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>network_charts.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;What makes a teenager popular, what &quot;well connected&quot; means, and what teen popularity predicts at age 24-32.
+
+Data
+  Add Health (ICPSR 21600) public-use files. In 1994-95 every student in the sampled schools filled in an in-school
+  questionnaire naming up to 5 male and 5 female best friends. Add Health matched the nominations to the school roster
+  and computed network measures for each student; the public-use Wave I network file (DS0003) has them for the
+  4,397 in-home respondents in schools where the roster could be matched. Predictors come from the Wave I in-home
+  interview (DS0001, 1994-95, grades 7-12) and its parent questionnaire; adult outcomes from Wave IV (DS0022,
+  2008-09, ages 24-32) with weight GSWGT4_2 (DS0031). Variable construction is in net_data.py.
+
+Popularity
+  In-degree (IDGX2): the number of schoolmates who named the student as a friend (mean 4.6, range 0-30). Only
+  nominations from students in the same school who filled in the questionnaire count.
+
+1. Four kinds of &quot;well connected&quot; (exploratory factor analysis)
+  14 network measures: in-degree (log), out-degree, ties sent outside the school, Bonacich centrality, share of the
+  school reachable through friends-of-friends (REACH/SIZE), alters reachable in 3 steps (log), mean distance to
+  reachable alters (negated), proximity prestige, influence domain (as a share of school size), density of the send,
+  receive and combined ego networks, ego-network size (log), and whether the best friend named them back. Medians
+  fill missing values, measures are standardized, and a 4-factor varimax solution (sklearn FactorAnalysis) is
+  extracted; four factors is where the eigenvalues fall below 1. Each factor is then predicted from the Wave I
+  traits with the same boosted model as chart 2, and the cross-validated R^2 and top predictors are shown.
+
+2. What predicts popularity (gradient boosting + SHAP)
+  LightGBM with a Poisson objective (400 trees, learning rate 0.03, 15 leaves, at least 40 cases per leaf, row and
+  column subsampling), 46 Wave I predictors grouped as: interviewer ratings (looks, personality, grooming, physical
+  maturity, candour), body (height and BMI as z-scores within sex and age), demographics (sex, age, grade,
+  race/ethnicity, US-born, school size, moved since 1990), school (GPA from four subject grades, vocabulary test,
+  repeated a grade, suspended, days skipped, trouble with teachers, wants college, self-rated intelligence),
+  activities (sport, exercise, hobbies, TV, video games, allowance), risk (getting drunk, regular smoking,
+  marijuana, ever had sex, romance in last 18 months), family (religious attendance, parent's education, household
+  income, warm mother) and self-view (energy, coordination, good qualities, likes self, depressed). Self-reports that
+  are largely consequences of popularity (feels socially accepted, lonely, disliked, close to people at school, happy
+  at school, trouble with other students, hanging out with friends) are left out of the main model and added only in
+  a sensitivity model. Accuracy is 5-fold cross-validated R^2 on the count. Importance is the mean absolute SHAP
+  value on the log scale, shown as a % change in nominations, 100*(exp(mean|SHAP|)-1); direction is the sign of the
+  correlation between a feature and its SHAP values. Panel B gives weighted (GSWGT1) mean nominations for low and high
+  groups of the top features.
+
+3. Teen popularity and adult outcomes (Wave IV)
+  Weighted least squares with robust (HC1) errors, comparing the most-nominated (7+, about 24%) with the
+  least-nominated (0-1, about 20%) on each adult outcome. &quot;Sex and age only&quot; adjusts for sex and age; &quot;plus
+  background&quot; also adjusts for race/ethnicity, school size, moving, parent's education, household income, vocabulary
+  score, GPA, teen looks, personality and grooming ratings, BMI and sport (missing values filled with the median plus
+  a missing flag). Earnings: log personal earnings ($1,000+), shown as 100*(exp(b)-1). Other outcomes are
+  percentage points: bachelor's degree, supervises others at work, ever married, 6+ close friends, felt depressed in
+  the past week (sometimes or more), very good or excellent health, and the Wave IV interviewer's personality and looks
+  ratings of 4-5.
+
+Writes network_factors.csv, network_shap.csv and popularity_outcomes.csv next to this script, and three charts
+(watermarked copies to ~/Desktop/Recent Projects/Substack Notes/Dating, originals under Unwatermarked graphs/Dating):
+  addhealth_network_factors.png, addhealth_popularity_shap.png, addhealth_popularity_outcomes.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+import textwrap
+import warnings
+from pathlib import Path
+
+import lightgbm as lgb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import shap
+import statsmodels.formula.api as smf
+from sklearn.decomposition import FactorAnalysis
+from sklearn.model_selection import KFold, cross_val_predict
+from sklearn.preprocessing import StandardScaler
+
+warnings.filterwarnings(&quot;ignore&quot;)
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import net_data as N  # noqa: E402
+
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = &quot;Dating&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
+SRC = (&quot;Source: Add Health (ICPSR 21600) public-use Wave I network file and in-home interviews; friendship &quot;
+       &quot;nominations from the 1994–95 in-school survey (up to 5 male and 5 female friends each).&quot;)
+PARAMS = dict(objective=&quot;poisson&quot;, n_estimators=400, learning_rate=0.03, num_leaves=15, min_child_samples=40,
+              subsample=0.8, subsample_freq=1, colsample_bytree=0.7, reg_lambda=1.0, verbose=-1, random_state=1)
+MAIN = [k for k, (_, g) in N.FEATURES.items() if g != &quot;social&quot;]
+LAB = {k: v[0] for k, v in N.FEATURES.items()}
+
+
+def cv_r2(X, y, params):
+    p = cross_val_predict(lgb.LGBMRegressor(**params), X, y, cv=KFold(5, shuffle=True, random_state=1))
+    return 1 - ((y - p) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+
+
+def shap_table(X, y, params):
+    m = lgb.LGBMRegressor(**params).fit(X, y)
+    sv = shap.TreeExplainer(m).shap_values(X)
+    imp = np.abs(sv).mean(0)
+    sign = [np.sign(np.corrcoef(X[c].fillna(X[c].median()), sv[:, i])[0, 1]) for i, c in enumerate(X.columns)]
+    return pd.DataFrame({&quot;feature&quot;: X.columns, &quot;label&quot;: [LAB[c] for c in X.columns],
+                         &quot;group&quot;: [N.FEATURES[c][1] for c in X.columns], &quot;mean_abs_shap&quot;: imp,
+                         &quot;pct&quot;: 100 * (np.exp(imp) - 1), &quot;direction&quot;: sign}).sort_values(&quot;mean_abs_shap&quot;, ascending=False)
+
+
+# ---- 1. factors ---------------------------------------------------------------------------------------------------
+NETMEAS = {&quot;In-degree (named by)&quot;: lambda d: np.log1p(d.IDGX2), &quot;Influence domain&quot;: lambda d: d.INFLDMN / d.SIZE,
+           &quot;Proximity prestige&quot;: lambda d: d.PRXPREST, &quot;Ego-network size&quot;: lambda d: np.log1p(d.NESR),
+           &quot;Best friend names them back&quot;: lambda d: d[[&quot;BMFRECIP&quot;, &quot;BFFRECIP&quot;]].max(axis=1),
+           &quot;Out-degree (names)&quot;: lambda d: d.ODGX2, &quot;Bonacich centrality&quot;: lambda d: d.BCENT10X,
+           &quot;Ties outside school&quot;: lambda d: d.NOUTNOM,
+           &quot;Share of school reachable&quot;: lambda d: d.REACH / d.SIZE, &quot;Reachable in 3 steps&quot;: lambda d: np.log1p(d.REACH3),
+           &quot;Closeness (−mean distance)&quot;: lambda d: -d.IGDMEAN,
+           &quot;Density, friends named&quot;: lambda d: d.ESDEN, &quot;Density, friends naming&quot;: lambda d: d.ERDEN,
+           &quot;Density, all friends&quot;: lambda d: d.ESRDEN}
+FNAMES = [&quot;Popularity&quot;, &quot;Sociability&quot;, &quot;Reach&quot;, &quot;Tight clique&quot;]
+
+
+def factors(d):
+    m = pd.DataFrame({k: f(d) for k, f in NETMEAS.items()})
+    z = StandardScaler().fit_transform(m.fillna(m.median()))
+    fa = FactorAnalysis(4, rotation=&quot;varimax&quot;, random_state=0).fit(z)
+    L = pd.DataFrame(fa.components_.T, index=m.columns)
+    scores = pd.DataFrame(fa.transform(z), index=d.index)
+    anchors = {&quot;Popularity&quot;: &quot;In-degree (named by)&quot;, &quot;Sociability&quot;: &quot;Out-degree (names)&quot;,
+               &quot;Reach&quot;: &quot;Share of school reachable&quot;, &quot;Tight clique&quot;: &quot;Density, all friends&quot;}
+    cols, out = {}, {}
+    for name, a in anchors.items():
+        j = int(L.loc[a].abs().idxmax())
+        s = np.sign(L.loc[a, j])
+        cols[name], out[name] = L[j] * s, scores[j] * s
+    return pd.DataFrame(cols)[FNAMES], pd.DataFrame(out)[FNAMES]
+
+
+def factor_models(d, sc):
+    p = dict(PARAMS, objective=&quot;regression&quot;)
+    rows = []
+    for f in FNAMES:
+        y = sc[f].values
+        t = shap_table(d[MAIN], y, p)
+        t = t[t.feature != &quot;size&quot;]  # school size is a control, not a trait
+        rows.append(dict(factor=f, cv_r2=cv_r2(d[MAIN], y, p),
+                         top=&quot;, &quot;.join(f&quot;{r.label} {'+' if r.direction &gt; 0 else '−'}&quot; for r in t.head(3).itertuples())))
+    return pd.DataFrame(rows)
+
+
+# ---- 3. outcomes --------------------------------------------------------------------------------------------------
+CTRL = [&quot;male&quot;, &quot;age&quot;, &quot;black&quot;, &quot;hisp&quot;, &quot;asian&quot;, &quot;size&quot;, &quot;moved&quot;, &quot;parent_ed&quot;, &quot;income&quot;, &quot;pvt&quot;, &quot;gpa&quot;, &quot;looks&quot;, &quot;pers&quot;,
+        &quot;groom&quot;, &quot;bmi_z&quot;, &quot;sport&quot;]
+
+
+def outcomes(d):
+    d = d.merge(N.wave4(), on=&quot;AID&quot;, how=&quot;inner&quot;)
+    d = d[d.wt4 &gt; 0].copy()
+    d[&quot;pop&quot;] = pd.cut(d.IDGX2, [-1, 1, 3, 6, 99], labels=[&quot;lo&quot;, &quot;m1&quot;, &quot;m2&quot;, &quot;hi&quot;])
+    d[&quot;pop&quot;] = pd.Categorical(d[&quot;pop&quot;], categories=[&quot;lo&quot;, &quot;m1&quot;, &quot;m2&quot;, &quot;hi&quot;])
+    terms = []
+    for c in CTRL:
+        if d[c].isna().any():
+            d[c + &quot;_m&quot;] = d[c].isna().astype(int)
+            terms.append(c + &quot;_m&quot;)
+        d[c] = d[c].fillna(d[c].median())
+    full = &quot; + &quot;.join(CTRL + terms)
+    rows = []
+    for k, lab in N.OUTCOMES.items():
+        y = &quot;a_&quot; + k
+        s = d.dropna(subset=[y])
+        for spec, rhs in [(&quot;sex and age&quot;, &quot;male + age&quot;), (&quot;plus background&quot;, full)]:
+            m = smf.wls(f&quot;{y} ~ C(pop) + {rhs}&quot;, s, weights=s.wt4).fit(cov_type=&quot;HC1&quot;)
+            b, se = m.params[&quot;C(pop)[T.hi]&quot;], m.bse[&quot;C(pop)[T.hi]&quot;]
+            f = (lambda x: 100 * (np.exp(x) - 1)) if k == &quot;learn&quot; else (lambda x: 100 * x)
+            rows.append(dict(outcome=lab, spec=spec, gap=f(b), lo=f(b - 1.96 * se), hi=f(b + 1.96 * se), n=int(m.nobs),
+                             low_mean=np.average(s[s[&quot;pop&quot;] == &quot;lo&quot;][y], weights=s[s[&quot;pop&quot;] == &quot;lo&quot;].wt4)))
+    return pd.DataFrame(rows), d[&quot;pop&quot;].value_counts(normalize=True)
+
+
+# ---- helpers ------------------------------------------------------------------------------------------------------
+def save(fig, name):
+    orig = NOTES / &quot;Unwatermarked graphs&quot; / SUB / f&quot;{name}.png&quot;
+    wm = NOTES / SUB / f&quot;{name}_wm.png&quot;
+    orig.parent.mkdir(parents=True, exist_ok=True)
+    wm.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(orig, dpi=200)
+    plt.close(fig)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(orig), str(wm)],
+                   check=True)
+    print(&quot;wrote&quot;, wm)
+
+
+def foot(fig, text, y):
+    fig.text(0.055, y, textwrap.fill(&quot; &quot;.join(text.split()), 185), fontsize=8.6, color=MUTED, ha=&quot;left&quot;,
+             va=&quot;top&quot;, linespacing=1.4)
+
+
+def header(fig, title, sub, y=0.95):
+    fig.text(0.055, y, title, fontsize=19, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
+    fig.text(0.055, y - 0.055, sub, fontsize=11.5, color=INK2, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.4)
+
+
+def ptitle(ax, t, pad=10):
+    ax.set_title(t, loc=&quot;left&quot;, fontsize=12, fontweight=&quot;bold&quot;, pad=pad)
+
+
+# ---- chart 1 ------------------------------------------------------------------------------------------------------
+def chart_factors(L, fm):
+    from matplotlib.colors import LinearSegmentedColormap
+    cmap = LinearSegmentedColormap.from_list(&quot;div&quot;, [pb.RED, &quot;#f0efec&quot;, pb.NAVY])
+    fig = plt.figure(figsize=(13, 8.4))
+    header(fig, &quot;“Well connected” is four different things, and none is very predictable&quot;,
+           &quot;Factor analysis of 14 friendship-network measures for 4,397 students in grades 7–12, 1994–95. Then how\n&quot;
+           &quot;well 46 traits about the teen predict each factor.&quot;)
+    ax = fig.add_axes([0.25, 0.2, 0.36, 0.58])
+    ax.imshow(L.values, cmap=cmap, vmin=-1, vmax=1, aspect=&quot;auto&quot;)
+    for i in range(L.shape[0]):
+        for j in range(L.shape[1]):
+            v = L.values[i, j]
+            ax.text(j, i, f&quot;{v:.2f}&quot;.replace(&quot;-&quot;, &quot;−&quot;), ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=9.5,
+                    color=&quot;white&quot; if abs(v) &gt; 0.55 else INK, fontweight=&quot;bold&quot; if abs(v) &gt; 0.55 else &quot;normal&quot;)
+    ax.set_xticks(range(4), FNAMES, fontsize=10.5, fontweight=&quot;bold&quot;)
+    ax.xaxis.tick_top()
+    ax.set_yticks(range(len(L)), L.index, fontsize=10)
+    ax.grid(False)
+    ax.tick_params(length=0)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    ptitle(ax, &quot;A  Factor loadings&quot;, pad=30)
+    ax2 = fig.add_axes([0.68, 0.48, 0.27, 0.3])
+    r2 = fm.cv_r2.values * 100
+    cols = [pb.RED if f == &quot;Popularity&quot; else pb.GRAYS[1] for f in fm.factor]
+    ax2.barh(range(4), r2, color=cols, height=0.6, zorder=3)
+    for i, v in enumerate(r2):
+        ax2.text(v + 0.4, i, f&quot;{v:.0f}%&quot;, va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;)
+    ax2.set_yticks(range(4), fm.factor, fontsize=10.5)
+    ax2.invert_yaxis()
+    ax2.set_xlim(0, max(r2) * 1.3)
+    ax2.xaxis.set_major_formatter(lambda v, _: f&quot;{v:.0f}%&quot;)
+    ax2.grid(axis=&quot;y&quot;, visible=False)
+    ptitle(ax2, &quot;B  Share predicted by 46 teen traits&quot;)
+    y0 = 0.38
+    fig.text(0.68, y0, &quot;Top predictors besides school size (+ more, − less)&quot;, fontsize=10.5, fontweight=&quot;bold&quot;)
+    for i, r in enumerate(fm.itertuples()):
+        fig.text(0.68, y0 - 0.04 - i * 0.045, f&quot;{r.factor}:&quot;, fontsize=9.5, fontweight=&quot;bold&quot;, color=INK)
+        fig.text(0.68, y0 - 0.062 - i * 0.045, r.top, fontsize=9, color=INK2)
+    foot(fig, f&quot;&quot;&quot;Popularity = how many schoolmates name you; Sociability = how many you name (Add Health's Bonacich
+         centrality is built on ties sent); Reach = how much of the school you can reach through friends of friends;
+         Tight clique = your friends name each other. Four-factor varimax solution on standardized measures; four
+         eigenvalues exceed 1. Panel B: gradient-boosted model, 5-fold cross-validated R². {SRC}&quot;&quot;&quot;, 0.105)
+    save(fig, &quot;addhealth_network_factors&quot;)
+
+
+# ---- chart 2 ------------------------------------------------------------------------------------------------------
+def contrasts(d):
+    w = d.wt1.fillna(d.wt1.median())
+    q = lambda c: d[c].rank(pct=True)  # noqa: E731
+    spec = [(&quot;GPA&quot;, q(&quot;gpa&quot;) &lt;= 0.2, q(&quot;gpa&quot;) &gt; 0.8, &quot;bottom fifth&quot;, &quot;top fifth&quot;),
+            (&quot;BMI for age&quot;, q(&quot;bmi_z&quot;) &gt; 0.8, q(&quot;bmi_z&quot;).between(0.2, 0.8), &quot;heaviest fifth&quot;, &quot;middle 60%&quot;),
+            (&quot;Had a romance&quot;, d.romance == 0, d.romance == 1, &quot;no&quot;, &quot;yes&quot;),
+            (&quot;Plays a sport&quot;, d.sport == 0, d.sport == 3, &quot;never&quot;, &quot;5+ times a week&quot;),
+            (&quot;Looks (interviewer)&quot;, d.looks &lt;= 2, d.looks &gt;= 4, &quot;below average&quot;, &quot;attractive&quot;),
+            (&quot;Household income&quot;, q(&quot;income&quot;) &lt;= 0.2, q(&quot;income&quot;) &gt; 0.8, &quot;bottom fifth&quot;, &quot;top fifth&quot;),
+            (&quot;Moved since 1990&quot;, d.moved == 1, d.moved == 0, &quot;moved&quot;, &quot;stayed&quot;),
+            (&quot;Gets drunk&quot;, d.drunk == 0, d.drunk &gt;= 3, &quot;never&quot;, &quot;monthly or more&quot;)]
+    rows = []
+    for lab, lo, hi, ll, hl in spec:
+        rows.append(dict(feature=lab, low_label=ll, high_label=hl,
+                         low=np.average(d.IDGX2[lo], weights=w[lo]), high=np.average(d.IDGX2[hi], weights=w[hi])))
+    return pd.DataFrame(rows)
+
+
+def chart_shap(t, r2, r2_social, ct, mean_nom):
+    fig = plt.figure(figsize=(13, 8.6))
+    header(fig, f&quot;46 traits predict only {r2 * 100:.0f}% of who gets named as a friend&quot;,
+           &quot;What predicts how many schoolmates name a teen as a friend. Gradient-boosted model of 4,397 students in\n&quot;
+           &quot;grades 7–12, 1994–95. Grades, weight, dating, sport and looks lead. Most of popularity goes unexplained.&quot;)
+    ax = fig.add_axes([0.235, 0.17, 0.25, 0.6])
+    top = t.head(16).iloc[::-1]
+    cols = [pb.MUTE if f == &quot;size&quot; else (pb.NAVY if s &gt; 0 else pb.GRAYS[0]) for f, s in zip(top.feature, top.direction)]
+    ax.barh(range(len(top)), top.pct, color=cols, height=0.68, zorder=3)
+    for i, r in enumerate(top.itertuples()):
+        ax.text(r.pct + 0.2, i, f&quot;{r.pct:.1f}%&quot;, va=&quot;center&quot;, fontsize=9.5, color=INK)
+    ax.set_yticks(range(len(top)), [f&quot;{r.label}{' (control)' if r.feature == 'size' else ''}  {'▲' if r.direction &gt; 0 else '▼'}&quot; for r in top.itertuples()],
+                  fontsize=10)
+    ax.set_xlim(0, top.pct.max() * 1.25)
+    ax.xaxis.set_major_formatter(lambda v, _: f&quot;{v:.0f}%&quot;)
+    ax.grid(axis=&quot;y&quot;, visible=False)
+    ptitle(ax, &quot;A  Average shift in nominations per student&quot;)
+    ax.text(0, -0.1, &quot;▲ more → named more often    ▼ more → named less often&quot;, fontsize=9, color=INK2,
+            transform=ax.transAxes)
+    ax2 = fig.add_axes([0.61, 0.17, 0.33, 0.6])
+    ct = ct.iloc[::-1].reset_index(drop=True)
+    for i, r in ct.iterrows():
+        ax2.plot([r.low, r.high], [i, i], color=pb.MUTE, lw=3, zorder=2, solid_capstyle=&quot;round&quot;)
+        ax2.scatter(r.low, i, s=70, color=pb.GRAYS[0], zorder=3)
+        ax2.scatter(r.high, i, s=70, color=pb.NAVY, zorder=3)
+        lo_left = r.low &lt; r.high
+        ax2.text(r.low + (-0.12 if lo_left else 0.12), i + 0.27, f&quot;{r.low_label} {r.low:.1f}&quot;, fontsize=8.6,
+                 color=INK2, ha=&quot;right&quot; if lo_left else &quot;left&quot;, va=&quot;center&quot;)
+        ax2.text(r.high + (0.12 if lo_left else -0.12), i + 0.27, f&quot;{r.high_label} {r.high:.1f}&quot;, fontsize=8.6,
+                 color=INK, ha=&quot;left&quot; if lo_left else &quot;right&quot;, va=&quot;center&quot;, fontweight=&quot;bold&quot;)
+    ax2.axvline(mean_nom, color=MUTED, lw=1, ls=&quot;--&quot;, zorder=1)
+    ax2.text(mean_nom, len(ct) - 0.35, f&quot;average {mean_nom:.1f}&quot;, fontsize=8.6, color=INK2, ha=&quot;center&quot;)
+    ax2.set_yticks(range(len(ct)), ct.feature, fontsize=10)
+    ax2.set_xlim(2.5, 7)
+    ax2.set_ylim(-0.6, len(ct) - 0.1)
+    ax2.grid(axis=&quot;y&quot;, visible=False)
+    ax2.set_xlabel(&quot;Schoolmates naming them as a friend (weighted mean)&quot;, color=INK2)
+    ptitle(ax2, &quot;B  Friend nominations received, low vs high groups&quot;)
+    foot(fig, f&quot;&quot;&quot;Panel A: mean absolute SHAP value from a Poisson LightGBM model of in-degree, shown as the average %
+         change in expected nominations attributable to each trait (top 16 of 46). Out-of-sample (5-fold) R² =
+         {r2:.2f}; adding self-reports that partly reflect popularity (feels accepted, lonely, close to people at
+         school) raises it only to {r2_social:.2f}. School size is a control: bigger schools spread nominations
+         thinner. Associations only: dating and drinking may follow from popularity as much as cause it. {SRC}&quot;&quot;&quot;,
+         0.09)
+    save(fig, &quot;addhealth_popularity_shap&quot;)
+
+
+# ---- chart 3 ------------------------------------------------------------------------------------------------------
+def chart_outcomes(o, shares):
+    fig = plt.figure(figsize=(13, 7.8))
+    e = o[(o.outcome == &quot;Earnings (%)&quot;) &amp; (o.spec == &quot;plus background&quot;)].iloc[0]
+    header(fig, f&quot;Popular teens earned {e.gap:.0f}% more 15 years later, with grades, looks and family held fixed&quot;,
+           &quot;Most- vs least-named teens (7+ vs 0–1 schoolmates naming them as a friend in 1994–95), compared at\n&quot;
+           &quot;ages 24–32 in 2008–09. Gaps in percentage points, except earnings in %.&quot;)
+    ax = fig.add_axes([0.25, 0.2, 0.68, 0.55])
+    order = list(N.OUTCOMES.values())
+    for i, lab in enumerate(order):
+        a = o[(o.outcome == lab) &amp; (o.spec == &quot;sex and age&quot;)].iloc[0]
+        b = o[(o.outcome == lab) &amp; (o.spec == &quot;plus background&quot;)].iloc[0]
+        y = len(order) - 1 - i
+        col = pb.RED if lab.startswith(&quot;Earnings&quot;) else pb.NAVY
+        ax.plot([b.lo, b.hi], [y - 0.13, y - 0.13], color=col, lw=1.4, alpha=0.6)
+        ax.scatter(a.gap, y + 0.13, s=60, color=pb.MUTE, zorder=3)
+        ax.scatter(b.gap, y - 0.13, s=80, color=col, zorder=4)
+        ax.text(max(a.hi if False else a.gap, b.hi) + 1, y, f&quot;{b.gap:+.0f}&quot; + (&quot;%&quot; if lab.startswith(&quot;Earn&quot;) else &quot; pts&quot;),
+                va=&quot;center&quot;, fontsize=10.5, fontweight=&quot;bold&quot;, color=INK)
+    ax.axvline(0, color=INK, lw=0.9)
+    ax.set_yticks(range(len(order)), [l.replace(&quot; (%)&quot;, &quot;&quot;) for l in order][::-1], fontsize=10.5)
+    ax.set_ylim(-0.7, len(order) - 0.3)
+    ax.grid(axis=&quot;y&quot;, visible=False)
+    ax.xaxis.set_major_formatter(lambda v, _: f&quot;{v:+.0f}&quot; if v else &quot;0&quot;)
+    ax.set_xlabel(&quot;Difference, most-named minus least-named&quot;, color=INK2)
+    ax.scatter([], [], s=60, color=pb.MUTE, label=&quot;Adjusted for sex and age&quot;)
+    ax.scatter([], [], s=80, color=pb.NAVY, label=&quot;Plus family, grades, test score, looks, weight, sport (95% interval)&quot;)
+    ax.legend(loc=&quot;lower left&quot;, bbox_to_anchor=(0, 1.0), ncol=2, frameon=False, fontsize=9.5)
+    n = o.n.max()
+    foot(fig, f&quot;&quot;&quot;Weighted least squares, Wave IV weight; n = {n:,} with both waves (earnings: earners only). Least-named
+         = 0–1 nominations ({shares['lo'] * 100:.0f}% of teens), most-named = 7+ ({shares['hi'] * 100:.0f}%).
+         Background = sex, age, race/ethnicity, school size, moving, parent's education, household income,
+         vocabulary score, GPA, interviewer ratings of looks, personality and grooming, BMI and sport, all measured
+         as teens. Popularity can still stand in for unmeasured traits (social skill, health, conscientiousness), so
+         these are associations. &quot;Rated 4–5&quot; are a new interviewer's ratings at the adult interview. {SRC}&quot;&quot;&quot;, 0.105)
+    save(fig, &quot;addhealth_popularity_outcomes&quot;)
+
+
+def main():
+    d = N.wave1()
+    y = d.IDGX2.values
+    L, sc = factors(d)
+    fm = factor_models(d, sc)
+    t = shap_table(d[MAIN], y, PARAMS)
+    r2, r2s = cv_r2(d[MAIN], y, PARAMS), cv_r2(d[list(N.FEATURES)], y, PARAMS)
+    ct = contrasts(d)
+    o, shares = outcomes(d)
+    L.round(3).to_csv(HERE / &quot;network_factors.csv&quot;)
+    fm.assign(cv_r2=fm.cv_r2.round(3)).to_csv(HERE / &quot;network_factor_models.csv&quot;, index=False)
+    t.round(4).to_csv(HERE / &quot;network_shap.csv&quot;, index=False)
+    o.round(2).to_csv(HERE / &quot;popularity_outcomes.csv&quot;, index=False)
+    ct.round(2).to_csv(HERE / &quot;popularity_contrasts.csv&quot;, index=False)
+    print(L.round(2), fm, t.head(20).round(3), f&quot;r2 {r2:.3f} with social {r2s:.3f}&quot;, ct.round(2), o.round(1), sep=&quot;\n&quot;)
+    mean_nom = np.average(d.IDGX2, weights=d.wt1.fillna(d.wt1.median()))
+    chart_factors(L, fm)
+    chart_shap(t, r2, r2s, ct, mean_nom)
+    chart_outcomes(o, shares)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<h3><code>net_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Builds the Wave I analysis file for the Add Health friendship-network analysis (imported by network_charts.py).&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+AH = Path.home() / &quot;src/revimg/notebooks/us_public_data/Add Health - ICPSR_21600&quot;
+
+
+def read(ds, cols=None):
+    return pd.read_stata(AH / ds / f&quot;21600-{ds[2:]}-Data.dta&quot;, columns=cols, convert_categoricals=False)
+
+
+NET = [&quot;SIZE&quot;, &quot;IDGX2&quot;, &quot;ODGX2&quot;, &quot;NOUTNOM&quot;, &quot;BCENT10X&quot;, &quot;REACH&quot;, &quot;REACH3&quot;, &quot;IGDMEAN&quot;, &quot;PRXPREST&quot;, &quot;INFLDMN&quot;,
+       &quot;HAVEBMF&quot;, &quot;HAVEBFF&quot;, &quot;BMFRECIP&quot;, &quot;BFFRECIP&quot;, &quot;ESDEN&quot;, &quot;ERDEN&quot;, &quot;ESRDEN&quot;, &quot;NES&quot;, &quot;NER&quot;, &quot;NESR&quot;]
+
+# feature -&gt; (label, group). Groups: &quot;main&quot; enter the popularity model; &quot;social&quot; are self-reports that are partly
+# consequences of being popular, used only in the sensitivity model.
+FEATURES = {
+    &quot;looks&quot;: (&quot;Looks (interviewer)&quot;, &quot;Appearance&quot;), &quot;pers&quot;: (&quot;Personality (interviewer)&quot;, &quot;Appearance&quot;),
+    &quot;groom&quot;: (&quot;Grooming (interviewer)&quot;, &quot;Appearance&quot;), &quot;mature&quot;: (&quot;Physical maturity (interviewer)&quot;, &quot;Appearance&quot;),
+    &quot;candid&quot;: (&quot;Candid in interview (interviewer)&quot;, &quot;Appearance&quot;),
+    &quot;height_z&quot;: (&quot;Height (vs same sex &amp; age)&quot;, &quot;Body&quot;), &quot;bmi_z&quot;: (&quot;BMI (vs same sex &amp; age)&quot;, &quot;Body&quot;),
+    &quot;male&quot;: (&quot;Male&quot;, &quot;Demographics&quot;), &quot;age&quot;: (&quot;Age&quot;, &quot;Demographics&quot;), &quot;grade&quot;: (&quot;Grade&quot;, &quot;Demographics&quot;),
+    &quot;black&quot;: (&quot;Black&quot;, &quot;Demographics&quot;), &quot;hisp&quot;: (&quot;Hispanic&quot;, &quot;Demographics&quot;), &quot;asian&quot;: (&quot;Asian&quot;, &quot;Demographics&quot;),
+    &quot;usborn&quot;: (&quot;US-born&quot;, &quot;Demographics&quot;), &quot;size&quot;: (&quot;School size&quot;, &quot;Demographics&quot;),
+    &quot;moved&quot;: (&quot;Moved since 1990&quot;, &quot;Demographics&quot;),
+    &quot;gpa&quot;: (&quot;GPA&quot;, &quot;School&quot;), &quot;pvt&quot;: (&quot;Vocabulary test&quot;, &quot;School&quot;), &quot;repeat&quot;: (&quot;Repeated a grade&quot;, &quot;School&quot;),
+    &quot;suspended&quot;: (&quot;Ever suspended&quot;, &quot;School&quot;), &quot;skipped&quot;: (&quot;Days skipped school&quot;, &quot;School&quot;),
+    &quot;teacher_trouble&quot;: (&quot;Trouble with teachers&quot;, &quot;School&quot;), &quot;college_want&quot;: (&quot;Wants college&quot;, &quot;School&quot;),
+    &quot;self_iq&quot;: (&quot;Self-rated intelligence&quot;, &quot;School&quot;),
+    &quot;sport&quot;: (&quot;Plays a sport (times/wk)&quot;, &quot;Activities&quot;), &quot;exercise&quot;: (&quot;Exercise (times/wk)&quot;, &quot;Activities&quot;),
+    &quot;hobbies&quot;: (&quot;Hobbies (times/wk)&quot;, &quot;Activities&quot;), &quot;tv&quot;: (&quot;TV hours/wk&quot;, &quot;Activities&quot;),
+    &quot;games&quot;: (&quot;Video game hours/wk&quot;, &quot;Activities&quot;), &quot;allowance&quot;: (&quot;Weekly allowance&quot;, &quot;Activities&quot;),
+    &quot;drunk&quot;: (&quot;Got drunk (frequency)&quot;, &quot;Risk&quot;), &quot;smoker&quot;: (&quot;Regular smoker&quot;, &quot;Risk&quot;),
+    &quot;pot&quot;: (&quot;Marijuana use (times)&quot;, &quot;Risk&quot;), &quot;sex&quot;: (&quot;Ever had sex&quot;, &quot;Risk&quot;), &quot;romance&quot;: (&quot;Had a romance (18 mo)&quot;, &quot;Risk&quot;),
+    &quot;religion&quot;: (&quot;Religious attendance&quot;, &quot;Family&quot;), &quot;parent_ed&quot;: (&quot;Parent's education&quot;, &quot;Family&quot;),
+    &quot;income&quot;: (&quot;Household income&quot;, &quot;Family&quot;), &quot;mom_warm&quot;: (&quot;Mother warm and loving&quot;, &quot;Family&quot;),
+    &quot;energy&quot;: (&quot;Lots of energy&quot;, &quot;Self-view&quot;), &quot;coordinated&quot;: (&quot;Well coordinated&quot;, &quot;Self-view&quot;),
+    &quot;good_qualities&quot;: (&quot;Has good qualities&quot;, &quot;Self-view&quot;), &quot;like_self&quot;: (&quot;Likes self as is&quot;, &quot;Self-view&quot;),
+    &quot;depressed&quot;: (&quot;Felt depressed&quot;, &quot;Self-view&quot;),
+    &quot;accepted&quot;: (&quot;Feels socially accepted&quot;, &quot;social&quot;), &quot;lonely&quot;: (&quot;Felt lonely&quot;, &quot;social&quot;),
+    &quot;disliked&quot;: (&quot;Felt people disliked them&quot;, &quot;social&quot;), &quot;close_school&quot;: (&quot;Feels close to people at school&quot;, &quot;social&quot;),
+    &quot;happy_school&quot;: (&quot;Happy at school&quot;, &quot;social&quot;), &quot;student_trouble&quot;: (&quot;Trouble with other students&quot;, &quot;social&quot;),
+    &quot;hangout&quot;: (&quot;Hangs out with friends (times/wk)&quot;, &quot;social&quot;),
+}
+
+
+def _v(s, lo, hi):
+    return s.where(s.between(lo, hi))
+
+
+def agree(s):  # 1 strongly agree .. 5 strongly disagree -&gt; 0..4 agreement
+    return 5 - _v(s, 1, 5)
+
+
+def wave1():
+    cols = (&quot;H1IR1 H1IR2 H1IR3 H1IR4 H1IR5 H1GI20 H1GI11 H1GH59A H1GH59B H1GH60 H1ED2 H1ED5 H1ED7 H1ED11 H1ED12 &quot;
+            &quot;H1ED13 H1ED14 H1ED15 H1ED18 H1ED19 H1ED22 H1DA2 H1DA5 H1DA6 H1DA7 H1DA8 H1DA10 H1TO3 H1TO18 H1TO31 &quot;
+            &quot;H1CO1 H1RR1 PA12 PA55 H1RE3 H1PF1 H1PF26 H1PF29 H1PF30 H1PF33 H1PF35 H1FS13 H1FS17 H1FS6 H1SE4 H1EE1 &quot;
+            &quot;H1EE8 H1GI2 H1GI4 H1GI6A H1GI6B H1GI6D BIO_SEX AH_PVT IYEAR IMONTH H1GI1Y H1GI1M&quot;).split()
+    r = read(&quot;DS0001&quot;, [&quot;AID&quot;] + cols).merge(read(&quot;DS0004&quot;, [&quot;AID&quot;, &quot;GSWGT1&quot;]), on=&quot;AID&quot;, how=&quot;left&quot;)
+    d = pd.DataFrame({&quot;AID&quot;: r.AID, &quot;wt1&quot;: r.GSWGT1})
+    d[&quot;looks&quot;], d[&quot;pers&quot;], d[&quot;groom&quot;], d[&quot;mature&quot;] = (_v(r[c], 1, 5) for c in [&quot;H1IR1&quot;, &quot;H1IR2&quot;, &quot;H1IR3&quot;, &quot;H1IR5&quot;])
+    d[&quot;candid&quot;] = 5 - _v(r.H1IR4, 1, 4)
+    d[&quot;male&quot;] = (r.BIO_SEX == 1).astype(float).where(r.BIO_SEX.isin([1, 2]))
+    born = 1900 + _v(r.H1GI1Y, 74, 83) + (_v(r.H1GI1M, 1, 12) - 0.5) / 12
+    d[&quot;age&quot;] = 1900 + r.IYEAR + (r.IMONTH - 0.5) / 12 - born
+    d[&quot;grade&quot;] = _v(r.H1GI20, 7, 12)
+    d[&quot;black&quot;], d[&quot;asian&quot;] = (r.H1GI6B == 1).astype(float), (r.H1GI6D == 1).astype(float)
+    d[&quot;hisp&quot;] = (r.H1GI4 == 1).astype(float)
+    d[&quot;usborn&quot;] = np.where(r.H1GI11 == 0, 0.0, np.where(r.H1GI11.isin([1, 7]), 1.0, np.nan))
+    d[&quot;moved&quot;] = 1 - _v(r.H1GI2, 0, 1)
+    h = 12 * _v(r.H1GH59A, 4, 6) + _v(r.H1GH59B, 0, 11)
+    w = _v(r.H1GH60, 50, 500)
+    d[&quot;height&quot;], d[&quot;bmi&quot;] = h, 703 * w / h ** 2
+    grades = pd.concat([5 - _v(r[c], 1, 4) for c in [&quot;H1ED11&quot;, &quot;H1ED12&quot;, &quot;H1ED13&quot;, &quot;H1ED14&quot;]], axis=1)
+    d[&quot;gpa&quot;] = grades.mean(axis=1)
+    d[&quot;pvt&quot;] = _v(r.AH_PVT, 1, 200)
+    d[&quot;repeat&quot;], d[&quot;suspended&quot;] = _v(r.H1ED5, 0, 1), _v(r.H1ED7, 0, 1)
+    d[&quot;skipped&quot;] = _v(r.H1ED2, 0, 99)
+    d[&quot;teacher_trouble&quot;], d[&quot;student_trouble&quot;] = _v(r.H1ED15, 0, 4), _v(r.H1ED18, 0, 4)
+    d[&quot;close_school&quot;], d[&quot;happy_school&quot;] = agree(r.H1ED19), agree(r.H1ED22)
+    d[&quot;college_want&quot;], d[&quot;self_iq&quot;] = _v(r.H1EE1, 1, 5), _v(r.H1SE4, 1, 6)
+    for k, c in [(&quot;hobbies&quot;, &quot;H1DA2&quot;), (&quot;sport&quot;, &quot;H1DA5&quot;), (&quot;exercise&quot;, &quot;H1DA6&quot;), (&quot;hangout&quot;, &quot;H1DA7&quot;)]:
+        d[k] = _v(r[c], 0, 3)
+    d[&quot;tv&quot;], d[&quot;games&quot;] = _v(r.H1DA8, 0, 99), _v(r.H1DA10, 0, 99)
+    d[&quot;allowance&quot;] = _v(r.H1EE8, 0, 95)
+    d[&quot;drunk&quot;] = 7 - r.H1TO18.replace(97, 7).pipe(_v, 1, 7)      # 0 never .. 6 almost daily; never drank -&gt; 0
+    d[&quot;smoker&quot;] = r.H1TO3.replace(7, 0).pipe(_v, 0, 1)
+    d[&quot;pot&quot;] = np.log1p(r.H1TO31.replace(997, 0).pipe(_v, 0, 995))
+    d[&quot;sex&quot;], d[&quot;romance&quot;] = _v(r.H1CO1, 0, 1), _v(r.H1RR1, 0, 1)
+    d[&quot;religion&quot;] = 4 - r.H1RE3.replace(7, 4).pipe(_v, 1, 4)
+    d[&quot;parent_ed&quot;], d[&quot;income&quot;] = _v(r.PA12, 1, 9), np.log1p(_v(r.PA55, 0, 999))
+    d[&quot;mom_warm&quot;] = agree(r.H1PF1)
+    for k, c in [(&quot;energy&quot;, &quot;H1PF26&quot;), (&quot;coordinated&quot;, &quot;H1PF29&quot;), (&quot;good_qualities&quot;, &quot;H1PF30&quot;),
+                 (&quot;like_self&quot;, &quot;H1PF33&quot;), (&quot;accepted&quot;, &quot;H1PF35&quot;)]:
+        d[k] = agree(r[c])
+    d[&quot;lonely&quot;], d[&quot;disliked&quot;], d[&quot;depressed&quot;] = _v(r.H1FS13, 0, 3), _v(r.H1FS17, 0, 3), _v(r.H1FS6, 0, 3)
+    # height and BMI relative to same sex and whole-year age
+    g = [d.male, d.age.round()]
+    for c in [&quot;height&quot;, &quot;bmi&quot;]:
+        d[c + &quot;_z&quot;] = (d[c] - d.groupby(g)[c].transform(&quot;mean&quot;)) / d.groupby(g)[c].transform(&quot;std&quot;)
+    n = read(&quot;DS0003&quot;, [&quot;AID&quot;] + NET)
+    d = d.merge(n, on=&quot;AID&quot;, how=&quot;inner&quot;).dropna(subset=[&quot;IDGX2&quot;])
+    d[&quot;size&quot;] = d.SIZE
+    return d
+
+
+OUTCOMES = {  # Wave IV (2008-09, ages 24-32); columns are prefixed &quot;a_&quot; in wave4()
+    &quot;learn&quot;: &quot;Earnings (%)&quot;, &quot;ba&quot;: &quot;Bachelor's degree&quot;, &quot;supervise&quot;: &quot;Supervises others at work&quot;,
+    &quot;married&quot;: &quot;Ever married&quot;, &quot;friends6&quot;: &quot;6+ close friends&quot;, &quot;depressed&quot;: &quot;Felt depressed this week&quot;,
+    &quot;health_good&quot;: &quot;Very good/excellent health&quot;, &quot;pers4&quot;: &quot;Adult personality rated 4–5&quot;, &quot;looks4&quot;: &quot;Adult looks rated 4–5&quot;,
+}
+
+
+def wave4():
+    r = read(&quot;DS0022&quot;, [&quot;AID&quot;, &quot;H4EC2&quot;, &quot;H4ED2&quot;, &quot;H4LM25&quot;, &quot;H4TR1&quot;, &quot;H4WS4&quot;, &quot;H4MH22&quot;, &quot;H4GH1&quot;, &quot;H4IR1&quot;, &quot;H4IR2&quot;])
+    r = r.merge(read(&quot;DS0031&quot;, [&quot;AID&quot;, &quot;GSWGT4_2&quot;]), on=&quot;AID&quot;)
+    o = pd.DataFrame({&quot;AID&quot;: r.AID, &quot;wt4&quot;: r.GSWGT4_2})
+    o[&quot;learn&quot;] = np.log(r.H4EC2.where(r.H4EC2.between(1000, 999_000)))
+    o[&quot;ba&quot;] = np.where(r.H4ED2.between(1, 13), (r.H4ED2 &gt;= 7).astype(float), np.nan)
+    o[&quot;supervise&quot;] = np.where(r.H4LM25.isin([1, 2, 3]), r.H4LM25.isin([1, 2]).astype(float), np.nan)
+    o[&quot;married&quot;] = np.where(r.H4TR1.between(0, 5), (r.H4TR1 &gt; 0).astype(float), np.nan)
+    o[&quot;friends6&quot;] = np.where(r.H4WS4.between(1, 5), (r.H4WS4 &gt;= 4).astype(float), np.nan)
+    o[&quot;depressed&quot;] = np.where(r.H4MH22.between(0, 3), (r.H4MH22 &gt;= 1).astype(float), np.nan)
+    o[&quot;health_good&quot;] = np.where(r.H4GH1.between(1, 5), (r.H4GH1 &lt;= 2).astype(float), np.nan)
+    o[&quot;pers4&quot;] = np.where(r.H4IR2.between(1, 5), (r.H4IR2 &gt;= 4).astype(float), np.nan)
+    o[&quot;looks4&quot;] = np.where(r.H4IR1.between(1, 5), (r.H4IR1 &gt;= 4).astype(float), np.nan)
+    return o.rename(columns={k: &quot;a_&quot; + k for k in OUTCOMES})
+</code></pre>
+</main></body></html>
