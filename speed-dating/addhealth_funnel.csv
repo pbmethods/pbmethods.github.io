@@ -1,0 +1,13 @@
+sex,step,share,n_unweighted,n_single,marginal
+Men,All single,100.0,500,500,100.0
+Men,Attractive (looks),35.65,179,500,35.65
+Men,+ Attractive personality,29.48,144,500,46.71
+Men,+ College degree,11.13,52,500,24.35
+Men,+ Earnings above median,7.13,32,500,34.93
+Men,+ Height above median,3.84,17,500,47.81
+Women,All single,100.0,492,492,100.0
+Women,Attractive (looks),44.97,220,492,44.97
+Women,+ Attractive personality,36.08,177,492,57.33
+Women,+ College degree,12.31,71,492,32.11
+Women,+ Earnings above median,8.77,51,492,46.13
+Women,+ Healthy-weight BMI,3.36,19,492,32.37

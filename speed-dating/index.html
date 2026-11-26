@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Can questionnaires predict who clicks? Speed-dating desire vs. a 4-minute date, and how few singles have it all</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Can questionnaires predict who clicks? Speed-dating desire vs. a 4-minute date, and how few singles have it all</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/speed-dating/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>speed_dating_charts.py</code></h3>
+<pre><code class="language-text">Questionnaires vs. a 4-minute date: what predicts romantic desire, and how few people have everything.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/speed_dating/speed_dating_charts.py
+
+Three charts for one Note, backing the line &quot;All you can do is get roughly status-and-looks matched people to go on
+dates and see what happens&quot; (footnote sourced to Gwern's Aug 1 2022 LessWrong comment on &quot;Anatomy of a Dating
+Document&quot;, which summarizes Joel, Eastwick &amp; Finkel 2017).
+
+A and B. Joel, Eastwick &amp; Finkel (2017), &quot;Is romantic desire predictable? Machine learning applied to initial
+romantic attraction&quot;, Psychological Science 28(10):1478-1489 (local copy: papers/2017-joel.pdf).
+  Design: two speed-dating samples of romantically unattached undergraduates at one university (Sample A n = 163,
+  Sample B n = 187), each having ~12 four-minute dates. Before the events, participants completed 100+ self-report
+  measures: Big Five, attachment, values, mood, relationship beliefs, mate-value self-ratings, and ideal-partner
+  preference items for the same traits (182 constructs in Sample A, 112 in Sample B). After each date they rated
+  romantic desire for that partner (3 items) plus postinteraction impressions (chemistry, attractiveness, etc.).
+  Decomposition (social-relations model, Table 1): each person's desire for each date splits into
+    actor variance        how much this person likes dates in general (choosiness);
+    partner variance      how much this date is liked by everyone (&quot;everyone wants&quot;);
+    relationship variance how much this person likes this particular date beyond both (pair-specific);
+    error                 within-pair measurement noise.
+  Prediction (random forests, out-of-bag % of variance explained; Tables 2 and 4):
+    Table 2: background questionnaire predictors, three variable-selection levels (liberal / moderate / stringent),
+             separately for men's desire for women and women's desire for men, both samples. 15 relationship-
+             variance models are reported (Sample B women, stringent selection kept no predictors). Values are
+             transcribed exactly; negative means worse than predicting the grand mean.
+    Table 3: trained on Sample A, tested on Sample B: predicted vs. actual pair-specific desire r = -.06 (men),
+             .02 (women).
+    Table 4: postinteraction ratings from the same night (excluding the desire items themselves and prior
+             acquaintance), 12 models: 16.5%-29.3% of pair-specific variance.
+  Chart A plots every Table 2 and Table 4 relationship-variance model at its number of predictors.
+  Chart B shows Table 1's shares, averaged over the two samples, and labels each piece with the range of its
+  variance that Table 2's questionnaire models predicted (actor 5-18%, partner 18-27%, pair-specific none).
+  &quot;Predictable from questionnaires, all in&quot; = actor share x midpoint of actor range + partner share x midpoint of
+  partner range + pair-specific share x 0.
+
+  Reading the post-date bar (important): those ratings were made the same night, by the same people, on the same
+  form as the desire they predict, so they partly restate it. They measure a short-run spark, largely driven by
+  attractiveness, charisma, verbal fluency and social skill, not long-term compatibility, and not whether someone
+  checks the boxes on a list. They show that four minutes face to face carries information a questionnaire lacks
+  about that night's desire, not that a date is a high-fidelity read of a future relationship.
+
+C. Add Health (ICPSR 21600) Wave IV public-use in-home survey, 2008-09, ages 24-32 (DS0022, n = 5,114), with the
+  cross-sectional weight GSWGT4_2 (DS0031) and the Section 16B relationship roster (DS0023).
+  Single: no roster partner who is current (H4TR14 = 1) or a current dating partner (H4TR13 = 4); i.e. not
+  married, cohabiting or dating anyone. Respondents with no roster rows (never partnered) count as single.
+  Traits, cumulative, each judged within the respondent's own sex:
+    Looks         interviewer rating of physical attractiveness (H4IR1) 4-5 (&quot;attractive&quot;/&quot;very attractive&quot;)
+    Personality   interviewer rating of personality attractiveness (H4IR2) 4-5
+    Degree        bachelor's or higher (H4ED2 &gt;= 7)
+    Earnings      personal earnings last year (H4EC2; DK/refused filled at the H4EC3 bracket midpoint) above the
+                  median for all Wave IV respondents of the same sex (zero earners included in the median)
+    Men: height   measured height (H4HGT) at or above the male median
+    Women: BMI    measured BMI (H4BMI) 18.5 to under 25
+  Each bar is the weighted share of single men (or women) who pass that step and every step above it.
+  Interviewer ratings come from one interviewer per respondent, so they are noisy; the cumulative share is lower
+  than it would be with perfectly measured traits only if the noise is uncorrelated across traits.
+
+Writes joel2017_tables.csv and addhealth_funnel.csv next to this script, and the charts' _wm copies to
+~/Desktop/Recent Projects/Substack Notes/Dating/ (originals in Unwatermarked graphs/Dating/):
+  speed_dating_questions_vs_date.png, speed_dating_attraction_parts.png, addhealth_have_it_all.png
+</code></pre>
+<h2>Results</h2>
+<h3><code>joel2017_tables.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>table</th>
+<th>sample</th>
+<th>chooser</th>
+<th>selection</th>
+<th>n</th>
+<th>pct</th>
+<th>kind</th>
+<th>component</th>
+<th>sample_A</th>
+<th>sample_B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T2</td>
+<td>A</td>
+<td>men</td>
+<td>liberal</td>
+<td>16.000</td>
+<td>-4.550</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>A</td>
+<td>men</td>
+<td>moderate</td>
+<td>1.000</td>
+<td>-0.180</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>A</td>
+<td>men</td>
+<td>stringent</td>
+<td>1.000</td>
+<td>-0.180</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>B</td>
+<td>men</td>
+<td>liberal</td>
+<td>52.000</td>
+<td>-3.100</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>B</td>
+<td>men</td>
+<td>moderate</td>
+<td>2.000</td>
+<td>-1.420</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>B</td>
+<td>men</td>
+<td>stringent</td>
+<td>2.000</td>
+<td>-1.420</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>A</td>
+<td>women</td>
+<td>liberal</td>
+<td>39.000</td>
+<td>-1.650</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>A</td>
+<td>women</td>
+<td>moderate</td>
+<td>20.000</td>
+<td>-1.030</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>A</td>
+<td>women</td>
+<td>stringent</td>
+<td>3.000</td>
+<td>1.340</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>B</td>
+<td>women</td>
+<td>liberal</td>
+<td>1.000</td>
+<td>-2.680</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T2</td>
+<td>B</td>
+<td>women</td>
+<td>moderate</td>
+<td>1.000</td>
+<td>-2.680</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>A</td>
+<td>men</td>
+<td>liberal</td>
+<td>36.000</td>
+<td>26.330</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>A</td>
+<td>men</td>
+<td>moderate</td>
+<td>19.000</td>
+<td>26.220</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>A</td>
+<td>men</td>
+<td>stringent</td>
+<td>5.000</td>
+<td>21.670</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>B</td>
+<td>men</td>
+<td>liberal</td>
+<td>40.000</td>
+<td>28.700</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>B</td>
+<td>men</td>
+<td>moderate</td>
+<td>12.000</td>
+<td>29.260</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>B</td>
+<td>men</td>
+<td>stringent</td>
+<td>1.000</td>
+<td>19.670</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>A</td>
+<td>women</td>
+<td>liberal</td>
+<td>35.000</td>
+<td>23.470</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>A</td>
+<td>women</td>
+<td>moderate</td>
+<td>19.000</td>
+<td>24.000</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>A</td>
+<td>women</td>
+<td>stringent</td>
+<td>1.000</td>
+<td>16.540</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>B</td>
+<td>women</td>
+<td>liberal</td>
+<td>40.000</td>
+<td>27.120</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>B</td>
+<td>women</td>
+<td>moderate</td>
+<td>19.000</td>
+<td>26.090</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>T4</td>
+<td>B</td>
+<td>women</td>
+<td>stringent</td>
+<td>2.000</td>
+<td>20.970</td>
+<td>relationship_variance_model</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>table1_share</td>
+<td>actor</td>
+<td>12.150</td>
+<td>13.600</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>table1_share</td>
+<td>partner</td>
+<td>25.900</td>
+<td>22.520</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>table1_share</td>
+<td>rel_men</td>
+<td>34.740</td>
+<td>35.980</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>table1_share</td>
+<td>rel_women</td>
+<td>31.000</td>
+<td>32.100</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>table1_share</td>
+<td>err_men</td>
+<td>27.300</td>
+<td>27.900</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>table1_share</td>
+<td>err_women</td>
+<td>31.000</td>
+<td>31.800</td>
+</tr>
+</tbody>
+</table>
+<h3><code>addhealth_funnel.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>sex</th>
+<th>step</th>
+<th>share</th>
+<th>n_unweighted</th>
+<th>n_single</th>
+<th>marginal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Men</td>
+<td>All single</td>
+<td>100.000</td>
+<td>500</td>
+<td>500</td>
+<td>100.000</td>
+</tr>
+<tr>
+<td>Men</td>
+<td>Attractive (looks)</td>
+<td>35.650</td>
+<td>179</td>
+<td>500</td>
+<td>35.650</td>
+</tr>
+<tr>
+<td>Men</td>
+<td>+ Attractive personality</td>
+<td>29.480</td>
+<td>144</td>
+<td>500</td>
+<td>46.710</td>
+</tr>
+<tr>
+<td>Men</td>
+<td>+ College degree</td>
+<td>11.130</td>
+<td>52</td>
+<td>500</td>
+<td>24.350</td>
+</tr>
+<tr>
+<td>Men</td>
+<td>+ Earnings above median</td>
+<td>7.130</td>
+<td>32</td>
+<td>500</td>
+<td>34.930</td>
+</tr>
+<tr>
+<td>Men</td>
+<td>+ Height above median</td>
+<td>3.840</td>
+<td>17</td>
+<td>500</td>
+<td>47.810</td>
+</tr>
+<tr>
+<td>Women</td>
+<td>All single</td>
+<td>100.000</td>
+<td>492</td>
+<td>492</td>
+<td>100.000</td>
+</tr>
+<tr>
+<td>Women</td>
+<td>Attractive (looks)</td>
+<td>44.970</td>
+<td>220</td>
+<td>492</td>
+<td>44.970</td>
+</tr>
+<tr>
+<td>Women</td>
+<td>+ Attractive personality</td>
+<td>36.080</td>
+<td>177</td>
+<td>492</td>
+<td>57.330</td>
+</tr>
+<tr>
+<td>Women</td>
+<td>+ College degree</td>
+<td>12.310</td>
+<td>71</td>
+<td>492</td>
+<td>32.110</td>
+</tr>
+<tr>
+<td>Women</td>
+<td>+ Earnings above median</td>
+<td>8.770</td>
+<td>51</td>
+<td>492</td>
+<td>46.130</td>
+</tr>
+<tr>
+<td>Women</td>
+<td>+ Healthy-weight BMI</td>
+<td>3.360</td>
+<td>19</td>
+<td>492</td>
+<td>32.370</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats</h1>
+<ul>
+<li><strong>"Pair-specific desire" is desire after one 4-minute speed date.</strong> It is not long-term compatibility, relationship
+  satisfaction or marriage outcomes, and it is not "checks the boxes on my list". It is a short-run spark, largely
+  driven by attractiveness, charisma, verbal fluency and social skill.</li>
+<li><strong>The post-date ratings (red dots) partly restate what they predict.</strong> They were made the same night, by the same
+  people, on the same form as the desire ratings. The 16–29% shows that a short meeting carries information a
+  questionnaire lacks about that night's desire. It is not an estimate of how well a date predicts a future
+  relationship, which is likely much lower.</li>
+<li><strong>Joel et al.'s daters were already filtered.</strong> They were undergraduates at one university, so they were similar in
+  age, education, location and social circle. The null result says that questionnaires add nothing <em>within</em> an
+  already sorted pool. Hard filters (age, location, religion, wanting kids) still do real work in deciding who is in
+  the pool.</li>
+<li><strong>The samples are small and young</strong> (163 and 187 people, about 12 dates each). The two samples replicate each
+  other, and Sparks et al. (2020, JESP) and Eastwick &amp; Finkel (2008) point the same way, but none of these is a
+  population sample.</li>
+<li><strong>"Predictable from questionnaires, all in" (about 7%) is approximate.</strong> It multiplies each variance share by the
+  midpoint of its reported range and ignores sampling error in both.</li>
+<li><strong>The Add Health funnel uses one interviewer's rating</strong> for looks and for personality. Single ratings are noisy:
+  Wave-to-wave correlations of the looks rating are about .3–.4. Noise that is uncorrelated across traits pushes the
+  cumulative share down. Traits that are genuinely correlated push it up compared with multiplying the separate
+  shares.</li>
+<li><strong>The cutoffs are choices.</strong> "Attractive" means a rating of 4–5 on 5, and earnings and height mean above the median
+  of the respondent's own sex. "Healthy-weight BMI" means 18.5 to under 25. Different cutoffs change the levels but
+  not the halving pattern.</li>
+<li><strong>Add Health is 2008–09 data on ages 24–32.</strong> Today's singles and other age groups will differ.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>speed_dating_charts.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Questionnaires vs. a 4-minute date: what predicts romantic desire, and how few people have everything.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas python notebooks/speed_dating/speed_dating_charts.py
+
+Three charts for one Note, backing the line &quot;All you can do is get roughly status-and-looks matched people to go on
+dates and see what happens&quot; (footnote sourced to Gwern's Aug 1 2022 LessWrong comment on &quot;Anatomy of a Dating
+Document&quot;, which summarizes Joel, Eastwick &amp; Finkel 2017).
+
+A and B. Joel, Eastwick &amp; Finkel (2017), &quot;Is romantic desire predictable? Machine learning applied to initial
+romantic attraction&quot;, Psychological Science 28(10):1478-1489 (local copy: papers/2017-joel.pdf).
+  Design: two speed-dating samples of romantically unattached undergraduates at one university (Sample A n = 163,
+  Sample B n = 187), each having ~12 four-minute dates. Before the events, participants completed 100+ self-report
+  measures: Big Five, attachment, values, mood, relationship beliefs, mate-value self-ratings, and ideal-partner
+  preference items for the same traits (182 constructs in Sample A, 112 in Sample B). After each date they rated
+  romantic desire for that partner (3 items) plus postinteraction impressions (chemistry, attractiveness, etc.).
+  Decomposition (social-relations model, Table 1): each person's desire for each date splits into
+    actor variance        how much this person likes dates in general (choosiness);
+    partner variance      how much this date is liked by everyone (&quot;everyone wants&quot;);
+    relationship variance how much this person likes this particular date beyond both (pair-specific);
+    error                 within-pair measurement noise.
+  Prediction (random forests, out-of-bag % of variance explained; Tables 2 and 4):
+    Table 2: background questionnaire predictors, three variable-selection levels (liberal / moderate / stringent),
+             separately for men's desire for women and women's desire for men, both samples. 15 relationship-
+             variance models are reported (Sample B women, stringent selection kept no predictors). Values are
+             transcribed exactly; negative means worse than predicting the grand mean.
+    Table 3: trained on Sample A, tested on Sample B: predicted vs. actual pair-specific desire r = -.06 (men),
+             .02 (women).
+    Table 4: postinteraction ratings from the same night (excluding the desire items themselves and prior
+             acquaintance), 12 models: 16.5%-29.3% of pair-specific variance.
+  Chart A plots every Table 2 and Table 4 relationship-variance model at its number of predictors.
+  Chart B shows Table 1's shares, averaged over the two samples, and labels each piece with the range of its
+  variance that Table 2's questionnaire models predicted (actor 5-18%, partner 18-27%, pair-specific none).
+  &quot;Predictable from questionnaires, all in&quot; = actor share x midpoint of actor range + partner share x midpoint of
+  partner range + pair-specific share x 0.
+
+  Reading the post-date bar (important): those ratings were made the same night, by the same people, on the same
+  form as the desire they predict, so they partly restate it. They measure a short-run spark, largely driven by
+  attractiveness, charisma, verbal fluency and social skill, not long-term compatibility, and not whether someone
+  checks the boxes on a list. They show that four minutes face to face carries information a questionnaire lacks
+  about that night's desire, not that a date is a high-fidelity read of a future relationship.
+
+C. Add Health (ICPSR 21600) Wave IV public-use in-home survey, 2008-09, ages 24-32 (DS0022, n = 5,114), with the
+  cross-sectional weight GSWGT4_2 (DS0031) and the Section 16B relationship roster (DS0023).
+  Single: no roster partner who is current (H4TR14 = 1) or a current dating partner (H4TR13 = 4); i.e. not
+  married, cohabiting or dating anyone. Respondents with no roster rows (never partnered) count as single.
+  Traits, cumulative, each judged within the respondent's own sex:
+    Looks         interviewer rating of physical attractiveness (H4IR1) 4-5 (&quot;attractive&quot;/&quot;very attractive&quot;)
+    Personality   interviewer rating of personality attractiveness (H4IR2) 4-5
+    Degree        bachelor's or higher (H4ED2 &gt;= 7)
+    Earnings      personal earnings last year (H4EC2; DK/refused filled at the H4EC3 bracket midpoint) above the
+                  median for all Wave IV respondents of the same sex (zero earners included in the median)
+    Men: height   measured height (H4HGT) at or above the male median
+    Women: BMI    measured BMI (H4BMI) 18.5 to under 25
+  Each bar is the weighted share of single men (or women) who pass that step and every step above it.
+  Interviewer ratings come from one interviewer per respondent, so they are noisy; the cumulative share is lower
+  than it would be with perfectly measured traits only if the noise is uncorrelated across traits.
+
+Writes joel2017_tables.csv and addhealth_funnel.csv next to this script, and the charts' _wm copies to
+~/Desktop/Recent Projects/Substack Notes/Dating/ (originals in Unwatermarked graphs/Dating/):
+  speed_dating_questions_vs_date.png, speed_dating_attraction_parts.png, addhealth_have_it_all.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+AH = HERE.parent / &quot;us_public_data&quot; / &quot;Add Health - ICPSR_21600&quot;
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = &quot;Dating&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
+
+JOEL = &quot;Joel, Eastwick &amp; Finkel (2017), Psychological Science: two speed-dating samples (n = 163, 187 undergraduates at one university)&quot;
+
+# ---- Joel et al. 2017, transcribed ---------------------------------------------------------------------------
+# (table, sample, sex of chooser, selection, n_predictors, % pair-specific variance explained)
+REL = [
+    (&quot;T2&quot;, &quot;A&quot;, &quot;men&quot;, &quot;liberal&quot;, 16, -4.55), (&quot;T2&quot;, &quot;A&quot;, &quot;men&quot;, &quot;moderate&quot;, 1, -0.18),
+    (&quot;T2&quot;, &quot;A&quot;, &quot;men&quot;, &quot;stringent&quot;, 1, -0.18), (&quot;T2&quot;, &quot;B&quot;, &quot;men&quot;, &quot;liberal&quot;, 52, -3.10),
+    (&quot;T2&quot;, &quot;B&quot;, &quot;men&quot;, &quot;moderate&quot;, 2, -1.42), (&quot;T2&quot;, &quot;B&quot;, &quot;men&quot;, &quot;stringent&quot;, 2, -1.42),
+    (&quot;T2&quot;, &quot;A&quot;, &quot;women&quot;, &quot;liberal&quot;, 39, -1.65), (&quot;T2&quot;, &quot;A&quot;, &quot;women&quot;, &quot;moderate&quot;, 20, -1.03),
+    (&quot;T2&quot;, &quot;A&quot;, &quot;women&quot;, &quot;stringent&quot;, 3, 1.34), (&quot;T2&quot;, &quot;B&quot;, &quot;women&quot;, &quot;liberal&quot;, 1, -2.68),
+    (&quot;T2&quot;, &quot;B&quot;, &quot;women&quot;, &quot;moderate&quot;, 1, -2.68),
+    (&quot;T4&quot;, &quot;A&quot;, &quot;men&quot;, &quot;liberal&quot;, 36, 26.33), (&quot;T4&quot;, &quot;A&quot;, &quot;men&quot;, &quot;moderate&quot;, 19, 26.22),
+    (&quot;T4&quot;, &quot;A&quot;, &quot;men&quot;, &quot;stringent&quot;, 5, 21.67), (&quot;T4&quot;, &quot;B&quot;, &quot;men&quot;, &quot;liberal&quot;, 40, 28.70),
+    (&quot;T4&quot;, &quot;B&quot;, &quot;men&quot;, &quot;moderate&quot;, 12, 29.26), (&quot;T4&quot;, &quot;B&quot;, &quot;men&quot;, &quot;stringent&quot;, 1, 19.67),
+    (&quot;T4&quot;, &quot;A&quot;, &quot;women&quot;, &quot;liberal&quot;, 35, 23.47), (&quot;T4&quot;, &quot;A&quot;, &quot;women&quot;, &quot;moderate&quot;, 19, 24.00),
+    (&quot;T4&quot;, &quot;A&quot;, &quot;women&quot;, &quot;stringent&quot;, 1, 16.54), (&quot;T4&quot;, &quot;B&quot;, &quot;women&quot;, &quot;liberal&quot;, 40, 27.12),
+    (&quot;T4&quot;, &quot;B&quot;, &quot;women&quot;, &quot;moderate&quot;, 19, 26.09), (&quot;T4&quot;, &quot;B&quot;, &quot;women&quot;, &quot;stringent&quot;, 2, 20.97),
+]
+# Table 1 shares of desire variance (%), samples A and B
+T1 = {&quot;actor&quot;: (12.15, 13.60), &quot;partner&quot;: (25.90, 22.52), &quot;rel_men&quot;: (34.74, 35.98), &quot;rel_women&quot;: (31.0, 32.1),
+      &quot;err_men&quot;: (27.3, 27.9), &quot;err_women&quot;: (31.0, 31.8)}
+# Table 2 questionnaire R^2 ranges for actor and partner variance (%)
+ACTOR_R2 = [17.78, 15.88, 15.42, 4.95, 8.25, 9.52]
+PARTNER_R2 = [19.70, 21.43, 22.14, 24.64, 26.70, 18.48]
+
+
+def save(fig, name):
+    orig = NOTES / &quot;Unwatermarked graphs&quot; / SUB / f&quot;{name}.png&quot;
+    wm = NOTES / SUB / f&quot;{name}_wm.png&quot;
+    orig.parent.mkdir(parents=True, exist_ok=True)
+    wm.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(orig, dpi=200)
+    plt.close(fig)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(orig), str(wm)],
+                   check=True)
+    print(&quot;wrote&quot;, wm)
+
+
+def header(fig, title, sub, y=0.95):
+    fig.text(0.055, y, title, fontsize=19, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
+    fig.text(0.055, y - 0.065, sub, fontsize=11.5, color=INK2, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.4)
+
+
+# ---- Chart A ---------------------------------------------------------------------------------------------------
+def chart_questions(rel):
+    q, p = rel[rel.table == &quot;T2&quot;], rel[rel.table == &quot;T4&quot;]
+    fig = plt.figure(figsize=(12, 7.4))
+    ax = fig.add_axes([0.075, 0.2, 0.62, 0.55])
+    header(fig, &quot;100+ questions predicted none of who liked whom. Four minutes face to face predicted a quarter&quot;,
+           &quot;Share of pair-specific desire (how much you like this date beyond your own choosiness and their general\n&quot;
+           &quot;appeal) that random-forest models predicted, by how many predictors they used. Each dot is one model.&quot;)
+    jit = np.random.default_rng(3).uniform(-0.04, 0.04, len(q))
+    ax.scatter(q.n * np.exp(jit), q.pct, s=70, color=pb.GRAYS[0], edgecolor=pb.SURFACE, lw=1, zorder=3)
+    ax.scatter(p.n, p.pct, s=70, color=pb.RED, edgecolor=pb.SURFACE, lw=1, zorder=3)
+    ax.axhline(0, color=INK, lw=1, zorder=2)
+    ax.set_xscale(&quot;log&quot;)
+    ax.set_xlim(0.75, 75)
+    ax.set_xticks([1, 2, 5, 10, 20, 50])
+    ax.set_xticklabels([&quot;1&quot;, &quot;2&quot;, &quot;5&quot;, &quot;10&quot;, &quot;20&quot;, &quot;50&quot;])
+    ax.set_ylim(-8, 34)
+    ax.set_yticks(range(-5, 31, 5))
+    ax.set_yticklabels([f&quot;{v}%&quot; for v in range(-5, 31, 5)])
+    ax.set_xlabel(&quot;Number of predictors in the model (log scale)&quot;)
+    ax.grid(axis=&quot;y&quot;)
+    ax.text(1.05, 31.5, f&quot;After a 4-minute date: {p.pct.min():.0f}–{p.pct.max():.0f}%&quot;, fontsize=12,
+            fontweight=&quot;bold&quot;, color=INK, va=&quot;center&quot;)
+    ax.text(1.05, 29.3, &quot;same-night ratings of chemistry, attraction etc.&quot;, fontsize=10.5, color=INK2, va=&quot;center&quot;)
+    ax.text(1.05, 5.6, f&quot;Before meeting: {q.pct.min():.1f}% to +{q.pct.max():.1f}%&quot;, fontsize=12,
+            fontweight=&quot;bold&quot;, color=INK, va=&quot;center&quot;)
+    ax.text(1.05, 3.4, &quot;from 112–182 self-reported traits and ideal-partner preferences&quot;, fontsize=10.5,
+            color=INK2, va=&quot;center&quot;)
+    # side notes
+    side = fig.add_axes([0.73, 0.2, 0.25, 0.55])
+    side.axis(&quot;off&quot;)
+    notes = [
+        (&quot;Out of sample it's worse&quot;, &quot;Trained on one sample, tested on the\nother: predicted vs. actual desire\n&quot;
+                                     &quot;r = −.06 for men, .02 for women.&quot;),
+        (&quot;Below zero&quot;, &quot;A negative share means the model\ndid worse than guessing the average\nfor every pair.&quot;),
+        (&quot;Read the red dots narrowly&quot;, &quot;Same night, same people, same form\nas the desire they predict. That is\n&quot;
+                                       &quot;a short-run spark (looks, charisma,\nfluency), not long-term compatibility.&quot;),
+    ]
+    y = 1.0
+    for h, b in notes:
+        side.text(0, y, h, fontsize=11, fontweight=&quot;bold&quot;, color=INK, va=&quot;top&quot;, transform=side.transAxes)
+        side.text(0, y - 0.065, b, fontsize=10, color=INK2, va=&quot;top&quot;, linespacing=1.35, transform=side.transAxes)
+        y -= 0.36
+    fig.text(0.055, 0.06, f&quot;Source: {JOEL}, Tables 2–4. Out-of-bag % of variance explained in relationship &quot;
+             &quot;(pair-specific) desire, men's and women's desire modelled separately,\nthree variable-selection &quot;
+             &quot;levels per sample. Gray: background questionnaire predictors (15 models). Red: postinteraction &quot;
+             &quot;ratings, excluding the desire items (12 models).&quot;, fontsize=8.8, color=MUTED, ha=&quot;left&quot;,
+             linespacing=1.4)
+    save(fig, &quot;speed_dating_questions_vs_date&quot;)
+
+
+# ---- Chart B ---------------------------------------------------------------------------------------------------
+def chart_parts():
+    m = {k: np.mean(v) for k, v in T1.items()}
+    a_lo, a_hi, p_lo, p_hi = min(ACTOR_R2), max(ACTOR_R2), min(PARTNER_R2), max(PARTNER_R2)
+    pred_all = {s: m[&quot;actor&quot;] * (a_lo + a_hi) / 200 + m[&quot;partner&quot;] * (p_lo + p_hi) / 200 for s in (&quot;men&quot;, &quot;women&quot;)}
+    fig = plt.figure(figsize=(12, 6.6))
+    ax = fig.add_axes([0.2, 0.25, 0.76, 0.42])
+    header(fig, &quot;The biggest piece of attraction is the one no questionnaire could predict&quot;,
+           &quot;How each speed dater's desire for each date breaks down (share of variance), and how much of each piece &quot;
+           &quot;100+ pre-date\nquestions predicted. All told, questionnaires predict roughly &quot;
+           f&quot;{np.mean(list(pred_all.values())):.0f}% of desire, nearly all of it \&quot;who is generally appealing.\&quot;&quot;)
+    segs = [(&quot;actor&quot;, &quot;Chooser's\nchoosiness&quot;, pb.GRAYS[0], f&quot;{a_lo:.0f}–{a_hi:.0f}% predictable&quot;),
+            (&quot;partner&quot;, &quot;Date's general\nappeal&quot;, pb.NAVY, f&quot;{p_lo:.0f}–{p_hi:.0f}% predictable&quot;),
+            (&quot;rel&quot;, &quot;This pair\nspecifically&quot;, pb.RED, &quot;0% predictable&quot;),
+            (&quot;err&quot;, &quot;Noise&quot;, pb.MUTE, &quot;&quot;)]
+    for i, sex in enumerate([&quot;men&quot;, &quot;women&quot;]):
+        y = 1 - i
+        left = 0
+        for key, lab, col, pred in segs:
+            v = m[key] if key in (&quot;actor&quot;, &quot;partner&quot;) else m[f&quot;{key}_{sex}&quot;]
+            ax.barh(y, v, left=left, height=0.62, color=col, edgecolor=pb.SURFACE, lw=1.5)
+            tc = &quot;white&quot; if col in (pb.NAVY, pb.RED, pb.GRAYS[0]) else INK
+            ax.text(left + v / 2, y + 0.08, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=13, fontweight=&quot;bold&quot;,
+                    color=tc)
+            if i == 0:
+                ax.text(left + v / 2, 1.55, lab, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=10.5, fontweight=&quot;bold&quot;,
+                        color=INK, linespacing=1.2)
+                if pred:
+                    ax.text(left + v / 2, -0.55, pred, ha=&quot;center&quot;, va=&quot;top&quot;, fontsize=10,
+                            fontweight=&quot;bold&quot; if key == &quot;rel&quot; else &quot;normal&quot;, color=INK if key == &quot;rel&quot; else INK2)
+            left += v
+        ax.text(-1.5, y, &quot;Men's desire\nfor women&quot; if sex == &quot;men&quot; else &quot;Women's desire\nfor men&quot;, ha=&quot;right&quot;,
+                va=&quot;center&quot;, fontsize=11, color=INK, linespacing=1.25)
+    ax.text(-1.5, -0.55, &quot;From pre-date\nquestionnaires:&quot;, ha=&quot;right&quot;, va=&quot;top&quot;, fontsize=10, color=INK2,
+            linespacing=1.25)
+    ax.set_xlim(0, 100.5)
+    ax.set_ylim(-0.45, 1.5)
+    ax.axis(&quot;off&quot;)
+    fig.text(0.055, 0.06, f&quot;Source: {JOEL}. Shares from the social-relations model (Table 1), averaged over the two &quot;
+             &quot;samples; \&quot;predictable\&quot; is the range of random-forest\nout-of-bag variance explained by background &quot;
+             &quot;questionnaires across both samples and three variable-selection levels (Table 2). The pair-specific &quot;
+             &quot;piece is desire after a 4-minute date,\nnot long-term compatibility.&quot;, fontsize=8.8, color=MUTED,
+             ha=&quot;left&quot;, linespacing=1.4)
+    save(fig, &quot;speed_dating_attraction_parts&quot;)
+    return m, pred_all
+
+
+# ---- Chart C ---------------------------------------------------------------------------------------------------
+EC3_MID = {1: 2500, 2: 7500, 3: 12500, 4: 17500, 5: 22500, 6: 27500, 7: 35000, 8: 45000, 9: 62500, 10: 87500,
+           11: 125000, 12: 175000}
+
+
+def wq(x, w, q=0.5):
+    o = np.argsort(x.values)
+    c = np.cumsum(w.values[o]) / w.sum()
+    return x.values[o][np.searchsorted(c, q)]
+
+
+def addhealth():
+    cols = [&quot;AID&quot;, &quot;BIO_SEX4&quot;, &quot;H4IR1&quot;, &quot;H4IR2&quot;, &quot;H4ED2&quot;, &quot;H4EC2&quot;, &quot;H4EC3&quot;, &quot;H4HGT&quot;, &quot;H4BMI&quot;]
+    d = pd.read_stata(AH / &quot;DS0022&quot; / &quot;21600-0022-Data.dta&quot;, columns=cols, convert_categoricals=False)
+    w = pd.read_stata(AH / &quot;DS0031&quot; / &quot;21600-0031-Data.dta&quot;, columns=[&quot;AID&quot;, &quot;GSWGT4_2&quot;])
+    r = pd.read_stata(AH / &quot;DS0023&quot; / &quot;21600-0023-Data.dta&quot;, columns=[&quot;AID&quot;, &quot;H4TR13&quot;, &quot;H4TR14&quot;],
+                      convert_categoricals=False)
+    partnered = set(r.loc[(r.H4TR14 == 1) | (r.H4TR13 == 4), &quot;AID&quot;])
+    d = d.merge(w, on=&quot;AID&quot;)
+    d[&quot;sex&quot;] = d.BIO_SEX4.map({1: &quot;Men&quot;, 2: &quot;Women&quot;})
+    earn = d.H4EC2.where(d.H4EC2 &lt; 9999996).astype(float).fillna(d.H4EC3.map(EC3_MID))
+    d[&quot;earn&quot;] = earn
+    rows = []
+    for sex, g in d.groupby(&quot;sex&quot;):
+        e = g.dropna(subset=[&quot;earn&quot;])
+        med_e = wq(e.earn, e.GSWGT4_2)
+        h = g[g.H4HGT &lt; 996]
+        med_h = wq(h.H4HGT, h.GSWGT4_2)
+        s = g[~g.AID.isin(partnered)].copy()
+        s = s[s.H4IR1.notna() &amp; s.H4IR2.notna() &amp; (s.H4ED2 &lt; 98) &amp; s.earn.notna()]
+        if sex == &quot;Men&quot;:
+            s = s[s.H4HGT &lt; 996]
+            last = (&quot;Height above median&quot;, s.H4HGT &gt;= med_h)
+        else:
+            s = s[s.H4BMI &lt; 996]
+            last = (&quot;Healthy-weight BMI&quot;, s.H4BMI.between(18.5, 24.999))
+        steps = [(&quot;All single&quot;, pd.Series(True, index=s.index)),
+                 (&quot;Attractive (looks)&quot;, s.H4IR1 &gt;= 4),
+                 (&quot;+ Attractive personality&quot;, s.H4IR2 &gt;= 4),
+                 (&quot;+ College degree&quot;, s.H4ED2 &gt;= 7),
+                 (&quot;+ Earnings above median&quot;, s.earn &gt; med_e),
+                 (&quot;+ &quot; + last[0], last[1])]
+        keep = pd.Series(True, index=s.index)
+        wt = s.GSWGT4_2
+        for lab, m in steps:
+            keep &amp;= m
+            rows.append(dict(sex=sex, step=lab, share=wt[keep].sum() / wt.sum() * 100, n_unweighted=int(keep.sum()),
+                             n_single=len(s), marginal=wt[m].sum() / wt.sum() * 100))
+        print(sex, &quot;singles&quot;, len(s), &quot;median earnings&quot;, med_e, &quot;median height&quot;, med_h)
+    return pd.DataFrame(rows)
+
+
+def chart_funnel(f):
+    fig = plt.figure(figsize=(12, 7.2))
+    men, wom = f[f.sex == &quot;Men&quot;], f[f.sex == &quot;Women&quot;]
+    fin = {s: g.share.iloc[-1] for s, g in f.groupby(&quot;sex&quot;)}
+    header(fig, f&quot;Everyone wants the same things. About {fin['Men']:.0f}% of single men and {fin['Women']:.0f}% of &quot;
+           &quot;single women have them all&quot;,
+           &quot;Single Americans aged 24–32: share who clear each bar, cumulatively. Each step roughly halves the pool, &quot;
+           &quot;which is why the\nrealistic strategy is to sort on the shared stuff, then date and see.&quot;)
+    for j, (g, sx) in enumerate([(men, &quot;Men&quot;), (wom, &quot;Women&quot;)]):
+        ax = fig.add_axes([0.055 + j * 0.49, 0.17, 0.4, 0.6])
+        ax.text(0, 1.04, sx, transform=ax.transAxes, fontsize=13, fontweight=&quot;bold&quot;, color=INK)
+        n = len(g)
+        for i, (_, r) in enumerate(g.iterrows()):
+            y = n - 1 - i
+            col = pb.RED if i == n - 1 else (pb.NAVY if i == 0 else pb.GRAYS[min(i - 1, 2) if i &lt; 4 else 2])
+            ax.barh(y, r.share, height=0.68, color=col)
+            one_in = f&quot;  (1 in {100 / r.share:.0f})&quot; if i &gt;= 3 else &quot;&quot;
+            ax.text(r.share + 1.2, y, f&quot;{r.share:.0f}%{one_in}&quot;, va=&quot;center&quot;, fontsize=11, fontweight=&quot;bold&quot;,
+                    color=INK)
+            ax.text(-2, y, r.step, va=&quot;center&quot;, ha=&quot;right&quot;, fontsize=10.5, color=INK)
+        ax.set_xlim(0, 118)
+        ax.set_ylim(-0.6, n - 0.4)
+        ax.axis(&quot;off&quot;)
+    # shift axes right to make room for labels
+    for a in fig.axes:
+        a.set_position([a.get_position().x0 + 0.13, *(a.get_position().bounds[1:])])
+        a.set_position([a.get_position().x0, a.get_position().y0, 0.25, a.get_position().height])
+    fig.text(0.055, 0.05, &quot;Source: Add Health Wave IV (2008–09, ages 24–32, n = 5,114), weighted (GSWGT4_2). Single = &quot;
+             &quot;not married, cohabiting or dating anyone (relationship roster). Looks and personality: one interviewer's &quot;
+             &quot;rating,\n4–5 on a 5-point scale. Earnings and height: above the median for all respondents of the same &quot;
+             &quot;sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy.&quot;,
+             fontsize=8.8, color=MUTED, ha=&quot;left&quot;, linespacing=1.4)
+    save(fig, &quot;addhealth_have_it_all&quot;)
+
+
+def main():
+    rel = pd.DataFrame(REL, columns=[&quot;table&quot;, &quot;sample&quot;, &quot;chooser&quot;, &quot;selection&quot;, &quot;n&quot;, &quot;pct&quot;])
+    t1 = pd.DataFrame(T1, index=[&quot;sample_A&quot;, &quot;sample_B&quot;]).T.reset_index(names=&quot;component&quot;)
+    out = pd.concat([rel.assign(kind=&quot;relationship_variance_model&quot;),
+                     t1.assign(kind=&quot;table1_share&quot;)], ignore_index=True)
+    out.to_csv(HERE / &quot;joel2017_tables.csv&quot;, index=False)
+    f = addhealth()  # both CSVs exist before the first watermark call builds the methods page
+    f.round(2).to_csv(HERE / &quot;addhealth_funnel.csv&quot;, index=False)
+    print(f.round(1).to_string())
+    chart_questions(rel)
+    m, pred = chart_parts()
+    print(&quot;shares&quot;, {k: round(v, 1) for k, v in m.items()}, &quot;predictable&quot;, {k: round(v, 1) for k, v in pred.items()})
+    chart_funnel(f)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>

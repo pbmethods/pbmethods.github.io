@@ -4,6 +4,7 @@ Methodology, results and code behind charts from <a href="https://performativeba
 
 - [Children of divorce: how many divorces involve the couple's minor children (SIPP), how many of those end high-conflict marriages (NSFH), and how much of children's gap survives twin and sibling designs, in SD and everyday units](children-of-divorce/) (2026-11-26)
 - [Is the earnings gap for looks bigger than the Black-white gap? Gender, race, height and looks on one scale](looks-gaps/) (2026-11-26)
+- [Can questionnaires predict who clicks? Speed-dating desire vs. a 4-minute date, and how few singles have it all](speed-dating/) (2026-11-26)
 - [What a typical US date costs: a CPI-priced date basket since 2000 vs BMO's survey](date-cost/) (2026-11-23)
 - [After a separation: is each ex-spouse happier than before, and does it depend on who wanted out? (NSFH)](divorce-aftermath/) (2026-11-22)
 - [When either spouse could leave: unilateral divorce laws and women's suicide, violence and spousal homicide, with a staggered-adoption re-estimate](divorce-exit/) (2026-11-22)
