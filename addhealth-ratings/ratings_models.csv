@@ -1,0 +1,13 @@
+outcome,rating,spec,effect,lo,hi,n
+learn,Looks,alone,9.6,5.52,13.84,4437
+learn,Looks,together,-0.9,-5.06,3.44,4437
+learn,Personality,alone,10.77,6.79,14.9,4437
+learn,Personality,together,3.99,-0.18,8.33,4437
+learn,Grooming,alone,25.77,20.9,30.85,4437
+learn,Grooming,together,21.03,16.04,26.24,4437
+ba,Looks,alone,6.44,4.65,8.23,5108
+ba,Looks,together,0.54,-1.36,2.44,5108
+ba,Personality,alone,6.3,4.61,8.0,5108
+ba,Personality,together,1.59,-0.23,3.4,5108
+ba,Grooming,alone,13.37,11.55,15.18,5108
+ba,Grooming,together,9.16,7.28,11.04,5108

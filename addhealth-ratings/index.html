@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Interviewer ratings in Add Health: the grooming premium, and how many people get 5/5/5</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Interviewer ratings in Add Health: the grooming premium, and how many people get 5/5/5</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/addhealth-ratings/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>addhealth_ratings_charts.py</code></h3>
+<pre><code class="language-text">Add Health interviewer ratings: does grooming carry the &quot;beauty premium&quot;, and how many people are rated 5/5/5?
+
+Data
+  Add Health (National Longitudinal Study of Adolescent to Adult Health, ICPSR 21600), public-use files. A nationally
+  representative school-based sample first interviewed in 1994-95 in grades 7-12 and re-interviewed at home in
+  Wave II (1996), Wave III (2001-02, ages 18-28) and Wave IV (2008-09, ages 24-34).
+    Wave I   DS0001 in-home questionnaire, DS0004 weight GSWGT1
+    Wave II  DS0005, DS0007 weight GSWGT2
+    Wave III DS0008, DS0021 weight GSWGT3_2
+    Wave IV  DS0022, DS0031 weight GSWGT4_2
+  At the end of each in-home interview (about 90 minutes), the interviewer rated the respondent on three 1-5 items:
+    H#IR1 &quot;How physically attractive is the respondent?&quot;       1 very unattractive ... 3 about average ... 5 very attractive
+    H#IR2 &quot;How attractive is the respondent's personality?&quot;    same scale
+    H#IR3 &quot;How well groomed is the respondent?&quot;               1 very poorly groomed ... 5 very well groomed
+  A different interviewer usually did each wave, so these are single, independent strangers' ratings.
+
+Chart 1: grooming vs looks and personality as predictors of adult outcomes (Wave IV)
+  Outcomes: log annual personal earnings (H4EC2, earners with $1,000 to $999,000) and having a bachelor's degree or
+  more (H4ED2 &gt;= 7). Weighted least squares with the Wave IV weight and robust (HC1) standard errors.
+    &quot;On its own&quot;    outcome ~ one rating + sex
+    &quot;Together + background&quot;  outcome ~ all three ratings + sex + age + race/ethnicity (Wave I: Hispanic, Black,
+                    White, other) + parent's education (Wave I parent questionnaire PA12, missing filled with the
+                    median plus a missing flag) + Wave I Picture Vocabulary Test score (AH_PVT, standardized, same
+                    missing handling)
+  Earnings coefficients b are shown as a percent premium per rating point, 100*(exp(b)-1); degree coefficients as
+  percentage points per rating point. Bars show 95% confidence intervals.
+  Panel C: weighted share rated physically attractive (looks 4 or 5) at each grooming rating (1 and 2 pooled).
+
+Chart 2: share rated 5 (&quot;very&quot;) on looks, personality and grooming, by age at interview and sex
+  All four waves pooled; one row per person-wave, weighted by that wave's cross-sectional weight. Age at interview =
+  interview year/month minus the Wave I birth year/month (H1GI1Y/M). Age bands: 12-14, 15-16, 17-18, 19-20, 21-22,
+  23-25, 26-28, 29-34. The &quot;if the ratings were independent&quot; reference multiplies the three single-trait shares.
+
+Writes ratings_models.csv and ratings_top_by_age.csv next to this script, and the charts (watermarked copies to
+~/Desktop/Recent Projects/Substack Notes/Dating, originals under Unwatermarked graphs/Dating):
+  addhealth_grooming_premium.png, addhealth_all_fives_by_age.png
+</code></pre>
+<h2>Results</h2>
+<h3><code>ratings_models.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>outcome</th>
+<th>rating</th>
+<th>spec</th>
+<th>effect</th>
+<th>lo</th>
+<th>hi</th>
+<th>n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>learn</td>
+<td>Looks</td>
+<td>alone</td>
+<td>9.600</td>
+<td>5.520</td>
+<td>13.840</td>
+<td>4437</td>
+</tr>
+<tr>
+<td>learn</td>
+<td>Looks</td>
+<td>together</td>
+<td>-0.900</td>
+<td>-5.060</td>
+<td>3.440</td>
+<td>4437</td>
+</tr>
+<tr>
+<td>learn</td>
+<td>Personality</td>
+<td>alone</td>
+<td>10.770</td>
+<td>6.790</td>
+<td>14.900</td>
+<td>4437</td>
+</tr>
+<tr>
+<td>learn</td>
+<td>Personality</td>
+<td>together</td>
+<td>3.990</td>
+<td>-0.180</td>
+<td>8.330</td>
+<td>4437</td>
+</tr>
+<tr>
+<td>learn</td>
+<td>Grooming</td>
+<td>alone</td>
+<td>25.770</td>
+<td>20.900</td>
+<td>30.850</td>
+<td>4437</td>
+</tr>
+<tr>
+<td>learn</td>
+<td>Grooming</td>
+<td>together</td>
+<td>21.030</td>
+<td>16.040</td>
+<td>26.240</td>
+<td>4437</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>Looks</td>
+<td>alone</td>
+<td>6.440</td>
+<td>4.650</td>
+<td>8.230</td>
+<td>5108</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>Looks</td>
+<td>together</td>
+<td>0.540</td>
+<td>-1.360</td>
+<td>2.440</td>
+<td>5108</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>Personality</td>
+<td>alone</td>
+<td>6.300</td>
+<td>4.610</td>
+<td>8.000</td>
+<td>5108</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>Personality</td>
+<td>together</td>
+<td>1.590</td>
+<td>-0.230</td>
+<td>3.400</td>
+<td>5108</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>Grooming</td>
+<td>alone</td>
+<td>13.370</td>
+<td>11.550</td>
+<td>15.180</td>
+<td>5108</td>
+</tr>
+<tr>
+<td>ba</td>
+<td>Grooming</td>
+<td>together</td>
+<td>9.160</td>
+<td>7.280</td>
+<td>11.040</td>
+<td>5108</td>
+</tr>
+</tbody>
+</table>
+<h3><code>ratings_top_by_age.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>sex</th>
+<th>age</th>
+<th>n</th>
+<th>n_all5</th>
+<th>looks5</th>
+<th>pers5</th>
+<th>groom5</th>
+<th>all5</th>
+<th>indep</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>men</td>
+<td>12–14</td>
+<td>601</td>
+<td>18</td>
+<td>8.630</td>
+<td>11.400</td>
+<td>10.390</td>
+<td>2.390</td>
+<td>0.100</td>
+</tr>
+<tr>
+<td>men</td>
+<td>15–16</td>
+<td>1754</td>
+<td>65</td>
+<td>8.070</td>
+<td>8.820</td>
+<td>7.420</td>
+<td>2.970</td>
+<td>0.050</td>
+</tr>
+<tr>
+<td>men</td>
+<td>17–18</td>
+<td>2115</td>
+<td>79</td>
+<td>8.970</td>
+<td>10.240</td>
+<td>7.160</td>
+<td>3.390</td>
+<td>0.070</td>
+</tr>
+<tr>
+<td>men</td>
+<td>19–20</td>
+<td>1192</td>
+<td>51</td>
+<td>11.050</td>
+<td>12.120</td>
+<td>9.640</td>
+<td>3.780</td>
+<td>0.130</td>
+</tr>
+<tr>
+<td>men</td>
+<td>21–22</td>
+<td>732</td>
+<td>15</td>
+<td>8.310</td>
+<td>10.320</td>
+<td>6.520</td>
+<td>2.000</td>
+<td>0.060</td>
+</tr>
+<tr>
+<td>men</td>
+<td>23–25</td>
+<td>1182</td>
+<td>26</td>
+<td>6.970</td>
+<td>12.310</td>
+<td>8.290</td>
+<td>2.130</td>
+<td>0.070</td>
+</tr>
+<tr>
+<td>men</td>
+<td>26–28</td>
+<td>879</td>
+<td>18</td>
+<td>6.200</td>
+<td>10.690</td>
+<td>6.750</td>
+<td>2.050</td>
+<td>0.040</td>
+</tr>
+<tr>
+<td>men</td>
+<td>29–34</td>
+<td>1594</td>
+<td>34</td>
+<td>6.790</td>
+<td>12.500</td>
+<td>8.430</td>
+<td>1.980</td>
+<td>0.070</td>
+</tr>
+<tr>
+<td>women</td>
+<td>12–14</td>
+<td>726</td>
+<td>49</td>
+<td>19.370</td>
+<td>17.240</td>
+<td>14.210</td>
+<td>6.780</td>
+<td>0.470</td>
+</tr>
+<tr>
+<td>women</td>
+<td>15–16</td>
+<td>2039</td>
+<td>158</td>
+<td>17.940</td>
+<td>17.830</td>
+<td>15.490</td>
+<td>8.090</td>
+<td>0.500</td>
+</tr>
+<tr>
+<td>women</td>
+<td>17–18</td>
+<td>2174</td>
+<td>157</td>
+<td>18.700</td>
+<td>19.190</td>
+<td>15.330</td>
+<td>6.810</td>
+<td>0.550</td>
+</tr>
+<tr>
+<td>women</td>
+<td>19–20</td>
+<td>1245</td>
+<td>76</td>
+<td>18.170</td>
+<td>18.600</td>
+<td>12.190</td>
+<td>5.890</td>
+<td>0.410</td>
+</tr>
+<tr>
+<td>women</td>
+<td>21–22</td>
+<td>913</td>
+<td>48</td>
+<td>14.090</td>
+<td>18.930</td>
+<td>12.020</td>
+<td>5.910</td>
+<td>0.320</td>
+</tr>
+<tr>
+<td>women</td>
+<td>23–25</td>
+<td>1283</td>
+<td>81</td>
+<td>12.680</td>
+<td>21.470</td>
+<td>13.650</td>
+<td>5.760</td>
+<td>0.370</td>
+</tr>
+<tr>
+<td>women</td>
+<td>26–28</td>
+<td>1136</td>
+<td>48</td>
+<td>11.200</td>
+<td>17.460</td>
+<td>12.200</td>
+<td>3.890</td>
+<td>0.240</td>
+</tr>
+<tr>
+<td>women</td>
+<td>29–34</td>
+<td>1731</td>
+<td>90</td>
+<td>10.820</td>
+<td>17.830</td>
+<td>12.770</td>
+<td>5.430</td>
+<td>0.250</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats</h1>
+<ul>
+<li><strong>One stranger's rating.</strong> Each score comes from a single interviewer after a ~90-minute home interview. The same
+  person's ratings from different interviewers (different waves) correlate only about .1–.3 (personality .08–.26,
+  looks .13–.30, grooming .17–.34), so most of the variance in any one rating is rater noise or the moment.</li>
+<li><strong>The ratings are generous and lumpy.</strong> About 93% of ratings are 3, 4 or 5 and only about 5% fall below "average".
+  A 5 means "this interviewer thought so", not a top-percentile score on any absolute scale.</li>
+<li><strong>Halo.</strong> Within an interview, looks and personality correlate about .57 and both correlate .33–.52 with grooming.
+  When all three enter one regression, they compete for the same signal, so a small coefficient on looks does not
+  mean looks are irrelevant to how a person is treated; it means the interviewer's grooming score carries the shared part.</li>
+<li><strong>Grooming is not randomly assigned.</strong> It tracks income, job, health, conscientiousness and how much the
+  respondent prepared for a visit. Controls for sex, age, race/ethnicity, parent's education and a teenage
+  vocabulary score remove some, not all, of this. Earnings and degree are measured at the same visit as grooming,
+  so the arrow can run from status to grooming.</li>
+<li><strong>Personality.</strong> The item asks how attractive the respondent's personality is. It correlates only .13 with
+  self-reported extraversion and .15 with agreeableness, so it is not the same thing as "charisma" as a trait.</li>
+<li><strong>Age vs wave.</strong> In the 5/5/5 chart, ages 12–20 come from 1994–96, 18–28 from 2001–02 and 24–34 from 2008–09, each
+  with its own interviewer team, so an age trend can't be separated from a change in interviewers or era.
+  People rated 5/5/5 are few per age band (15–158), so band-to-band wiggles are mostly noise.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>addhealth_ratings_charts.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Add Health interviewer ratings: does grooming carry the &quot;beauty premium&quot;, and how many people are rated 5/5/5?
+
+Data
+  Add Health (National Longitudinal Study of Adolescent to Adult Health, ICPSR 21600), public-use files. A nationally
+  representative school-based sample first interviewed in 1994-95 in grades 7-12 and re-interviewed at home in
+  Wave II (1996), Wave III (2001-02, ages 18-28) and Wave IV (2008-09, ages 24-34).
+    Wave I   DS0001 in-home questionnaire, DS0004 weight GSWGT1
+    Wave II  DS0005, DS0007 weight GSWGT2
+    Wave III DS0008, DS0021 weight GSWGT3_2
+    Wave IV  DS0022, DS0031 weight GSWGT4_2
+  At the end of each in-home interview (about 90 minutes), the interviewer rated the respondent on three 1-5 items:
+    H#IR1 &quot;How physically attractive is the respondent?&quot;       1 very unattractive ... 3 about average ... 5 very attractive
+    H#IR2 &quot;How attractive is the respondent's personality?&quot;    same scale
+    H#IR3 &quot;How well groomed is the respondent?&quot;               1 very poorly groomed ... 5 very well groomed
+  A different interviewer usually did each wave, so these are single, independent strangers' ratings.
+
+Chart 1: grooming vs looks and personality as predictors of adult outcomes (Wave IV)
+  Outcomes: log annual personal earnings (H4EC2, earners with $1,000 to $999,000) and having a bachelor's degree or
+  more (H4ED2 &gt;= 7). Weighted least squares with the Wave IV weight and robust (HC1) standard errors.
+    &quot;On its own&quot;    outcome ~ one rating + sex
+    &quot;Together + background&quot;  outcome ~ all three ratings + sex + age + race/ethnicity (Wave I: Hispanic, Black,
+                    White, other) + parent's education (Wave I parent questionnaire PA12, missing filled with the
+                    median plus a missing flag) + Wave I Picture Vocabulary Test score (AH_PVT, standardized, same
+                    missing handling)
+  Earnings coefficients b are shown as a percent premium per rating point, 100*(exp(b)-1); degree coefficients as
+  percentage points per rating point. Bars show 95% confidence intervals.
+  Panel C: weighted share rated physically attractive (looks 4 or 5) at each grooming rating (1 and 2 pooled).
+
+Chart 2: share rated 5 (&quot;very&quot;) on looks, personality and grooming, by age at interview and sex
+  All four waves pooled; one row per person-wave, weighted by that wave's cross-sectional weight. Age at interview =
+  interview year/month minus the Wave I birth year/month (H1GI1Y/M). Age bands: 12-14, 15-16, 17-18, 19-20, 21-22,
+  23-25, 26-28, 29-34. The &quot;if the ratings were independent&quot; reference multiplies the three single-trait shares.
+
+Writes ratings_models.csv and ratings_top_by_age.csv next to this script, and the charts (watermarked copies to
+~/Desktop/Recent Projects/Substack Notes/Dating, originals under Unwatermarked graphs/Dating):
+  addhealth_grooming_premium.png, addhealth_all_fives_by_age.png
+&quot;&quot;&quot;
+import subprocess
+import sys
+import textwrap
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+HERE = Path(__file__).resolve().parent
+AH = HERE.parent / &quot;us_public_data&quot; / &quot;Add Health - ICPSR_21600&quot;
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = &quot;Dating&quot;
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+pb.apply()
+INK, INK2, MUTED = pb.INK, pb.INK2, pb.MUTED
+SRC = (&quot;Source: Add Health (ICPSR 21600) public-use in-home interviews; ratings by the interviewer at the end of a &quot;
+       &quot;~90-minute home interview.&quot;)
+
+
+# ---- data ------------------------------------------------------------------------------------------------------
+def _read(ds, cols):
+    return pd.read_stata(AH / ds / f&quot;21600-{ds[2:]}-Data.dta&quot;, columns=cols, convert_categoricals=False)
+
+
+WAVES = {1: (&quot;DS0001&quot;, &quot;DS0004&quot;, &quot;GSWGT1&quot;, &quot;BIO_SEX&quot;, &quot;IYEAR&quot;, &quot;IMONTH&quot;),
+         2: (&quot;DS0005&quot;, &quot;DS0007&quot;, &quot;GSWGT2&quot;, &quot;BIO_SEX2&quot;, &quot;IYEAR2&quot;, &quot;IMONTH2&quot;),
+         3: (&quot;DS0008&quot;, &quot;DS0021&quot;, &quot;GSWGT3_2&quot;, &quot;BIO_SEX3&quot;, &quot;IYEAR3&quot;, &quot;IMONTH3&quot;),
+         4: (&quot;DS0022&quot;, &quot;DS0031&quot;, &quot;GSWGT4_2&quot;, &quot;BIO_SEX4&quot;, &quot;IYEAR4&quot;, &quot;IMONTH4&quot;)}
+
+
+def birth():
+    b = _read(&quot;DS0001&quot;, [&quot;AID&quot;, &quot;H1GI1Y&quot;, &quot;H1GI1M&quot;])
+    b = b[b.H1GI1Y.between(74, 83) &amp; b.H1GI1M.between(1, 12)]
+    return b.assign(born=1900 + b.H1GI1Y + (b.H1GI1M - 0.5) / 12)[[&quot;AID&quot;, &quot;born&quot;]]
+
+
+def ratings_long():
+    out = []
+    for w, (d, wf, wt, sx, iy, im) in WAVES.items():
+        a = _read(d, [&quot;AID&quot;, sx, iy, im] + [f&quot;H{w}IR{i}&quot; for i in (1, 2, 3)])
+        a.columns = [&quot;AID&quot;, &quot;sex&quot;, &quot;iy&quot;, &quot;im&quot;, &quot;looks&quot;, &quot;pers&quot;, &quot;groom&quot;]
+        a = a.merge(_read(wf, [&quot;AID&quot;, wt]).rename(columns={wt: &quot;wt&quot;}), on=&quot;AID&quot;)
+        a[&quot;iy&quot;] = np.where(a.iy &lt; 100, 1900 + a.iy, a.iy)
+        a[&quot;wave&quot;] = w
+        out.append(a)
+    a = pd.concat(out).merge(birth(), on=&quot;AID&quot;)
+    a[&quot;age&quot;] = a.iy + (a.im - 0.5) / 12 - a.born
+    for c in [&quot;looks&quot;, &quot;pers&quot;, &quot;groom&quot;]:
+        a.loc[~a[c].between(1, 5), c] = np.nan
+    return a[a.sex.isin([1, 2]) &amp; a.wt.gt(0)].dropna(subset=[&quot;looks&quot;, &quot;pers&quot;, &quot;groom&quot;, &quot;age&quot;])
+
+
+def wave4():
+    d = _read(&quot;DS0022&quot;, [&quot;AID&quot;, &quot;BIO_SEX4&quot;, &quot;H4IR1&quot;, &quot;H4IR2&quot;, &quot;H4IR3&quot;, &quot;H4EC2&quot;, &quot;H4ED2&quot;, &quot;IYEAR4&quot;, &quot;IMONTH4&quot;])
+    d = d.merge(_read(&quot;DS0031&quot;, [&quot;AID&quot;, &quot;GSWGT4_2&quot;]), on=&quot;AID&quot;)
+    d = d.merge(_read(&quot;DS0001&quot;, [&quot;AID&quot;, &quot;H1GI4&quot;, &quot;H1GI6A&quot;, &quot;H1GI6B&quot;, &quot;PA12&quot;, &quot;AH_PVT&quot;]), on=&quot;AID&quot;, how=&quot;left&quot;)
+    d = d.merge(birth(), on=&quot;AID&quot;, how=&quot;left&quot;)
+    for c in [&quot;H4IR1&quot;, &quot;H4IR2&quot;, &quot;H4IR3&quot;]:
+        d.loc[~d[c].between(1, 5), c] = np.nan
+    d = d.rename(columns={&quot;H4IR1&quot;: &quot;looks&quot;, &quot;H4IR2&quot;: &quot;pers&quot;, &quot;H4IR3&quot;: &quot;groom&quot;, &quot;GSWGT4_2&quot;: &quot;wt&quot;})
+    d[&quot;male&quot;] = (d.BIO_SEX4 == 1).astype(int)
+    d[&quot;age&quot;] = (d.IYEAR4 + (d.IMONTH4 - 0.5) / 12 - d.born).fillna(29)
+    d[&quot;ba&quot;] = np.where(d.H4ED2.between(1, 13), (d.H4ED2 &gt;= 7).astype(float), np.nan)
+    d[&quot;learn&quot;] = np.log(d.H4EC2.where(d.H4EC2.between(1000, 999_000)))
+    d[&quot;race&quot;] = np.select([d.H1GI4 == 1, d.H1GI6B == 1, d.H1GI6A == 1], [&quot;hisp&quot;, &quot;black&quot;, &quot;white&quot;], &quot;other&quot;)
+    d[&quot;paed&quot;] = d.PA12.where(d.PA12.between(1, 9))
+    d[&quot;paed_miss&quot;] = d.paed.isna().astype(int)
+    d[&quot;paed&quot;] = d.paed.fillna(d.paed.median())
+    d[&quot;pvt&quot;] = d.AH_PVT.where(d.AH_PVT.between(1, 200))
+    d[&quot;pvt_miss&quot;] = d.pvt.isna().astype(int)
+    d[&quot;pvt&quot;] = (d.pvt.fillna(d.pvt.median()) - 100) / 15
+    return d[d.wt.gt(0)].dropna(subset=[&quot;looks&quot;, &quot;pers&quot;, &quot;groom&quot;])
+
+
+RATINGS = [(&quot;looks&quot;, &quot;Looks&quot;), (&quot;pers&quot;, &quot;Personality&quot;), (&quot;groom&quot;, &quot;Grooming&quot;)]
+CTRL = &quot; + male + age + C(race) + paed + paed_miss + pvt + pvt_miss&quot;
+
+
+def models(d):
+    rows = []
+    for y in [&quot;learn&quot;, &quot;ba&quot;]:
+        s = d.dropna(subset=[y])
+        fits = {r: smf.wls(f&quot;{y} ~ {r} + male&quot;, s, weights=s.wt).fit(cov_type=&quot;HC1&quot;) for r, _ in RATINGS}
+        full = smf.wls(f&quot;{y} ~ looks + pers + groom&quot; + CTRL, s, weights=s.wt).fit(cov_type=&quot;HC1&quot;)
+        for r, lab in RATINGS:
+            for spec, m in [(&quot;alone&quot;, fits[r]), (&quot;together&quot;, full)]:
+                b, se = m.params[r], m.bse[r]
+                lo, hi = b - 1.96 * se, b + 1.96 * se
+                f = (lambda x: 100 * (np.exp(x) - 1)) if y == &quot;learn&quot; else (lambda x: 100 * x)
+                rows.append(dict(outcome=y, rating=lab, spec=spec, effect=f(b), lo=f(lo), hi=f(hi), n=int(m.nobs)))
+    return pd.DataFrame(rows)
+
+
+def attractive_by_grooming(d):
+    g = d.groom.clip(2, 5)
+    return pd.DataFrame([dict(groom=k, pct_attractive=100 * np.average(x.looks &gt;= 4, weights=x.wt), n=len(x))
+                         for k, x in d.groupby(g)])
+
+
+BANDS = [11, 14, 16, 18, 20, 22, 25, 28, 35]
+BLAB = [&quot;12–14&quot;, &quot;15–16&quot;, &quot;17–18&quot;, &quot;19–20&quot;, &quot;21–22&quot;, &quot;23–25&quot;, &quot;26–28&quot;, &quot;29–34&quot;]
+
+
+def top_by_age(a):
+    a = a.assign(band=pd.cut(a.age, BANDS, labels=BLAB))
+    for c, _ in RATINGS:
+        a[c + &quot;5&quot;] = a[c] == 5
+    a[&quot;all5&quot;] = a.looks5 &amp; a.pers5 &amp; a.groom5
+    rows = []
+    for (s, b), x in a.groupby([&quot;sex&quot;, &quot;band&quot;], observed=True):
+        r = dict(sex=&quot;men&quot; if s == 1 else &quot;women&quot;, age=b, n=len(x), n_all5=int(x.all5.sum()))
+        for k in [&quot;looks5&quot;, &quot;pers5&quot;, &quot;groom5&quot;, &quot;all5&quot;]:
+            r[k] = 100 * np.average(x[k], weights=x.wt)
+        r[&quot;indep&quot;] = r[&quot;looks5&quot;] * r[&quot;pers5&quot;] * r[&quot;groom5&quot;] / 1e4
+        rows.append(r)
+    return pd.DataFrame(rows)
+
+
+# ---- helpers ---------------------------------------------------------------------------------------------------
+def save(fig, name):
+    orig = NOTES / &quot;Unwatermarked graphs&quot; / SUB / f&quot;{name}.png&quot;
+    wm = NOTES / SUB / f&quot;{name}_wm.png&quot;
+    orig.parent.mkdir(parents=True, exist_ok=True)
+    wm.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(orig, dpi=200)
+    plt.close(fig)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(orig), str(wm)],
+                   check=True)
+    print(&quot;wrote&quot;, wm)
+
+
+def foot(fig, text, y=0.075):
+    fig.text(0.055, y, textwrap.fill(&quot; &quot;.join(text.split()), 185), fontsize=8.6, color=MUTED, ha=&quot;left&quot;,
+             va=&quot;top&quot;, linespacing=1.4)
+
+
+def header(fig, title, sub, y=0.95):
+    fig.text(0.055, y, title, fontsize=19, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
+    fig.text(0.055, y - 0.06, sub, fontsize=11.5, color=INK2, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.4)
+
+
+def ptitle(ax, t):
+    ax.set_title(t, loc=&quot;left&quot;, fontsize=12, fontweight=&quot;bold&quot;, pad=12)
+
+
+# ---- chart 1 ---------------------------------------------------------------------------------------------------
+def chart_grooming(m, att):
+    fig = plt.figure(figsize=(13, 7.6))
+    header(fig, &quot;The “beauty premium” in Add Health is a grooming premium&quot;,
+           &quot;One interviewer rated each 24–32-year-old 1–5 on looks, personality and grooming. On its own, each rating\n&quot;
+           &quot;predicts pay and a degree. Put together, with family background held fixed, only grooming still does.&quot;)
+    axes = [fig.add_axes([0.055 + i * 0.315, 0.27, 0.25, 0.48]) for i in range(3)]
+    for ax, (y, t, unit) in zip(axes[:2], [(&quot;learn&quot;, &quot;A  Earnings, % per rating point&quot;, &quot;%&quot;),
+                                           (&quot;ba&quot;, &quot;B  Has a degree, points per rating point&quot;, &quot; pts&quot;)]):
+        s = m[m.outcome == y]
+        for i, (_, lab) in enumerate(RATINGS):
+            for j, spec in enumerate([&quot;alone&quot;, &quot;together&quot;]):
+                r = s[(s.rating == lab) &amp; (s.spec == spec)].iloc[0]
+                col = pb.MUTE if spec == &quot;alone&quot; else (pb.RED if lab == &quot;Grooming&quot; else pb.GRAYS[1])
+                x = i + (j - 0.5) * 0.38
+                ax.bar(x, r.effect, 0.36, color=col, zorder=3)
+                ax.plot([x, x], [r.lo, r.hi], color=INK, lw=0.9, zorder=4)
+                va, yy = (&quot;bottom&quot;, max(r.hi, 0) + 0.4) if r.effect &gt;= 0 else (&quot;bottom&quot;, max(r.hi, 0) + 0.4)
+                ax.text(x, yy, f&quot;{r.effect:+.0f}&quot;, ha=&quot;center&quot;, va=va, fontsize=10, fontweight=&quot;bold&quot;, color=INK)
+        ax.axhline(0, color=INK, lw=0.8)
+        ax.set_xticks(range(3), [l for _, l in RATINGS])
+        ax.yaxis.set_major_formatter(lambda v, _: f&quot;{v:.0f}&quot;)
+        ax.grid(axis=&quot;x&quot;, visible=False)
+        ptitle(ax, t)
+    hi = max(m.hi.max(), 1) + 4
+    for ax in axes[:2]:
+        ax.set_ylim(-6, hi)
+    axes[0].text(-0.4, hi - 1.5, &quot;■&quot;, color=pb.MUTE, fontsize=11, va=&quot;center&quot;)
+    axes[0].text(-0.2, hi - 1.5, &quot;on its own&quot;, color=INK2, fontsize=10, va=&quot;center&quot;)
+    axes[0].text(-0.4, hi - 4.2, &quot;■&quot;, color=pb.GRAYS[1], fontsize=11, va=&quot;center&quot;)
+    axes[0].text(-0.2, hi - 4.2, &quot;all three + background&quot;, color=INK2, fontsize=10, va=&quot;center&quot;)
+    ax = axes[2]
+    labs = [&quot;Poor (1–2)&quot;, &quot;Average (3)&quot;, &quot;Well (4)&quot;, &quot;Very well (5)&quot;]
+    ax.bar(range(4), att.pct_attractive, 0.62, color=pb.NAVY_RAMP[:1] + pb.NAVY_RAMP[:1] + pb.NAVY_RAMP[1:], zorder=3)
+    for i, v in enumerate(att.pct_attractive):
+        ax.text(i, v + 1.5, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=10.5, fontweight=&quot;bold&quot;)
+    ax.set_xticks(range(4), labs, fontsize=9.5)
+    ax.set_ylim(0, 100)
+    ax.yaxis.set_major_formatter(lambda v, _: f&quot;{v:.0f}%&quot;)
+    ax.grid(axis=&quot;x&quot;, visible=False)
+    ax.set_xlabel(&quot;Grooming rating&quot;, color=INK2)
+    ptitle(ax, &quot;C  Rated good-looking (4–5), by grooming&quot;)
+    n1 = m[(m.outcome == &quot;learn&quot;)].n.iloc[0]
+    n2 = m[(m.outcome == &quot;ba&quot;)].n.iloc[0]
+    foot(fig, f&quot;&quot;&quot;Wave IV, 2008–09. Weighted least squares; bars are 95% intervals. Background = sex, age, race/ethnicity,
+         parent's education and a teenage vocabulary test score (Wave I). Earnings: personal earnings of earners, n =
+         {n1:,}; degree: bachelor's or more, n = {n2:,}. Ratings are by a single interviewer and correlate .33–.57 with
+         each other, so part of the looks and personality effect may sit in the grooming coefficient and vice versa.
+         Grooming also tracks things the controls miss (income, job, conscientiousness). These are associations,
+         not effects of grooming. {SRC}&quot;&quot;&quot;, y=0.165)
+    save(fig, &quot;addhealth_grooming_premium&quot;)
+
+
+# ---- chart 2 ---------------------------------------------------------------------------------------------------
+def chart_fives(t):
+    fig = plt.figure(figsize=(13, 7.8))
+    w, mn = t[t.sex == &quot;women&quot;], t[t.sex == &quot;men&quot;]
+    header(fig, f&quot;About 1 in {round(100 / w.all5.mean())} women and 1 in {round(100 / mn.all5.mean())} men &quot;
+                f&quot;get a perfect 5/5/5 from their interviewer&quot;,
+           &quot;Share rated 5, the top score, on looks, personality and grooming at once, by age at interview.\n&quot;
+           &quot;One interviewer per interview, across four waves of a national sample from age 12 to 34.&quot;)
+    ax = fig.add_axes([0.06, 0.23, 0.47, 0.5])
+    x = np.arange(len(BLAB))
+    for d, col, lab in [(w, pb.RED, &quot;Women&quot;), (mn, pb.NAVY, &quot;Men&quot;)]:
+        ax.plot(x, d.all5, color=col, lw=2.6, marker=&quot;o&quot;, ms=6, zorder=3)
+        ax.text(x[-1] + 0.15, d.all5.iloc[-1], f&quot;{lab} {d.all5.iloc[-1]:.0f}%&quot;, color=INK, fontsize=10.5,
+                fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+    ind = t.groupby(&quot;age&quot;, observed=True, sort=False).indep.mean()
+    ax.plot(x, ind.values, color=pb.MUTED, lw=1.2, ls=&quot;--&quot;)
+    ax.text(0, ind.max() + 0.35, &quot;If the three ratings were independent (0.1–0.6%)&quot;, color=INK2, fontsize=9.5)
+    ax.set_xticks(x, BLAB)
+    ax.set_xlim(-0.3, len(x) + 0.6)
+    ax.set_ylim(0, 10)
+    ax.yaxis.set_major_formatter(lambda v, _: f&quot;{v:.0f}%&quot;)
+    ax.set_xlabel(&quot;Age at interview&quot;, color=INK2)
+    ptitle(ax, &quot;A  Rated 5 on all three&quot;)
+    for k, (c, lab) in enumerate([(&quot;looks5&quot;, &quot;B  Looks: 5&quot;), (&quot;pers5&quot;, &quot;C  Personality: 5&quot;), (&quot;groom5&quot;, &quot;D  Grooming: 5&quot;)]):
+        a2 = fig.add_axes([0.66, 0.61 - k * 0.19, 0.3, 0.115])
+        for d, col in [(w, pb.RED), (mn, pb.NAVY)]:
+            a2.plot(x, d[c], color=col, lw=2, marker=&quot;o&quot;, ms=3.5)
+            a2.text(x[-1] + 0.25, d[c].iloc[-1], f&quot;{d[c].iloc[-1]:.0f}%&quot;, fontsize=9, va=&quot;center&quot;, color=INK)
+        a2.set_ylim(0, 25)
+        a2.set_yticks([0, 10, 20])
+        a2.yaxis.set_major_formatter(lambda v, _: f&quot;{v:.0f}%&quot;)
+        a2.set_xticks(x, BLAB if k == 2 else [&quot;&quot;] * len(x), fontsize=8.5)
+        a2.set_xlim(-0.3, len(x) + 0.3)
+        a2.set_title(lab, loc=&quot;left&quot;, fontsize=11, fontweight=&quot;bold&quot;, pad=4)
+    foot(fig, f&quot;&quot;&quot;Weighted; all four waves pooled (ages 12–20 come from Waves I–II in 1994–96, 18–28 from Wave III in
+         2001–02, 24–34 from Wave IV in 2008–09), so age is partly confounded with wave and with each wave's team of
+         interviewers. People rated 5/5/5 per age band: {int(w.n_all5.min())}–{int(w.n_all5.max())} women,
+         {int(mn.n_all5.min())}–{int(mn.n_all5.max())} men. Ratings are generous (about half above &quot;average&quot;) and
+         noisy: the same person's ratings from different interviewers correlate only .1–.3. &quot;Personality&quot; is the
+         item &quot;How attractive is the respondent's personality?&quot; {SRC}&quot;&quot;&quot;, y=0.1)
+    save(fig, &quot;addhealth_all_fives_by_age&quot;)
+
+
+def main():
+    d = wave4()
+    m = models(d)
+    att = attractive_by_grooming(d)
+    t = top_by_age(ratings_long())
+    m.round(2).to_csv(HERE / &quot;ratings_models.csv&quot;, index=False)
+    t.round(2).to_csv(HERE / &quot;ratings_top_by_age.csv&quot;, index=False)
+    print(m.round(1).to_string(), att.round(1).to_string(), t.round(1).to_string(), sep=&quot;\n&quot;)
+    chart_grooming(m, att)
+    chart_fives(t)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</main></body></html>
