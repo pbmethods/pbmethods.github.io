@@ -2,7 +2,7 @@
 
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
-- [Children of divorce: how many divorces involve the couple's minor children (SIPP), how many of those end high-conflict marriages (NSFH), and how much of children's gap survives twin and sibling designs](children-of-divorce/) (2026-11-26)
+- [Children of divorce: how many divorces involve the couple's minor children (SIPP), how many of those end high-conflict marriages (NSFH), and how much of children's gap survives twin and sibling designs, in SD and everyday units](children-of-divorce/) (2026-11-26)
 - [What a typical US date costs: a CPI-priced date basket since 2000 vs BMO's survey](date-cost/) (2026-11-23)
 - [After a separation: is each ex-spouse happier than before, and does it depend on who wanted out? (NSFH)](divorce-aftermath/) (2026-11-22)
 - [When either spouse could leave: unilateral divorce laws and women's suicide, violence and spousal homicide, with a staggered-adoption re-estimate](divorce-exit/) (2026-11-22)
