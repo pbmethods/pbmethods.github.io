@@ -229,6 +229,7 @@ Writes joel2017_tables.csv and addhealth_funnel.csv next to this script, and the
 """
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -283,6 +284,11 @@ def save(fig, name):
     print("wrote", wm)
 
 
+def foot(fig, text, y=0.06):
+    lines = textwrap.fill(" ".join(text.split()), 178)
+    fig.text(0.055, y, lines, fontsize=8.8, color=MUTED, ha="left", va="top", linespacing=1.4)
+
+
 def header(fig, title, sub, y=0.95):
     fig.text(0.055, y, title, fontsize=19, fontweight="bold", ha="left")
     fig.text(0.055, y - 0.065, sub, fontsize=11.5, color=INK2, ha="left", va="top", linespacing=1.4)
@@ -293,9 +299,9 @@ def chart_questions(rel):
     q, p = rel[rel.table == "T2"], rel[rel.table == "T4"]
     fig = plt.figure(figsize=(12, 7.4))
     ax = fig.add_axes([0.075, 0.2, 0.62, 0.55])
-    header(fig, "100+ questions predicted none of who liked whom. Four minutes face to face predicted a quarter",
+    header(fig, "100+ questions predicted 0% of who clicked. A 4-minute date predicted ~25%",
            "Share of pair-specific desire (how much you like this date beyond your own choosiness and their general\n"
-           "appeal) that random-forest models predicted, by how many predictors they used. Each dot is one model.")
+           "appeal), as rated that night, that random-forest models predicted, by number of predictors. Each dot is one model.")
     jit = np.random.default_rng(3).uniform(-0.04, 0.04, len(q))
     ax.scatter(q.n * np.exp(jit), q.pct, s=70, color=pb.GRAYS[0], edgecolor=pb.SURFACE, lw=1, zorder=3)
     ax.scatter(p.n, p.pct, s=70, color=pb.RED, edgecolor=pb.SURFACE, lw=1, zorder=3)
@@ -331,11 +337,10 @@ def chart_questions(rel):
         side.text(0, y, h, fontsize=11, fontweight="bold", color=INK, va="top", transform=side.transAxes)
         side.text(0, y - 0.065, b, fontsize=10, color=INK2, va="top", linespacing=1.35, transform=side.transAxes)
         y -= 0.36
-    fig.text(0.055, 0.06, f"Source: {JOEL}, Tables 2–4. Out-of-bag % of variance explained in relationship "
+    foot(fig, f"Source: {JOEL}, Tables 2–4. Out-of-bag % of variance explained in relationship "
              "(pair-specific) desire, men's and women's desire modelled separately,\nthree variable-selection "
              "levels per sample. Gray: background questionnaire predictors (15 models). Red: postinteraction "
-             "ratings, excluding the desire items (12 models).", fontsize=8.8, color=MUTED, ha="left",
-             linespacing=1.4)
+             "ratings, excluding the desire items (12 models).", y=0.115)
     save(fig, "speed_dating_questions_vs_date")
 
 
@@ -377,11 +382,10 @@ def chart_parts():
     ax.set_xlim(0, 100.5)
     ax.set_ylim(-0.45, 1.5)
     ax.axis("off")
-    fig.text(0.055, 0.06, f"Source: {JOEL}. Shares from the social-relations model (Table 1), averaged over the two "
+    foot(fig, f"Source: {JOEL}. Shares from the social-relations model (Table 1), averaged over the two "
              "samples; \"predictable\" is the range of random-forest\nout-of-bag variance explained by background "
              "questionnaires across both samples and three variable-selection levels (Table 2). The pair-specific "
-             "piece is desire after a 4-minute date,\nnot long-term compatibility.", fontsize=8.8, color=MUTED,
-             ha="left", linespacing=1.4)
+             "piece is desire after a 4-minute date,\nnot long-term compatibility.", y=0.115)
     save(fig, "speed_dating_attraction_parts")
     return m, pred_all
 
@@ -442,10 +446,9 @@ def chart_funnel(f):
     fig = plt.figure(figsize=(12, 7.2))
     men, wom = f[f.sex == "Men"], f[f.sex == "Women"]
     fin = {s: g.share.iloc[-1] for s, g in f.groupby("sex")}
-    header(fig, f"Everyone wants the same things. About {fin['Men']:.0f}% of single men and {fin['Women']:.0f}% of "
-           "single women have them all",
-           "Single Americans aged 24–32: share who clear each bar, cumulatively. Each step roughly halves the pool, "
-           "which is why the\nrealistic strategy is to sort on the shared stuff, then date and see.")
+    header(fig, f"Only about {fin['Men']:.0f}% of single men and {fin['Women']:.0f}% of single women have it all",
+           "Single Americans aged 24–32: share who clear each bar, cumulatively. Everyone wants these, few have all of "
+           "them, so the\nrealistic strategy is to sort on the shared stuff, then date and see.")
     for j, (g, sx) in enumerate([(men, "Men"), (wom, "Women")]):
         ax = fig.add_axes([0.055 + j * 0.49, 0.17, 0.4, 0.6])
         ax.text(0, 1.04, sx, transform=ax.transAxes, fontsize=13, fontweight="bold", color=INK)
@@ -468,7 +471,7 @@ def chart_funnel(f):
     fig.text(0.055, 0.05, "Source: Add Health Wave IV (2008–09, ages 24–32, n = 5,114), weighted (GSWGT4_2). Single = "
              "not married, cohabiting or dating anyone (relationship roster). Looks and personality: one interviewer's "
              "rating,\n4–5 on a 5-point scale. Earnings and height: above the median for all respondents of the same "
-             "sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy.",
+             "sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy. The last bars rest on 17 men and 19 women (unweighted).",
              fontsize=8.8, color=MUTED, ha="left", linespacing=1.4)
     save(fig, "addhealth_have_it_all")
 

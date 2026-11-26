@@ -665,6 +665,7 @@ Writes joel2017_tables.csv and addhealth_funnel.csv next to this script, and the
 &quot;&quot;&quot;
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -719,6 +720,11 @@ def save(fig, name):
     print(&quot;wrote&quot;, wm)
 
 
+def foot(fig, text, y=0.06):
+    lines = textwrap.fill(&quot; &quot;.join(text.split()), 178)
+    fig.text(0.055, y, lines, fontsize=8.8, color=MUTED, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.4)
+
+
 def header(fig, title, sub, y=0.95):
     fig.text(0.055, y, title, fontsize=19, fontweight=&quot;bold&quot;, ha=&quot;left&quot;)
     fig.text(0.055, y - 0.065, sub, fontsize=11.5, color=INK2, ha=&quot;left&quot;, va=&quot;top&quot;, linespacing=1.4)
@@ -729,9 +735,9 @@ def chart_questions(rel):
     q, p = rel[rel.table == &quot;T2&quot;], rel[rel.table == &quot;T4&quot;]
     fig = plt.figure(figsize=(12, 7.4))
     ax = fig.add_axes([0.075, 0.2, 0.62, 0.55])
-    header(fig, &quot;100+ questions predicted none of who liked whom. Four minutes face to face predicted a quarter&quot;,
+    header(fig, &quot;100+ questions predicted 0% of who clicked. A 4-minute date predicted ~25%&quot;,
            &quot;Share of pair-specific desire (how much you like this date beyond your own choosiness and their general\n&quot;
-           &quot;appeal) that random-forest models predicted, by how many predictors they used. Each dot is one model.&quot;)
+           &quot;appeal), as rated that night, that random-forest models predicted, by number of predictors. Each dot is one model.&quot;)
     jit = np.random.default_rng(3).uniform(-0.04, 0.04, len(q))
     ax.scatter(q.n * np.exp(jit), q.pct, s=70, color=pb.GRAYS[0], edgecolor=pb.SURFACE, lw=1, zorder=3)
     ax.scatter(p.n, p.pct, s=70, color=pb.RED, edgecolor=pb.SURFACE, lw=1, zorder=3)
@@ -767,11 +773,10 @@ def chart_questions(rel):
         side.text(0, y, h, fontsize=11, fontweight=&quot;bold&quot;, color=INK, va=&quot;top&quot;, transform=side.transAxes)
         side.text(0, y - 0.065, b, fontsize=10, color=INK2, va=&quot;top&quot;, linespacing=1.35, transform=side.transAxes)
         y -= 0.36
-    fig.text(0.055, 0.06, f&quot;Source: {JOEL}, Tables 2–4. Out-of-bag % of variance explained in relationship &quot;
+    foot(fig, f&quot;Source: {JOEL}, Tables 2–4. Out-of-bag % of variance explained in relationship &quot;
              &quot;(pair-specific) desire, men's and women's desire modelled separately,\nthree variable-selection &quot;
              &quot;levels per sample. Gray: background questionnaire predictors (15 models). Red: postinteraction &quot;
-             &quot;ratings, excluding the desire items (12 models).&quot;, fontsize=8.8, color=MUTED, ha=&quot;left&quot;,
-             linespacing=1.4)
+             &quot;ratings, excluding the desire items (12 models).&quot;, y=0.115)
     save(fig, &quot;speed_dating_questions_vs_date&quot;)
 
 
@@ -813,11 +818,10 @@ def chart_parts():
     ax.set_xlim(0, 100.5)
     ax.set_ylim(-0.45, 1.5)
     ax.axis(&quot;off&quot;)
-    fig.text(0.055, 0.06, f&quot;Source: {JOEL}. Shares from the social-relations model (Table 1), averaged over the two &quot;
+    foot(fig, f&quot;Source: {JOEL}. Shares from the social-relations model (Table 1), averaged over the two &quot;
              &quot;samples; \&quot;predictable\&quot; is the range of random-forest\nout-of-bag variance explained by background &quot;
              &quot;questionnaires across both samples and three variable-selection levels (Table 2). The pair-specific &quot;
-             &quot;piece is desire after a 4-minute date,\nnot long-term compatibility.&quot;, fontsize=8.8, color=MUTED,
-             ha=&quot;left&quot;, linespacing=1.4)
+             &quot;piece is desire after a 4-minute date,\nnot long-term compatibility.&quot;, y=0.115)
     save(fig, &quot;speed_dating_attraction_parts&quot;)
     return m, pred_all
 
@@ -878,10 +882,9 @@ def chart_funnel(f):
     fig = plt.figure(figsize=(12, 7.2))
     men, wom = f[f.sex == &quot;Men&quot;], f[f.sex == &quot;Women&quot;]
     fin = {s: g.share.iloc[-1] for s, g in f.groupby(&quot;sex&quot;)}
-    header(fig, f&quot;Everyone wants the same things. About {fin['Men']:.0f}% of single men and {fin['Women']:.0f}% of &quot;
-           &quot;single women have them all&quot;,
-           &quot;Single Americans aged 24–32: share who clear each bar, cumulatively. Each step roughly halves the pool, &quot;
-           &quot;which is why the\nrealistic strategy is to sort on the shared stuff, then date and see.&quot;)
+    header(fig, f&quot;Only about {fin['Men']:.0f}% of single men and {fin['Women']:.0f}% of single women have it all&quot;,
+           &quot;Single Americans aged 24–32: share who clear each bar, cumulatively. Everyone wants these, few have all of &quot;
+           &quot;them, so the\nrealistic strategy is to sort on the shared stuff, then date and see.&quot;)
     for j, (g, sx) in enumerate([(men, &quot;Men&quot;), (wom, &quot;Women&quot;)]):
         ax = fig.add_axes([0.055 + j * 0.49, 0.17, 0.4, 0.6])
         ax.text(0, 1.04, sx, transform=ax.transAxes, fontsize=13, fontweight=&quot;bold&quot;, color=INK)
@@ -904,7 +907,7 @@ def chart_funnel(f):
     fig.text(0.055, 0.05, &quot;Source: Add Health Wave IV (2008–09, ages 24–32, n = 5,114), weighted (GSWGT4_2). Single = &quot;
              &quot;not married, cohabiting or dating anyone (relationship roster). Looks and personality: one interviewer's &quot;
              &quot;rating,\n4–5 on a 5-point scale. Earnings and height: above the median for all respondents of the same &quot;
-             &quot;sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy.&quot;,
+             &quot;sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy. The last bars rest on 17 men and 19 women (unweighted).&quot;,
              fontsize=8.8, color=MUTED, ha=&quot;left&quot;, linespacing=1.4)
     save(fig, &quot;addhealth_have_it_all&quot;)
 
