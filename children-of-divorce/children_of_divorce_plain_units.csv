@@ -2,14 +2,14 @@ label,panel,raw,after,base,src,outcome
 Schooling (Australia),months,5.76,3.12,13.57,"twins, Australia",Years of education
 Repeated a grade,per100,3.673849751528645,1.8376184597271792,8.8,"twins, Australia",Failed a grade
 First had sex,months,12.120000000000001,6.36,17.65,"twins, Australia",Age at first sex
-Lived with a partner by early 20s,per100,3.4773697347142507,0.0,4.11,"twins, Australia",Cohabited
+Lived with a partner young*,per100,3.4773697347142507,0.0,4.11,"twins, Australia",Cohabited
 First drink,months,4.92,1.56,15.29,"twins, Australia",Age at first drink
 First got drunk,months,6.0,3.0,16.64,"twins, Australia",Age first drunk
 First cigarette,months,7.5600000000000005,3.96,14.74,"twins, Australia",Age at first cigarette
 Ever used marijuana,per100,4.0795262224621816,4.0795262224621816,63.18,"twins, Australia",Ever used marijuana
 First tried marijuana,months,8.399999999999999,0.24,17.57,"twins, Australia",Age at first marijuana
 Ever depressed for 2+ weeks,per100,5.984106807733635,5.488428606107099,48.91,"twins, Australia",Depressed mood
-First felt depressed,months,21.240000000000002,15.84,19.37,"twins, Australia",Age at first depression
+First felt depressed (if ever),months,21.240000000000002,15.84,19.37,"twins, Australia",Age at first depression
 Ever had suicidal thoughts,per100,6.045318476351208,5.170140887121716,26.73,"twins, Australia",Suicidal ideation
 Alcohol problems (US),per100,1.0732144213590722,0.9740986087266303,1.0,"twins, US",Alcohol problems
 Emotional problems (US),per100,6.304280360474262,0.0,18.8,"twins, US",Emotional problems

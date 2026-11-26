@@ -152,14 +152,14 @@ Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness
 | Schooling (Australia) | months | 5.760 | 3.120 | 13.570 | twins, Australia | Years of education |
 | Repeated a grade | per100 | 3.674 | 1.838 | 8.800 | twins, Australia | Failed a grade |
 | First had sex | months | 12.120 | 6.360 | 17.650 | twins, Australia | Age at first sex |
-| Lived with a partner by early 20s | per100 | 3.477 | 0.000 | 4.110 | twins, Australia | Cohabited |
+| Lived with a partner young* | per100 | 3.477 | 0.000 | 4.110 | twins, Australia | Cohabited |
 | First drink | months | 4.920 | 1.560 | 15.290 | twins, Australia | Age at first drink |
 | First got drunk | months | 6.000 | 3.000 | 16.640 | twins, Australia | Age first drunk |
 | First cigarette | months | 7.560 | 3.960 | 14.740 | twins, Australia | Age at first cigarette |
 | Ever used marijuana | per100 | 4.080 | 4.080 | 63.180 | twins, Australia | Ever used marijuana |
 | First tried marijuana | months | 8.400 | 0.240 | 17.570 | twins, Australia | Age at first marijuana |
 | Ever depressed for 2+ weeks | per100 | 5.984 | 5.488 | 48.910 | twins, Australia | Depressed mood |
-| First felt depressed | months | 21.240 | 15.840 | 19.370 | twins, Australia | Age at first depression |
+| First felt depressed (if ever) | months | 21.240 | 15.840 | 19.370 | twins, Australia | Age at first depression |
 | Ever had suicidal thoughts | per100 | 6.045 | 5.170 | 26.730 | twins, Australia | Suicidal ideation |
 | Alcohol problems (US) | per100 | 1.073 | 0.974 | 1.000 | twins, US | Alcohol problems |
 | Emotional problems (US) | per100 | 6.304 | 0.000 | 18.800 | twins, US | Emotional problems |
@@ -190,15 +190,15 @@ Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness
 
 # Caveats: children of divorce
 
-**Panel A mixes sources.** The raw gap (0.14 SD) is the median effect in Amato & Keith's 1991 meta-analysis. The 52% that survives selection comes from different studies and outcomes (panel B). Multiplying one by the other is a back-of-envelope estimate, not a pooled meta-analytic result. Amato & Anthony's child fixed-effects estimates (0.16–0.17 SD on average) remove stable child and family traits, but not changes that lead up to a divorce. They are larger than the waterfall's result, so the honest range for what is left after selection is roughly 0.07–0.17 SD.
+**What counts as a child of the marriage (SIPP).** A child of the marriage is a biological child born between the wedding year and the separation year who was under 18 at separation. The data has years only, not months. Adopted children and stepchildren are not counted. Fathers are not named, so a child the couple had while cohabiting before the wedding counts as "only a child born before the wedding". So does a child from an earlier partner. The two shares (36% and 13% for 2015–2024) therefore bracket the true one. Women's and men's reports agree: 35% and 37%. Remarriages are less than half as likely to involve a child of the marriage as first marriages (18% vs 42%). The year is the separation year, not the legal divorce year. Only the first, second and most recent marriages are recorded.
 
-**Panel B is a median of uneven estimates.** Many single within-twin estimates have standard errors as large as the estimate itself, so individual dots are imprecise. Four estimates reverse sign and are shown at 0%. The twin studies cover substance use, sexual timing and mood. The register sibling studies cover only schooling, and in both of them the schooling effect disappears. Sibling designs have their own biases: the sibling who spends more years in the divorced home is also younger, and birth order matters (Sigle-Rushton et al. 2014 show the gradient reverses once it is controlled). Children-of-twins designs assume the twin's divorce does not affect the co-twin's children.
+**Conflict comes from a different survey and decade.** The conflict shares are from NSFH couples who split between 1987–88 and 1992–94. They are not from the same divorces as the SIPP shares, so "10% of all divorces" assumes the high-conflict share among parents' divorces has stayed about the same since. Conflict is one spouse's report, so violence is likely under-reported and the high-conflict share is a floor. The finding that children of high-conflict marriages do better after a divorce comes from one 12-year panel (Amato, Loomis & Booth 1995, well-being as young adults) and related work. It is not universal, and studies draw the "high conflict" line in different places.
 
-**The authors don't all read their results the same way.** D'Onofrio et al. (2006) read the halved education and first-sex estimates as consistent with a causal effect, and depressed mood as causal. Their 2007 US study finds emotional problems fully explained by selection, while alcohol problems survive.
+**The waterfall mixes sources.** The raw gap (0.14 SD) is the median of Amato & Keith's 1991 meta-analysis. The share removed by selection is the median across 16 twin and sibling estimates covering different outcomes. Multiplying one by the other is a back-of-envelope estimate. Amato & Anthony's estimates, which follow the same child before and after the divorce (0.16–0.17 SD), remove fixed family traits but not what changes in the years before a split. Read 0.07–0.17 SD as the range.
 
-**Panel C is one spouse's report.** Conflict is what the NSFH respondent reported, without their spouse's answers, so violence is likely under-reported and the high-conflict share is a floor. "Split" means separated or divorced within about five years of the 1987–88 interview. Children were 18 or younger at that interview, so some were adults by the time of the split. The finding that children of high-conflict marriages do better after a divorce comes from one 12-year panel (Amato, Loomis & Booth 1995, young-adult well-being) and related work. It is not a universal finding, and the threshold for "high conflict" varies across studies.
+**The estimates by outcome are uneven.** Many single within-twin estimates have standard errors as large as the estimate itself, while the two register sibling studies are large and precise. Four estimates reverse sign and are drawn at zero. Sibling designs have their own biases: the sibling with more years in the divorced home is also the younger one, and birth order matters. Children-of-twins designs assume one twin's divorce does not affect the co-twin's children. The authors' own readings differ: D'Onofrio et al. (2006) call depressed mood causal, while their 2007 US study finds emotional problems fully explained by selection.
 
-**Panel D measures children at home, not children in the divorce.** The ACS records who lives in the household, not whose children they are in the divorce. The women's line misses mothers whose children live with the father. The men's line counts only men who head their household. The share of divorces involving a minor child is therefore a little above the women's line. ACS has no 2020 1-year release.
+**Converting to everyday units.** Ages and schooling are reported in years and shown here in months. For Sweden, the authors say the raw coefficient equals about a year of schooling, and the sibling coefficient is scaled the same way. For yes/no outcomes, the rate among children of intact families (from each paper's descriptive table) is shifted by the study's logit estimate. That assumes the effect is constant on the logit scale. The papers' own raw percentages differ a little from these model-based figures, because the models adjust for age, sex and family structure. "First felt depressed" is the age of onset among those who were ever depressed. Cohabitation is as the Australian study measured it.
 
 ## Code
 
@@ -465,13 +465,13 @@ def source(study):
 
 
 PLAIN = {  # outcome -> (plain label, panel)
-    "Age at first depression": ("First felt depressed", "months"), "Age at first sex": ("First had sex", "months"),
+    "Age at first depression": ("First felt depressed (if ever)", "months"), "Age at first sex": ("First had sex", "months"),
     "Age at first marijuana": ("First tried marijuana", "months"), "Age at first cigarette": ("First cigarette", "months"),
     "Age first drunk": ("First got drunk", "months"), "Age at first drink": ("First drink", "months"),
     "Years of schooling": ("Schooling (Sweden)", "months"), "Years of education": ("Schooling (Australia)", "months"),
     "Depressed mood": ("Ever depressed for 2+ weeks", "per100"), "Suicidal ideation": ("Ever had suicidal thoughts", "per100"),
     "Emotional problems": ("Emotional problems (US)", "per100"), "Ever used marijuana": ("Ever used marijuana", "per100"),
-    "Cohabited": ("Lived with a partner by early 20s", "per100"), "Failed a grade": ("Repeated a grade", "per100"),
+    "Cohabited": ("Lived with a partner young*", "per100"), "Failed a grade": ("Repeated a grade", "per100"),
     "Alcohol problems": ("Alcohol problems (US)", "per100"),
 }
 
@@ -625,7 +625,7 @@ for gname, test in GROUPS:
         ax.text(-3, y, r.outcome, ha="right", va="center", fontsize=10.5, color=pb.INK)
         ax.text(103, y, source(r.study), ha="left", va="center", fontsize=9, color=pb.MUTED)
     y += 1.6
-ax.set_xlim(0, 100)
+ax.set_xlim(-1.5, 101.5)
 ax.set_ylim(y - 1.0, -0.9)
 ax.set_yticks([])
 ax.set_xticks([0, 25, 50, 75, 100], ["0%\nall selection", "25%", "50%", "75%", "100%\nno selection"], fontsize=10)
@@ -659,7 +659,12 @@ def dumbbell(ax, df, unit, xmax):
         ax.scatter(r.raw, i, s=70, facecolor="white", edgecolor=pb.GRAYS[0], lw=1.6, zorder=3)
         ax.scatter(r.after, i, s=70, color=pb.NAVY, zorder=4)
         ax.text(-xmax * 0.03, i, r.label, ha="right", va="center", fontsize=10.5, color=pb.INK)
-        after = "none" if r.after < 0.05 else (f"{r.after:.0f}" if unit == "mo" else f"+{r.after:.1f}")
+        if r.after < 0.05:
+            after = "none"
+        elif unit == "mo":
+            after = "<1" if r.after < 0.5 else f"{r.after:.0f}"
+        else:
+            after = f"+{r.after:.1f}"
         raw = f"{r.raw:.0f}" if unit == "mo" else f"+{r.raw:.1f}"
         ax.text(max(r.raw, r.after) + xmax * 0.03, i, f"{after}  (raw {raw})", ha="left", va="center", fontsize=9.5,
                 color=pb.INK, fontweight="bold")
@@ -696,7 +701,7 @@ fig3.text(0.03, 0.025,
           "Sources: Australian twins, D'Onofrio et al. 2006 (Dev Psychol; parents divorced before the child was 16; "
           "intact-family rates from its Table 3); US twins, D'Onofrio et al. 2007 (JCPP); Sweden, Björklund & Sundström "
           "2006\n(siblings; authors: raw gap ≈ one year of schooling). Yes/no outcomes: the intact-family rate shifted by "
-          "each study's logit estimate. \"none\" = the estimate fell to zero or reversed. Not shown: Norway (Sigle-Rushton "
+          "each study's logit estimate. \"none\" = the estimate fell to zero or reversed. *Cohabitation as the study measured it. Not shown: Norway (Sigle-Rushton "
           "et al. 2014),\nschool grades at 16 half a grade point lower raw, no gap among siblings. Many single twin "
           "estimates have wide standard errors.",
           fontsize=8.2, color=pb.MUTED, linespacing=1.45)
