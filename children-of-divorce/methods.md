@@ -1,4 +1,4 @@
-# Children of divorce: how big the gap is, how much is selection (twin and sibling studies), how much conflict preceded parents' splits (NSFH), and how many divorces involve minor children (ACS)
+# Children of divorce: how many divorces involve the couple's minor children (SIPP), how many of those end high-conflict marriages (NSFH), and how much of children's gap survives twin and sibling designs
 
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
 
@@ -11,12 +11,23 @@
 ### `children_of_divorce_data.py`
 
 ```text
-Children of divorce, the data half: how much conflict came before parents' divorces (NSFH), and what share of
-recent divorces involve minor children (ACS).
+Children of divorce, the data half: what share of divorces involve the couple's minor children (SIPP, with an ACS
+cross-check), and how much conflict came before parents' divorces (NSFH).
+
+0. Minor children of the marriage, SIPP 2025 panel (notebooks/us_public_data/sipp/raw/pu2025.csv, December record,
+   weight WPFINWGT). Each ended marriage is one row: marriage slots 1, 2 and 3 (3 = most recent for people married 3+
+   times; middle marriages of the 4+ times married are not in the file) with a wedding year (TMARk_YR) and a separation
+   year (TSEPk_YR); marriages ended by widowhood (EWIDIVk = 1) dropped. A "child of the marriage" is a biological child
+   (birth years TCBYR_1-20, asked of women and men) born between the wedding year and the separation year inclusive and
+   under 18 at separation. That excludes stepchildren by construction. "Child born before the wedding only" = no child of
+   the marriage but a biological child under 18 at separation born before the wedding year: some are the couple's own
+   (born while cohabiting), some from an earlier partner. Year precision only. Periods are separation years. Women's
+   and men's reports are tabulated separately as a check (they agree within 3 points).
 
 1. Pre-divorce conflict, NSFH (National Survey of Families and Households).
-   Sample: Wave 1 (1987-88) married respondents with at least one child aged 18 or younger in the household (List A:
-   LSTA1NUM + LSTA2NUM, the 6 = dorm code dropped), followed to Wave 2 (1992-94). Outcome MUT1UTRA (Wave 2 file DS0007):
+   Sample: Wave 1 (1987-88) married respondents with at least one of the couple's own children aged 18 or younger in
+   the household: biological or adopted children on the roster (M2EP = 3 or 5, age M2BP <= 18) minus List B (LSTBNUM,
+   the respondent's children whose other biological parent lives elsewhere), followed to Wave 2 (1992-94). Outcome MUT1UTRA (Wave 2 file DS0007):
    3/4 = the Wave 1 marriage ended in separation or divorce; 7/8 = intact or reunited; widowhood and other codes
    dropped. Waves link on MCASEID. Weight: Wave 1 AWEIGHT.
    Conflict is what the respondent reported at Wave 1, before any split (respondent only; the spouse's own
@@ -36,7 +47,7 @@ recent divorces involve minor children (ACS).
    in someone else's household. Mothers have most post-divorce custody, so the women's share is close to, and a
    little under, the share of divorces that involve a minor child.
 
-Writes children_of_divorce_conflict.csv and children_of_divorce_acs.csv next to this script.
+Writes children_of_divorce_sipp.csv, children_of_divorce_conflict.csv and children_of_divorce_acs.csv next to this script.
 Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness/children_of_divorce_data.py
 ```
 
@@ -74,6 +85,28 @@ Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness
 
 ## Results
 
+### `children_of_divorce_sipp.csv`
+
+| period | n | joint_pct | before_only_pct | none_pct | joint_women_pct | joint_men_pct | joint_first_marriage_pct | joint_later_marriage_pct | first_marriage_share |
+|---|---|---|---|---|---|---|---|---|---|
+| 1980-1994 | 2567 | 51.978 | 11.597 | 36.424 | 52.819 | 50.888 | 54.990 | 36.233 | 83.946 |
+| 1995-2004 | 1811 | 48.663 | 13.404 | 37.933 | 49.902 | 47.167 | 54.288 | 28.878 | 77.862 |
+| 2005-2014 | 1616 | 40.298 | 12.693 | 47.009 | 39.671 | 40.958 | 46.523 | 21.792 | 74.830 |
+| 2015-2024 | 1313 | 35.872 | 12.596 | 51.532 | 34.561 | 37.292 | 42.129 | 18.444 | 73.582 |
+
+### `children_of_divorce_conflict.csv`
+
+| group | tier | pct | n_tier | n_group |
+|---|---|---|---|---|
+| split | violent | 21.786 | 87 | 350 |
+| split | heated | 6.190 | 20 | 350 |
+| split | frequent | 10.781 | 39 | 350 |
+| split | lower | 61.244 | 204 | 350 |
+| stayed | violent | 9.530 | 230 | 2079 |
+| stayed | heated | 3.800 | 77 | 2079 |
+| stayed | frequent | 9.003 | 201 | 2079 |
+| stayed | lower | 77.667 | 1571 | 2079 |
+
 ### `children_of_divorce_selection_estimates.csv`
 
 | study | sample | design | outcome | naive | corrected | units | source_table |
@@ -94,19 +127,6 @@ Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness
 | D'Onofrio et al. 2007, J Child Psychol Psychiatry 48(7) | Virginia 30k twin families (US) | children of MZ twins discordant for divorce + covariates (Model 6 vs Model 1) | Emotional problems | 0.370 | -0.050 | logit | text (Results) |
 | Björklund & Sundström 2006, Economica 73(292) (IZA DP 643) | Swedish registers (born 1951-64) | full-sibling differences vs cross-section (Model 1) | Years of schooling | -0.045 | 0.004 | log earnings-weighted education | Tables 3a and 4 |
 | Sigle-Rushton et al. 2014, J Marriage Fam 76(1) | Norwegian registers (born 1986-92) | sibling fixed effects with birth order and birth year (Model 3 vs Model 1; dissolution at age 0 vs 16+) | School grades at 16 | -0.520 | 0.020 | grade points (SD about 0.95) | Table 2 |
-
-### `children_of_divorce_conflict.csv`
-
-| group | tier | pct | n_tier | n_group |
-|---|---|---|---|---|
-| split | violent | 21.225 | 97 | 414 |
-| split | heated | 6.051 | 23 | 414 |
-| split | frequent | 11.237 | 48 | 414 |
-| split | lower | 61.487 | 246 | 414 |
-| stayed | violent | 9.424 | 247 | 2283 |
-| stayed | heated | 3.731 | 83 | 2283 |
-| stayed | frequent | 8.941 | 216 | 2283 |
-| stayed | lower | 77.904 | 1737 | 2283 |
 
 ### `children_of_divorce_acs.csv`
 
@@ -150,12 +170,23 @@ Run in the order listed. Data paths point at the author's local copies of the pu
 ### `children_of_divorce_data.py`
 
 ```python
-"""Children of divorce, the data half: how much conflict came before parents' divorces (NSFH), and what share of
-recent divorces involve minor children (ACS).
+"""Children of divorce, the data half: what share of divorces involve the couple's minor children (SIPP, with an ACS
+cross-check), and how much conflict came before parents' divorces (NSFH).
+
+0. Minor children of the marriage, SIPP 2025 panel (notebooks/us_public_data/sipp/raw/pu2025.csv, December record,
+   weight WPFINWGT). Each ended marriage is one row: marriage slots 1, 2 and 3 (3 = most recent for people married 3+
+   times; middle marriages of the 4+ times married are not in the file) with a wedding year (TMARk_YR) and a separation
+   year (TSEPk_YR); marriages ended by widowhood (EWIDIVk = 1) dropped. A "child of the marriage" is a biological child
+   (birth years TCBYR_1-20, asked of women and men) born between the wedding year and the separation year inclusive and
+   under 18 at separation. That excludes stepchildren by construction. "Child born before the wedding only" = no child of
+   the marriage but a biological child under 18 at separation born before the wedding year: some are the couple's own
+   (born while cohabiting), some from an earlier partner. Year precision only. Periods are separation years. Women's
+   and men's reports are tabulated separately as a check (they agree within 3 points).
 
 1. Pre-divorce conflict, NSFH (National Survey of Families and Households).
-   Sample: Wave 1 (1987-88) married respondents with at least one child aged 18 or younger in the household (List A:
-   LSTA1NUM + LSTA2NUM, the 6 = dorm code dropped), followed to Wave 2 (1992-94). Outcome MUT1UTRA (Wave 2 file DS0007):
+   Sample: Wave 1 (1987-88) married respondents with at least one of the couple's own children aged 18 or younger in
+   the household: biological or adopted children on the roster (M2EP = 3 or 5, age M2BP <= 18) minus List B (LSTBNUM,
+   the respondent's children whose other biological parent lives elsewhere), followed to Wave 2 (1992-94). Outcome MUT1UTRA (Wave 2 file DS0007):
    3/4 = the Wave 1 marriage ended in separation or divorce; 7/8 = intact or reunited; widowhood and other codes
    dropped. Waves link on MCASEID. Weight: Wave 1 AWEIGHT.
    Conflict is what the respondent reported at Wave 1, before any split (respondent only; the spouse's own
@@ -175,7 +206,7 @@ recent divorces involve minor children (ACS).
    in someone else's household. Mothers have most post-divorce custody, so the women's share is close to, and a
    little under, the share of divorces that involve a minor child.
 
-Writes children_of_divorce_conflict.csv and children_of_divorce_acs.csv next to this script.
+Writes children_of_divorce_sipp.csv, children_of_divorce_conflict.csv and children_of_divorce_acs.csv next to this script.
 Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness/children_of_divorce_data.py
 """
 from pathlib import Path
@@ -189,21 +220,64 @@ DATA = HERE.parent / "us_public_data"
 W1 = DATA / "nsfh" / "wave1" / "ICPSR_06041" / "DS0001" / "06041-0001-Data.dta"
 W2 = DATA / "nsfh" / "wave2" / "ICPSR_06906"
 ACS = DATA / "acs_full" / "persons"
+SIPP = DATA / "sipp" / "raw" / "pu2025.csv"
 
 
 def w2(ds, cols):
     return pd.read_stata(W2 / f"DS{ds}" / f"06906-{ds}-Data.dta", convert_categoricals=False, columns=cols)
 
 
+def wpct(mask, w):
+    return np.average(mask, weights=w) * 100
+
+
+# ---------- 0. SIPP: children of the marriage ----------
+sipp_cols = (["MONTHCODE", "ESEX", "WPFINWGT", "EXMAR", "EWIDIV1", "EWIDIV2"]
+             + [f"T{v}{k}_YR" for v in ("MAR", "SEP") for k in (1, 2, 3)] + [f"TCBYR_{i}" for i in range(1, 21)])
+sp = pd.read_csv(SIPP, sep="|", usecols=sipp_cols)
+sp = sp[sp.MONTHCODE == 12]
+births = sp[[f"TCBYR_{i}" for i in range(1, 21)]].to_numpy()
+ends = []
+for k in (1, 2, 3):
+    ok = sp[f"TMAR{k}_YR"].notna() & sp[f"TSEP{k}_YR"].notna()
+    if k < 3:
+        ok &= sp[f"EWIDIV{k}"] != 1
+    else:
+        ok &= sp.EXMAR >= 3
+    b = births[ok.to_numpy()]
+    wed = sp.loc[ok, f"TMAR{k}_YR"].to_numpy()[:, None]
+    sep = sp.loc[ok, f"TSEP{k}_YR"].to_numpy()[:, None]
+    minor = sep - b < 18
+    joint = ((b >= wed) & (b <= sep) & minor).any(axis=1)
+    before = ((b < wed) & minor).any(axis=1)
+    ends.append(pd.DataFrame({"sex": sp.loc[ok, "ESEX"].to_numpy(), "w": sp.loc[ok, "WPFINWGT"].to_numpy(),
+                              "sep": sep[:, 0], "order": k, "joint": joint, "before_only": before & ~joint}))
+ends = pd.concat(ends)
+srows = []
+for lo, hi in [(1980, 1994), (1995, 2004), (2005, 2014), (2015, 2024)]:
+    g = ends[ends.sep.between(lo, hi)]
+    f, m, first, later = g[g.sex == 2], g[g.sex == 1], g[g.order == 1], g[g.order > 1]
+    srows.append({"period": f"{lo}-{hi}", "n": len(g), "joint_pct": wpct(g.joint, g.w),
+                  "before_only_pct": wpct(g.before_only, g.w), "none_pct": wpct(~g.joint & ~g.before_only, g.w),
+                  "joint_women_pct": wpct(f.joint, f.w), "joint_men_pct": wpct(m.joint, m.w),
+                  "joint_first_marriage_pct": wpct(first.joint, first.w),
+                  "joint_later_marriage_pct": wpct(later.joint, later.w), "first_marriage_share": wpct(g.order == 1, g.w)})
+sipp = pd.DataFrame(srows)
+sipp.to_csv(HERE / "children_of_divorce_sipp.csv", index=False)
+print(sipp.round(1).to_string(index=False))
+
 # ---------- 1. NSFH: conflict before the split ----------
 ids = w2("0004", ["CASEID", "MCASEID"]).merge(w2("0007", ["CASEID", "MUT1UTRA"]))
 DIS = [f"E706{c}" for c in "ABCDFG"]
+ROSTER = [f"{i:02d}" for i in range(2, 16)]
 d = pd.read_stata(W1, convert_categoricals=False,
-                  columns=["MCASEID", "AWEIGHT", "E701", "LSTA1NUM", "LSTA2NUM", "E707C", "E707D", "E708"] + DIS)
+                  columns=["MCASEID", "AWEIGHT", "E701", "LSTBNUM", "E707C", "E707D", "E708"] + DIS
+                  + [f"M2BP{p}" for p in ROSTER] + [f"M2EP{p}" for p in ROSTER])
 d = d[d.E701.between(1, 7)].merge(ids)
 d = d[d.MUT1UTRA.isin([3, 4, 7, 8])]
-kids = d.LSTA1NUM.where(d.LSTA1NUM.between(0, 5), 0) + d.LSTA2NUM.where(d.LSTA2NUM.between(0, 9), 0)
-d = d[kids > 0]
+age, rel = d[[f"M2BP{p}" for p in ROSTER]].to_numpy(), d[[f"M2EP{p}" for p in ROSTER]].to_numpy()
+own_minor = (np.isin(rel, [3, 5]) & (age <= 18)).sum(axis=1)
+d = d[own_minor - d.LSTBNUM.where(d.LSTBNUM.between(0, 5), 0).to_numpy() > 0]
 d = d[d.E707C.between(1, 5) & d.E707D.between(1, 5) & d.E708.isin([1, 2])].copy()
 d["split"] = d.MUT1UTRA.isin([3, 4])
 violent = (d.E708 == 1) | (d.E707D >= 2)
