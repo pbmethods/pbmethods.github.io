@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Children of divorce: how big the gap is, how much is selection (twin and sibling studies), how much conflict preceded parents&#x27; splits (NSFH), and how many divorces involve minor children (ACS)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Children of divorce: how big the gap is, how much is selection (twin and sibling studies), how much conflict preceded parents' splits (NSFH), and how many divorces involve minor children (ACS)</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/children-of-divorce/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>children_of_divorce_data.py</code></h3>
+<pre><code class="language-text">Children of divorce, the data half: how much conflict came before parents' divorces (NSFH), and what share of
+recent divorces involve minor children (ACS).
+
+1. Pre-divorce conflict, NSFH (National Survey of Families and Households).
+   Sample: Wave 1 (1987-88) married respondents with at least one child aged 18 or younger in the household (List A:
+   LSTA1NUM + LSTA2NUM, the 6 = dorm code dropped), followed to Wave 2 (1992-94). Outcome MUT1UTRA (Wave 2 file DS0007):
+   3/4 = the Wave 1 marriage ended in separation or divorce; 7/8 = intact or reunited; widowhood and other codes
+   dropped. Waves link on MCASEID. Weight: Wave 1 AWEIGHT.
+   Conflict is what the respondent reported at Wave 1, before any split (respondent only; the spouse's own
+   questionnaire is not in this file, and violence is under-reported by one partner alone):
+     violent   a physical argument in the past year (E708 = 1), or hitting or throwing things at each other in serious
+               disagreements at least seldom (E707D &gt;= 2)
+     heated    argues heatedly or shouts at each other in serious disagreements very often or always (E707C &gt;= 4)
+     frequent  open disagreements about at least two of household tasks, money, time together, sex, in-laws or the
+               children about once a week or more (E706A-D, F, G &gt;= 4; &quot;having another child&quot; excluded)
+   Tiers are nested: violent; else heated; else frequent; else none of these (&quot;lower conflict&quot;). People with any of
+   E707C, E707D or E708 unanswered are dropped (missing E706 items count as not frequent).
+
+2. Minor children in recent divorces, ACS 1-year PUMS (notebooks/us_public_data/acs_full/persons).
+   People divorced in the past 12 months (MARHD = 1), weighted by PWGTP. Women: PAOC 1-3 = own child under 18 in the
+   household (any household position). Men have no PAOC, so men who head the household are checked for a biological,
+   adopted or stepchild under 18 on the roster (RELSHIPP 25-27 from 2019, RELP or REL 2-4 before); this misses fathers living
+   in someone else's household. Mothers have most post-divorce custody, so the women's share is close to, and a
+   little under, the share of divorces that involve a minor child.
+
+Writes children_of_divorce_conflict.csv and children_of_divorce_acs.csv next to this script.
+Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness/children_of_divorce_data.py
+</code></pre>
+<h3><code>children_of_divorce_chart.py</code></h3>
+<pre><code class="language-text">Children of divorce: how big the gap is, how much of it is selection, and how many parents' divorces end high-conflict
+marriages.
+
+A  Size of the gap, in SD units of the child outcome. Raw gap: 0.14 SD, the median effect across the studies in Amato &amp;
+   Keith's (1991) meta-analysis of children of divorced vs continuously married parents (as reported in Lansford 2009,
+   Perspect Psychol Sci 4:140). Amato's 1990s update (2001, J Fam Psychol 15:355) found modest differences of similar
+   size; its per-outcome table is not reproduced here. &quot;Explained by selection&quot; multiplies the raw gap by the median share
+   of the association removed in panel B (computed, not typed). The gray bar is the other within-person estimate: Amato
+   &amp; Anthony (2014, J Marriage Fam 76:370), child fixed effects in ECLS-K and NELS:88, mean absolute effect 0.16 and 0.17
+   SD across 13 outcomes; they have no naive comparison, so it is shown beside the waterfall, not in it. Right-hand labels
+   give where the middle child of divorce would sit among children of intact families if outcomes are normal: the
+   percentile is Phi(-gap).
+B  Share of the naive association that survives designs that hold genes and family background fixed, one dot per outcome
+   estimate, from children_of_divorce_selection_estimates.csv (sources and tables listed there): children of identical
+   twins discordant for divorce (D'Onofrio et al. 2006 Australia, Model 4 vs Model 1, divorce before 16; D'Onofrio et
+   al. 2007 Virginia, Model 6 vs Model 1) and sibling comparisons in Swedish (Björklund &amp; Sundström 2006) and Norwegian
+   (Sigle-Rushton et al. 2014) registers. Share = corrected / naive estimate, clipped to 0-100% (four estimates reverse
+   sign and show as 0; marijuana ever-use is exactly 100%). Many individual within-twin estimates have wide standard
+   errors; the median is the summary.
+C  NSFH: married parents (child 18 or under at home) at Wave 1, 1987-88, split by whether the marriage ended by Wave 2,
+   1992-94, and the conflict they reported at Wave 1, before any split. Tiers and coding in children_of_divorce_data.py.
+   Amato, Loomis &amp; Booth (1995, Social Forces 73:895): in high-conflict marriages, offspring were better off as young
+   adults if the parents divorced; in low-conflict ones, worse off.
+D  ACS 1-year PUMS: share of people divorced in the past 12 months with their own child under 18 at home (women, any
+   household position; men who head the household). Coding in children_of_divorce_data.py.
+Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness/children_of_divorce_data.py
+      uv run --with pandas,scipy,matplotlib,pillow,fonttools python notebooks/marital_happiness/children_of_divorce_chart.py
+</code></pre>
+<h2>Results</h2>
+<h3><code>children_of_divorce_selection_estimates.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>study</th>
+<th>sample</th>
+<th>design</th>
+<th>outcome</th>
+<th>naive</th>
+<th>corrected</th>
+<th>units</th>
+<th>source_table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Years of education</td>
+<td>-0.480</td>
+<td>-0.260</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Failed a grade</td>
+<td>0.390</td>
+<td>0.210</td>
+<td>logit</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Age at first sex</td>
+<td>-1.010</td>
+<td>-0.530</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Cohabited</td>
+<td>0.650</td>
+<td>-0.150</td>
+<td>logit</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Age at first drink</td>
+<td>-0.410</td>
+<td>-0.130</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Age first drunk</td>
+<td>-0.500</td>
+<td>-0.250</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Age at first cigarette</td>
+<td>-0.630</td>
+<td>-0.330</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Ever used marijuana</td>
+<td>0.180</td>
+<td>0.180</td>
+<td>logit</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Age at first marijuana</td>
+<td>-0.700</td>
+<td>-0.020</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Depressed mood</td>
+<td>0.240</td>
+<td>0.220</td>
+<td>logit</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Age at first depression</td>
+<td>-1.770</td>
+<td>-1.320</td>
+<td>years</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2006, Dev Psychol 42(3)</td>
+<td>Australian twin registry</td>
+<td>children of MZ twins discordant for divorce + parental covariates (Model 4 vs Model 1; divorce before age 16)</td>
+<td>Suicidal ideation</td>
+<td>0.290</td>
+<td>0.250</td>
+<td>logit</td>
+<td>Table 4</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2007, J Child Psychol Psychiatry 48(7)</td>
+<td>Virginia 30k twin families (US)</td>
+<td>children of MZ twins discordant for divorce + covariates (Model 6 vs Model 1)</td>
+<td>Alcohol problems</td>
+<td>0.740</td>
+<td>0.690</td>
+<td>logit</td>
+<td>text (Results)</td>
+</tr>
+<tr>
+<td>D'Onofrio et al. 2007, J Child Psychol Psychiatry 48(7)</td>
+<td>Virginia 30k twin families (US)</td>
+<td>children of MZ twins discordant for divorce + covariates (Model 6 vs Model 1)</td>
+<td>Emotional problems</td>
+<td>0.370</td>
+<td>-0.050</td>
+<td>logit</td>
+<td>text (Results)</td>
+</tr>
+<tr>
+<td>Björklund &amp; Sundström 2006, Economica 73(292) (IZA DP 643)</td>
+<td>Swedish registers (born 1951-64)</td>
+<td>full-sibling differences vs cross-section (Model 1)</td>
+<td>Years of schooling</td>
+<td>-0.045</td>
+<td>0.004</td>
+<td>log earnings-weighted education</td>
+<td>Tables 3a and 4</td>
+</tr>
+<tr>
+<td>Sigle-Rushton et al. 2014, J Marriage Fam 76(1)</td>
+<td>Norwegian registers (born 1986-92)</td>
+<td>sibling fixed effects with birth order and birth year (Model 3 vs Model 1; dissolution at age 0 vs 16+)</td>
+<td>School grades at 16</td>
+<td>-0.520</td>
+<td>0.020</td>
+<td>grade points (SD about 0.95)</td>
+<td>Table 2</td>
+</tr>
+</tbody>
+</table>
+<h3><code>children_of_divorce_conflict.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>group</th>
+<th>tier</th>
+<th>pct</th>
+<th>n_tier</th>
+<th>n_group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>split</td>
+<td>violent</td>
+<td>21.225</td>
+<td>97</td>
+<td>414</td>
+</tr>
+<tr>
+<td>split</td>
+<td>heated</td>
+<td>6.051</td>
+<td>23</td>
+<td>414</td>
+</tr>
+<tr>
+<td>split</td>
+<td>frequent</td>
+<td>11.237</td>
+<td>48</td>
+<td>414</td>
+</tr>
+<tr>
+<td>split</td>
+<td>lower</td>
+<td>61.487</td>
+<td>246</td>
+<td>414</td>
+</tr>
+<tr>
+<td>stayed</td>
+<td>violent</td>
+<td>9.424</td>
+<td>247</td>
+<td>2283</td>
+</tr>
+<tr>
+<td>stayed</td>
+<td>heated</td>
+<td>3.731</td>
+<td>83</td>
+<td>2283</td>
+</tr>
+<tr>
+<td>stayed</td>
+<td>frequent</td>
+<td>8.941</td>
+<td>216</td>
+<td>2283</td>
+</tr>
+<tr>
+<td>stayed</td>
+<td>lower</td>
+<td>77.904</td>
+<td>1737</td>
+<td>2283</td>
+</tr>
+</tbody>
+</table>
+<h3><code>children_of_divorce_acs.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>year</th>
+<th>women_pct</th>
+<th>n_women</th>
+<th>men_householder_pct</th>
+<th>n_men_hh</th>
+<th>women_50plus_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2008</td>
+<td>43.133</td>
+<td>11852</td>
+<td>23.645</td>
+<td>6920</td>
+<td>23.586</td>
+</tr>
+<tr>
+<td>2009</td>
+<td>43.549</td>
+<td>11600</td>
+<td>23.413</td>
+<td>6658</td>
+<td>23.453</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>42.096</td>
+<td>11791</td>
+<td>23.209</td>
+<td>6554</td>
+<td>25.201</td>
+</tr>
+<tr>
+<td>2011</td>
+<td>42.102</td>
+<td>11598</td>
+<td>23.670</td>
+<td>6703</td>
+<td>25.661</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>40.421</td>
+<td>11694</td>
+<td>24.163</td>
+<td>6678</td>
+<td>26.654</td>
+</tr>
+<tr>
+<td>2013</td>
+<td>39.533</td>
+<td>10938</td>
+<td>23.248</td>
+<td>6096</td>
+<td>29.809</td>
+</tr>
+<tr>
+<td>2014</td>
+<td>39.852</td>
+<td>10521</td>
+<td>22.669</td>
+<td>5868</td>
+<td>29.610</td>
+</tr>
+<tr>
+<td>2015</td>
+<td>38.213</td>
+<td>10061</td>
+<td>24.536</td>
+<td>5987</td>
+<td>30.934</td>
+</tr>
+<tr>
+<td>2016</td>
+<td>38.289</td>
+<td>10203</td>
+<td>25.950</td>
+<td>5798</td>
+<td>31.133</td>
+</tr>
+<tr>
+<td>2017</td>
+<td>37.848</td>
+<td>10180</td>
+<td>23.774</td>
+<td>5700</td>
+<td>32.985</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>37.636</td>
+<td>9992</td>
+<td>25.123</td>
+<td>5719</td>
+<td>33.958</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>36.384</td>
+<td>9797</td>
+<td>24.311</td>
+<td>5600</td>
+<td>34.166</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>37.685</td>
+<td>8730</td>
+<td>24.307</td>
+<td>5164</td>
+<td>35.377</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>36.516</td>
+<td>9396</td>
+<td>24.759</td>
+<td>5292</td>
+<td>35.623</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>35.612</td>
+<td>9453</td>
+<td>24.452</td>
+<td>5227</td>
+<td>36.820</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>34.876</td>
+<td>9211</td>
+<td>23.712</td>
+<td>5256</td>
+<td>37.284</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats: children of divorce</h1>
+<p><strong>Panel A mixes sources.</strong> The raw gap (0.14 SD) is the median effect in Amato &amp; Keith's 1991 meta-analysis. The 52% that survives selection comes from different studies and outcomes (panel B). Multiplying one by the other is a back-of-envelope estimate, not a pooled meta-analytic result. Amato &amp; Anthony's child fixed-effects estimates (0.16–0.17 SD on average) remove stable child and family traits, but not changes that lead up to a divorce. They are larger than the waterfall's result, so the honest range for what is left after selection is roughly 0.07–0.17 SD.</p>
+<p><strong>Panel B is a median of uneven estimates.</strong> Many single within-twin estimates have standard errors as large as the estimate itself, so individual dots are imprecise. Four estimates reverse sign and are shown at 0%. The twin studies cover substance use, sexual timing and mood. The register sibling studies cover only schooling, and in both of them the schooling effect disappears. Sibling designs have their own biases: the sibling who spends more years in the divorced home is also younger, and birth order matters (Sigle-Rushton et al. 2014 show the gradient reverses once it is controlled). Children-of-twins designs assume the twin's divorce does not affect the co-twin's children.</p>
+<p><strong>The authors don't all read their results the same way.</strong> D'Onofrio et al. (2006) read the halved education and first-sex estimates as consistent with a causal effect, and depressed mood as causal. Their 2007 US study finds emotional problems fully explained by selection, while alcohol problems survive.</p>
+<p><strong>Panel C is one spouse's report.</strong> Conflict is what the NSFH respondent reported, without their spouse's answers, so violence is likely under-reported and the high-conflict share is a floor. "Split" means separated or divorced within about five years of the 1987–88 interview. Children were 18 or younger at that interview, so some were adults by the time of the split. The finding that children of high-conflict marriages do better after a divorce comes from one 12-year panel (Amato, Loomis &amp; Booth 1995, young-adult well-being) and related work. It is not a universal finding, and the threshold for "high conflict" varies across studies.</p>
+<p><strong>Panel D measures children at home, not children in the divorce.</strong> The ACS records who lives in the household, not whose children they are in the divorce. The women's line misses mothers whose children live with the father. The men's line counts only men who head their household. The share of divorces involving a minor child is therefore a little above the women's line. ACS has no 2020 1-year release.</p>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>children_of_divorce_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Children of divorce, the data half: how much conflict came before parents' divorces (NSFH), and what share of
+recent divorces involve minor children (ACS).
+
+1. Pre-divorce conflict, NSFH (National Survey of Families and Households).
+   Sample: Wave 1 (1987-88) married respondents with at least one child aged 18 or younger in the household (List A:
+   LSTA1NUM + LSTA2NUM, the 6 = dorm code dropped), followed to Wave 2 (1992-94). Outcome MUT1UTRA (Wave 2 file DS0007):
+   3/4 = the Wave 1 marriage ended in separation or divorce; 7/8 = intact or reunited; widowhood and other codes
+   dropped. Waves link on MCASEID. Weight: Wave 1 AWEIGHT.
+   Conflict is what the respondent reported at Wave 1, before any split (respondent only; the spouse's own
+   questionnaire is not in this file, and violence is under-reported by one partner alone):
+     violent   a physical argument in the past year (E708 = 1), or hitting or throwing things at each other in serious
+               disagreements at least seldom (E707D &gt;= 2)
+     heated    argues heatedly or shouts at each other in serious disagreements very often or always (E707C &gt;= 4)
+     frequent  open disagreements about at least two of household tasks, money, time together, sex, in-laws or the
+               children about once a week or more (E706A-D, F, G &gt;= 4; &quot;having another child&quot; excluded)
+   Tiers are nested: violent; else heated; else frequent; else none of these (&quot;lower conflict&quot;). People with any of
+   E707C, E707D or E708 unanswered are dropped (missing E706 items count as not frequent).
+
+2. Minor children in recent divorces, ACS 1-year PUMS (notebooks/us_public_data/acs_full/persons).
+   People divorced in the past 12 months (MARHD = 1), weighted by PWGTP. Women: PAOC 1-3 = own child under 18 in the
+   household (any household position). Men have no PAOC, so men who head the household are checked for a biological,
+   adopted or stepchild under 18 on the roster (RELSHIPP 25-27 from 2019, RELP or REL 2-4 before); this misses fathers living
+   in someone else's household. Mothers have most post-divorce custody, so the women's share is close to, and a
+   little under, the share of divorces that involve a minor child.
+
+Writes children_of_divorce_conflict.csv and children_of_divorce_acs.csv next to this script.
+Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness/children_of_divorce_data.py
+&quot;&quot;&quot;
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pyarrow.dataset as pads
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+W1 = DATA / &quot;nsfh&quot; / &quot;wave1&quot; / &quot;ICPSR_06041&quot; / &quot;DS0001&quot; / &quot;06041-0001-Data.dta&quot;
+W2 = DATA / &quot;nsfh&quot; / &quot;wave2&quot; / &quot;ICPSR_06906&quot;
+ACS = DATA / &quot;acs_full&quot; / &quot;persons&quot;
+
+
+def w2(ds, cols):
+    return pd.read_stata(W2 / f&quot;DS{ds}&quot; / f&quot;06906-{ds}-Data.dta&quot;, convert_categoricals=False, columns=cols)
+
+
+# ---------- 1. NSFH: conflict before the split ----------
+ids = w2(&quot;0004&quot;, [&quot;CASEID&quot;, &quot;MCASEID&quot;]).merge(w2(&quot;0007&quot;, [&quot;CASEID&quot;, &quot;MUT1UTRA&quot;]))
+DIS = [f&quot;E706{c}&quot; for c in &quot;ABCDFG&quot;]
+d = pd.read_stata(W1, convert_categoricals=False,
+                  columns=[&quot;MCASEID&quot;, &quot;AWEIGHT&quot;, &quot;E701&quot;, &quot;LSTA1NUM&quot;, &quot;LSTA2NUM&quot;, &quot;E707C&quot;, &quot;E707D&quot;, &quot;E708&quot;] + DIS)
+d = d[d.E701.between(1, 7)].merge(ids)
+d = d[d.MUT1UTRA.isin([3, 4, 7, 8])]
+kids = d.LSTA1NUM.where(d.LSTA1NUM.between(0, 5), 0) + d.LSTA2NUM.where(d.LSTA2NUM.between(0, 9), 0)
+d = d[kids &gt; 0]
+d = d[d.E707C.between(1, 5) &amp; d.E707D.between(1, 5) &amp; d.E708.isin([1, 2])].copy()
+d[&quot;split&quot;] = d.MUT1UTRA.isin([3, 4])
+violent = (d.E708 == 1) | (d.E707D &gt;= 2)
+heated = d.E707C &gt;= 4
+frequent = (d[DIS].apply(lambda s: s.between(4, 6)).sum(axis=1)) &gt;= 2
+d[&quot;tier&quot;] = np.select([violent, heated, frequent], [&quot;violent&quot;, &quot;heated&quot;, &quot;frequent&quot;], &quot;lower&quot;)
+
+rows = []
+for split, label in [(True, &quot;split&quot;), (False, &quot;stayed&quot;)]:
+    g = d[d.split == split]
+    for tier in [&quot;violent&quot;, &quot;heated&quot;, &quot;frequent&quot;, &quot;lower&quot;]:
+        rows.append({&quot;group&quot;: label, &quot;tier&quot;: tier, &quot;pct&quot;: np.average(g.tier == tier, weights=g.AWEIGHT) * 100,
+                     &quot;n_tier&quot;: int((g.tier == tier).sum()), &quot;n_group&quot;: len(g)})
+conflict = pd.DataFrame(rows)
+conflict.to_csv(HERE / &quot;children_of_divorce_conflict.csv&quot;, index=False)
+print(conflict.round(1).to_string(index=False))
+
+# ---------- 2. ACS: minor children in recent divorces ----------
+out = []
+for y in sorted(int(p.name.split(&quot;=&quot;)[1]) for p in ACS.glob(&quot;year=*&quot;)):
+    if y &lt; 2008:
+        continue
+    ds = pads.dataset(ACS / f&quot;year={y}&quot;)
+    rel = next(c for c in [&quot;RELSHIPP&quot;, &quot;RELP&quot;, &quot;REL&quot;] if c in ds.schema.names)
+    t = ds.to_table(
+        columns=[&quot;SERIALNO&quot;, &quot;PWGTP&quot;, &quot;AGEP&quot;, &quot;SEX&quot;, &quot;MARHD&quot;, &quot;PAOC&quot;, rel]).to_pandas()
+    for c in [&quot;PWGTP&quot;, &quot;AGEP&quot;, &quot;SEX&quot;, &quot;MARHD&quot;, &quot;PAOC&quot;, rel]:
+        t[c] = pd.to_numeric(t[c], errors=&quot;coerce&quot;)
+    head, child = (20, [25, 26, 27]) if y &gt;= 2019 else (0, [2, 3, 4])
+    hh_kids = set(t.loc[t[rel].isin(child) &amp; (t.AGEP &lt; 18), &quot;SERIALNO&quot;])
+    dv = t[t.MARHD == 1]
+    f, m = dv[dv.SEX == 2], dv[(dv.SEX == 1) &amp; (dv[rel] == head)]
+    out.append({&quot;year&quot;: y, &quot;women_pct&quot;: np.average(f.PAOC.between(1, 3), weights=f.PWGTP) * 100, &quot;n_women&quot;: len(f),
+                &quot;men_householder_pct&quot;: np.average(m.SERIALNO.isin(hh_kids), weights=m.PWGTP) * 100, &quot;n_men_hh&quot;: len(m),
+                &quot;women_50plus_pct&quot;: np.average(f.AGEP &gt;= 50, weights=f.PWGTP) * 100})
+acs = pd.DataFrame(out)
+acs.to_csv(HERE / &quot;children_of_divorce_acs.csv&quot;, index=False)
+print(acs.round(1).to_string(index=False))
+</code></pre>
+<h3><code>children_of_divorce_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Children of divorce: how big the gap is, how much of it is selection, and how many parents' divorces end high-conflict
+marriages.
+
+A  Size of the gap, in SD units of the child outcome. Raw gap: 0.14 SD, the median effect across the studies in Amato &amp;
+   Keith's (1991) meta-analysis of children of divorced vs continuously married parents (as reported in Lansford 2009,
+   Perspect Psychol Sci 4:140). Amato's 1990s update (2001, J Fam Psychol 15:355) found modest differences of similar
+   size; its per-outcome table is not reproduced here. &quot;Explained by selection&quot; multiplies the raw gap by the median share
+   of the association removed in panel B (computed, not typed). The gray bar is the other within-person estimate: Amato
+   &amp; Anthony (2014, J Marriage Fam 76:370), child fixed effects in ECLS-K and NELS:88, mean absolute effect 0.16 and 0.17
+   SD across 13 outcomes; they have no naive comparison, so it is shown beside the waterfall, not in it. Right-hand labels
+   give where the middle child of divorce would sit among children of intact families if outcomes are normal: the
+   percentile is Phi(-gap).
+B  Share of the naive association that survives designs that hold genes and family background fixed, one dot per outcome
+   estimate, from children_of_divorce_selection_estimates.csv (sources and tables listed there): children of identical
+   twins discordant for divorce (D'Onofrio et al. 2006 Australia, Model 4 vs Model 1, divorce before 16; D'Onofrio et
+   al. 2007 Virginia, Model 6 vs Model 1) and sibling comparisons in Swedish (Björklund &amp; Sundström 2006) and Norwegian
+   (Sigle-Rushton et al. 2014) registers. Share = corrected / naive estimate, clipped to 0-100% (four estimates reverse
+   sign and show as 0; marijuana ever-use is exactly 100%). Many individual within-twin estimates have wide standard
+   errors; the median is the summary.
+C  NSFH: married parents (child 18 or under at home) at Wave 1, 1987-88, split by whether the marriage ended by Wave 2,
+   1992-94, and the conflict they reported at Wave 1, before any split. Tiers and coding in children_of_divorce_data.py.
+   Amato, Loomis &amp; Booth (1995, Social Forces 73:895): in high-conflict marriages, offspring were better off as young
+   adults if the parents divorced; in low-conflict ones, worse off.
+D  ACS 1-year PUMS: share of people divorced in the past 12 months with their own child under 18 at home (women, any
+   household position; men who head the household). Coding in children_of_divorce_data.py.
+Run:  uv run --with pandas,pyreadstat,pyarrow python notebooks/marital_happiness/children_of_divorce_data.py
+      uv run --with pandas,scipy,matplotlib,pillow,fonttools python notebooks/marital_happiness/children_of_divorce_chart.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.patches import Patch
+from scipy.stats import norm
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot; / &quot;children_of_divorce.png&quot;
+
+RAW_GAP = 0.14          # Amato &amp; Keith 1991 median effect size, SD
+FE_GAP = 0.165          # Amato &amp; Anthony 2014: mean of 0.16 (ECLS-K) and 0.17 (NELS)
+
+est = pd.read_csv(HERE / &quot;children_of_divorce_selection_estimates.csv&quot;)
+est[&quot;kept&quot;] = (est.corrected / est.naive).clip(0, 1) * 100
+kept_median = est.kept.median()
+left_gap = RAW_GAP * kept_median / 100
+conf = pd.read_csv(HERE / &quot;children_of_divorce_conflict.csv&quot;)
+acs = pd.read_csv(HERE / &quot;children_of_divorce_acs.csv&quot;)
+
+pb.apply()
+fig = plt.figure(figsize=(14, 11.6))
+gs = fig.add_gridspec(2, 2, width_ratios=[1, 1.15], height_ratios=[1.55, 1], left=0.06, right=0.91, top=0.77,
+                      bottom=0.15, hspace=0.62, wspace=0.42)
+axA, axB = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
+axC, axD = fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1])
+
+
+def strip(ax):
+    for s in ax.spines.values():
+        s.set_visible(False)
+
+
+def pct(g):
+    return norm.cdf(-g) * 100
+
+
+def header(x, ax, title, sub=None, gap=0.075):
+    top = ax.get_position().y1
+    fig.text(x, top + gap, title, fontsize=12, fontweight=&quot;bold&quot;, color=pb.INK)
+    if sub:
+        fig.text(x, top + gap - 0.008, sub, fontsize=9.5, color=pb.INK2, va=&quot;top&quot;, linespacing=1.3)
+
+
+# ---------- A: waterfall ----------
+bars = [(&quot;Raw gap&quot;, 0, RAW_GAP, pb.NAVY, f&quot;{RAW_GAP:.2f}&quot;),
+        (&quot;Explained by\nselection&quot;, left_gap, RAW_GAP - left_gap, pb.MUTE, f&quot;−{RAW_GAP - left_gap:.2f}&quot;),
+        (&quot;Left after\nselection&quot;, 0, left_gap, pb.RED, f&quot;{left_gap:.2f}&quot;)]
+for i, (lab, bottom, h, color, txt) in enumerate(bars):
+    ax_bar = axA.bar(i, h, bottom=bottom, width=0.62, color=color, zorder=2)
+    axA.text(i, bottom + h + 0.004, txt + &quot; SD&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=pb.INK)
+for i in range(2):
+    top = RAW_GAP if i == 0 else left_gap
+    axA.plot([i + 0.31, i + 0.69], [top, top], color=pb.MUTED, lw=0.8, ls=&quot;:&quot;, zorder=1)
+axA.bar(3.25, FE_GAP, width=0.62, color=&quot;white&quot;, edgecolor=pb.GRAYS[1], hatch=&quot;///&quot;, lw=1, zorder=2)
+axA.text(3.25, FE_GAP + 0.004, &quot;0.16–0.17 SD&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=11, fontweight=&quot;bold&quot;, color=pb.INK)
+axA.axvline(2.62, color=pb.GRID, lw=1)
+axA.set_xticks([0, 1, 2, 3.25], [b[0] for b in bars] + [&quot;Other estimate:\nchild fixed effects&quot;], fontsize=10)
+axA.set_xlim(-0.5, 3.75)
+axA.set_ylim(0, 0.205)
+axA.set_yticks([0, 0.05, 0.10, 0.15, 0.20], [&quot;0&quot;, &quot;0.05&quot;, &quot;0.10&quot;, &quot;0.15&quot;, &quot;0.20 SD&quot;])
+axA.grid(axis=&quot;y&quot;, color=pb.GRID, lw=0.6, zorder=0)
+axA.tick_params(axis=&quot;both&quot;, length=0)
+strip(axA)
+for i, g in [(0, RAW_GAP), (2, left_gap), (3.25, FE_GAP)]:
+    axA.text(i, 0.006, f&quot;{pct(g):.0f}th\npctile&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=9, color=&quot;white&quot;,
+             fontweight=&quot;bold&quot; if i != 3.25 else &quot;normal&quot;, linespacing=1.0) if i != 3.25 else \
+        axA.text(i, 0.006, f&quot;{pct(g):.0f}th\npctile&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;, fontsize=9, color=pb.INK,
+                 linespacing=1.0, bbox=dict(fc=&quot;white&quot;, ec=&quot;none&quot;, pad=1))
+header(0.03, axA, &quot;A  How far behind is the typical child of divorce?&quot;,
+       &quot;Gap vs children of intact families, in SD. Labels in the bars: where\nthe middle child of divorce would rank &quot;
+       &quot;among children of intact\nfamilies (50th = no gap)&quot;, gap=0.09)
+
+# ---------- B: share surviving ----------
+e = est.sort_values(&quot;kept&quot;).reset_index(drop=True)
+y = np.arange(len(e))
+short = {&quot;D'Onofrio et al. 2006&quot;: &quot;twins AU&quot;, &quot;D'Onofrio et al. 2007&quot;: &quot;twins US&quot;,
+         &quot;Björklund &amp; Sundström 2006&quot;: &quot;siblings SE&quot;, &quot;Sigle-Rushton et al. 2014&quot;: &quot;siblings NO&quot;}
+axB.hlines(y, 0, e.kept, color=pb.GRID, lw=1, zorder=1)
+axB.scatter(e.kept, y, s=46, color=pb.NAVY, zorder=3)
+for yi, r in e.iterrows():
+    src = next(v for k, v in short.items() if r.study.startswith(k))
+    axB.text(-3, yi, f&quot;{r.outcome}&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=9.5, color=pb.INK)
+    axB.text(103, yi, src, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=8.5, color=pb.MUTED)
+axB.axvline(kept_median, color=pb.RED, lw=1.6, zorder=2)
+axB.text(kept_median + 1.5, len(e) - 0.4, f&quot;median {kept_median:.0f}% survives&quot;, color=pb.INK, fontsize=10,
+         fontweight=&quot;bold&quot;, va=&quot;bottom&quot;)
+axB.set_xlim(0, 100)
+axB.set_ylim(-0.7, len(e) + 0.4)
+axB.set_yticks([])
+axB.set_xticks([0, 25, 50, 75, 100], [&quot;0%\nall selection&quot;, &quot;25%&quot;, &quot;50%&quot;, &quot;75%&quot;, &quot;100%\nnone&quot;], fontsize=9.5)
+axB.grid(axis=&quot;x&quot;, color=pb.GRID, lw=0.6, zorder=0)
+axB.tick_params(length=0)
+strip(axB)
+x0 = axB.get_position().x0 - 0.17
+header(x0, axB, &quot;B  Share of the gap that survives twin and sibling comparisons&quot;,
+       &quot;Each dot: one outcome. Comparing children of identical twins (one divorced,\none not), or older and younger &quot;
+       &quot;siblings, holds genes and family background fixed&quot;, gap=0.09)
+
+# ---------- C: conflict before the split ----------
+TIERS = [(&quot;violent&quot;, &quot;Physical fights&quot;, pb.RED, &quot;white&quot;), (&quot;heated&quot;, &quot;Heated arguing,\nno violence&quot;, &quot;#e59a95&quot;, pb.INK),
+         (&quot;frequent&quot;, &quot;Weekly\ndisagreements&quot;, pb.GRAYS[0], &quot;white&quot;), (&quot;lower&quot;, &quot;Lower conflict&quot;, &quot;#e4e3df&quot;, pb.INK)]
+rows = [(&quot;split&quot;, &quot;Split within ~5 years&quot;), (&quot;stayed&quot;, &quot;Stayed married&quot;)]
+for yi, (g, lab) in zip([1, 0], rows):
+    left = 0
+    sub = conf[conf.group == g].set_index(&quot;tier&quot;)
+    for key, name, color, txt in TIERS:
+        v = sub.loc[key, &quot;pct&quot;]
+        axC.barh(yi, v, left=left, height=0.62, color=color, edgecolor=pb.SURFACE, lw=1.5)
+        if v &gt;= 5:
+            axC.text(left + v / 2, yi, f&quot;{v:.0f}%&quot;, ha=&quot;center&quot;, va=&quot;center&quot;, fontsize=10, fontweight=&quot;bold&quot;, color=txt)
+        left += v
+    axC.text(-1.5, yi, f&quot;{lab}\n(n = {int(sub.n_group.iloc[0]):,})&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=9.5,
+             color=pb.INK, linespacing=1.1)
+high_split = conf.query(&quot;group == 'split' and tier in ['violent', 'heated']&quot;).pct.sum()
+axC.set_xlim(0, 100)
+axC.set_ylim(-0.5, 1.5)
+axC.legend(handles=[Patch(color=c, label=n.replace(&quot;\n&quot;, &quot; &quot;)) for _, n, c, _ in TIERS], loc=&quot;lower left&quot;,
+           bbox_to_anchor=(0, 1.0), ncol=2, fontsize=9, frameon=False, handlelength=1.1, columnspacing=1.2)
+axC.set_xticks([])
+axC.set_yticks([])
+strip(axC)
+axC.text(-25, -0.75, f&quot;In {high_split:.0f}% of parents' splits the marriage already had violence or frequent heated &quot;
+         &quot;arguing.\nIn marriages like these, children grew up better off if the parents divorced (Amato, Loomis &amp; &quot;
+         &quot;Booth 1995); the harm is concentrated in the rest.&quot;, ha=&quot;left&quot;, va=&quot;top&quot;, fontsize=9, color=pb.INK2,
+         linespacing=1.35)
+posC = axC.get_position()
+axC.set_position([posC.x0 + 0.1, posC.y0, posC.width - 0.1, posC.height])
+header(0.03, axC, &quot;C  Conflict married parents reported before splitting&quot;, &quot;NSFH: reported 1987–88, outcome by 1992–94&quot;,
+       gap=0.115)
+
+# ---------- D: kids in recent divorces ----------
+axD.plot(acs.year, acs.women_pct, color=pb.NAVY, lw=2.2, marker=&quot;o&quot;, ms=3.5)
+axD.plot(acs.year, acs.men_householder_pct, color=pb.GRAYS[0], lw=2, marker=&quot;o&quot;, ms=3)
+last = acs.iloc[-1]
+first = acs.iloc[0]
+axD.text(last.year + 0.4, last.women_pct, f&quot;{last.women_pct:.0f}%  divorced women\nwith own child &lt;18 at home&quot;,
+         va=&quot;center&quot;, fontsize=9.3, color=pb.INK, linespacing=1.1)
+axD.text(last.year + 0.4, last.men_householder_pct, f&quot;{last.men_householder_pct:.0f}%  divorced men heading\n&quot;
+         &quot;a home with their child&quot;, va=&quot;center&quot;, fontsize=9.3, color=pb.INK2, linespacing=1.1)
+axD.text(first.year, first.women_pct + 2.5, f&quot;{first.women_pct:.0f}%&quot;, ha=&quot;center&quot;, fontsize=9.3, color=pb.INK,
+         fontweight=&quot;bold&quot;)
+axD.set_ylim(0, 55)
+axD.set_xlim(2007.5, 2031.5)
+axD.set_xticks([2008, 2012, 2016, 2020, 2024])
+axD.set_yticks([0, 25, 50], [&quot;0&quot;, &quot;25&quot;, &quot;50%&quot;])
+axD.grid(axis=&quot;y&quot;, color=pb.GRID, lw=0.6)
+axD.tick_params(length=0)
+strip(axD)
+header(x0, axD, &quot;D  Most divorces now involve no minor child&quot;,
+       f&quot;People divorced in the past year (ACS). {last.women_50plus_pct:.0f}% of divorcing women are now 50+&quot;,
+       gap=0.115)
+
+fig.text(0.03, 0.962, f&quot;Divorce costs the typical child little, and about half of the raw gap is selection&quot;,
+         fontsize=17, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.03, 0.93, f&quot;The gap left after selection puts the middle child of divorce near the {pct(left_gap):.0f}th &quot;
+         f&quot;percentile of children of intact families; a quarter of parents' splits end violent or hostile marriages&quot;,
+         fontsize=11, color=pb.INK2)
+fig.text(0.03, 0.018,
+         &quot;Sources: A raw gap, median of Amato &amp; Keith 1991 meta-analysis (via Lansford 2009); child fixed effects, Amato &amp; &quot;
+         &quot;Anthony 2014 (ECLS-K, NELS:88). B D'Onofrio et al. 2006 (Dev Psychol), 2007 (JCPP); Björklund &amp; Sundström 2006 &quot;
+         &quot;(Economica);\nSigle-Rushton et al. 2014 (JMF). Surviving share = within-family / naive estimate, clipped to &quot;
+         &quot;0–100%; many single twin estimates are imprecise. C National Survey of Families and Households Waves 1–2, &quot;
+         &quot;weighted, respondent's report only.\nD ACS 1-year PUMS 2008–2024 (no 2020 release), weighted; men counted only &quot;
+         &quot;when they head the household, so the men's line is a floor.&quot;,
+         fontsize=8.2, color=pb.MUTED, linespacing=1.4)
+
+NOTES.mkdir(parents=True, exist_ok=True)
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+print(est[[&quot;outcome&quot;, &quot;naive&quot;, &quot;corrected&quot;, &quot;kept&quot;]].round(2).to_string(index=False))
+print(f&quot;median kept {kept_median:.1f}%  left gap {left_gap:.3f} SD  pctiles raw {pct(RAW_GAP):.1f} left {pct(left_gap):.1f}&quot;
+      f&quot; FE {pct(FE_GAP):.1f}  high-conflict splits {high_split:.1f}%&quot;)
+</code></pre>
+</main></body></html>
