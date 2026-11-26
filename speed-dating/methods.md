@@ -468,11 +468,10 @@ def chart_funnel(f):
     for a in fig.axes:
         a.set_position([a.get_position().x0 + 0.13, *(a.get_position().bounds[1:])])
         a.set_position([a.get_position().x0, a.get_position().y0, 0.25, a.get_position().height])
-    fig.text(0.055, 0.05, "Source: Add Health Wave IV (2008–09, ages 24–32, n = 5,114), weighted (GSWGT4_2). Single = "
+    foot(fig, "Source: Add Health Wave IV (2008–09, ages 24–32, n = 5,114), weighted (GSWGT4_2). Single = "
              "not married, cohabiting or dating anyone (relationship roster). Looks and personality: one interviewer's "
              "rating,\n4–5 on a 5-point scale. Earnings and height: above the median for all respondents of the same "
-             "sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy. The last bars rest on 17 men and 19 women (unweighted).",
-             fontsize=8.8, color=MUTED, ha="left", linespacing=1.4)
+             "sex. Healthy BMI = 18.5 to under 25, measured. Single interviewer ratings are noisy. The last bars rest on 17 men and 19 women (unweighted).", y=0.1)
     save(fig, "addhealth_have_it_all")
 
 
