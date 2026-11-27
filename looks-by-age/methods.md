@@ -28,7 +28,9 @@ Codes outside 1-5 are missing. Sex is BIO_SEX (Wave I). A different interviewer 
    year/month; birth year/month from Wave IV, else Wave I). By sex, wave and single year of age: the weighted mean
    looks rating, and the weighted share rated 5 ("very attractive"), with the wave's cross-sectional weight
    (GSWGT1, GSWGT2, GSWGT3, GSWGT4_2). 95% intervals use the Kish effective sample size (no design correction).
-   Cells with fewer than 60 respondents are dropped. Waves are kept as separate segments, because each wave
+   Waves I and II (1994 and 1996, one or two years apart) are pooled into one segment; a person in both counts
+   twice there, so its intervals are slightly too narrow. Cells with fewer than 100 respondents are dropped.
+   The remaining waves are kept as separate segments, because each wave
    brought new interviewers and the age ranges overlap (ages 18-21 appear in Waves I-III), so the jumps between
    segments show how much is wave/interviewer rather than age.
 
@@ -43,36 +45,21 @@ Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, an
 
 | wave | sex | age | n | neff | mean | mean_lo | mean_hi | pct5 | pct5_lo | pct5_hi |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | men | 12 | 65 | 44.181 | 3.321 | 3.126 | 3.515 | 4.806 | 0.000 | 11.113 |
-| 1 | men | 13 | 393 | 286.753 | 3.466 | 3.373 | 3.559 | 9.753 | 6.319 | 13.187 |
-| 1 | men | 14 | 446 | 325.054 | 3.425 | 3.341 | 3.509 | 8.735 | 5.666 | 11.805 |
-| 1 | men | 15 | 530 | 399.490 | 3.369 | 3.294 | 3.443 | 7.631 | 5.028 | 10.235 |
-| 1 | men | 16 | 585 | 440.161 | 3.400 | 3.327 | 3.473 | 8.724 | 6.087 | 11.360 |
-| 1 | men | 17 | 582 | 466.029 | 3.517 | 3.442 | 3.593 | 12.080 | 9.121 | 15.039 |
-| 1 | men | 18 | 419 | 326.937 | 3.608 | 3.520 | 3.697 | 14.969 | 11.101 | 18.836 |
-| 1 | men | 19 | 98 | 85.492 | 3.372 | 3.177 | 3.566 | 12.580 | 5.550 | 19.609 |
-| 1 | women | 12 | 102 | 67.650 | 3.714 | 3.482 | 3.946 | 23.392 | 13.304 | 33.479 |
-| 1 | women | 13 | 430 | 306.034 | 3.706 | 3.612 | 3.801 | 18.676 | 14.309 | 23.042 |
-| 1 | women | 14 | 551 | 394.676 | 3.706 | 3.622 | 3.789 | 17.829 | 14.052 | 21.605 |
-| 1 | women | 15 | 576 | 455.734 | 3.757 | 3.674 | 3.839 | 22.793 | 18.942 | 26.645 |
-| 1 | women | 16 | 600 | 452.002 | 3.707 | 3.622 | 3.792 | 20.091 | 16.398 | 23.785 |
-| 1 | women | 17 | 551 | 418.335 | 3.669 | 3.579 | 3.758 | 19.041 | 15.278 | 22.803 |
-| 1 | women | 18 | 467 | 384.608 | 3.718 | 3.626 | 3.811 | 22.406 | 18.239 | 26.574 |
-| 1 | women | 19 | 62 | 50.713 | 3.516 | 3.245 | 3.786 | 18.692 | 7.962 | 29.421 |
-| 2 | men | 13 | 82 | 66.751 | 3.483 | 3.321 | 3.645 | 6.858 | 0.795 | 12.921 |
-| 2 | men | 14 | 343 | 250.737 | 3.435 | 3.345 | 3.526 | 7.137 | 3.950 | 10.323 |
-| 2 | men | 15 | 417 | 299.520 | 3.378 | 3.291 | 3.465 | 7.993 | 4.921 | 11.064 |
-| 2 | men | 16 | 451 | 353.870 | 3.417 | 3.341 | 3.492 | 7.066 | 4.396 | 9.736 |
-| 2 | men | 17 | 490 | 380.624 | 3.445 | 3.372 | 3.519 | 8.432 | 5.641 | 11.224 |
-| 2 | men | 18 | 372 | 295.650 | 3.472 | 3.380 | 3.565 | 10.717 | 7.191 | 14.243 |
-| 2 | men | 19 | 125 | 106.482 | 3.419 | 3.258 | 3.580 | 8.031 | 2.869 | 13.194 |
-| 2 | women | 13 | 122 | 82.536 | 3.831 | 3.653 | 4.008 | 24.151 | 14.917 | 33.385 |
-| 2 | women | 14 | 398 | 287.304 | 3.615 | 3.521 | 3.708 | 14.419 | 10.357 | 18.481 |
-| 2 | women | 15 | 487 | 362.875 | 3.625 | 3.539 | 3.711 | 15.949 | 12.181 | 19.716 |
-| 2 | women | 16 | 523 | 416.514 | 3.703 | 3.621 | 3.785 | 19.504 | 15.698 | 23.309 |
-| 2 | women | 17 | 502 | 385.359 | 3.616 | 3.533 | 3.699 | 14.851 | 11.301 | 18.402 |
-| 2 | women | 18 | 362 | 285.891 | 3.634 | 3.543 | 3.726 | 15.370 | 11.189 | 19.551 |
-| 2 | women | 19 | 99 | 72.779 | 3.652 | 3.475 | 3.829 | 14.887 | 6.709 | 23.066 |
+| 1 | men | 13 | 475 | 353.473 | 3.469 | 3.388 | 3.551 | 9.196 | 6.183 | 12.208 |
+| 1 | men | 14 | 789 | 573.118 | 3.430 | 3.368 | 3.491 | 7.985 | 5.766 | 10.204 |
+| 1 | men | 15 | 947 | 683.265 | 3.373 | 3.316 | 3.431 | 7.813 | 5.801 | 9.826 |
+| 1 | men | 16 | 1036 | 785.503 | 3.408 | 3.355 | 3.461 | 7.899 | 6.013 | 9.785 |
+| 1 | men | 17 | 1072 | 841.667 | 3.482 | 3.429 | 3.535 | 10.300 | 8.247 | 12.354 |
+| 1 | men | 18 | 791 | 622.583 | 3.544 | 3.480 | 3.608 | 12.955 | 10.317 | 15.592 |
+| 1 | men | 19 | 223 | 191.973 | 3.398 | 3.273 | 3.522 | 10.063 | 5.807 | 14.318 |
+| 1 | women | 12 | 103 | 68.145 | 3.719 | 3.488 | 3.951 | 23.717 | 13.618 | 33.817 |
+| 1 | women | 13 | 552 | 388.532 | 3.733 | 3.650 | 3.817 | 19.861 | 15.894 | 23.828 |
+| 1 | women | 14 | 949 | 676.439 | 3.663 | 3.601 | 3.726 | 16.240 | 13.461 | 19.019 |
+| 1 | women | 15 | 1063 | 805.346 | 3.690 | 3.630 | 3.750 | 19.323 | 16.596 | 22.050 |
+| 1 | women | 16 | 1123 | 867.787 | 3.705 | 3.646 | 3.764 | 19.801 | 17.150 | 22.452 |
+| 1 | women | 17 | 1053 | 801.433 | 3.642 | 3.581 | 3.703 | 16.921 | 14.325 | 19.517 |
+| 1 | women | 18 | 829 | 666.076 | 3.679 | 3.614 | 3.745 | 19.123 | 16.136 | 22.109 |
+| 1 | women | 19 | 161 | 122.505 | 3.602 | 3.450 | 3.754 | 16.282 | 9.744 | 22.820 |
 | 3 | men | 19 | 196 | 147.170 | 3.418 | 3.294 | 3.541 | 7.801 | 3.468 | 12.135 |
 | 3 | men | 20 | 300 | 211.744 | 3.339 | 3.239 | 3.438 | 6.871 | 3.464 | 10.278 |
 | 3 | men | 21 | 328 | 258.998 | 3.464 | 3.369 | 3.559 | 9.592 | 6.005 | 13.178 |
@@ -85,14 +72,12 @@ Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, an
 | 3 | women | 22 | 426 | 325.671 | 3.569 | 3.479 | 3.659 | 12.872 | 9.234 | 16.509 |
 | 3 | women | 23 | 363 | 281.175 | 3.544 | 3.441 | 3.648 | 15.125 | 10.937 | 19.313 |
 | 3 | women | 24 | 145 | 113.510 | 3.507 | 3.356 | 3.658 | 10.756 | 5.056 | 16.456 |
-| 4 | men | 25 | 85 | 65.879 | 3.282 | 3.069 | 3.494 | 6.924 | 0.793 | 13.054 |
 | 4 | men | 26 | 297 | 208.663 | 3.413 | 3.308 | 3.518 | 7.237 | 3.722 | 10.753 |
 | 4 | men | 27 | 335 | 250.294 | 3.402 | 3.306 | 3.499 | 6.586 | 3.513 | 9.658 |
 | 4 | men | 28 | 407 | 312.471 | 3.380 | 3.296 | 3.465 | 6.206 | 3.531 | 8.881 |
 | 4 | men | 29 | 424 | 332.050 | 3.427 | 3.344 | 3.511 | 8.943 | 5.874 | 12.013 |
 | 4 | men | 30 | 433 | 342.804 | 3.363 | 3.272 | 3.453 | 7.603 | 4.797 | 10.408 |
 | 4 | men | 31 | 283 | 221.670 | 3.405 | 3.308 | 3.503 | 5.264 | 2.324 | 8.204 |
-| 4 | men | 32 | 71 | 59.788 | 3.307 | 3.129 | 3.486 | 2.274 | 0.000 | 6.053 |
 | 4 | women | 25 | 141 | 99.833 | 3.520 | 3.336 | 3.703 | 13.868 | 7.088 | 20.647 |
 | 4 | women | 26 | 368 | 269.558 | 3.531 | 3.424 | 3.637 | 12.599 | 8.638 | 16.561 |
 | 4 | women | 27 | 473 | 342.849 | 3.491 | 3.399 | 3.584 | 9.714 | 6.579 | 12.849 |
@@ -100,8 +85,6 @@ Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, an
 | 4 | women | 29 | 471 | 371.836 | 3.390 | 3.301 | 3.479 | 9.823 | 6.798 | 12.848 |
 | 4 | women | 30 | 458 | 342.504 | 3.447 | 3.358 | 3.536 | 10.670 | 7.400 | 13.940 |
 | 4 | women | 31 | 304 | 253.743 | 3.529 | 3.421 | 3.637 | 12.905 | 8.780 | 17.031 |
-
-_Every 1th row of 57 shown; full file: [looks_age_curve.csv](looks_age_curve.csv)._
 
 ### `looks_ratings_somersd.csv`
 
@@ -176,7 +159,9 @@ Codes outside 1-5 are missing. Sex is BIO_SEX (Wave I). A different interviewer 
    year/month; birth year/month from Wave IV, else Wave I). By sex, wave and single year of age: the weighted mean
    looks rating, and the weighted share rated 5 ("very attractive"), with the wave's cross-sectional weight
    (GSWGT1, GSWGT2, GSWGT3, GSWGT4_2). 95% intervals use the Kish effective sample size (no design correction).
-   Cells with fewer than 60 respondents are dropped. Waves are kept as separate segments, because each wave
+   Waves I and II (1994 and 1996, one or two years apart) are pooled into one segment; a person in both counts
+   twice there, so its intervals are slightly too narrow. Cells with fewer than 100 respondents are dropped.
+   The remaining waves are kept as separate segments, because each wave
    brought new interviewers and the age ranges overlap (ages 18-21 appear in Waves I-III), so the jumps between
    segments show how much is wave/interviewer rather than age.
 
@@ -202,7 +187,7 @@ AH = HERE.parent / "us_public_data" / "Add Health - ICPSR_21600"
 SN = Path.home() / "Desktop" / "Recent Projects" / "Substack Notes"
 SUB = "Gender differences"
 NAME = "looks_rating_by_age_sex"
-MIN_N = 60
+MIN_N = 100
 ITEMS = {1: "looks", 2: "personality", 3: "grooming"}
 WAVES = {1: ("DS0001", "DS0004", "GSWGT1", "IYEAR", "IMONTH"),
          2: ("DS0005", "DS0007", "GSWGT2", "IYEAR2", "IMONTH2"),
@@ -261,8 +246,8 @@ def somers(d):
 def age_curve(d):
     rows = []
     d = d.dropna(subset=["looks", "age", "wt"])
-    d = d[d.wt > 0]
-    for (w, f, a), g in d.groupby(["wave", "female", "age"]):
+    d = d[d.wt > 0].assign(seg=lambda x: x.wave.replace({2: 1}))  # Waves I and II (1994-96) pooled
+    for (w, f, a), g in d.groupby(["seg", "female", "age"]):
         if len(g) < MIN_N:
             continue
         wn = g.wt / g.wt.sum()
@@ -284,7 +269,7 @@ def chart(c):
     for ax, (v, lo, hi, ttl) in zip(axes, (("mean", "mean_lo", "mean_hi", "A  Average looks rating (1-5)"),
                                            ("pct5", "pct5_lo", "pct5_hi", "B  Rated 5, \"very attractive\" (%)"))):
         for sex in ("men", "women"):
-            for w in range(1, 5):
+            for w in (1, 3, 4):
                 s = c[(c.sex == sex) & (c.wave == w)].sort_values("age")
                 if s.empty:
                     continue
