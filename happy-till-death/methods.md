@@ -734,7 +734,7 @@ axA = fig.add_axes([0.25, 0.2, 0.36, 0.56])
 axB = fig.add_axes([0.72, 0.2, 0.25, 0.56])
 
 fig.text(0.03, 0.935, f"{final:.0f} in 100", fontsize=34, fontweight="bold", color=pb.RED)
-fig.text(0.205, 0.94, "first marriages stay happy for both spouses until one of them dies",
+fig.text(0.185, 0.94, "first marriages stay happy for both spouses until one of them dies",
          fontsize=19, fontweight="bold", color=pb.INK)
 fig.text(0.03, 0.875, "US couples rated their marriages, separately, three times over 14 years (1987–2003). A model of "
          "how couples move between happy, unhappy and divorced\ncarries that to the first death, at today's divorce "
@@ -757,13 +757,17 @@ for i, (label, val, lo, hi, ci, color) in enumerate(rows):
         if hi is not None:
             axA.plot([hi, hi], [y - 0.13, y + 0.13], color=pb.INK, lw=1.2, zorder=3)
     x_lab = max(val, hi or 0) + 2
-    axA.text(x_lab, y + 0.08, f"{val:.0f}", ha="left", va="center", fontsize=15, fontweight="bold", color=pb.INK)
+    if i == 0:  # full-width bar: label inside so it doesn't run into panel B
+        axA.text(val - 2, y, f"{val:.0f}", ha="right", va="center", fontsize=15, fontweight="bold", color="white")
+    else:
+        axA.text(x_lab, y + 0.08, f"{val:.0f}", ha="left", va="center", fontsize=15, fontweight="bold",
+                 color=pb.INK)
     if ci is not None:
         sub = f"95% CI {ci[0]:.0f}–{ci[1]:.0f}"
         if lo is not None:
             sub += f"; range {lo:.0f}–{(hi or val):.0f}"
         axA.text(x_lab, y - 0.27, sub, ha="left", va="center", fontsize=9.5, color=pb.MUTED)
-axA.set_xlim(0, 112)
+axA.set_xlim(0, 104)
 axA.set_ylim(-0.6, n - 0.4)
 axA.set_yticks([])
 axA.set_xticks([0, 25, 50, 75, 100])

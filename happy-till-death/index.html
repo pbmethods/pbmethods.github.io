@@ -953,7 +953,7 @@ axA = fig.add_axes([0.25, 0.2, 0.36, 0.56])
 axB = fig.add_axes([0.72, 0.2, 0.25, 0.56])
 
 fig.text(0.03, 0.935, f&quot;{final:.0f} in 100&quot;, fontsize=34, fontweight=&quot;bold&quot;, color=pb.RED)
-fig.text(0.205, 0.94, &quot;first marriages stay happy for both spouses until one of them dies&quot;,
+fig.text(0.185, 0.94, &quot;first marriages stay happy for both spouses until one of them dies&quot;,
          fontsize=19, fontweight=&quot;bold&quot;, color=pb.INK)
 fig.text(0.03, 0.875, &quot;US couples rated their marriages, separately, three times over 14 years (1987–2003). A model of &quot;
          &quot;how couples move between happy, unhappy and divorced\ncarries that to the first death, at today's divorce &quot;
@@ -976,13 +976,17 @@ for i, (label, val, lo, hi, ci, color) in enumerate(rows):
         if hi is not None:
             axA.plot([hi, hi], [y - 0.13, y + 0.13], color=pb.INK, lw=1.2, zorder=3)
     x_lab = max(val, hi or 0) + 2
-    axA.text(x_lab, y + 0.08, f&quot;{val:.0f}&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=pb.INK)
+    if i == 0:  # full-width bar: label inside so it doesn't run into panel B
+        axA.text(val - 2, y, f&quot;{val:.0f}&quot;, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=&quot;white&quot;)
+    else:
+        axA.text(x_lab, y + 0.08, f&quot;{val:.0f}&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=15, fontweight=&quot;bold&quot;,
+                 color=pb.INK)
     if ci is not None:
         sub = f&quot;95% CI {ci[0]:.0f}–{ci[1]:.0f}&quot;
         if lo is not None:
             sub += f&quot;; range {lo:.0f}–{(hi or val):.0f}&quot;
         axA.text(x_lab, y - 0.27, sub, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=9.5, color=pb.MUTED)
-axA.set_xlim(0, 112)
+axA.set_xlim(0, 104)
 axA.set_ylim(-0.6, n - 0.4)
 axA.set_yticks([])
 axA.set_xticks([0, 25, 50, 75, 100])
