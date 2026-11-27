@@ -1,8 +1,10 @@
-# How interviewers rate looks, grooming and personality, by sex and age (Add Health)
+# How interviewers rate looks by sex and age: Add Health and GSS
 
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-27.</p>
 
 ![chart 1](chart.png)
+
+![chart 2](chart2.png)
 
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/looks-by-age/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
@@ -36,6 +38,34 @@ Codes outside 1-5 are missing. Sex is BIO_SEX (Wave I). A different interviewer 
 
 Run:  uv run --with matplotlib,pillow,fonttools,pandas,scipy python notebooks/looks_gaps/looks_ratings_by_sex.py
 Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, and the chart's _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+```
+
+### `looks_age_gss_triangulate.py`
+
+```text
+Do women's and men's interviewer-rated looks ever cross with age? Add Health (ages 12-31) and GSS (18-89).
+
+Data:
+  Add Health   looks_age_curve.csv from looks_ratings_by_sex.py (run that first): interviewer rating of physical
+               attractiveness, 1-5, by wave segment, sex and single year of age, one cohort born ~1974-83 followed
+               1994-2009. Cross-sectional wave weights.
+  GSS          General Social Survey cumulative file 1972-2024 R2 (gss7224_r2.dta), the years that carry the same
+               interviewer item: RLOOKS "R physical attractiveness rating", 1 very unattractive .. 5 very
+               attractive, asked of the interviewer after the interview in 2016, 2018 and 2022 (N = 6,243 rated,
+               ages 18-89). Weight WTSSPS. Sex = SEX, age = AGE (89 = 89+).
+Method: GSS respondents are pooled across the three years and grouped into age bands (18-24, then 5-year bands to
+75, then 75+), plotted at the band's weighted mean age. Per band and sex: weighted mean rating and weighted share
+rated 5, with 95% intervals from the Kish effective sample size (no design correction). The gap is women minus men,
+with SE = sqrt(SE_w^2 + SE_m^2). Add Health points are single years within each wave segment; their gap SE is
+backed out of the stored 95% intervals. A single pooled GSS gap for ages 35+ is also reported (weighted regression
+of rating on female, ages 35+, HC1 SEs).
+Caveats: GSS is cross-sectional, so its age curve mixes ageing with cohort differences, and people over ~75 are a
+selected (surviving, at-home) group. The two surveys use different interviewer staffs and eras; the overlap at ages
+18-31 is the check that the two scales line up.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas,statsmodels python notebooks/looks_gaps/looks_age_gss_triangulate.py
+Writes looks_age_gss.csv next to this script, and the chart's _wm copy to
 ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
 ```
 
@@ -134,6 +164,35 @@ Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, an
 | different raters | 3-4 | men | grooming W3 | grooming W4 | 1871 | 0.178 | 0.198 |
 
 _Every 2th row of 84 shown; full file: [looks_ratings_somersd.csv](looks_ratings_somersd.csv)._
+
+### `looks_age_gss.csv`
+
+| src | band | sex | age | n | mean | mean_lo | mean_hi | pct5 | pct5_lo | pct5_hi |
+|---|---|---|---|---|---|---|---|---|---|---|
+| GSS | 18-24 | men | 21.185 | 252 | 3.539 | 3.399 | 3.678 | 11.197 | 5.571 | 16.823 |
+| GSS | 18-24 | women | 21.484 | 288 | 3.695 | 3.563 | 3.827 | 15.782 | 9.708 | 21.855 |
+| GSS | 25-29 | men | 26.977 | 235 | 3.383 | 3.258 | 3.508 | 6.481 | 2.508 | 10.454 |
+| GSS | 25-29 | women | 27.109 | 282 | 3.479 | 3.334 | 3.624 | 11.414 | 6.459 | 16.368 |
+| GSS | 30-34 | men | 32.081 | 261 | 3.406 | 3.283 | 3.530 | 8.573 | 4.374 | 12.772 |
+| GSS | 30-34 | women | 31.970 | 332 | 3.538 | 3.422 | 3.654 | 11.273 | 6.543 | 16.003 |
+| GSS | 35-39 | men | 37.040 | 224 | 3.423 | 3.289 | 3.557 | 7.532 | 3.006 | 12.057 |
+| GSS | 35-39 | women | 37.062 | 320 | 3.391 | 3.268 | 3.515 | 7.801 | 3.933 | 11.670 |
+| GSS | 40-44 | men | 41.927 | 238 | 3.459 | 3.320 | 3.599 | 12.584 | 6.928 | 18.239 |
+| GSS | 40-44 | women | 41.977 | 272 | 3.490 | 3.362 | 3.619 | 8.450 | 4.098 | 12.803 |
+| GSS | 45-49 | men | 47.190 | 228 | 3.235 | 3.120 | 3.351 | 2.563 | 0.000 | 5.359 |
+| GSS | 45-49 | women | 47.190 | 241 | 3.389 | 3.259 | 3.518 | 5.315 | 1.540 | 9.090 |
+| GSS | 50-54 | men | 51.875 | 242 | 3.197 | 3.083 | 3.311 | 3.654 | 0.468 | 6.839 |
+| GSS | 50-54 | women | 52.052 | 292 | 3.337 | 3.206 | 3.468 | 7.661 | 3.323 | 12.000 |
+| GSS | 55-59 | men | 56.892 | 274 | 3.182 | 3.075 | 3.289 | 3.007 | 0.320 | 5.694 |
+| GSS | 55-59 | women | 57.000 | 302 | 3.273 | 3.151 | 3.395 | 8.361 | 4.317 | 12.405 |
+| GSS | 60-64 | men | 61.713 | 223 | 3.171 | 3.040 | 3.302 | 3.262 | 0.000 | 6.545 |
+| GSS | 60-64 | women | 61.789 | 291 | 3.199 | 3.082 | 3.315 | 4.923 | 1.431 | 8.414 |
+| GSS | 65-69 | men | 67.038 | 233 | 3.079 | 2.963 | 3.195 | 1.584 | 0.000 | 3.717 |
+| GSS | 65-69 | women | 67.009 | 259 | 3.170 | 3.064 | 3.276 | 0.910 | 0.000 | 2.425 |
+| GSS | 70-74 | men | 71.755 | 156 | 3.164 | 3.030 | 3.297 | 3.015 | 0.000 | 6.613 |
+| GSS | 70-74 | women | 71.594 | 210 | 3.345 | 3.207 | 3.482 | 6.350 | 1.579 | 11.120 |
+| GSS | 75+ | men | 80.439 | 236 | 3.112 | 3.008 | 3.216 | 0.761 | 0.000 | 2.240 |
+| GSS | 75+ | women | 80.813 | 351 | 3.232 | 3.142 | 3.323 | 3.481 | 1.110 | 5.853 |
 
 ## Code
 
@@ -330,4 +389,172 @@ if __name__ == "__main__":
     print(c[["wave", "sex", "age", "n", "mean", "pct5"]].round(2).to_string())
     if "--chart" in sys.argv:
         chart(c)
+```
+
+### `looks_age_gss_triangulate.py`
+
+```python
+"""Do women's and men's interviewer-rated looks ever cross with age? Add Health (ages 12-31) and GSS (18-89).
+
+Data:
+  Add Health   looks_age_curve.csv from looks_ratings_by_sex.py (run that first): interviewer rating of physical
+               attractiveness, 1-5, by wave segment, sex and single year of age, one cohort born ~1974-83 followed
+               1994-2009. Cross-sectional wave weights.
+  GSS          General Social Survey cumulative file 1972-2024 R2 (gss7224_r2.dta), the years that carry the same
+               interviewer item: RLOOKS "R physical attractiveness rating", 1 very unattractive .. 5 very
+               attractive, asked of the interviewer after the interview in 2016, 2018 and 2022 (N = 6,243 rated,
+               ages 18-89). Weight WTSSPS. Sex = SEX, age = AGE (89 = 89+).
+Method: GSS respondents are pooled across the three years and grouped into age bands (18-24, then 5-year bands to
+75, then 75+), plotted at the band's weighted mean age. Per band and sex: weighted mean rating and weighted share
+rated 5, with 95% intervals from the Kish effective sample size (no design correction). The gap is women minus men,
+with SE = sqrt(SE_w^2 + SE_m^2). Add Health points are single years within each wave segment; their gap SE is
+backed out of the stored 95% intervals. A single pooled GSS gap for ages 35+ is also reported (weighted regression
+of rating on female, ages 35+, HC1 SEs).
+Caveats: GSS is cross-sectional, so its age curve mixes ageing with cohort differences, and people over ~75 are a
+selected (surviving, at-home) group. The two surveys use different interviewer staffs and eras; the overlap at ages
+18-31 is the check that the two scales line up.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas,statsmodels python notebooks/looks_gaps/looks_age_gss_triangulate.py
+Writes looks_age_gss.csv next to this script, and the chart's _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+"""
+import subprocess
+import sys
+import warnings
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+
+sys.path.insert(0, str(Path.home() / "_watermark"))
+import pb_style as pb  # noqa: E402
+
+warnings.filterwarnings("ignore")
+HERE = Path(__file__).resolve().parent
+GSS = HERE.parent / "us_public_data" / "gss7224_r2.dta"
+SN = Path.home() / "Desktop" / "Recent Projects" / "Substack Notes"
+SUB = "Gender differences"
+NAME = "looks_rating_by_age_sex_gss"
+BINS = [18, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 90]
+
+
+def gss():
+    d = pd.read_stata(GSS, columns=["year", "sex", "age", "rlooks", "wtssps"], convert_categoricals=False)
+    d = d[d.rlooks.between(1, 5) & d.age.between(18, 89) & d.sex.isin([1, 2]) & (d.wtssps > 0)].copy()
+    d["female"] = (d.sex == 2).astype(float)
+    d["band"] = pd.cut(d.age, BINS, right=False)
+    rows = []
+    for (b, f), g in d.groupby(["band", "female"], observed=True):
+        wn = g.wtssps / g.wtssps.sum()
+        neff = 1 / (wn ** 2).sum()
+        m = (wn * g.rlooks).sum()
+        se = np.sqrt((wn * (g.rlooks - m) ** 2).sum() / neff)
+        p5 = (wn * (g.rlooks == 5)).sum()
+        se5 = np.sqrt(p5 * (1 - p5) / neff)
+        rows.append(dict(src="GSS", band=f"{b.left}-{b.right - 1}" if b.right < 90 else f"{b.left}+",
+                         sex="women" if f else "men", age=(wn * g.age).sum(), n=len(g), mean=m,
+                         mean_lo=m - 1.96 * se, mean_hi=m + 1.96 * se, pct5=100 * p5,
+                         pct5_lo=100 * max(0, p5 - 1.96 * se5), pct5_hi=100 * (p5 + 1.96 * se5)))
+    t = pd.DataFrame(rows)
+    o = d[d.age >= 35]
+    fit = sm.WLS(o.rlooks, sm.add_constant(o[["female"]]), weights=o.wtssps).fit(cov_type="HC1")
+    return t, (fit.params.female, fit.bse.female, len(o))
+
+
+def gap(t, keys):
+    w = t[t.sex == "women"].set_index(keys)
+    m = t[t.sex == "men"].set_index(keys)
+    j = w.join(m, lsuffix="_w", rsuffix="_m", how="inner")
+    se = np.sqrt(((j.mean_hi_w - j.mean_lo_w) / 3.92) ** 2 + ((j.mean_hi_m - j.mean_lo_m) / 3.92) ** 2)
+    g = j.mean_w - j.mean_m
+    return pd.DataFrame({"age": (j.age_w + j.age_m) / 2, "gap": g, "lo": g - 1.96 * se, "hi": g + 1.96 * se})
+
+
+def chart(ah, gs, g35):
+    pb.apply()
+    col = {"men": pb.NAVY, "women": pb.RED}
+    fig, axes = plt.subplots(1, 3, figsize=(14, 5.6), gridspec_kw=dict(width_ratios=[1, 1, 1]))
+    panels = (("mean", "mean_lo", "mean_hi", "A  Average looks rating (1-5)"),
+              ("pct5", "pct5_lo", "pct5_hi", "B  Rated 5, \"very attractive\" (%)"))
+    for ax, (v, lo, hi, ttl) in zip(axes[:2], panels):
+        for sex in ("men", "women"):
+            for w in (1, 3, 4):
+                s = ah[(ah.sex == sex) & (ah.wave == w)].sort_values("age")
+                ax.plot(s.age, s[v], color=col[sex], lw=1.2, ls=(0, (2, 1.5)), alpha=0.85)
+            s = gs[gs.sex == sex].sort_values("age")
+            ax.fill_between(s.age, s[lo], s[hi], color=col[sex], alpha=0.12, lw=0)
+            ax.plot(s.age, s[v], color=col[sex], lw=2.2, marker="o", ms=5.5, mec=pb.SURFACE, mew=1.2)
+            ax.text(s.age.iloc[-1] + 1.5, s[v].iloc[-1], sex.capitalize(), color=pb.INK, fontsize=10.5,
+                    fontweight="bold", va="center")
+        ax.set_title(ttl, loc="left", fontsize=12, fontweight="bold", color=pb.INK)
+    axes[1].set_ylim(0, None)
+
+    ax = axes[2]
+    ga = gap(ah.assign(akey=ah.age), ["wave", "akey"]).reset_index()
+    for w in (1, 3, 4):
+        s = ga[ga.wave == w].sort_values("age")
+        ax.plot(s.age, s.gap, color=pb.GRAYS[1], lw=1.2, ls=(0, (2, 1.5)))
+    gg = gap(gs, ["band"]).sort_values("age")
+    ax.fill_between(gg.age, gg.lo, gg.hi, color=pb.GRAYS[2], alpha=0.14, lw=0)
+    ax.plot(gg.age, gg.gap, color=pb.GRAYS[2], lw=2.2, marker="o", ms=5.5, mec=pb.SURFACE, mew=1.2)
+    ax.axhline(0, color=pb.INK2, lw=1)
+    ax.text(88, 0.012, "women = men", ha="right", va="bottom", fontsize=9, color=pb.INK2)
+    ax.text(88, -0.012, "below: men rated higher", ha="right", va="top", fontsize=9, color=pb.MUTED)
+    b, se, n = g35
+    ax.text(36, 0.47, f"GSS ages 35+ pooled: women +{b:.2f}\n(95% CI {b - 1.96 * se:+.2f} to {b + 1.96 * se:+.2f})",
+            fontsize=9.5, color=pb.INK, va="top")
+    ax.set_ylim(-0.25, 0.5)
+    ax.set_title("C  Women's rating minus men's", loc="left", fontsize=12, fontweight="bold", color=pb.INK)
+
+    for ax in axes:
+        ax.set_xlim(10, 95)
+        ax.set_xlabel("Age at interview", color=pb.INK2)
+        ax.yaxis.grid(True, color=pb.GRID, lw=0.8)
+        ax.set_axisbelow(True)
+        for s_ in ax.spines.values():
+            s_.set_visible(False)
+        ax.tick_params(colors=pb.INK2)
+    # source key in panel A
+    ax = axes[0]
+    y0 = ax.get_ylim()[0]
+    yr = np.ptp(ax.get_ylim())
+    ax.plot([52, 58], [y0 + 0.93 * yr] * 2, color=pb.INK2, lw=1.2, ls=(0, (2, 1.5)))
+    ax.text(59.5, y0 + 0.93 * yr, "Add Health, one cohort, 1994-2009", va="center", fontsize=8.5, color=pb.INK2)
+    ax.plot([52, 58], [y0 + 0.86 * yr] * 2, color=pb.INK2, lw=2.2, marker="o", ms=4.5, markevery=[1])
+    ax.text(59.5, y0 + 0.86 * yr, "GSS, all ages, 2016-22", va="center", fontsize=8.5, color=pb.INK2)
+
+    fig.subplots_adjust(left=0.045, right=0.975, top=0.78, bottom=0.19, wspace=0.2)
+    fig.text(0.015, 0.945, "Women's looks ratings fall to men's level by the late 20s, then run slightly above "
+             "them for life. The lines touch but never cross",
+             fontsize=14, fontweight="bold", color=pb.INK, ha="left")
+    fig.text(0.015, 0.855, "Interviewer ratings of each respondent's physical attractiveness, by sex and age. Dashed: "
+             "Add Health, the same people followed from age 12 to 31.\nSolid: General Social Survey, different people "
+             "at every age, in age bands, so its slope mixes ageing with generational differences.",
+             fontsize=10.5, color=pb.INK2, ha="left", va="bottom", linespacing=1.4)
+    fig.text(0.015, 0.025, "Shaded bands: 95% intervals (GSS). GSS: 2016, 2018, 2022, N = 6,243, weight WTSSPS; "
+             "ages 18-24, then 5-year bands, 75+. Add Health: Waves I-IV public use, cross-sectional weights,\nages "
+             "with 100+ respondents per sex. Both surveys use the same 1-5 interviewer scale (1 very unattractive, "
+             "5 very attractive). Over-75s in GSS are a surviving, living-at-home group.",
+             fontsize=8, color=pb.MUTED, ha="left", va="bottom", linespacing=1.45)
+    raw = SN / "Unwatermarked graphs" / SUB / f"{NAME}.png"
+    wm = SN / SUB / f"{NAME}_wm.png"
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(raw, dpi=200, facecolor=pb.SURFACE)
+    plt.close(fig)
+    subprocess.run([sys.executable, str(Path.home() / "_watermark" / "watermark.py"), "7", str(raw), str(wm)],
+                   check=True)
+    print("wrote", raw, "\n     ", wm)
+
+
+if __name__ == "__main__":
+    ah = pd.read_csv(HERE / "looks_age_curve.csv")
+    gs, g35 = gss()
+    gs.round(3).to_csv(HERE / "looks_age_gss.csv", index=False)
+    print(gs[["band", "sex", "age", "n", "mean", "pct5"]].round(2).to_string())
+    print("GSS 35+ gap (women - men): %.3f (SE %.3f, n=%d)" % g35)
+    print(gap(gs, ["band"]).round(3))
+    if "--chart" in sys.argv:
+        chart(ah, gs, g35)
 ```

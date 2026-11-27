@@ -3,7 +3,7 @@
 Methodology, results and code behind charts from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Each page has a plain-text `methods.md` for AI fact-checking.
 
 - [Happy until death: what share of first marriages stay happy for both spouses until one of them dies (NSFH 1987-2003, multi-state projection)](happy-till-death/) (2026-11-27)
-- [How interviewers rate looks, grooming and personality, by sex and age (Add Health)](looks-by-age/) (2026-11-27)
+- [How interviewers rate looks by sex and age: Add Health and GSS](looks-by-age/) (2026-11-27)
 - [Teen friendship networks in Add Health: four kinds of connectedness, what predicts popularity, and what popularity predicts](addhealth-popularity/) (2026-11-26)
 - [Interviewer ratings in Add Health: the grooming premium, and how many people get 5/5/5](addhealth-ratings/) (2026-11-26)
 - [Children of divorce: how many divorces involve the couple's minor children (SIPP), how many of those end high-conflict marriages (NSFH), and how much of children's gap survives twin and sibling designs, in SD and everyday units](children-of-divorce/) (2026-11-26)

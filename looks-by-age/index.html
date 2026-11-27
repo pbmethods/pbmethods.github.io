@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How interviewers rate looks, grooming and personality, by sex and age (Add Health)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How interviewers rate looks by sex and age: Add Health and GSS</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
 :root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
 @media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
 --grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
@@ -21,10 +21,11 @@ th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white
 th{color:var(--ink2)}
 li{margin:.2rem 0}
 </style></head><body><main>
-<h1>How interviewers rate looks, grooming and personality, by sex and age (Add Health)</h1>
+<h1>How interviewers rate looks by sex and age: Add Health and GSS</h1>
 <p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-27.</p>
 
 <p><img alt="chart 1" src="chart.png" /></p>
+<p><img alt="chart 2" src="chart2.png" /></p>
 <p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/looks-by-age/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
 
 <h2>Method</h2>
@@ -54,6 +55,31 @@ Codes outside 1-5 are missing. Sex is BIO_SEX (Wave I). A different interviewer 
 
 Run:  uv run --with matplotlib,pillow,fonttools,pandas,scipy python notebooks/looks_gaps/looks_ratings_by_sex.py
 Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, and the chart's _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+</code></pre>
+<h3><code>looks_age_gss_triangulate.py</code></h3>
+<pre><code class="language-text">Do women's and men's interviewer-rated looks ever cross with age? Add Health (ages 12-31) and GSS (18-89).
+
+Data:
+  Add Health   looks_age_curve.csv from looks_ratings_by_sex.py (run that first): interviewer rating of physical
+               attractiveness, 1-5, by wave segment, sex and single year of age, one cohort born ~1974-83 followed
+               1994-2009. Cross-sectional wave weights.
+  GSS          General Social Survey cumulative file 1972-2024 R2 (gss7224_r2.dta), the years that carry the same
+               interviewer item: RLOOKS &quot;R physical attractiveness rating&quot;, 1 very unattractive .. 5 very
+               attractive, asked of the interviewer after the interview in 2016, 2018 and 2022 (N = 6,243 rated,
+               ages 18-89). Weight WTSSPS. Sex = SEX, age = AGE (89 = 89+).
+Method: GSS respondents are pooled across the three years and grouped into age bands (18-24, then 5-year bands to
+75, then 75+), plotted at the band's weighted mean age. Per band and sex: weighted mean rating and weighted share
+rated 5, with 95% intervals from the Kish effective sample size (no design correction). The gap is women minus men,
+with SE = sqrt(SE_w^2 + SE_m^2). Add Health points are single years within each wave segment; their gap SE is
+backed out of the stored 95% intervals. A single pooled GSS gap for ages 35+ is also reported (weighted regression
+of rating on female, ages 35+, HC1 SEs).
+Caveats: GSS is cross-sectional, so its age curve mixes ageing with cohort differences, and people over ~75 are a
+selected (surviving, at-home) group. The two surveys use different interviewer staffs and eras; the overlap at ages
+18-31 is the check that the two scales line up.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas,statsmodels python notebooks/looks_gaps/looks_age_gss_triangulate.py
+Writes looks_age_gss.csv next to this script, and the chart's _wm copy to
 ~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
 </code></pre>
 <h2>Results</h2>
@@ -1035,6 +1061,338 @@ Writes looks_ratings_somersd.csv and looks_age_curve.csv next to this script, an
 </tbody>
 </table>
 <p><em>Every 2th row of 84 shown; full file: <a href="looks_ratings_somersd.csv">looks_ratings_somersd.csv</a>.</em></p>
+<h3><code>looks_age_gss.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>src</th>
+<th>band</th>
+<th>sex</th>
+<th>age</th>
+<th>n</th>
+<th>mean</th>
+<th>mean_lo</th>
+<th>mean_hi</th>
+<th>pct5</th>
+<th>pct5_lo</th>
+<th>pct5_hi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSS</td>
+<td>18-24</td>
+<td>men</td>
+<td>21.185</td>
+<td>252</td>
+<td>3.539</td>
+<td>3.399</td>
+<td>3.678</td>
+<td>11.197</td>
+<td>5.571</td>
+<td>16.823</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>18-24</td>
+<td>women</td>
+<td>21.484</td>
+<td>288</td>
+<td>3.695</td>
+<td>3.563</td>
+<td>3.827</td>
+<td>15.782</td>
+<td>9.708</td>
+<td>21.855</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>25-29</td>
+<td>men</td>
+<td>26.977</td>
+<td>235</td>
+<td>3.383</td>
+<td>3.258</td>
+<td>3.508</td>
+<td>6.481</td>
+<td>2.508</td>
+<td>10.454</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>25-29</td>
+<td>women</td>
+<td>27.109</td>
+<td>282</td>
+<td>3.479</td>
+<td>3.334</td>
+<td>3.624</td>
+<td>11.414</td>
+<td>6.459</td>
+<td>16.368</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>30-34</td>
+<td>men</td>
+<td>32.081</td>
+<td>261</td>
+<td>3.406</td>
+<td>3.283</td>
+<td>3.530</td>
+<td>8.573</td>
+<td>4.374</td>
+<td>12.772</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>30-34</td>
+<td>women</td>
+<td>31.970</td>
+<td>332</td>
+<td>3.538</td>
+<td>3.422</td>
+<td>3.654</td>
+<td>11.273</td>
+<td>6.543</td>
+<td>16.003</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>35-39</td>
+<td>men</td>
+<td>37.040</td>
+<td>224</td>
+<td>3.423</td>
+<td>3.289</td>
+<td>3.557</td>
+<td>7.532</td>
+<td>3.006</td>
+<td>12.057</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>35-39</td>
+<td>women</td>
+<td>37.062</td>
+<td>320</td>
+<td>3.391</td>
+<td>3.268</td>
+<td>3.515</td>
+<td>7.801</td>
+<td>3.933</td>
+<td>11.670</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>40-44</td>
+<td>men</td>
+<td>41.927</td>
+<td>238</td>
+<td>3.459</td>
+<td>3.320</td>
+<td>3.599</td>
+<td>12.584</td>
+<td>6.928</td>
+<td>18.239</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>40-44</td>
+<td>women</td>
+<td>41.977</td>
+<td>272</td>
+<td>3.490</td>
+<td>3.362</td>
+<td>3.619</td>
+<td>8.450</td>
+<td>4.098</td>
+<td>12.803</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>45-49</td>
+<td>men</td>
+<td>47.190</td>
+<td>228</td>
+<td>3.235</td>
+<td>3.120</td>
+<td>3.351</td>
+<td>2.563</td>
+<td>0.000</td>
+<td>5.359</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>45-49</td>
+<td>women</td>
+<td>47.190</td>
+<td>241</td>
+<td>3.389</td>
+<td>3.259</td>
+<td>3.518</td>
+<td>5.315</td>
+<td>1.540</td>
+<td>9.090</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>50-54</td>
+<td>men</td>
+<td>51.875</td>
+<td>242</td>
+<td>3.197</td>
+<td>3.083</td>
+<td>3.311</td>
+<td>3.654</td>
+<td>0.468</td>
+<td>6.839</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>50-54</td>
+<td>women</td>
+<td>52.052</td>
+<td>292</td>
+<td>3.337</td>
+<td>3.206</td>
+<td>3.468</td>
+<td>7.661</td>
+<td>3.323</td>
+<td>12.000</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>55-59</td>
+<td>men</td>
+<td>56.892</td>
+<td>274</td>
+<td>3.182</td>
+<td>3.075</td>
+<td>3.289</td>
+<td>3.007</td>
+<td>0.320</td>
+<td>5.694</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>55-59</td>
+<td>women</td>
+<td>57.000</td>
+<td>302</td>
+<td>3.273</td>
+<td>3.151</td>
+<td>3.395</td>
+<td>8.361</td>
+<td>4.317</td>
+<td>12.405</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>60-64</td>
+<td>men</td>
+<td>61.713</td>
+<td>223</td>
+<td>3.171</td>
+<td>3.040</td>
+<td>3.302</td>
+<td>3.262</td>
+<td>0.000</td>
+<td>6.545</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>60-64</td>
+<td>women</td>
+<td>61.789</td>
+<td>291</td>
+<td>3.199</td>
+<td>3.082</td>
+<td>3.315</td>
+<td>4.923</td>
+<td>1.431</td>
+<td>8.414</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>65-69</td>
+<td>men</td>
+<td>67.038</td>
+<td>233</td>
+<td>3.079</td>
+<td>2.963</td>
+<td>3.195</td>
+<td>1.584</td>
+<td>0.000</td>
+<td>3.717</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>65-69</td>
+<td>women</td>
+<td>67.009</td>
+<td>259</td>
+<td>3.170</td>
+<td>3.064</td>
+<td>3.276</td>
+<td>0.910</td>
+<td>0.000</td>
+<td>2.425</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>70-74</td>
+<td>men</td>
+<td>71.755</td>
+<td>156</td>
+<td>3.164</td>
+<td>3.030</td>
+<td>3.297</td>
+<td>3.015</td>
+<td>0.000</td>
+<td>6.613</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>70-74</td>
+<td>women</td>
+<td>71.594</td>
+<td>210</td>
+<td>3.345</td>
+<td>3.207</td>
+<td>3.482</td>
+<td>6.350</td>
+<td>1.579</td>
+<td>11.120</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>75+</td>
+<td>men</td>
+<td>80.439</td>
+<td>236</td>
+<td>3.112</td>
+<td>3.008</td>
+<td>3.216</td>
+<td>0.761</td>
+<td>0.000</td>
+<td>2.240</td>
+</tr>
+<tr>
+<td>GSS</td>
+<td>75+</td>
+<td>women</td>
+<td>80.813</td>
+<td>351</td>
+<td>3.232</td>
+<td>3.142</td>
+<td>3.323</td>
+<td>3.481</td>
+<td>1.110</td>
+<td>5.853</td>
+</tr>
+</tbody>
+</table>
 <h2>Code</h2>
 <p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
 <h3><code>looks_ratings_by_sex.py</code></h3>
@@ -1226,5 +1584,170 @@ if __name__ == &quot;__main__&quot;:
     print(c[[&quot;wave&quot;, &quot;sex&quot;, &quot;age&quot;, &quot;n&quot;, &quot;mean&quot;, &quot;pct5&quot;]].round(2).to_string())
     if &quot;--chart&quot; in sys.argv:
         chart(c)
+</code></pre>
+<h3><code>looks_age_gss_triangulate.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Do women's and men's interviewer-rated looks ever cross with age? Add Health (ages 12-31) and GSS (18-89).
+
+Data:
+  Add Health   looks_age_curve.csv from looks_ratings_by_sex.py (run that first): interviewer rating of physical
+               attractiveness, 1-5, by wave segment, sex and single year of age, one cohort born ~1974-83 followed
+               1994-2009. Cross-sectional wave weights.
+  GSS          General Social Survey cumulative file 1972-2024 R2 (gss7224_r2.dta), the years that carry the same
+               interviewer item: RLOOKS &quot;R physical attractiveness rating&quot;, 1 very unattractive .. 5 very
+               attractive, asked of the interviewer after the interview in 2016, 2018 and 2022 (N = 6,243 rated,
+               ages 18-89). Weight WTSSPS. Sex = SEX, age = AGE (89 = 89+).
+Method: GSS respondents are pooled across the three years and grouped into age bands (18-24, then 5-year bands to
+75, then 75+), plotted at the band's weighted mean age. Per band and sex: weighted mean rating and weighted share
+rated 5, with 95% intervals from the Kish effective sample size (no design correction). The gap is women minus men,
+with SE = sqrt(SE_w^2 + SE_m^2). Add Health points are single years within each wave segment; their gap SE is
+backed out of the stored 95% intervals. A single pooled GSS gap for ages 35+ is also reported (weighted regression
+of rating on female, ages 35+, HC1 SEs).
+Caveats: GSS is cross-sectional, so its age curve mixes ageing with cohort differences, and people over ~75 are a
+selected (surviving, at-home) group. The two surveys use different interviewer staffs and eras; the overlap at ages
+18-31 is the check that the two scales line up.
+
+Run:  uv run --with matplotlib,pillow,fonttools,pandas,statsmodels python notebooks/looks_gaps/looks_age_gss_triangulate.py
+Writes looks_age_gss.csv next to this script, and the chart's _wm copy to
+~/Desktop/Recent Projects/Substack Notes/Gender differences/ (original in Unwatermarked graphs/Gender differences/).
+&quot;&quot;&quot;
+import subprocess
+import sys
+import warnings
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+warnings.filterwarnings(&quot;ignore&quot;)
+HERE = Path(__file__).resolve().parent
+GSS = HERE.parent / &quot;us_public_data&quot; / &quot;gss7224_r2.dta&quot;
+SN = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot;
+SUB = &quot;Gender differences&quot;
+NAME = &quot;looks_rating_by_age_sex_gss&quot;
+BINS = [18, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 90]
+
+
+def gss():
+    d = pd.read_stata(GSS, columns=[&quot;year&quot;, &quot;sex&quot;, &quot;age&quot;, &quot;rlooks&quot;, &quot;wtssps&quot;], convert_categoricals=False)
+    d = d[d.rlooks.between(1, 5) &amp; d.age.between(18, 89) &amp; d.sex.isin([1, 2]) &amp; (d.wtssps &gt; 0)].copy()
+    d[&quot;female&quot;] = (d.sex == 2).astype(float)
+    d[&quot;band&quot;] = pd.cut(d.age, BINS, right=False)
+    rows = []
+    for (b, f), g in d.groupby([&quot;band&quot;, &quot;female&quot;], observed=True):
+        wn = g.wtssps / g.wtssps.sum()
+        neff = 1 / (wn ** 2).sum()
+        m = (wn * g.rlooks).sum()
+        se = np.sqrt((wn * (g.rlooks - m) ** 2).sum() / neff)
+        p5 = (wn * (g.rlooks == 5)).sum()
+        se5 = np.sqrt(p5 * (1 - p5) / neff)
+        rows.append(dict(src=&quot;GSS&quot;, band=f&quot;{b.left}-{b.right - 1}&quot; if b.right &lt; 90 else f&quot;{b.left}+&quot;,
+                         sex=&quot;women&quot; if f else &quot;men&quot;, age=(wn * g.age).sum(), n=len(g), mean=m,
+                         mean_lo=m - 1.96 * se, mean_hi=m + 1.96 * se, pct5=100 * p5,
+                         pct5_lo=100 * max(0, p5 - 1.96 * se5), pct5_hi=100 * (p5 + 1.96 * se5)))
+    t = pd.DataFrame(rows)
+    o = d[d.age &gt;= 35]
+    fit = sm.WLS(o.rlooks, sm.add_constant(o[[&quot;female&quot;]]), weights=o.wtssps).fit(cov_type=&quot;HC1&quot;)
+    return t, (fit.params.female, fit.bse.female, len(o))
+
+
+def gap(t, keys):
+    w = t[t.sex == &quot;women&quot;].set_index(keys)
+    m = t[t.sex == &quot;men&quot;].set_index(keys)
+    j = w.join(m, lsuffix=&quot;_w&quot;, rsuffix=&quot;_m&quot;, how=&quot;inner&quot;)
+    se = np.sqrt(((j.mean_hi_w - j.mean_lo_w) / 3.92) ** 2 + ((j.mean_hi_m - j.mean_lo_m) / 3.92) ** 2)
+    g = j.mean_w - j.mean_m
+    return pd.DataFrame({&quot;age&quot;: (j.age_w + j.age_m) / 2, &quot;gap&quot;: g, &quot;lo&quot;: g - 1.96 * se, &quot;hi&quot;: g + 1.96 * se})
+
+
+def chart(ah, gs, g35):
+    pb.apply()
+    col = {&quot;men&quot;: pb.NAVY, &quot;women&quot;: pb.RED}
+    fig, axes = plt.subplots(1, 3, figsize=(14, 5.6), gridspec_kw=dict(width_ratios=[1, 1, 1]))
+    panels = ((&quot;mean&quot;, &quot;mean_lo&quot;, &quot;mean_hi&quot;, &quot;A  Average looks rating (1-5)&quot;),
+              (&quot;pct5&quot;, &quot;pct5_lo&quot;, &quot;pct5_hi&quot;, &quot;B  Rated 5, \&quot;very attractive\&quot; (%)&quot;))
+    for ax, (v, lo, hi, ttl) in zip(axes[:2], panels):
+        for sex in (&quot;men&quot;, &quot;women&quot;):
+            for w in (1, 3, 4):
+                s = ah[(ah.sex == sex) &amp; (ah.wave == w)].sort_values(&quot;age&quot;)
+                ax.plot(s.age, s[v], color=col[sex], lw=1.2, ls=(0, (2, 1.5)), alpha=0.85)
+            s = gs[gs.sex == sex].sort_values(&quot;age&quot;)
+            ax.fill_between(s.age, s[lo], s[hi], color=col[sex], alpha=0.12, lw=0)
+            ax.plot(s.age, s[v], color=col[sex], lw=2.2, marker=&quot;o&quot;, ms=5.5, mec=pb.SURFACE, mew=1.2)
+            ax.text(s.age.iloc[-1] + 1.5, s[v].iloc[-1], sex.capitalize(), color=pb.INK, fontsize=10.5,
+                    fontweight=&quot;bold&quot;, va=&quot;center&quot;)
+        ax.set_title(ttl, loc=&quot;left&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=pb.INK)
+    axes[1].set_ylim(0, None)
+
+    ax = axes[2]
+    ga = gap(ah.assign(akey=ah.age), [&quot;wave&quot;, &quot;akey&quot;]).reset_index()
+    for w in (1, 3, 4):
+        s = ga[ga.wave == w].sort_values(&quot;age&quot;)
+        ax.plot(s.age, s.gap, color=pb.GRAYS[1], lw=1.2, ls=(0, (2, 1.5)))
+    gg = gap(gs, [&quot;band&quot;]).sort_values(&quot;age&quot;)
+    ax.fill_between(gg.age, gg.lo, gg.hi, color=pb.GRAYS[2], alpha=0.14, lw=0)
+    ax.plot(gg.age, gg.gap, color=pb.GRAYS[2], lw=2.2, marker=&quot;o&quot;, ms=5.5, mec=pb.SURFACE, mew=1.2)
+    ax.axhline(0, color=pb.INK2, lw=1)
+    ax.text(88, 0.012, &quot;women = men&quot;, ha=&quot;right&quot;, va=&quot;bottom&quot;, fontsize=9, color=pb.INK2)
+    ax.text(88, -0.012, &quot;below: men rated higher&quot;, ha=&quot;right&quot;, va=&quot;top&quot;, fontsize=9, color=pb.MUTED)
+    b, se, n = g35
+    ax.text(36, 0.47, f&quot;GSS ages 35+ pooled: women +{b:.2f}\n(95% CI {b - 1.96 * se:+.2f} to {b + 1.96 * se:+.2f})&quot;,
+            fontsize=9.5, color=pb.INK, va=&quot;top&quot;)
+    ax.set_ylim(-0.25, 0.5)
+    ax.set_title(&quot;C  Women's rating minus men's&quot;, loc=&quot;left&quot;, fontsize=12, fontweight=&quot;bold&quot;, color=pb.INK)
+
+    for ax in axes:
+        ax.set_xlim(10, 95)
+        ax.set_xlabel(&quot;Age at interview&quot;, color=pb.INK2)
+        ax.yaxis.grid(True, color=pb.GRID, lw=0.8)
+        ax.set_axisbelow(True)
+        for s_ in ax.spines.values():
+            s_.set_visible(False)
+        ax.tick_params(colors=pb.INK2)
+    # source key in panel A
+    ax = axes[0]
+    y0 = ax.get_ylim()[0]
+    yr = np.ptp(ax.get_ylim())
+    ax.plot([52, 58], [y0 + 0.93 * yr] * 2, color=pb.INK2, lw=1.2, ls=(0, (2, 1.5)))
+    ax.text(59.5, y0 + 0.93 * yr, &quot;Add Health, one cohort, 1994-2009&quot;, va=&quot;center&quot;, fontsize=8.5, color=pb.INK2)
+    ax.plot([52, 58], [y0 + 0.86 * yr] * 2, color=pb.INK2, lw=2.2, marker=&quot;o&quot;, ms=4.5, markevery=[1])
+    ax.text(59.5, y0 + 0.86 * yr, &quot;GSS, all ages, 2016-22&quot;, va=&quot;center&quot;, fontsize=8.5, color=pb.INK2)
+
+    fig.subplots_adjust(left=0.045, right=0.975, top=0.78, bottom=0.19, wspace=0.2)
+    fig.text(0.015, 0.945, &quot;Women's looks ratings fall to men's level by the late 20s, then run slightly above &quot;
+             &quot;them for life. The lines touch but never cross&quot;,
+             fontsize=14, fontweight=&quot;bold&quot;, color=pb.INK, ha=&quot;left&quot;)
+    fig.text(0.015, 0.855, &quot;Interviewer ratings of each respondent's physical attractiveness, by sex and age. Dashed: &quot;
+             &quot;Add Health, the same people followed from age 12 to 31.\nSolid: General Social Survey, different people &quot;
+             &quot;at every age, in age bands, so its slope mixes ageing with generational differences.&quot;,
+             fontsize=10.5, color=pb.INK2, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.4)
+    fig.text(0.015, 0.025, &quot;Shaded bands: 95% intervals (GSS). GSS: 2016, 2018, 2022, N = 6,243, weight WTSSPS; &quot;
+             &quot;ages 18-24, then 5-year bands, 75+. Add Health: Waves I-IV public use, cross-sectional weights,\nages &quot;
+             &quot;with 100+ respondents per sex. Both surveys use the same 1-5 interviewer scale (1 very unattractive, &quot;
+             &quot;5 very attractive). Over-75s in GSS are a surviving, living-at-home group.&quot;,
+             fontsize=8, color=pb.MUTED, ha=&quot;left&quot;, va=&quot;bottom&quot;, linespacing=1.45)
+    raw = SN / &quot;Unwatermarked graphs&quot; / SUB / f&quot;{NAME}.png&quot;
+    wm = SN / SUB / f&quot;{NAME}_wm.png&quot;
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(raw, dpi=200, facecolor=pb.SURFACE)
+    plt.close(fig)
+    subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(raw), str(wm)],
+                   check=True)
+    print(&quot;wrote&quot;, raw, &quot;\n     &quot;, wm)
+
+
+if __name__ == &quot;__main__&quot;:
+    ah = pd.read_csv(HERE / &quot;looks_age_curve.csv&quot;)
+    gs, g35 = gss()
+    gs.round(3).to_csv(HERE / &quot;looks_age_gss.csv&quot;, index=False)
+    print(gs[[&quot;band&quot;, &quot;sex&quot;, &quot;age&quot;, &quot;n&quot;, &quot;mean&quot;, &quot;pct5&quot;]].round(2).to_string())
+    print(&quot;GSS 35+ gap (women - men): %.3f (SE %.3f, n=%d)&quot; % g35)
+    print(gap(gs, [&quot;band&quot;]).round(3))
+    if &quot;--chart&quot; in sys.argv:
+        chart(ah, gs, g35)
 </code></pre>
 </main></body></html>
