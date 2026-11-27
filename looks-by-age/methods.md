@@ -526,8 +526,8 @@ def chart(ah, gs, g35):
     ax.text(59.5, y0 + 0.86 * yr, "GSS, all ages, 2016-22", va="center", fontsize=8.5, color=pb.INK2)
 
     fig.subplots_adjust(left=0.045, right=0.975, top=0.78, bottom=0.19, wspace=0.2)
-    fig.text(0.015, 0.945, "Women's looks ratings fall to men's level by the late 20s, then run slightly above "
-             "them for life. The lines touch but never cross",
+    fig.text(0.015, 0.945, "Women are rated better-looking than men at every age. The gap shrinks after the "
+             "teens but never closes",
              fontsize=14, fontweight="bold", color=pb.INK, ha="left")
     fig.text(0.015, 0.855, "Interviewer ratings of each respondent's physical attractiveness, by sex and age. Dashed: "
              "Add Health, the same people followed from age 12 to 31.\nSolid: General Social Survey, different people "
