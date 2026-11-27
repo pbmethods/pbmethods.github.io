@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Happy until death: what share of first marriages stay happy for both spouses until one of them dies (NSFH 1987-2003, multi-state projection)</title><link rel="alternate" type="text/markdown" href="methods.md"><style>
+:root{--bg:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8984;--grid:#e4e3df;--navy:#1f3a68;--code:#f3f2ef}
+@media (prefers-color-scheme:dark){:root{--bg:#141518;--ink:#eceef1;--ink2:#b4b7bd;--muted:#8b8f97;
+--grid:#2a2c31;--navy:#5b84c4;--code:#1c1e22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Avenir Next",Avenir,"Segoe UI",
+system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.7rem;line-height:1.25;margin:0 0 .3rem}
+h2{font-size:1.2rem;margin:2.2rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--grid)}
+h3{font-size:1rem;margin:1.4rem 0 .4rem;color:var(--ink2)}
+a{color:var(--navy)}
+img{max-width:100%;height:auto;border:1px solid var(--grid)}
+.meta{color:var(--muted);font-size:.9rem}
+.ai{background:var(--code);border-left:3px solid var(--navy);padding:.6rem .9rem;font-size:.92rem}
+pre{background:var(--code);padding:12px 14px;overflow-x:auto;font-size:.8rem;line-height:1.45}
+code{font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;font-size:.85rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border-bottom:1px solid var(--grid);padding:4px 10px;text-align:left;white-space:nowrap}
+th{color:var(--ink2)}
+li{margin:.2rem 0}
+</style></head><body><main>
+<h1>Happy until death: what share of first marriages stay happy for both spouses until one of them dies (NSFH 1987-2003, multi-state projection)</h1>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-27.</p>
+
+<p><img alt="chart 1" src="chart.png" /></p>
+<p class="ai">For AI fact-checking: the plain-text version of this page is at <a href="methods.md">https://pbmethods.github.io/happy-till-death/methods.md</a>. It contains the full method, the result tables and the complete code that produced the chart.</p>
+
+<h2>Method</h2>
+<h3><code>nsfh_happy_till_death_data.py</code></h3>
+<pre><code class="language-text">What share of first marriages stay happy for both spouses until one of them dies? NSFH 1987-88 -&gt; 1992-94 -&gt; 2001-03,
+projected to the first death with a multi-state model.
+
+Data: National Survey of Families and Households (notebooks/us_public_data/nsfh), all three waves, both spouses.
+  Sample: Wave 1 (1987-88, ICPSR 6041) married couples where the main respondent is in a first marriage (M95 = 1), the
+  wedding date is known (M96M), and both the respondent (E701) and the spouse (S67) rated the marriage on the 1-7 scale.
+  Weighted by the Wave 1 weight AWEIGHT. Wave 1 -&gt; 2 status (intact / separated or divorced / widowed / not
+  re-interviewed) from MUT1UTRA (DS0007); Wave 2 -&gt; 3 from the Wave 3 marriage history (marhist111605, same rule as
+  nsfh_unhappy_persistence.py). Wave 2 ratings from the respondent (DS0004, MT...) and spouse (DS0005, CT...)
+  questionnaires, linked on MCASEID; Wave 3 from the R and S rows of main3RandS12222015 (RT...).
+
+&quot;Happy&quot; at a wave is judged for the couple, from both spouses' own answers. Three nested tiers:
+  T1 both happy       both spouses rate the marriage 6 or 7 of 7 (E701/S67, MT601/CT601, RT601).
+  T2 + no warning     T1, and neither spouse: thought the marriage was in trouble in the past year (E715/S81, MT624/CT624,
+                      RT624 = yes); put the chance of separating at &quot;about even&quot; or higher (E718/S84, MT627/CT627, RT627
+                      &gt;= 3); expects to be happier separated (E713D/S79D, MT620G/CT620G, RT620G &gt;= 4); argues heatedly
+                      often or always (E707C/S73C, MT614C/CT614C, RT614C &gt;= 4); or had a physical fight in the past year
+                      (E708/S74, MT615/CT615, RT615 = yes).
+  T3 + sex life       T2, and neither spouse: rates the sexual relationship 2 or lower of 7 (MT602E/CT602E, RT602E; not
+                      asked at Wave 1); expects their sex life to be better separated (E713E/S79E, MT620E/CT620E, RT620E
+                      &gt;= 4); and the couple is not sexless (both spouses report no sex in the past month: E705/S71,
+                      MT608/CT608, RT608 = 0). The rating cut-off is set so that about one husband in five fails the sex
+                      filter at Wave 2 (24% at a cut-off of 2, 28% at 3), near the share of partnered British men with a
+                      real sexual grievance in Natsal-3 (dissatisfied, or wanting sex &quot;much more&quot; often while saying
+                      they're satisfied). Cut-offs of 1 and 3 are run as sensitivity checks. Wave 1 did not ask the
+                      rating, so a Wave 1 couple that passes T2 with no other sex complaint is &quot;state unknown&quot; for T3. The sex filter applies while the husband is under 75; after that the
+                      couple is judged on T2.
+  A missing answer on a T2/T3 item counts as a pass; both overall ratings are required.
+
+Model. A three-state continuous-time Markov model (happy H, not happy U, separated/divorced S, absorbing) with
+intensities H-&gt;U, U-&gt;H, H-&gt;S, U-&gt;S, each constant within bands of years married (0-9, 10-19, 20-34, 35+; the
+band of the interval's midpoint), fitted by weighted
+maximum likelihood to each couple's whole observed path (forward algorithm; a wave where the couple is still married
+but a spouse did not answer is &quot;married, state unknown&quot;). Widowhood ends a couple's path, uncensored information
+before it is kept. Mover-stayer mixture: a share of couples (by the same duration bands, at Wave 1) are &quot;stayers&quot;
+who stay happy for good; the rest move by the Markov model. This allows for stable couple types, which a plain Markov
+model understates. T1 and T2 are fitted separately; the plain Markov fit is reported alongside as the low end.
+T3 is built on the T2 model, so it is nested by construction: a T2 path, times the chance a T2-happy couple passes the
+sex filter at the wedding check (couples married under 10 years at Wave 2), times the 5-year chance of still passing
+at each later check while the husband is under 75 (couples T2-happy at Waves 2 and 3 who passed at Wave 2, rescaled
+from the 8.5-year gap). Fitting T3 as its own model fails: Wave 1 has no sex rating, so its starting state is barely
+identified and the fit runs to a corner. Compounding the 5-year chance at every check assumes no stable &quot;good sex&quot;
+type, which is pessimistic; the &quot;once&quot; variant lets the filter fail only at one check after the wedding, the
+optimistic end.
+
+Projection. A cohort of first marriages followed from the wedding with a check every 5 years (the NSFH waves were 5.5
+and 8.5 years apart). A marriage counts as &quot;happy until death&quot; if the couple is happy at every check and the first
+spouse dies before any separation. The wedding check uses the 0-9-year band's stayer share and movers' share happy (couples married under 10
+years at Wave 1), so nothing is extrapolated below the data. Death of either
+spouse: Gompertz-Makeham mortality (hazard A + B e^(c x)) with A fixed (men 0.0008, women 0.0004) and B, c solved so
+that remaining life expectancy matches US 2019 period values at ages 30 and 65 (men 47.6 and 18.2 years, women 52.4
+and 20.8): an approximation to the US life table, since the SSA table was not available offline. Husband 30 and wife 28
+at the wedding (about the ACS median ages at first marriage). Mortality is assumed independent of marital state.
+Divorce: by default the NSFH model's own separation rates (marriages of 1930s-1980s, observed 1987-2003). A variant
+rescales the separation intensities so the cumulative divorce curve matches the SIPP 2024-25 first-marriage
+Kaplan-Meier (marriage_outcomes_by_duration.py), for today's lower divorce rates.
+
+Intervals: 95% percentile bootstrap over couples (refit and reprojection, 200 draws).
+Output: nsfh_happy_till_death.csv (projection funnel per tier and variant, with intervals) and
+nsfh_happy_till_death_observed.csv (the 14 observed years, no model).
+Run:  uv run --with pandas,pyreadstat,scipy,pyarrow python notebooks/marital_happiness/nsfh_happy_till_death_data.py
+</code></pre>
+<h3><code>nsfh_happy_till_death_chart.py</code></h3>
+<pre><code class="language-text">Chart: how many first marriages stay happy for both spouses until one of them dies.
+
+Reads nsfh_happy_till_death.csv and nsfh_happy_till_death_observed.csv from nsfh_happy_till_death_data.py, whose
+docstring holds the full method (sample, tiers, multi-state model, mortality, divorce calibration, bootstrap).
+A: projection per 100 first marriages, today's divorce rates (SIPP-calibrated). Bars = mover-stayer model (stable couple
+   types allowed; the better-fitting model). Whiskers run from the plain Markov model (no stable types: the floor) to
+   the bar, or for the sex filter to the optimistic &quot;fails at most once&quot; variant. Bootstrap 95% intervals in the labels.
+B: what was actually observed over 14 years (1987-88 -&gt; 2001-03), no model: NSFH first-marriage couples followed to
+   Wave 3, weighted.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_happy_till_death_chart.py
+</code></pre>
+<h2>Results</h2>
+<h3><code>nsfh_happy_till_death.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>tier</th>
+<th>model</th>
+<th>divorce</th>
+<th>sex_cut</th>
+<th>ends_in_death</th>
+<th>ends_in_death_lo</th>
+<th>ends_in_death_hi</th>
+<th>happy_till_death</th>
+<th>happy_lo</th>
+<th>happy_hi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>t1</td>
+<td>mover-stayer</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.544</td>
+<td>0.508</td>
+<td>0.581</td>
+<td>0.226</td>
+<td>0.153</td>
+<td>0.278</td>
+</tr>
+<tr>
+<td>t1</td>
+<td>mover-stayer</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.595</td>
+<td>0.589</td>
+<td>0.601</td>
+<td>0.227</td>
+<td>0.155</td>
+<td>0.279</td>
+</tr>
+<tr>
+<td>t1</td>
+<td>markov</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.512</td>
+<td>0.477</td>
+<td>0.545</td>
+<td>0.081</td>
+<td>0.070</td>
+<td>0.095</td>
+</tr>
+<tr>
+<td>t1</td>
+<td>markov</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.602</td>
+<td>0.598</td>
+<td>0.605</td>
+<td>0.088</td>
+<td>0.076</td>
+<td>0.103</td>
+</tr>
+<tr>
+<td>t2</td>
+<td>mover-stayer</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.536</td>
+<td>0.500</td>
+<td>0.570</td>
+<td>0.108</td>
+<td>0.061</td>
+<td>0.141</td>
+</tr>
+<tr>
+<td>t2</td>
+<td>mover-stayer</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.600</td>
+<td>0.597</td>
+<td>0.603</td>
+<td>0.109</td>
+<td>0.062</td>
+<td>0.141</td>
+</tr>
+<tr>
+<td>t2</td>
+<td>markov</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.524</td>
+<td>0.490</td>
+<td>0.560</td>
+<td>0.029</td>
+<td>0.023</td>
+<td>0.036</td>
+</tr>
+<tr>
+<td>t2</td>
+<td>markov</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.602</td>
+<td>0.599</td>
+<td>0.605</td>
+<td>0.030</td>
+<td>0.023</td>
+<td>0.037</td>
+</tr>
+<tr>
+<td>t3</td>
+<td>mover-stayer</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.536</td>
+<td>0.500</td>
+<td>0.570</td>
+<td>0.071</td>
+<td>0.037</td>
+<td>0.097</td>
+</tr>
+<tr>
+<td>t3</td>
+<td>mover-stayer</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.600</td>
+<td>0.597</td>
+<td>0.603</td>
+<td>0.071</td>
+<td>0.038</td>
+<td>0.097</td>
+</tr>
+<tr>
+<td>t3</td>
+<td>markov</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.524</td>
+<td>0.490</td>
+<td>0.560</td>
+<td>0.021</td>
+<td>0.016</td>
+<td>0.026</td>
+</tr>
+<tr>
+<td>t3</td>
+<td>markov</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.602</td>
+<td>0.599</td>
+<td>0.605</td>
+<td>0.022</td>
+<td>0.016</td>
+<td>0.027</td>
+</tr>
+<tr>
+<td>t3 once</td>
+<td>mover-stayer</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.536</td>
+<td>0.500</td>
+<td>0.570</td>
+<td>0.092</td>
+<td>0.053</td>
+<td>0.120</td>
+</tr>
+<tr>
+<td>t3 once</td>
+<td>mover-stayer</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.600</td>
+<td>0.597</td>
+<td>0.603</td>
+<td>0.093</td>
+<td>0.053</td>
+<td>0.121</td>
+</tr>
+<tr>
+<td>t3 once</td>
+<td>markov</td>
+<td>nsfh divorce</td>
+<td>2</td>
+<td>0.524</td>
+<td>0.490</td>
+<td>0.560</td>
+<td>0.025</td>
+<td>0.019</td>
+<td>0.031</td>
+</tr>
+<tr>
+<td>t3 once</td>
+<td>markov</td>
+<td>sipp divorce</td>
+<td>2</td>
+<td>0.602</td>
+<td>0.599</td>
+<td>0.605</td>
+<td>0.026</td>
+<td>0.020</td>
+<td>0.032</td>
+</tr>
+</tbody>
+</table>
+<h3><code>nsfh_happy_till_death_observed.csv</code></h3>
+<table>
+<thead>
+<tr>
+<th>outcome</th>
+<th>share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>separated or divorced</td>
+<td>0.173</td>
+</tr>
+<tr>
+<td>widowed</td>
+<td>0.135</td>
+</tr>
+<tr>
+<td>married, t1 at all 3 waves</td>
+<td>0.316</td>
+</tr>
+<tr>
+<td>married, t2 at all 3 waves</td>
+<td>0.214</td>
+</tr>
+<tr>
+<td>married, t3 at all 3 waves</td>
+<td>0.162</td>
+</tr>
+<tr>
+<td>still married (all)</td>
+<td>0.692</td>
+</tr>
+</tbody>
+</table>
+<h2>Notes and caveats</h2>
+<h1>Caveats: happy until death</h1>
+<ul>
+<li><strong>Fourteen years observed, a lifetime projected.</strong> NSFH follows couples for about 14 years (three interviews). Beyond
+  that the result comes from a model. Two models fit those 14 years about equally well (both reproduce the observed
+  share happy at all three waves within a few points), but they diverge over 40+ years: one lets some couples be stably
+  happy ("stayers"), the other has every couple drift. The stayer model fits significantly better and is the headline;
+  the drift model is the floor shown by the whiskers. The truth could still fall outside that range.</li>
+<li><strong>Snapshots, not a diary.</strong> "Happy at every check" means happy at each 5-year check, like the survey waves. Dips
+  between checks are not seen. More frequent checks would give a lower number.</li>
+<li><strong>Self-reports.</strong> Every test is a self-report, but each couple must pass on both spouses' separate answers, on
+  several items, at every check. That screens out one-sided and "quiet doubts" marriages, not shared self-deception.</li>
+<li><strong>The sex filter is a complaint filter.</strong> NSFH did not ask how often each spouse would ideally like sex, so it cannot
+  detect a libido mismatch that neither spouse complains about. Among couples who pass the other tests, the sex filter
+  removes few (about 1 in 10 at the first check). Sex complaints mostly show up alongside the other warning signs.
+  Wave 1 (1987-88) did not ask the sex-life rating, so the sex filter is estimated from Waves 2 and 3 and layered on
+  the warning-sign model. A stricter rating cut-off (3 or lower) changes the result by about a point.</li>
+<li><strong>Sexless is judged on one month.</strong> "Sexless" means both spouses reported no sex in the past month, a looser test
+  than the usual past-year definition. It is switched off from age 75, so ordinary late-life illness doesn't count as
+  a failed marriage.</li>
+<li><strong>Older cohorts.</strong> NSFH couples married between the 1930s and 1980s. Divorce is recalibrated to today's first
+  marriages (SIPP 2024-25); how happy marriages are, and how that changes over time, is not.</li>
+<li><strong>Deaths are approximate.</strong> Mortality is a Gompertz-Makeham curve matched to US 2019 life expectancy at 30 and 65,
+  with husband 30 and wife 28 at the wedding, and is assumed unrelated to how happy the marriage is.</li>
+<li><strong>First marriages, from one side.</strong> The sample is couples where the main respondent is in a first marriage; the
+  spouse's marital history isn't checked. About a fifth of couples were not re-interviewed; the model uses whatever
+  each couple contributed before dropping out, which assumes dropping out is unrelated to the marriage's later course.</li>
+</ul>
+<h2>Code</h2>
+<p>Run in the order listed. Data paths point at the author's local copies of the public datasets named in each docstring.</p>
+<h3><code>nsfh_happy_till_death_data.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;What share of first marriages stay happy for both spouses until one of them dies? NSFH 1987-88 -&gt; 1992-94 -&gt; 2001-03,
+projected to the first death with a multi-state model.
+
+Data: National Survey of Families and Households (notebooks/us_public_data/nsfh), all three waves, both spouses.
+  Sample: Wave 1 (1987-88, ICPSR 6041) married couples where the main respondent is in a first marriage (M95 = 1), the
+  wedding date is known (M96M), and both the respondent (E701) and the spouse (S67) rated the marriage on the 1-7 scale.
+  Weighted by the Wave 1 weight AWEIGHT. Wave 1 -&gt; 2 status (intact / separated or divorced / widowed / not
+  re-interviewed) from MUT1UTRA (DS0007); Wave 2 -&gt; 3 from the Wave 3 marriage history (marhist111605, same rule as
+  nsfh_unhappy_persistence.py). Wave 2 ratings from the respondent (DS0004, MT...) and spouse (DS0005, CT...)
+  questionnaires, linked on MCASEID; Wave 3 from the R and S rows of main3RandS12222015 (RT...).
+
+&quot;Happy&quot; at a wave is judged for the couple, from both spouses' own answers. Three nested tiers:
+  T1 both happy       both spouses rate the marriage 6 or 7 of 7 (E701/S67, MT601/CT601, RT601).
+  T2 + no warning     T1, and neither spouse: thought the marriage was in trouble in the past year (E715/S81, MT624/CT624,
+                      RT624 = yes); put the chance of separating at &quot;about even&quot; or higher (E718/S84, MT627/CT627, RT627
+                      &gt;= 3); expects to be happier separated (E713D/S79D, MT620G/CT620G, RT620G &gt;= 4); argues heatedly
+                      often or always (E707C/S73C, MT614C/CT614C, RT614C &gt;= 4); or had a physical fight in the past year
+                      (E708/S74, MT615/CT615, RT615 = yes).
+  T3 + sex life       T2, and neither spouse: rates the sexual relationship 2 or lower of 7 (MT602E/CT602E, RT602E; not
+                      asked at Wave 1); expects their sex life to be better separated (E713E/S79E, MT620E/CT620E, RT620E
+                      &gt;= 4); and the couple is not sexless (both spouses report no sex in the past month: E705/S71,
+                      MT608/CT608, RT608 = 0). The rating cut-off is set so that about one husband in five fails the sex
+                      filter at Wave 2 (24% at a cut-off of 2, 28% at 3), near the share of partnered British men with a
+                      real sexual grievance in Natsal-3 (dissatisfied, or wanting sex &quot;much more&quot; often while saying
+                      they're satisfied). Cut-offs of 1 and 3 are run as sensitivity checks. Wave 1 did not ask the
+                      rating, so a Wave 1 couple that passes T2 with no other sex complaint is &quot;state unknown&quot; for T3. The sex filter applies while the husband is under 75; after that the
+                      couple is judged on T2.
+  A missing answer on a T2/T3 item counts as a pass; both overall ratings are required.
+
+Model. A three-state continuous-time Markov model (happy H, not happy U, separated/divorced S, absorbing) with
+intensities H-&gt;U, U-&gt;H, H-&gt;S, U-&gt;S, each constant within bands of years married (0-9, 10-19, 20-34, 35+; the
+band of the interval's midpoint), fitted by weighted
+maximum likelihood to each couple's whole observed path (forward algorithm; a wave where the couple is still married
+but a spouse did not answer is &quot;married, state unknown&quot;). Widowhood ends a couple's path, uncensored information
+before it is kept. Mover-stayer mixture: a share of couples (by the same duration bands, at Wave 1) are &quot;stayers&quot;
+who stay happy for good; the rest move by the Markov model. This allows for stable couple types, which a plain Markov
+model understates. T1 and T2 are fitted separately; the plain Markov fit is reported alongside as the low end.
+T3 is built on the T2 model, so it is nested by construction: a T2 path, times the chance a T2-happy couple passes the
+sex filter at the wedding check (couples married under 10 years at Wave 2), times the 5-year chance of still passing
+at each later check while the husband is under 75 (couples T2-happy at Waves 2 and 3 who passed at Wave 2, rescaled
+from the 8.5-year gap). Fitting T3 as its own model fails: Wave 1 has no sex rating, so its starting state is barely
+identified and the fit runs to a corner. Compounding the 5-year chance at every check assumes no stable &quot;good sex&quot;
+type, which is pessimistic; the &quot;once&quot; variant lets the filter fail only at one check after the wedding, the
+optimistic end.
+
+Projection. A cohort of first marriages followed from the wedding with a check every 5 years (the NSFH waves were 5.5
+and 8.5 years apart). A marriage counts as &quot;happy until death&quot; if the couple is happy at every check and the first
+spouse dies before any separation. The wedding check uses the 0-9-year band's stayer share and movers' share happy (couples married under 10
+years at Wave 1), so nothing is extrapolated below the data. Death of either
+spouse: Gompertz-Makeham mortality (hazard A + B e^(c x)) with A fixed (men 0.0008, women 0.0004) and B, c solved so
+that remaining life expectancy matches US 2019 period values at ages 30 and 65 (men 47.6 and 18.2 years, women 52.4
+and 20.8): an approximation to the US life table, since the SSA table was not available offline. Husband 30 and wife 28
+at the wedding (about the ACS median ages at first marriage). Mortality is assumed independent of marital state.
+Divorce: by default the NSFH model's own separation rates (marriages of 1930s-1980s, observed 1987-2003). A variant
+rescales the separation intensities so the cumulative divorce curve matches the SIPP 2024-25 first-marriage
+Kaplan-Meier (marriage_outcomes_by_duration.py), for today's lower divorce rates.
+
+Intervals: 95% percentile bootstrap over couples (refit and reprojection, 200 draws).
+Output: nsfh_happy_till_death.csv (projection funnel per tier and variant, with intervals) and
+nsfh_happy_till_death_observed.csv (the 14 observed years, no model).
+Run:  uv run --with pandas,pyreadstat,scipy,pyarrow python notebooks/marital_happiness/nsfh_happy_till_death_data.py
+&quot;&quot;&quot;
+import re
+import sys
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pyreadstat
+from scipy.linalg import expm
+from scipy.optimize import brentq, minimize
+
+HERE = Path(__file__).resolve().parent
+DATA = HERE.parent / &quot;us_public_data&quot;
+NSFH = DATA / &quot;nsfh&quot;
+W2 = NSFH / &quot;wave2&quot; / &quot;ICPSR_06906&quot;
+W3 = NSFH / &quot;wave3&quot;
+SEX_CUT = int(sys.argv[1]) if len(sys.argv) &gt; 1 else 2
+NBOOT = int(__import__(&quot;os&quot;).environ.get(&quot;NBOOT&quot;, 200))
+H_AGE0, W_AGE0, STEP, SEXOFF = 30, 28, 5.0, 75
+
+
+def w2(ds, cols):
+    return pd.read_stata(W2 / f&quot;DS{ds}&quot; / f&quot;06906-{ds}-Data.dta&quot;, convert_categoricals=False, columns=cols)
+
+
+def ok(s, lo, hi):
+    return s.where(s.between(lo, hi))
+
+
+# ---------------------------------------------------------------- Wave 1
+W1C = [&quot;MCASEID&quot;, &quot;AWEIGHT&quot;, &quot;MYEAR&quot;, &quot;MMONTH&quot;, &quot;M95&quot;, &quot;M96M&quot;, &quot;M2BP01&quot;, &quot;M2BP02&quot;, &quot;M2DP01&quot;, &quot;E701&quot;, &quot;S67&quot;, &quot;E705&quot;,
+       &quot;S71&quot;, &quot;E707C&quot;, &quot;S73C&quot;, &quot;E708&quot;, &quot;S74&quot;, &quot;E713D&quot;, &quot;S79D&quot;, &quot;E713E&quot;, &quot;S79E&quot;, &quot;E715&quot;, &quot;S81&quot;, &quot;E718&quot;, &quot;S84&quot;]
+c = pd.read_stata(NSFH / &quot;wave1&quot; / &quot;ICPSR_06041&quot; / &quot;DS0001&quot; / &quot;06041-0001-Data.dta&quot;, convert_categoricals=False,
+                  columns=W1C)
+c = c[(c.M95 == 1) &amp; c.E701.between(1, 7) &amp; c.S67.between(1, 7) &amp; (c.M96M &lt; 9000)].copy()
+c[&quot;cm1&quot;] = c.MYEAR * 12 + c.MMONTH
+c[&quot;dur1&quot;] = (c.cm1 - c.M96M) / 12
+c = c[c.dur1.between(0, 70)]
+male = c.M2DP01 == 1
+sp_age = c.M2BP02.where((c.M2BP02 - c.M2BP01).abs() &lt;= 15)
+c[&quot;hus_age1&quot;] = np.where(male, c.M2BP01, sp_age.fillna(c.M2BP01 + 2))
+c[&quot;wife_age1&quot;] = np.where(male, sp_age.fillna(c.M2BP01 - 2), c.M2BP01)
+
+
+def flags(r1, r2, trouble, chance, happier, heated, physical, sexrate, sexsep, sexfreq):
+    &quot;&quot;&quot;Per-couple T1/T2/T3 pass flags from paired (respondent, spouse) Series.&quot;&quot;&quot;
+    t1 = (r1 &gt;= 6) &amp; (r2 &gt;= 6)
+    warn = pd.Series(False, index=r1.index)
+    for a, cut, kind in [(trouble, 1, &quot;eq&quot;), (chance, 3, &quot;ge&quot;), (happier, 4, &quot;ge&quot;), (heated, 4, &quot;ge&quot;), (physical, 1, &quot;eq&quot;)]:
+        for s in a:
+            warn |= (s == cut) if kind == &quot;eq&quot; else (s &gt;= cut)
+    t2 = t1 &amp; ~warn
+    sexbad = pd.Series(False, index=r1.index)
+    for s in sexrate:
+        sexbad |= s &lt;= SEX_CUT
+    for s in sexsep:
+        sexbad |= s &gt;= 4
+    sexbad |= (sexfreq[0] == 0) &amp; (sexfreq[1] == 0)
+    return t1, t2, t2 &amp; ~sexbad, sexbad
+
+
+v = lambda s, lo, hi: ok(c[s], lo, hi)  # noqa: E731
+c[&quot;t1_1&quot;], c[&quot;t2_1&quot;], c[&quot;t3_1&quot;], c[&quot;sexbad1&quot;] = flags(
+    c.E701, c.S67, [v(&quot;E715&quot;, 1, 2), v(&quot;S81&quot;, 1, 2)], [v(&quot;E718&quot;, 1, 5), v(&quot;S84&quot;, 1, 5)],
+    [v(&quot;E713D&quot;, 1, 5), v(&quot;S79D&quot;, 1, 5)], [v(&quot;E707C&quot;, 1, 5), v(&quot;S73C&quot;, 1, 5)], [v(&quot;E708&quot;, 1, 2), v(&quot;S74&quot;, 1, 2)],
+    [], [v(&quot;E713E&quot;, 1, 5), v(&quot;S79E&quot;, 1, 5)], [v(&quot;E705&quot;, 0, 95), v(&quot;S71&quot;, 0, 95)])
+
+# ---------------------------------------------------------------- Wave 2
+M2 = [&quot;MT601&quot;, &quot;MT602E&quot;, &quot;MT608&quot;, &quot;MT614C&quot;, &quot;MT615&quot;, &quot;MT620E&quot;, &quot;MT620G&quot;, &quot;MT624&quot;, &quot;MT627&quot;]
+w2m = w2(&quot;0004&quot;, [&quot;CASEID&quot;, &quot;MCASEID&quot;] + M2)
+w2s = w2(&quot;0005&quot;, [&quot;MCASEID&quot;] + [x.replace(&quot;MT&quot;, &quot;CT&quot;) for x in M2])
+w2st = w2(&quot;0007&quot;, [&quot;CASEID&quot;, &quot;MUT1UTRA&quot;])
+x2 = w2m.merge(w2s, on=&quot;MCASEID&quot;, how=&quot;left&quot;).merge(w2st, on=&quot;CASEID&quot;)
+st, _ = pyreadstat.read_sav(W3 / &quot;statusfile_010307.sav&quot;, usecols=[&quot;caseid&quot;, &quot;r2intyr&quot;, &quot;r2intmo&quot;, &quot;r3intyr_&quot;, &quot;r3intmo_&quot;])
+st[&quot;cm2&quot;] = st.r2intyr * 12 + st.r2intmo
+st[&quot;cm3&quot;] = (st.r3intyr_ - 1900) * 12 + st.r3intmo_
+c = c.merge(x2, on=&quot;MCASEID&quot;, how=&quot;left&quot;).merge(st[[&quot;caseid&quot;, &quot;cm2&quot;, &quot;cm3&quot;]].rename(columns={&quot;caseid&quot;: &quot;MCASEID&quot;}),
+                                                how=&quot;left&quot;, on=&quot;MCASEID&quot;)
+c[&quot;status2&quot;] = np.select([c.MUT1UTRA.isin([3, 4]), c.MUT1UTRA.isin([7, 8]), c.MUT1UTRA == 5],
+                         [&quot;split&quot;, &quot;intact&quot;, &quot;widowed&quot;], &quot;lost&quot;)
+q = lambda s, lo, hi: ok(c[s], lo, hi)  # noqa: E731
+have2 = c.MT601.between(1, 7) &amp; c.CT601.between(1, 7) &amp; (c.status2 == &quot;intact&quot;)
+f2 = flags(q(&quot;MT601&quot;, 1, 7), q(&quot;CT601&quot;, 1, 7), [q(&quot;MT624&quot;, 1, 2), q(&quot;CT624&quot;, 1, 2)], [q(&quot;MT627&quot;, 1, 5), q(&quot;CT627&quot;, 1, 5)],
+           [q(&quot;MT620G&quot;, 1, 5), q(&quot;CT620G&quot;, 1, 5)], [q(&quot;MT614C&quot;, 1, 5), q(&quot;CT614C&quot;, 1, 5)],
+           [q(&quot;MT615&quot;, 1, 2), q(&quot;CT615&quot;, 1, 2)], [q(&quot;MT602E&quot;, 1, 7), q(&quot;CT602E&quot;, 1, 7)],
+           [q(&quot;MT620E&quot;, 1, 5), q(&quot;CT620E&quot;, 1, 5)], [q(&quot;MT608&quot;, 0, 95), q(&quot;CT608&quot;, 0, 95)])
+for k, f in zip([&quot;t1_2&quot;, &quot;t2_2&quot;, &quot;t3_2&quot;, &quot;sexbad2&quot;], f2):
+    c[k] = f.where(have2)
+
+# ---------------------------------------------------------------- Wave 3
+mh, _ = pyreadstat.read_sav(W3 / &quot;marhist111605.sav&quot;)
+mh = mh.merge(st, left_on=&quot;case&quot;, right_on=&quot;caseid&quot;)
+slots = sorted({m.group(1) for col in mh.columns if (m := re.match(r&quot;howend(\d+)&quot;, col))})
+
+
+def w3_outcome(r):
+    for k in slots:
+        md, how, end = r[f&quot;mardat{k}&quot;], r[f&quot;howend{k}&quot;], r[f&quot;enddat{k}&quot;]
+        if pd.isna(md) or md &gt;= 9999 or pd.isna(how) or md &gt; r.cm2:
+            continue
+        if how == 8 or (0 &lt; end &lt; 9999 and end &gt; r.cm2):
+            if how == 8 or end &gt; r.cm3:
+                return &quot;intact&quot;
+            return {2: &quot;split&quot;, 3: &quot;split&quot;, 4: &quot;widowed&quot;}.get(how)
+    return None
+
+
+mh[&quot;status3&quot;] = mh.apply(w3_outcome, axis=1)
+M3 = [&quot;RT601&quot;, &quot;RT602E&quot;, &quot;RT608&quot;, &quot;RT614C&quot;, &quot;RT615&quot;, &quot;RT620E&quot;, &quot;RT620G&quot;, &quot;RT624&quot;, &quot;RT627&quot;]
+m3, _ = pyreadstat.read_sav(W3 / &quot;main3RandS12222015.sav&quot;, usecols=[&quot;TYPE&quot;, &quot;CASEID&quot;] + M3)
+m3[&quot;MCASEID&quot;] = pd.to_numeric(m3.CASEID.str[:-1])
+r3 = m3[m3.TYPE == &quot;R&quot;].drop(columns=[&quot;TYPE&quot;, &quot;CASEID&quot;]).add_suffix(&quot;_r&quot;).rename(columns={&quot;MCASEID_r&quot;: &quot;MCASEID&quot;})
+s3 = m3[m3.TYPE == &quot;S&quot;].drop(columns=[&quot;TYPE&quot;, &quot;CASEID&quot;]).add_suffix(&quot;_s&quot;).rename(columns={&quot;MCASEID_s&quot;: &quot;MCASEID&quot;})
+c = c.merge(mh[[&quot;case&quot;, &quot;status3&quot;]].rename(columns={&quot;case&quot;: &quot;MCASEID&quot;}), how=&quot;left&quot;).merge(r3, how=&quot;left&quot;) \
+     .merge(s3, how=&quot;left&quot;)
+c.loc[c.status2 != &quot;intact&quot;, &quot;status3&quot;] = None
+q3 = lambda s, lo, hi: [ok(c[f&quot;{s}_r&quot;], lo, hi), ok(c[f&quot;{s}_s&quot;], lo, hi)]  # noqa: E731
+have3 = c.RT601_r.between(1, 7) &amp; c.RT601_s.between(1, 7) &amp; (c.status3 == &quot;intact&quot;)
+f3 = flags(ok(c.RT601_r, 1, 7), ok(c.RT601_s, 1, 7), q3(&quot;RT624&quot;, 1, 2), q3(&quot;RT627&quot;, 1, 5), q3(&quot;RT620G&quot;, 1, 5),
+           q3(&quot;RT614C&quot;, 1, 5), q3(&quot;RT615&quot;, 1, 2), q3(&quot;RT602E&quot;, 1, 7), q3(&quot;RT620E&quot;, 1, 5), q3(&quot;RT608&quot;, 0, 95))
+for k, f in zip([&quot;t1_3&quot;, &quot;t2_3&quot;, &quot;t3_3&quot;, &quot;sexbad3&quot;], f3):
+    c[k] = f.where(have3)
+c[&quot;w&quot;] = c.AWEIGHT / c.AWEIGHT.mean()
+c = c.reset_index(drop=True)
+
+# husbands failing the sex filter at Wave 2 (calibration check against the ~20% Natsal grievance share)
+h2 = c[have2]
+hus_rate = h2.MT602E.where(h2.M2DP01 == 1, h2.CT602E)
+hus_sep = h2.MT620E.where(h2.M2DP01 == 1, h2.CT620E)
+hus_fail = (ok(hus_rate, 1, 7) &lt;= SEX_CUT) | (ok(hus_sep, 1, 5) &gt;= 4) | ((h2.MT608 == 0) &amp; (h2.CT608 == 0))
+print(f&quot;Sex cut-off {SEX_CUT}: husbands failing the sex filter at Wave 2 &quot;
+      f&quot;{np.average(hus_fail, weights=h2.w) * 100:.1f}% (n = {len(h2):,}); couples {np.average(h2.sexbad2.astype(bool), weights=h2.w) * 100:.1f}%&quot;)
+print(f&quot;Couples: {len(c):,}; Wave 2 status &quot; + str((c.groupby('status2').w.sum() / c.w.sum() * 100).round(1).to_dict()))
+
+
+# ---------------------------------------------------------------- observed 14 years (no model)
+def observed(d):
+    rows = []
+    fol = d[d.status2.isin([&quot;split&quot;, &quot;widowed&quot;]) | ((d.status2 == &quot;intact&quot;) &amp; d.status3.notna())]
+    W = fol.w.sum()
+    rows.append((&quot;separated or divorced&quot;, fol.w[(fol.status2 == &quot;split&quot;) | (fol.status3 == &quot;split&quot;)].sum() / W))
+    rows.append((&quot;widowed&quot;, fol.w[(fol.status2 == &quot;widowed&quot;) | (fol.status3 == &quot;widowed&quot;)].sum() / W))
+    intact = fol[fol.status3 == &quot;intact&quot;]
+    both = intact[intact.t1_2.notna() &amp; intact.t1_3.notna()]
+    for t in [&quot;t1&quot;, &quot;t2&quot;, &quot;t3&quot;]:
+        allh = both[t + &quot;_1&quot;].astype(bool) &amp; both[t + &quot;_2&quot;].astype(bool) &amp; both[t + &quot;_3&quot;].astype(bool)
+        rows.append((f&quot;married, {t} at all 3 waves&quot;, intact.w.sum() / W * np.average(allh, weights=both.w)))
+    rows.append((&quot;still married (all)&quot;, intact.w.sum() / W))
+    return rows, len(fol)
+
+
+obs, nfol = observed(c)
+print(f&quot;\nObserved 1987-88 -&gt; 2001-03, couples followed (n = {nfol:,}):&quot;)
+for k, val in obs:
+    print(f&quot;  {k:32} {val * 100:5.1f}%&quot;)
+pd.DataFrame(obs, columns=[&quot;outcome&quot;, &quot;share&quot;]).to_csv(HERE / &quot;nsfh_happy_till_death_observed.csv&quot;, index=False)
+
+
+# ---------------------------------------------------------------- multi-state model
+def paths(d, tier):
+    &quot;&quot;&quot;Per couple: list of (time, allowed-state mask) observations; time in years since Wave 1; dur1.&quot;&quot;&quot;
+    out = []
+    for r in d.itertuples(index=False):
+        if tier == &quot;t3&quot; and r.t2_1 and not r.sexbad1:
+            m1 = np.array([True, True, False])  # Wave 1 has no sex rating: a T2 couple with no sex complaint is unknown
+        else:
+            m1 = np.array([bool(getattr(r, f&quot;{tier}_1&quot;)), not getattr(r, f&quot;{tier}_1&quot;), False])
+        obs_ = [(0.0, m1)]
+        if r.status2 == &quot;lost&quot; or pd.isna(r.cm2):
+            out.append((r.dur1, obs_, r.w)); continue
+        t2 = (r.cm2 - r.cm1) / 12
+        if r.status2 == &quot;widowed&quot;:
+            out.append((r.dur1, obs_, r.w)); continue
+        if r.status2 == &quot;split&quot;:
+            obs_.append((t2, np.array([False, False, True]))); out.append((r.dur1, obs_, r.w)); continue
+        s = getattr(r, f&quot;{tier}_2&quot;)
+        obs_.append((t2, np.array([True, True, False]) if pd.isna(s) else np.array([bool(s), not s, False])))
+        if r.status3 in (&quot;intact&quot;, &quot;split&quot;) and not pd.isna(r.cm3):
+            t3 = (r.cm3 - r.cm1) / 12
+            if r.status3 == &quot;split&quot;:
+                obs_.append((t3, np.array([False, False, True])))
+            else:
+                s = getattr(r, f&quot;{tier}_3&quot;)
+                obs_.append((t3, np.array([True, True, False]) if pd.isna(s) else np.array([bool(s), not s, False])))
+        out.append((r.dur1, obs_, r.w))
+    return out
+
+
+def pack(ps):
+    &quot;&quot;&quot;Vectorize paths: arrays of intervals (couple index, dt, mid duration, mask at end) and start masks.&quot;&quot;&quot;
+    n = len(ps)
+    dur = np.array([p[0] for p in ps]); w = np.array([p[2] for p in ps])
+    m0 = np.array([p[1][0][1] for p in ps])
+    iv = [[], [], [], []]
+    nobs = np.zeros(n, int)
+    for i, (d0, ob, _) in enumerate(ps):
+        nobs[i] = len(ob)
+        for (ta, _), (tb, mb) in zip(ob[:-1], ob[1:]):
+            iv[0].append(i); iv[1].append(tb - ta); iv[2].append(d0 + (ta + tb) / 2); iv[3].append(mb)
+    stay_ok = np.array([all(o[1][0] for o in p[1]) for p in ps])
+    return dict(dur=dur, w=w, m0=m0, ci=np.array(iv[0]), dt=np.array(iv[1]), mid=np.array(iv[2]),
+                mb=np.array(iv[3]).reshape(-1, 3), nobs=nobs, stay_ok=stay_ok)
+
+
+BANDS = np.array([10, 20, 35])            # duration bands 0-9, 10-19, 20-34, 35+ years married
+NB = len(BANDS) + 1
+IP = slice(0, NB)                           # stayer share by band of years married at Wave 1 (logit)
+IQ = slice(NB, 5 * NB)                      # log intensities, [transition, band]
+IH = slice(5 * NB, 6 * NB)                  # movers' chance happy at Wave 1, by band (logit)
+NPAR = 6 * NB
+sig = lambda x: 1 / (1 + np.exp(-x))  # noqa: E731
+
+
+def Q(theta, mid):
+    mid = np.asarray(mid, float)
+    b = np.digitize(mid, BANDS)
+    a = theta[IQ].reshape(4, NB)
+    qHU, qUH, qHS, qUS = (np.exp(a[k][b]) for k in range(4))
+    G = np.zeros(mid.shape + (3, 3))
+    G[..., 0, 1], G[..., 0, 2], G[..., 0, 0] = qHU, qHS, -(qHU + qHS)
+    G[..., 1, 0], G[..., 1, 2], G[..., 1, 1] = qUH, qUS, -(qUH + qUS)
+    return G
+
+
+def loglik(theta, P, stayers=True):
+    z = (P[&quot;dur&quot;] - 15) / 10
+    bw = np.digitize(P[&quot;dur&quot;], BANDS)
+    pi = sig(theta[IP][bw]) if stayers else np.zeros_like(z)
+    h0 = sig(theta[IH][bw])                                          # movers' chance of being happy at Wave 1
+    alpha = np.stack([h0, 1 - h0, np.zeros_like(h0)], 1) * P[&quot;m0&quot;]
+    T = expm(Q(theta, P[&quot;mid&quot;]) * P[&quot;dt&quot;][:, None, None])
+    # forward pass: intervals are stored in order per couple
+    for k in range(P[&quot;nobs&quot;].max() - 1):
+        sel = np.flatnonzero(P[&quot;nobs&quot;] &gt; k + 1)
+        rows = np.searchsorted(P[&quot;ci&quot;], sel) + k
+        alpha[sel] = np.einsum(&quot;ni,nij-&gt;nj&quot;, alpha[sel], T[rows]) * P[&quot;mb&quot;][rows]
+    mover = alpha.sum(1)
+    # stayers: happy at every observation (and so never separate)
+    stay_like = P[&quot;stay_ok&quot;].astype(float)
+    like = pi * stay_like + (1 - pi) * mover
+    return -np.sum(P[&quot;w&quot;] * np.log(np.clip(like, 1e-300, None)))
+
+
+def fit(P, stayers=True, x0=None):
+    th = np.zeros(NPAR) if x0 is None else x0.copy()
+    if x0 is None:
+        th[IP] = -1.0; th[IQ] = np.repeat(np.log([0.08, 0.15, 0.01, 0.04]), NB); th[IH] = 0.5
+    if not stayers:
+        th[IP] = -50
+    fixed = list(range(NB)) if not stayers else []
+    free = [i for i in range(NPAR) if i not in fixed]
+
+    def f(x):
+        t = th.copy(); t[free] = x
+        return loglik(t, P, stayers)
+
+    r = minimize(f, th[free], method=&quot;L-BFGS-B&quot;, options={&quot;maxiter&quot;: 2000})
+    th[free] = r.x
+    return th
+
+
+# ---------------------------------------------------------------- mortality (Gompertz-Makeham)
+def gm(A, target30, target65):
+    ages = np.arange(0, 121, 0.25)
+
+    def e(B, cc, x):
+        a = ages[ages &gt;= x]
+        H = A * (a - x) + B / cc * (np.exp(cc * a) - np.exp(cc * x))
+        return np.trapezoid(np.exp(-H), a)
+
+    def solve_c(cc):
+        B = brentq(lambda b: e(b, cc, 65) - target65, 1e-8, 1e-1)
+        return e(B, cc, 30) - target30, B
+    cc = brentq(lambda k: solve_c(k)[0], 0.05, 0.16)
+    return A, solve_c(cc)[1], cc
+
+
+MEN, WOMEN = gm(0.0008, 47.6, 18.2), gm(0.0004, 52.4, 20.8)
+
+
+def surv(par, x0, t):
+    A, B, cc = par
+    return np.exp(-(A * t + B / cc * (np.exp(cc * (x0 + t)) - np.exp(cc * x0))))
+
+
+def sex_persistence(d):
+    &quot;&quot;&quot;Sex filter among T2-happy couples: share passing at Wave 2 for couples married under 10 years (s0), and the
+    5-year chance of still passing, from couples T2-happy at Waves 2 and 3 who passed at Wave 2 (p5).&quot;&quot;&quot;
+    dur2 = d.dur1 + (d.cm2 - d.cm1) / 12
+    a = d[(d.t2_2 == 1) &amp; (dur2 &lt; 10) &amp; (d.hus_age1 + (d.cm2 - d.cm1) / 12 &lt; SEXOFF)]
+    s0 = np.average(a.sexbad2 == 0, weights=a.w)
+    b = d[(d.t2_2 == 1) &amp; (d.sexbad2 == 0) &amp; (d.t2_3 == 1) &amp; (d.hus_age1 + (d.cm3 - d.cm1) / 12 &lt; SEXOFF)]
+    dt = np.average((b.cm3 - b.cm2) / 12, weights=b.w)
+    p = np.average(b.sexbad3 == 0, weights=b.w)
+    return s0, p ** (STEP / dt), len(a), len(b), p, dt
+
+
+def project(th_main, th_old, sipp_scale=None, horizon=80, sexf=None, once=False):
+    &quot;&quot;&quot;Share of marriages (a) ending in a death, (b) ending in a death with the couple happy at every 5-year check.
+    sexf = (s0, p5): T3 = the T2 path times passing the sex filter at the wedding check (s0) and at each later check
+    while the husband is under 75 (p5 per 5 years; with once=True only one further check can fail).&quot;&quot;&quot;
+    pi0, h0 = sig(th_main[IP][0]), sig(th_main[IH][0])
+    vec = np.array([h0, 1 - h0, 0.0])      # movers' full state distribution
+    hap = h0                                # movers happy at every check so far, not split
+    stay = 1.0
+    if sexf is not None:
+        hap *= sexf[0]; stay *= sexf[0]
+    ends_death = happy_death = 0.0
+    for k in range(int(horizon / STEP)):
+        d0 = k * STEP
+        both = surv(MEN, H_AGE0, d0) * surv(WOMEN, W_AGE0, d0)
+        both1 = surv(MEN, H_AGE0, d0 + STEP) * surv(WOMEN, W_AGE0, d0 + STEP)
+        p_alive_step = both1 / both
+        th = th_old if (H_AGE0 + d0) &gt;= SEXOFF else th_main
+        G = Q(th, d0 + STEP / 2)
+        if sipp_scale is not None:
+            G = G.copy(); s = sipp_scale(d0 + STEP / 2)
+            G[0, 2] *= s; G[1, 2] *= s; G[0, 0] = -(G[0, 1] + G[0, 2]); G[1, 1] = -(G[1, 0] + G[1, 2])
+        T, Th = expm(G * STEP), expm(G * STEP / 2)
+        p_die = 1 - p_alive_step
+        # couples who are married and both alive at check k
+        married = vec[:2].sum()
+        ends_death += both * p_die * ((1 - pi0) * (vec @ Th)[:2].sum() + pi0)
+        happy_death += both * p_die * ((1 - pi0) * hap * Th[0, :2].sum() + pi0 * stay)
+        vec = vec @ T
+        vec[2] = 0  # separated couples drop out of the mover distribution (tracked as not ending in death)
+        hap = hap * T[0, 0]
+        if sexf is not None and H_AGE0 + d0 + STEP &lt; SEXOFF and not (once and k &gt; 0):
+            hap *= sexf[1]; stay *= sexf[1]
+    return ends_death, happy_death
+
+
+def sipp_divorce():
+    sipp = pd.read_parquet(DATA / &quot;sipp&quot; / &quot;sipp2025_marhist.parquet&quot;)
+    sipp = sipp[sipp.TMAR1_YR.notna()].copy()
+    ended = sipp.TSEP1_YR.notna()
+    sipp[&quot;event&quot;] = (ended &amp; (sipp.EWIDIV1 == 2)) | (~ended &amp; (sipp.EMS == 4) &amp; (sipp.EXMAR == 1))
+    yr = np.where(sipp.SPANEL == 2025, 2025, 2024)
+    sipp[&quot;t&quot;] = np.where(ended, sipp.TSEP1_YR - sipp.TMAR1_YR, yr - sipp.TMAR1_YR)
+    sipp = sipp[sipp.t &gt;= 0]
+    haz = []
+    for year in range(0, 60):
+        ar = sipp[sipp.t &gt;= year]
+        ev = ar[(ar.t == year) &amp; ar.event]
+        haz.append(ev.WPFINWGT.sum() / ar.WPFINWGT.sum() if len(ar) else 0)
+    return np.array(haz)
+
+
+SIPP_HAZ = sipp_divorce()
+
+
+def model_divorce_haz(th):
+    &quot;&quot;&quot;Average annual separation hazard of the fitted mover/stayer population by year since wedding (unconditional).&quot;&quot;&quot;
+    pi0, h0 = sig(th[IP][0]), sig(th[IH][0])
+    vec = np.array([h0, 1 - h0, 0.0]); haz = []
+    for y in range(60):
+        T = expm(Q(th, y + 0.5))
+        alive = (1 - pi0) * vec[:2].sum() + pi0
+        new = (1 - pi0) * (vec @ T)[2]
+        haz.append(new / alive)
+        vec = vec @ T; vec[2] = 0
+    return np.array(haz)
+
+
+def sipp_scaler(th):
+    mh_ = model_divorce_haz(th)
+    ratio = np.where(mh_ &gt; 1e-6, SIPP_HAZ / np.maximum(mh_, 1e-9), 1.0)
+    # smooth by 5-year blocks so small cells don't whipsaw
+    blk = np.array([np.mean(ratio[i - i % 5:i - i % 5 + 5]) for i in range(60)])
+    return lambda d: float(np.clip(blk[min(int(d), 59)], 0.2, 3))
+
+
+def run_all(d, verbose=False):
+    res = {}
+    fits = {}
+    for tier in [&quot;t1&quot;, &quot;t2&quot;]:
+        P = pack(paths(d, tier))
+        ms, mk = fit(P, True), fit(P, False)
+        if verbose:
+            print(f&quot;  {tier}: -logL mover-stayer {loglik(ms, P, True):.1f}, markov {loglik(mk, P, False):.1f}&quot;)
+        fits[tier] = (ms, mk)
+    sp = sex_persistence(d)
+    if verbose:
+        # validation: model-implied share of Wave 1 couples happy at all three waves (and married), vs observed,
+        # among couples followed to Wave 3 and not widowed, using each couple's own interview gaps
+        f = d[d.status2.isin([&quot;split&quot;]) | ((d.status2 == &quot;intact&quot;) &amp; d.status3.isin([&quot;intact&quot;, &quot;split&quot;]))].copy()
+        f = f[~(f.status3 == &quot;widowed&quot;)]
+        for tier in [&quot;t1&quot;, &quot;t2&quot;]:
+            done = f[(f.status2 == &quot;split&quot;) | (f.status3 == &quot;split&quot;) | (f[f&quot;{tier}_2&quot;].notna() &amp; f[f&quot;{tier}_3&quot;].notna())]
+            obs_ = np.average(done[f&quot;{tier}_1&quot;].astype(bool) &amp; (done[f&quot;{tier}_2&quot;] == 1) &amp; (done[f&quot;{tier}_3&quot;] == 1),
+                              weights=done.w)
+            for mix, j in [(&quot;mover-stayer&quot;, 0), (&quot;markov&quot;, 1)]:
+                th = fits[tier][j]
+                bw = np.digitize(done.dur1, BANDS)
+                pi = sig(th[IP][bw]) if j == 0 else 0 * bw
+                h0 = sig(th[IH][bw])
+                t2_ = (done.cm2 - done.cm1).fillna(66).values / 12
+                t3_ = (done.cm3 - done.cm2).fillna(105).values / 12
+                T1 = expm(Q(th, done.dur1.values + t2_ / 2) * t2_[:, None, None])[:, 0, 0]
+                T2 = expm(Q(th, done.dur1.values + t2_ + t3_ / 2) * t3_[:, None, None])[:, 0, 0]
+                mod = np.average(pi + (1 - pi) * h0 * T1 * T2, weights=done.w)
+                print(f&quot;  check {tier} {mix}: happy at all 3 waves, observed {obs_ * 100:.1f}% vs model {mod * 100:.1f}%&quot;)
+        print(f&quot;  sex filter among T2-happy: pass at Wave 2, married &lt;10 years {sp[0] * 100:.0f}% (n = {sp[2]}); &quot;
+              f&quot;still pass at Wave 3 {sp[4] * 100:.0f}% over {sp[5]:.1f} years (n = {sp[3]}), {sp[1] * 100:.0f}% per 5 years&quot;)
+    for tier, base, sexf, once in [(&quot;t1&quot;, &quot;t1&quot;, None, False), (&quot;t2&quot;, &quot;t2&quot;, None, False),
+                                   (&quot;t3&quot;, &quot;t2&quot;, sp[:2], False), (&quot;t3 once&quot;, &quot;t2&quot;, sp[:2], True)]:
+        for mix, j in [(&quot;mover-stayer&quot;, 0), (&quot;markov&quot;, 1)]:
+            th = fits[base][j]
+            res[(tier, mix, &quot;nsfh divorce&quot;)] = project(th, th, sexf=sexf, once=once)
+            res[(tier, mix, &quot;sipp divorce&quot;)] = project(th, th, sipp_scale=sipp_scaler(th), sexf=sexf, once=once)
+    if verbose:
+        for tier in fits:
+            th = fits[tier][0]
+            print(f&quot;  {tier}: stayer share by band &quot; + &quot;/&quot;.join(f&quot;{v * 100:.0f}%&quot; for v in sig(th[IP])) +
+                  &quot;, movers happy at Wave 1 by band &quot; + &quot;/&quot;.join(f&quot;{v * 100:.0f}%&quot; for v in sig(th[IH])) + &quot;; annual rates &quot;
+                  &quot;by band 0-9/10-19/20-34/35+: &quot; + &quot;; &quot;.join(
+                      f&quot;{nm} &quot; + &quot;/&quot;.join(f&quot;{v:.3f}&quot; for v in np.exp(th[IQ].reshape(4, NB)[k]))
+                      for k, nm in enumerate([&quot;H-&gt;U&quot;, &quot;U-&gt;H&quot;, &quot;H-&gt;S&quot;, &quot;U-&gt;S&quot;])))
+        th = fits[&quot;t1&quot;][0]
+        cm = 1 - np.cumprod(1 - model_divorce_haz(th)); cs = 1 - np.cumprod(1 - SIPP_HAZ)
+        print(&quot;  cumulative divorce, no deaths (model T1 mover-stayer vs SIPP): &quot; +
+              &quot;, &quot;.join(f&quot;yr {y}: {cm[y - 1] * 100:.0f}% vs {cs[y - 1] * 100:.0f}%&quot; for y in (5, 10, 20, 30, 40)))
+    return res
+
+
+def boot_one(seed):
+    rng = np.random.default_rng(seed)
+    d = c.iloc[rng.choice(len(c), len(c), replace=True)].reset_index(drop=True)
+    return run_all(d)
+
+
+if __name__ == &quot;__main__&quot;:
+    print(&quot;\nFitted models:&quot;)
+    point = run_all(c, verbose=True)
+    boots = []
+    if NBOOT:
+        with ProcessPoolExecutor(max_workers=6) as ex:
+            for i, bt in enumerate(ex.map(boot_one, range(NBOOT))):
+                boots.append(bt)
+                if (i + 1) % 20 == 0:
+                    print(f&quot;  bootstrap {i + 1}/{NBOOT}&quot;, flush=True)
+    rows = []
+    for key, (ed, hd) in point.items():
+        b = np.array([bt[key] for bt in boots]) if boots else np.full((1, 2), np.nan)
+        rows.append(dict(tier=key[0], model=key[1], divorce=key[2], sex_cut=SEX_CUT,
+                         ends_in_death=ed, ends_in_death_lo=np.percentile(b[:, 0], 2.5),
+                         ends_in_death_hi=np.percentile(b[:, 0], 97.5),
+                         happy_till_death=hd, happy_lo=np.percentile(b[:, 1], 2.5),
+                         happy_hi=np.percentile(b[:, 1], 97.5)))
+    out = pd.DataFrame(rows)
+    print(&quot;\nProjection per 100 first marriages (check every 5 years):&quot;)
+    print((out.set_index([&quot;tier&quot;, &quot;model&quot;, &quot;divorce&quot;])[[&quot;ends_in_death&quot;, &quot;happy_till_death&quot;, &quot;happy_lo&quot;, &quot;happy_hi&quot;]]
+           * 100).round(1).to_string())
+    name = &quot;nsfh_happy_till_death.csv&quot; if SEX_CUT == 2 else f&quot;nsfh_happy_till_death_sexcut{SEX_CUT}.csv&quot;
+    out.to_csv(HERE / name, index=False)
+</code></pre>
+<h3><code>nsfh_happy_till_death_chart.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;Chart: how many first marriages stay happy for both spouses until one of them dies.
+
+Reads nsfh_happy_till_death.csv and nsfh_happy_till_death_observed.csv from nsfh_happy_till_death_data.py, whose
+docstring holds the full method (sample, tiers, multi-state model, mortality, divorce calibration, bootstrap).
+A: projection per 100 first marriages, today's divorce rates (SIPP-calibrated). Bars = mover-stayer model (stable couple
+   types allowed; the better-fitting model). Whiskers run from the plain Markov model (no stable types: the floor) to
+   the bar, or for the sex filter to the optimistic &quot;fails at most once&quot; variant. Bootstrap 95% intervals in the labels.
+B: what was actually observed over 14 years (1987-88 -&gt; 2001-03), no model: NSFH first-marriage couples followed to
+   Wave 3, weighted.
+Run:  uv run --with pandas,matplotlib,pillow,fonttools python notebooks/marital_happiness/nsfh_happy_till_death_chart.py
+&quot;&quot;&quot;
+import subprocess
+import sys
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+sys.path.insert(0, str(Path.home() / &quot;_watermark&quot;))
+import pb_style as pb  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+NOTES = Path.home() / &quot;Desktop&quot; / &quot;Recent Projects&quot; / &quot;Substack Notes&quot; / &quot;Marriage&quot;
+OUT = NOTES.parent / &quot;Unwatermarked graphs&quot; / &quot;Marriage&quot; / &quot;nsfh_happy_till_death.png&quot;
+
+r = pd.read_csv(HERE / &quot;nsfh_happy_till_death.csv&quot;)
+r = r[r.divorce == &quot;sipp divorce&quot;].set_index([&quot;tier&quot;, &quot;model&quot;])
+o = pd.read_csv(HERE / &quot;nsfh_happy_till_death_observed.csv&quot;).set_index(&quot;outcome&quot;).share * 100
+
+ms, mk = &quot;mover-stayer&quot;, &quot;markov&quot;
+death = r.loc[(&quot;t1&quot;, ms)]
+rows = [  # label, value, low, high, ci, color
+    (&quot;First marriages&quot;, 100, None, None, None, pb.NAVY),
+    (&quot;End with a death, not a divorce&quot;, death.ends_in_death * 100, None, None,
+     (death.ends_in_death_lo * 100, death.ends_in_death_hi * 100), pb.GRAYS[0]),
+    (&quot;…and both spouses rate it 6 or 7 of 7\nat every 5-year check&quot;, r.loc[(&quot;t1&quot;, ms)].happy_till_death * 100,
+     r.loc[(&quot;t1&quot;, mk)].happy_till_death * 100, None,
+     (r.loc[(&quot;t1&quot;, ms)].happy_lo * 100, r.loc[(&quot;t1&quot;, ms)].happy_hi * 100), pb.GRAYS[1]),
+    (&quot;…and no warning signs: no doubts about\nthe marriage, no heated or physical fights&quot;,
+     r.loc[(&quot;t2&quot;, ms)].happy_till_death * 100, r.loc[(&quot;t2&quot;, mk)].happy_till_death * 100, None,
+     (r.loc[(&quot;t2&quot;, ms)].happy_lo * 100, r.loc[(&quot;t2&quot;, ms)].happy_hi * 100), pb.GRAYS[2]),
+    (&quot;…and a sex life neither spouse\ncomplains about (until 75)&quot;, r.loc[(&quot;t3&quot;, ms)].happy_till_death * 100,
+     r.loc[(&quot;t3&quot;, mk)].happy_till_death * 100, r.loc[(&quot;t3 once&quot;, ms)].happy_till_death * 100,
+     (r.loc[(&quot;t3&quot;, ms)].happy_lo * 100, r.loc[(&quot;t3&quot;, ms)].happy_hi * 100), pb.RED),
+]
+final = rows[-1][1]
+
+pb.apply()
+fig = plt.figure(figsize=(14, 8.6))
+axA = fig.add_axes([0.25, 0.2, 0.36, 0.56])
+axB = fig.add_axes([0.72, 0.2, 0.25, 0.56])
+
+fig.text(0.03, 0.935, f&quot;{final:.0f} in 100&quot;, fontsize=34, fontweight=&quot;bold&quot;, color=pb.RED)
+fig.text(0.205, 0.94, &quot;first marriages stay happy for both spouses until one of them dies&quot;,
+         fontsize=19, fontweight=&quot;bold&quot;, color=pb.INK)
+fig.text(0.03, 0.875, &quot;US couples rated their marriages, separately, three times over 14 years (1987–2003). A model of &quot;
+         &quot;how couples move between happy, unhappy and divorced\ncarries that to the first death, at today's divorce &quot;
+         &quot;rates. A marriage counts only if it passes every test at every 5-year check.&quot;,
+         fontsize=12.5, color=pb.INK2, va=&quot;top&quot;, linespacing=1.45)
+
+# ---- A: the funnel
+axA.text(0, 1.06, &quot;A  Per 100 first marriages, projected to the first death&quot;, transform=axA.transAxes,
+         fontsize=14, fontweight=&quot;bold&quot;, color=pb.INK)
+n = len(rows)
+for i, (label, val, lo, hi, ci, color) in enumerate(rows):
+    y = n - 1 - i
+    axA.barh(y, val, height=0.62, color=color)
+    axA.text(-1.5, y, label, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=11.5, color=pb.INK,
+             fontweight=&quot;bold&quot; if i == n - 1 else &quot;normal&quot;, linespacing=1.25)
+    if lo is not None:
+        top = hi if hi is not None else val
+        axA.plot([lo, top], [y, y], color=pb.INK, lw=1.2, zorder=3)
+        axA.plot([lo, lo], [y - 0.13, y + 0.13], color=pb.INK, lw=1.2, zorder=3)
+        if hi is not None:
+            axA.plot([hi, hi], [y - 0.13, y + 0.13], color=pb.INK, lw=1.2, zorder=3)
+    x_lab = max(val, hi or 0) + 2
+    axA.text(x_lab, y + 0.08, f&quot;{val:.0f}&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=15, fontweight=&quot;bold&quot;, color=pb.INK)
+    if ci is not None:
+        sub = f&quot;95% CI {ci[0]:.0f}–{ci[1]:.0f}&quot;
+        if lo is not None:
+            sub += f&quot;; range {lo:.0f}–{(hi or val):.0f}&quot;
+        axA.text(x_lab, y - 0.27, sub, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=9.5, color=pb.MUTED)
+axA.set_xlim(0, 112)
+axA.set_ylim(-0.6, n - 0.4)
+axA.set_yticks([])
+axA.set_xticks([0, 25, 50, 75, 100])
+axA.grid(axis=&quot;x&quot;)
+axA.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+# ---- B: observed 14 years
+axB.text(0, 1.06, &quot;B  What was observed over 14 years&quot;, transform=axB.transAxes, fontsize=14, fontweight=&quot;bold&quot;,
+         color=pb.INK)
+axB.text(0, 1.015, &quot;per 100 couples in 1987–88, no model&quot;, transform=axB.transAxes, fontsize=10.5, color=pb.MUTED)
+obs = [(&quot;Divorced or separated&quot;, o[&quot;separated or divorced&quot;], pb.GRAYS[0]),
+       (&quot;Widowed&quot;, o[&quot;widowed&quot;], pb.GRAYS[0]),
+       (&quot;Still married&quot;, o[&quot;still married (all)&quot;], pb.NAVY),
+       (&quot;…both 6–7 at all 3 waves&quot;, o[&quot;married, t1 at all 3 waves&quot;], pb.GRAYS[1]),
+       (&quot;…and no warning signs&quot;, o[&quot;married, t2 at all 3 waves&quot;], pb.GRAYS[2]),
+       (&quot;…and sex life OK&quot;, o[&quot;married, t3 at all 3 waves&quot;], pb.RED)]
+for i, (label, val, color) in enumerate(obs):
+    y = len(obs) - 1 - i - (0.35 if i &gt;= 2 else 0)
+    axB.barh(y, val, height=0.62, color=color)
+    axB.text(-1.5, y, label, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=10.5, color=pb.INK)
+    axB.text(val + 1.5, y, f&quot;{val:.0f}&quot;, ha=&quot;left&quot;, va=&quot;center&quot;, fontsize=12.5, fontweight=&quot;bold&quot;, color=pb.INK)
+axB.set_xlim(0, 85)
+axB.set_ylim(-0.95, len(obs) - 0.4)
+axB.set_yticks([])
+axB.set_xticks([0, 25, 50, 75])
+axB.grid(axis=&quot;x&quot;)
+axB.spines[[&quot;left&quot;, &quot;bottom&quot;]].set_visible(False)
+
+fig.text(0.03, 0.035,
+         &quot;Source: National Survey of Families and Households, US couples in a first marriage in 1987–88 where both spouses &quot;
+         &quot;rated it, re-interviewed 1992–94 and 2001–03; weighted. Each spouse answered separately.\nBars: model allowing &quot;
+         &quot;stable couple types (fits better). Whiskers: from a model with no stable types (everyone drifts) to the bar, &quot;
+         &quot;or for the sex filter to a version where it can fail only once.\nDivorce matched to SIPP 2024–25 first &quot;
+         &quot;marriages. Deaths from approximate US life tables; husband 30, wife 28 at the wedding. Sex filter: neither &quot;
+         &quot;spouse rates the sex life 1–2 of 7, expects\nit to be better apart, and the couple is not sexless (no sex in &quot;
+         &quot;the past month). Warning signs: either spouse thought the marriage in trouble, put the odds of splitting at &quot;
+         &quot;even or worse,\nexpected to be happier apart, argued heatedly often, or had a physical fight. CI: 200 &quot;
+         &quot;bootstrap draws over couples.&quot;,
+         fontsize=9, color=pb.MUTED, linespacing=1.5)
+
+OUT.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT, dpi=200, facecolor=pb.SURFACE)
+subprocess.run([sys.executable, str(Path.home() / &quot;_watermark&quot; / &quot;watermark.py&quot;), &quot;7&quot;, str(OUT),
+                str(NOTES / (OUT.stem + &quot;_wm.png&quot;))], check=True)
+</code></pre>
+</main></body></html>
