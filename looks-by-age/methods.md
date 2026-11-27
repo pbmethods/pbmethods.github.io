@@ -302,7 +302,7 @@ def chart(c):
              fontsize=10.5, color=pb.INK2, ha="left", va="bottom", linespacing=1.4)
     n = int(c.n.sum())
     fig.text(0.02, 0.025, f"Shaded bands: 95% intervals. Ages with fewer than {MIN_N} respondents of a sex in a wave "
-             f"are dropped ({n:,} person-waves shown). The same people are\nre-interviewed, so the curves follow one "
+             f"are dropped ({n:,} person-waves shown; Waves I and II pooled). The same\npeople are re-interviewed, so the curves follow one "
              "cohort born ~1974-83. Source: Add Health public-use Waves I-IV, cross-sectional weights.",
              fontsize=8, color=pb.MUTED, ha="left", va="bottom", linespacing=1.45)
     raw = SN / "Unwatermarked graphs" / SUB / f"{NAME}.png"
