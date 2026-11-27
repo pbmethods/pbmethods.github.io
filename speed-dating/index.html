@@ -22,7 +22,7 @@ th{color:var(--ink2)}
 li{margin:.2rem 0}
 </style></head><body><main>
 <h1>Can questionnaires predict who clicks? Speed-dating desire vs. a 4-minute date, and how few singles have it all</h1>
-<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-27.</p>
 
 <p><img alt="chart 1" src="chart.png" /></p>
 <p><img alt="chart 2" src="chart2.png" /></p>
@@ -736,7 +736,7 @@ def chart_questions(rel):
     q, p = rel[rel.table == &quot;T2&quot;], rel[rel.table == &quot;T4&quot;]
     fig = plt.figure(figsize=(12, 7.4))
     ax = fig.add_axes([0.075, 0.2, 0.62, 0.55])
-    header(fig, &quot;100+ questions predicted 0% of who clicked. A 4-minute date predicted ~25%&quot;,
+    header(fig, &quot;100 questions has ~0 predictive power - meeting in person has ~25%&quot;,
            &quot;Share of pair-specific desire (how much you like this date beyond your own choosiness and their general\n&quot;
            &quot;appeal), as rated that night, that random-forest models predicted, by number of predictors. Each dot is one model.&quot;)
     jit = np.random.default_rng(3).uniform(-0.04, 0.04, len(q))
@@ -788,7 +788,7 @@ def chart_parts():
     pred_all = {s: m[&quot;actor&quot;] * (a_lo + a_hi) / 200 + m[&quot;partner&quot;] * (p_lo + p_hi) / 200 for s in (&quot;men&quot;, &quot;women&quot;)}
     fig = plt.figure(figsize=(12, 6.6))
     ax = fig.add_axes([0.2, 0.25, 0.76, 0.42])
-    header(fig, &quot;The biggest piece of attraction is the one no questionnaire could predict&quot;,
+    header(fig, &quot;The biggest piece of attraction rests on interpersonal dynamics and chemistry&quot;,
            &quot;How each speed dater's desire for each date breaks down (share of variance), and how much of each piece &quot;
            &quot;100+ pre-date\nquestions predicted. All told, questionnaires predict roughly &quot;
            f&quot;{np.mean(list(pred_all.values())):.0f}% of desire, nearly all of it \&quot;who is generally appealing.\&quot;&quot;)

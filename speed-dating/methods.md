@@ -1,6 +1,6 @@
 # Can questionnaires predict who clicks? Speed-dating desire vs. a 4-minute date, and how few singles have it all
 
-<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-26.</p>
+<p class="meta">Methodology for a chart from <a href="https://performativebafflement.substack.com/">Performative Bafflement</a>. Updated 2026-11-27.</p>
 
 ![chart 1](chart.png)
 
@@ -300,7 +300,7 @@ def chart_questions(rel):
     q, p = rel[rel.table == "T2"], rel[rel.table == "T4"]
     fig = plt.figure(figsize=(12, 7.4))
     ax = fig.add_axes([0.075, 0.2, 0.62, 0.55])
-    header(fig, "100+ questions predicted 0% of who clicked. A 4-minute date predicted ~25%",
+    header(fig, "100 questions has ~0 predictive power - meeting in person has ~25%",
            "Share of pair-specific desire (how much you like this date beyond your own choosiness and their general\n"
            "appeal), as rated that night, that random-forest models predicted, by number of predictors. Each dot is one model.")
     jit = np.random.default_rng(3).uniform(-0.04, 0.04, len(q))
@@ -352,7 +352,7 @@ def chart_parts():
     pred_all = {s: m["actor"] * (a_lo + a_hi) / 200 + m["partner"] * (p_lo + p_hi) / 200 for s in ("men", "women")}
     fig = plt.figure(figsize=(12, 6.6))
     ax = fig.add_axes([0.2, 0.25, 0.76, 0.42])
-    header(fig, "The biggest piece of attraction is the one no questionnaire could predict",
+    header(fig, "The biggest piece of attraction rests on interpersonal dynamics and chemistry",
            "How each speed dater's desire for each date breaks down (share of variance), and how much of each piece "
            "100+ pre-date\nquestions predicted. All told, questionnaires predict roughly "
            f"{np.mean(list(pred_all.values())):.0f}% of desire, nearly all of it \"who is generally appealing.\"")
